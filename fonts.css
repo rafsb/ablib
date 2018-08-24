@@ -1,0 +1,42 @@
+/* FONTS */
+@font-face {    font-family: "Absolute";        src: url("font/Absolute.ttf")       format("truetype"); }.ft-absolute       { font-family: Absolute;        }
+@font-face {    font-family: "Angels";          src: url("font/Angels.ttf")         format("truetype"); }.ft-angels         { font-family: Angels;          }
+@font-face {    font-family: "Barcode";         src: url("font/Barcode.ttf")        format("truetype"); }.ft-barcode        { font-family: Barcode;         }
+@font-face {    font-family: "BellaDonna";      src: url("font/BellaDonna.ttf")     format("truetype"); }.ft-belladonna     { font-family: BellaDonna;      }
+@font-face {    font-family: "BubblerOne";      src: url("font/BubblerOne.ttf")     format("truetype"); }.ft-bubblerone     { font-family: BubblerOne;      }
+@font-face {    font-family: "Caveat";          src: url("font/Caveat-Regular.ttf") format("truetype"); }.ft-caveat         { font-family: Caveat;          }
+@font-face {    font-family: "Caveat-Bold";     src: url("font/Caveat-Bold.ttf")    format("truetype"); }.ft-caveat-bold    { font-family: Caveat-Bold;     }
+@font-face {    font-family: "Courier";         src: url("font/Courier.ttf")        format("truetype"); }.ft-courier        { font-family: Courier;         }
+@font-face {    font-family: "Dancing";    		src: url("font/Dancing-Regular.ttf")format("truetype"); }.ft-dancing   		{ font-family: Dancing;    		}
+@font-face {    font-family: "Dancing-Bold";    src: url("font/Dancing-Bold.ttf")   format("truetype"); }.ft-dancing-bold   { font-family: Dancing-Bold;    }
+@font-face {    font-family: "Helvetica";       src: url("font/Helvetica.ttf")      format("truetype"); }.ft-helvetica      { font-family: Helvetica;       }
+@font-face {    font-family: "IndieFlower";     src: url("font/IndieFlower.ttf")    format("truetype"); }.ft-indieflower    { font-family: IndieFlower;     }
+@font-face {    font-family: "Kaushan";         src: url("font/Kaushan.ttf")        format("truetype"); }.ft-kaushan        { font-family: Kaushan;         }
+@font-face {    font-family: "Libertinage";     src: url("font/Libertinage.ttf")    format("truetype"); }.ft-libertinage    { font-family: Libertinage;     }
+@font-face {    font-family: "Monoton";         src: url("font/Monoton.ttf")        format("truetype"); }.ft-monoton        { font-family: Monoton;         }
+@font-face {    font-family: "Muli";            src: url("font/Muli-Regular.ttf")   format("truetype"); }.ft-muli           { font-family: Muli;            }
+@font-face {    font-family: "Muli-Bold";       src: url("font/Muli-Bold.ttf")      format("truetype"); }.ft-muli-bold      { font-family: Muli-Bold;       }
+@font-face {    font-family: "Muli-Light";      src: url("font/Muli-Light.ttf")     format("truetype"); }.ft-muli-light     { font-family: Muli-Light;      }
+@font-face {    font-family: "NotoMono";        src: url("font/NotoMono.ttf")       format("truetype"); }.ft-notomono       { font-family: NotoMono;        }
+@font-face {    font-family: "PictorialSign";   src: url("font/PictorialSign.ttf")  format("truetype"); }.ft-pictorialsign  { font-family: NotoMono;        }
+@font-face {    font-family: "Remachine";       src: url("font/Remachine.ttf")      format("truetype"); }.ft-remachine      { font-family: Remachine;       }
+@font-face {    font-family: "Roboto";          src: url("font/Roboto-Regular.ttf") format("truetype"); }.ft-roboto         { font-family: Roboto;          }
+@font-face {    font-family: "Roboto-Bold";     src: url("font/Roboto-Bold.ttf")    format("truetype"); }.ft-roboto-bold    { font-family: Roboto-Bold;     }
+@font-face {    font-family: "Roboto-Light";    src: url("font/Roboto-Light.ttf")   format("truetype"); }.ft-roboto-light   { font-family: Roboto-light;    }
+@font-face {    font-family: "RockSalt";        src: url("font/RockSalt.ttf")       format("truetype"); }.ft-rockSalt       { font-family: RockSalt;        }
+@font-face {    font-family: "Sawasdee";        src: url("font/Sawasdee.ttf")       format("truetype"); }.ft-sawasdee       { font-family: Sawasdee;        }
+@font-face {    font-family: "Segoe";           src: url("font/Segoe.ttf")          format("truetype"); }.ft-segoe          { font-family: Segoe;           }
+@font-face {    font-family: "ShadowsIntoLight";src: url("font/ShadowsIntoLight.ttf")format("truetype");}.ft-shadowsintolight{font-family: ShadowsIntoLight;}
+@font-face {    font-family: "SouthernAire";    src: url("font/SouthernAire.ttf")   format("truetype"); }.ft-southernaire   { font-family: SouthernAire;    }
+@font-face {    font-family: "Spectral";        src: url("font/Spectral-Regular.ttf")format("truetype");}.ft-spectral       { font-family: Spectral;        }
+@font-face {    font-family: "Spectral-Bold";   src: url("font/Spectral-Bold.ttf")  format("truetype"); }.ft-spectral-bold  { font-family: Spectral-Bold;   }
+@font-face {    font-family: "Spectral-Light";  src: url("font/Spectral-Light.ttf") format("truetype"); }.ft-spectral-light { font-family: Spectral-Light;  }
+@font-face {    font-family: "Syncopate";       src: url("font/Syncopate-Regular.ttf")format("truetype");}.ft-syncopate     { font-family: Syncopate;       }
+@font-face {    font-family: "Syncopate-Bold";  src: url("font/Syncopate-Bold.ttf") format("truetype"); }.ft-syncopate-bold { font-family: Syncopate-Bold;  }
+@font-face {    font-family: "Ubuntu";          src: url("font/Ubuntu.ttf")         format("truetype"); }.ft-ubuntu         { font-family: Ubuntu;          }
+@font-face {    font-family: "Waltograph";      src: url("font/Waltograph.ttf")     format("truetype"); }.ft-waltograph     { font-family: Waltograph;      }
+/*ICON FONTS*/
+@font-face {    font-family: "Awesome";         src: url("font/Awesome.ttf")        format("truetype"); }.ft-awesome        { font-family: Awesome;         }
+@font-face {    font-family: "Beauty";          src: url("font/Beauty.ttf")         format("truetype"); }.ft-beauty         { font-family: Beauty;          }
+@font-face {    font-family: "Elegant";         src: url("font/Elegant.ttf")        format("truetype"); }.ft-elegant        { font-family: Elegant;         }
+@font-face {    font-family: "Romance";         src: url("font/Romance.ttf")        format("truetype"); }.ft-romance        { font-family: Romance;         }

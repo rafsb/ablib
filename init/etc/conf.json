@@ -1,0 +1,28 @@
+{
+    "project_name": "example-alpha1.0",
+    "http": "http:\/\/www.example.com",
+    "mysql_database": "defaultdb",
+    "mysql_host": "localhost",
+    "mysql_port": "3306",
+    "mysql_pswd": "rootz",
+    "mysql_user": "abox_dba",
+    "mail_check": "0",
+    "olx": {
+        "_code": "66474a3c0669f9aecc4550497fa510b23d3bc8d1",
+        "pswd": "074dd7981cacec1af55d187620e43445"
+    },
+    "mp": {
+        "code": "6181196499448772",
+        "name": "mp-app-90170728",
+        "pswd": "TVlDiBQtl1wJAyTs139mNKrRkjkJjxQb",
+        "public_key": "TEST-1f0e7de5-5150-490f-b030-ecd4c18e9854",
+        "access_token": "TEST-6181196499448772-062817-1a0854da0bef42dcfcde1d7250d98256-90170728"
+    },
+    "ps": {
+        "mail": "r_sb@live.com",
+        "token": "12B1FEBA2039431898174E0B4CE838D9",
+        "url": "https:\/\/ws.pagseguro.uol.com.br\/v2\/checkout"
+    },
+    "project_owner": "aboxaboxaboxaboxaboxaboxaboxaboxabox",
+    "enterprise": "Example INC"
+}
