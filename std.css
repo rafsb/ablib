@@ -123,6 +123,14 @@ toast {
     width: 18vw;
     font-size: 1rem;
 }
+
+@media screen and (max-width: 700px){
+    toast{
+        left: 7.5vw;
+        width: 85vw;
+    }
+}
+
 .-dialog {
     width: 35vw;
     max-width: 35vw;
@@ -132,6 +140,7 @@ toast {
     left: 32.5vw;
     padding-top: 2rem;
 }
+
 .-panel {
     top: 15vh;
     left: 25vw;
@@ -140,6 +149,13 @@ toast {
     height: 60vh;
     max-height: 100vh;
     padding-top: 2rem;
+}
+@media screen and (max-width:700px){
+    .-dialog,.-panel{
+        max-width: 85vw;
+        width: 85vw;
+        left: 7.5vw;
+    }
 }
 .-window {
     top: 7.5vh;
@@ -1264,7 +1280,7 @@ icon {
 
 .shadowed,
 .shd {
-    box-shadow: 0 0 8px rgba(0, 0, 0, .5);
+    box-shadow: 0 0 16px rgba(0, 0, 0, .5);
 }
 
 .textshadowedw,

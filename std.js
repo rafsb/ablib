@@ -315,7 +315,7 @@ HTMLElement.prototype.trans = function(o = null, len = 80.0, fn = null) {
     if (o === null) return;
     //console.log(o);
     var
-    pace = 8;
+    pace = window.innerWidth>700?10:20;
     len /= pace;
     var
         iter = 0,
@@ -342,7 +342,7 @@ HTMLElement.prototype.trans = function(o = null, len = 80.0, fn = null) {
             if(ph) el.style.height  = o.height.int() + "px";
             if(pa) el.style.opacity = o.alpha.float();
             
-            if(ph) console.log("final "+ph+", "+el.style.height);
+            //if(ph) console.log("final "+ph+", "+el.style.height);
             if (fn) setTimeout(fn, 10);
         } else {
             var
@@ -1397,7 +1397,7 @@ class Abox {
             }
         }
         */
-        this.viewport = (this.w() < this.responsivenessTreshold || this.w() < this.h()) ? AB_PORTRAIT : AB_LANDSCAPE;
+        this.viewport = (this.w() < this.responsivenessTreshold) ? AB_PORTRAIT : AB_LANDSCAPE;
         
         var
         maps = document.querySelectorAll("[class*='-map'");
@@ -1427,10 +1427,10 @@ class Abox {
                     maps[i].remClass(classes[j]);
                 }
                 maps[i].addClass("-mapped");
-                console.log("CLASSLIST="+maps[i].classList.value);
-                console.log("CLASSES="+maps[i].dataset.classes);
-                console.log("LANDSCAPE="+maps[i].dataset.landscape);
-                console.log("PORTRAIT="+maps[i].dataset.portrait);
+                //console.log("CLASSLIST="+maps[i].classList.value);
+                //console.log("CLASSES="+maps[i].dataset.classes);
+                //console.log("LANDSCAPE="+maps[i].dataset.landscape);
+                //console.log("PORTRAIT="+maps[i].dataset.portrait);
             }
         }
 
@@ -1900,7 +1900,7 @@ class Abox {
         toast.style.color = c[1] ? c[1] : "black";
         //toast.textContent = n?n:"Hello World!!!";
         toast.innerHTML = n ? n : "Hello World!!!";
-        toast.style.left = "78%";
+        toast.style.left = ab.viewport==AB_LANDSCAPE?"78%":"7.5%";
         toast.style.top = "0";
         toast.onclick = function() { this.desappear(80, true); };
         ab.body().appendChild(toast);
