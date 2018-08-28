@@ -335,14 +335,14 @@ HTMLElement.prototype.trans = function(o = null, len = 80.0, fn = null) {
         if (iter++ >= len) {
             clearInterval(el.dataset.transition);
             el.dataset.transition = "";
-            /*
+            
             if(pt) el.style.top     = o.top.int()    + "px";
             if(pl) el.style.left    = o.left.int()   + "px";
             if(pw) el.style.width   = o.width.int()  + "px";
             if(ph) el.style.height  = o.height.int() + "px";
             if(pa) el.style.opacity = o.alpha.float();
-            */
-            //if(ph) console.log("final "+ph+", "+el.style.height);
+            
+            if(ph) console.log("final "+ph+", "+el.style.height);
             if (fn) setTimeout(fn, 10);
         } else {
             var
@@ -914,6 +914,7 @@ class Data {
         __self = this;
         if (o.conf) this.configFile(o.conf);
         if (o.load) this.loadMode(o.load);
+        if (o.limit) this.limitRange(o.limit);
         if (!this.configFile_ || !this.loadMode_) return null;
         //console.log(o.data);
         this.scope_.call("../etc/loader.php", { conf: this.configFile_, data: o.data ? o.data : null, limit: this.limitRange_ }, function(d) {
@@ -951,7 +952,7 @@ class Data {
         tgt.innerHTML = "";
         if (this.obj.length && this.obj[0].code != null) {
             if (idx != null && this.obj[idx] && this.obj[idx].code != null) { this.obj = [this.obj[idx]]; } else if (idx != null && !this.obj[idx]) {
-                tgt.appendChild("<div class='rel bwhite tct ns' data-map='-w280px:-w90%' style='margin:0 1vw;opacity:1;'><icon class='xpd fxx ft-caveat fspan disabled' style='opacity:.5'>&#xe02e;</icon></div>".toDOM());
+                tgt.appendChild("<div class='rel bwhite tct ns -map@-w280px;#-w90%' style='margin:0 1vw;opacity:1;'><icon class='xpd fxx ft-caveat fspan disabled' style='opacity:.5'>&#xe02e;</icon></div>".toDOM());
                 tgt.appear(80);
                 return;
             }
@@ -985,9 +986,9 @@ class Data {
                 tgt.appendChild(tile);
             }
             if (fn) fn.apply();
-        } else tgt.appendChild("<div class='sai wf tct fvariant fh xyp'>Nada para mostrar aqui...</div>".toDOM());
+        } else tgt.appendChild(("<div class='wf tct xyp xys'><img class='w20 -spin' src='var/users/"+ab.CURRENT+"/icon.png'/></div>").toDOM());
         if (callback) eval(callback);
-        setTimeout(function() { tgt.appear(40); }, 200);
+        setTimeout(function() { tgt.appear(80); }, 200);
     }
 
     updateBind(fn = this.bindobj.function, idx = null) {
@@ -1397,39 +1398,49 @@ class Abox {
         }
         */
         this.viewport = (this.w() < this.responsivenessTreshold || this.w() < this.h()) ? AB_PORTRAIT : AB_LANDSCAPE;
+        
         var
-            maps = document.getElementsByClassName("-map");
-        if (maps.length) {
+        maps = document.querySelectorAll("[class*='-map'");
+        if(maps.length) {
             for (var i = maps.length; i--;) {
-                maps[i].addClass("-mapped");
+                //console.log(maps[i].classList);
+                if(maps[i].classList.contains("-mapped")) return;
                 maps[i].dataset.landscape = "";
                 maps[i].dataset.portrait = "";
+                maps[i].dataset.classes = "";
                 var
-                    sw = maps[i].dataset.toggle;
-                if (sw) {
-                    sw = sw.split(/\s+/g);
-                    for (var j = sw.length; j--;) {
-                        var
-                            un = sw[j].split(/[:;,._]/g);
-                        maps[i].dataset.landscape += (un[0] ? " " + un[0] : "");
-                        maps[i].dataset.portrait += (un[1] ? " " + un[1] : "");
-                    }
+                classes = maps[i].classList,
+                classnames = null;
+                //console.log("classlist=",classes);
+                for(var j=classes.length;j--;){
+                    if(classes[j].indexOf('-map')>=0){
+                        classnames = classes[j].replace("-map","").split(/[,;:=]/g);
+                        //console.log("CLASSNAMES=",classnames);
+                        for(var k=classnames.length;k--;){
+                            if(classnames[k]){
+                                if(classnames[k][0]=="@") maps[i].dataset.landscape = maps[i].dataset.landscape+" "+classnames[k].substr(1);
+                                if(classnames[k][0]=="#") maps[i].dataset.portrait = maps[i].dataset.portrait+" "+classnames[k].substr(1);
+                            }
+                        }
+                        //maps[i].remClass(classes[j]);
+                    }else maps[i].dataset.classes = maps[i].dataset.classes + " " + classes[j];
+                    maps[i].remClass(classes[j]);
                 }
-                maps[i].remClass("-map");
+                maps[i].addClass("-mapped");
+                console.log("CLASSLIST="+maps[i].classList.value);
+                console.log("CLASSES="+maps[i].dataset.classes);
+                console.log("LANDSCAPE="+maps[i].dataset.landscape);
+                console.log("PORTRAIT="+maps[i].dataset.portrait);
             }
         }
 
         maps = document.getElementsByClassName("-mapped");
         if (maps.length) {
             for (var i = maps.length; i--;) {
-                var
-                    rem = (this.viewport === AB_PORTRAIT) ? maps[i].dataset.landscape : maps[i].dataset.portrait,
-                    add = (this.viewport === AB_PORTRAIT) ? maps[i].dataset.portrait : maps[i].dataset.landscape;
-                for (var j = rem.split(/\s+/g).length; j--;) maps[i].remClass(rem.split(/\s+/g)[j]);
-                for (var j = add.split(/\s+/g).length; j--;) maps[i].addClass(add.split(/\s+/g)[j]);
+                maps[i].className = maps[i].dataset.classes + " " + (ab.viewport==AB_LANDSCAPE?maps[i].dataset.landscape:maps[i].dataset.portrait);
             }
         }
-
+        
         maps = document.getElementsByClassName("-switch");
         if (maps.length) {
             for (var i = maps.length; i--;) {

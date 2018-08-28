@@ -1,0 +1,87 @@
+{
+    "project_name": "CI-beta-1",
+    "http": "http:\/\/compartilheimoveis.com.br",
+    "project_owner": "15e7932e53c107d74acc0ae2f56aa257",
+    "see_all": "0",
+    "theme": {
+        "light": "1",
+        "glass_effect": "1",
+        "background": "http:\/\/v.compartilheimoveis.com.br\/src\/img\/wallpapers\/AboxTheme.png",
+        "properties_tiles": {
+            "quantity": "4",
+            "orientation": "vertical"
+        },
+        "window_opacity": 0.6,
+        "font": "#dc2431"
+    },
+    "welcome": {
+        "content": "Seja bem vindo!",
+        "second_content": "Os melhores im\u00f3veis e o melhor atendimento em um s\u00f3 lugar",
+        "forecolor": "#ffffff",
+        "sub_content": "Agora ficou f\u00e1cil encontrar seu novo im\u00f3vel"
+    },
+    "whoami": {
+        "enable": "0",
+        "CEO": {
+            "enable": "0",
+            "title": "gosto de homem",
+            "content": "Frases de efeito s\u00e3o sempre bem vindas",
+            "name": "cahrbel",
+            "role": "corretor"
+        },
+        "MVVH": {
+            "enable": "1",
+            "mission": {
+                "title": "Miss\u00e3o",
+                "picture": "src\/img\/compartilhe\/mission.png",
+                "content": "A miss\u00e3o de uma empresa diz quais s\u00e3o seus objectivos"
+            },
+            "vision": {
+                "title": "Vis\u00e3o",
+                "picture": "src\/img\/compartilhe\/vision.png",
+                "content": "\u00c9 sempre importante mostrar aos seus clientes qual a sua vis\u00e3o de mercado e qual sua posi\u00e7\u00e3o diante das circunst\u00e2ncias."
+            },
+            "values": {
+                "title": "Valores",
+                "picture": "src\/img\/compartilhe\/values.png",
+                "content": "Os valores de uma empresa refletem nos valores que seus colaboradores e parceiros t\u00eam."
+            },
+            "history": {
+                "enable": "1",
+                "title": "Hist\u00f3ria",
+                "content": "Apoveite para descrever como chegou at\u00e9 aqui, e como sua empresa atua no mercado."
+            }
+        }
+    },
+    "team": {
+        "enable": "0",
+        "members": []
+    },
+    "contacts": {
+        "enable": "0",
+        "enterprise": "Chabfqompckop",
+        "address": "",
+        "CRECI": "w",
+        "DOC": {
+            "type": "CNPJ",
+            "number": ""
+        },
+        "hr_mail": "",
+        "sac_mail": "",
+        "phones": [],
+        "in_charge_name": "cfwf4v",
+        "in_charge_doc": ".."
+    },
+    "account_info": {
+        "DOC": {
+            "type": "CNPJ",
+            "number": ""
+        },
+        "name": "",
+        "bank": "",
+        "ag": "",
+        "op": "",
+        "cc": "",
+        "dg": ""
+    }
+}

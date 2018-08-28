@@ -2,6 +2,15 @@
     position: relative;
 }
 
+@media screen and (max-width:900px) {
+
+}
+@media screen and (min-width:900px) and (max-width:1200px) {
+
+}
+@media screen and (min-width:1200px) {
+    
+}
 
 /* ALPHABOX FRAMEWOrK */
 
@@ -17,9 +26,20 @@ body {
     min-height: 100vh;
     overflow-x: hidden;
     text-align: center;
-    font-size:11px;
 }
 
+html { font-size: 12px; }
+
+/*
+@media only screen and (max-width: 800px) {
+    html *:not(script):not(style) {
+        
+    }
+    body >*{
+        width: 80%;
+    }
+}
+*/
 @page {
     size: 210mm 297mm;
     margin: 0;
@@ -51,8 +71,8 @@ body {
     padding-top: 2rem;
     margin: 0 auto;
     overflow: hidden;
-    border-radius: 4px;
-    box-shadow: 0 0 24px rgba(0, 0, 0, .5);
+    border-radius: .5rem;
+    box-shadow: 0 0 2rem rgba(0, 0, 0, .5);
     opacity: 0;
 }
 
@@ -63,10 +83,6 @@ body {
     position: relative;
     cursor: pointer;
     overflow: hidden;
-    float: right;
-    font-size: 1rem;
-    width:24px;
-    height:24px;
 }
 .-minimized icon,
 .-maximized icon{
@@ -249,6 +265,17 @@ icon {
 .w100 {
     width: 100.0%;
 }
+
+/*
+@media only screen and (max-width: 800px) {
+    .w10,.w20,.wq,.wquart,.wt,.wthird,.w40 {
+        width: 50.0%;
+    }
+    .wh,.whalf,.w50,.w60.w2t,.w2third,.w3q,.w3quart,.w80,.w56,.wfivesix {
+        width: 90.0%;
+    }
+}
+*/
 
 .h10 {
     height: 10.0%;
@@ -766,31 +793,31 @@ icon {
 .xbd-dot,
 .xbord-dotted {
     border: 8px dotted;
-}
+}   
 
 .zr,
 .zround {
-    border-radius: 2px;
+    border-radius: .25rem;
 }
 
 .hr,
 .hround {
-    border-radius: 4px;
+    border-radius: .5rem;
 }
 
 .sr,
 .sround {
-    border-radius: 8px;
+    border-radius: 1rem;
 }
 
 .dr,
 .dround {
-    border-radius: 16px;
+    border-radius: 2rem;
 }
 
 .xr,
 .xround {
-    border-radius: 32px;
+    border-radius: 4rem;
 }
 
 .circled {
@@ -808,6 +835,13 @@ icon {
     position: absolute;
 }
 
+/*
+@media only screen and (max-width: 800px) {
+    .abs { 
+        position: relative;
+    }
+}
+*/
 .rel {
     position: relative;
 }
@@ -1065,7 +1099,7 @@ icon {
     left:0;
     /*margin: -12px -24px -12px -24px;*/
     filter: blur(12px);
-    transform: scale(1.1);
+    transform: scale(1.25);
 }
 
 
@@ -1371,7 +1405,6 @@ select,
 textarea {
     outline: none;
     border: 2px solid transparent;
-    display: inline-block;
     box-sizing: content-box;
     transition: all 0.4s ease;
     border-radius: 3px;
@@ -1444,7 +1477,6 @@ select~label {
     transition: all 0.3s ease;
     text-align: left;
     background: transparent;
-    display: inline-block;
     margin: 0;
     color: inherit;
 }
@@ -1469,7 +1501,6 @@ textarea~label{
 button,
 .button,
 .bt{
-    display: inline-block;
     cursor: pointer;
     text-decoration: none;
     white-space: nowrap;
@@ -1511,10 +1542,6 @@ button:hover,
     font-weight: bolder;
     text-align: right;
     background: transparent;
-}
-
-.-switch,.-switched {
-    height: 1.25rem;
 }
 
 .-dropdown>*:nth-child(1) {
@@ -1600,7 +1627,13 @@ button:hover,
 .center {
     left: 50%;
 }
-
+/*
+@media only screen and (max-width: 800px) {
+    .rt,.right..lt,.left {
+        float: none;
+    }
+}
+*/
 .tp,
 .top {
     vertical-align: top;

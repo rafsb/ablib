@@ -1,4 +1,5 @@
 <?php
+namespace abox;
 const JSON_ERROR_LIST = [
 	JSON_ERROR_NONE => "Não há erros",
 	JSON_ERROR_DEPTH => "Exedido o volume máximo de dados",
