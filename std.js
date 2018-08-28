@@ -1326,7 +1326,7 @@ class Abox {
         this.mousePos = { top: null, left: null };
         this.user = null;
         this.viewport = null;
-        this.responsivenessTreshold = 1024;
+        this.responsivenessTreshold = 700;
         this.animationsRange = 16;
         this.windows = new Pool();
         this.tray = new Pool();
