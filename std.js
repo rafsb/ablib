@@ -2,6 +2,11 @@
 /* jshint -W034 */
 
 /* 
+ * CONFIGURATION
+ */
+const AB_RESPONSIVENESS_THRESHOLD = 700;
+
+/* 
  * CALL TYPES
  */
 const AB_SYS = "aboxaboxaboxaboxaboxaboxaboxabox";
@@ -1326,7 +1331,6 @@ class Abox {
         this.mousePos = { top: null, left: null };
         this.user = null;
         this.viewport = null;
-        this.responsivenessTreshold = 700;
         this.animationsRange = 16;
         this.windows = new Pool();
         this.tray = new Pool();
@@ -1397,7 +1401,7 @@ class Abox {
             }
         }
         */
-        this.viewport = (this.w() < this.responsivenessTreshold) ? AB_PORTRAIT : AB_LANDSCAPE;
+        this.viewport = (this.w() < AB_RESPONSIVENESS_THRESHOLD) ? AB_PORTRAIT : AB_LANDSCAPE;
         
         var
         maps = document.querySelectorAll("[class*='-map'");

@@ -1,13 +1,8 @@
 {
-	"bheader": "#ffffff",
 	"bmain": "#ffffff",
-	"bwindow": "rgba(255,255,255,.95)",
-	"bpanel": "rgba(255,255,255,.95)",
-	"bdialog": "white",
+	"bmodal": "rgba(255,255,255,.95)",
 	"fmain": "black",
-	"fwindow": "black",
-	"fheader": "#000000",
-	"fpanel": "#000000",
+	"fmodal": "black",
 	"disabled": "#e2e2e2",
 	"span": "rgba(0,0,0,.8)",
 	"variant": "#dc2431"
