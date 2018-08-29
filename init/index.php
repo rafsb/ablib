@@ -52,7 +52,8 @@ if(!$user) if(cook(USER)) $user = sess(USER,cook(USER));?>
                 qin("UPDATE Users SET mchk=1 WHERE code='".get("mailcheck")."'")
             ){?> ab.success("E-mail confirmado...."); <?php };
             if(get('advise')){?> ab.advise("<?=get('advise')?>"); <?php }
-            if(get('notify')){?> ab.notify("<?=get('notify')?>"); <?php }?>
+            if(get('notify')){?> ab.notify("<?=get('notify')?>"); <?php }
+	    include "index.js.php";?>
         })();
     </script>
 </html>
