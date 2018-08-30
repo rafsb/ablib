@@ -1,36 +1,38 @@
-			if [[ ! $1 ]]; then
+if [[ ! $1 ]]; then
 	echo "please especify the root folder wich permissions might be set"
 	echo ""
 	echo "EXAMPLE"
 	echo "sh fix_permissions.sh "$(pwd)
 	echo ""
 else
-	echo "changing permissions for -R "$1
+	echo "changing permissions for -R "$1" owned by "$(whoami)
 	echo ""
 	echo "finding httpd/nginx group"
 	A=$(cut -d: -f1 /etc/group | grep http)
 	B=$(cut -d: -f1 /etc/group | grep www-data)
+	user=$(whoami)
 	if [[ ! ${A} ]]; then
 		if [[ ! ${B} ]]; then
 			echo "could not find the http/www-data group, is httpd/nginx (or apache) installed? ={"
 		else
 			echo "group %www-data found!!!"
-			sudo usermod -aG www-data $(whoami)
-			sudo chown -R $(whoami) $1
+			sudo usermod -aG www-data $user
+			sudo chown -R $user $1
 			sudo chgrp -R www-data $1
 			echo "new ownership: "$(whoami)"@www-data"
 		fi
 	else
 		echo "group %http found!!!"
-		sudo usermod -aG http $(whoami)
-		sudo chown -R $(whoami) $1
+		echo "adding "$user" to http group"
+		sudo usermod -aG http $user
+		sudo chown -R $user $1
 		sudo chgrp -R http $1
-		echo "new ownership: "$(whoami)"@http"
+		echo "new ownership: "$user"@http"
 	fi
 	echo "reseting permissions as httpd/nginx rules"
-	find $1 -type d -exec sudo chmod 2755 {} \;
-	find $1 -type f -exec sudo chmod 2644 {} \;
-	echo "new permissions setted: d2755 f2644"
+	find $1 -type d -exec sudo chmod 2775 {} \;
+	find $1 -type f -exec sudo chmod 2764 {} \;
+	echo "new permissions setted: d2775 f2764 as for prodution"
 	echo ""
 	echo "done =}"
 	echo ""
