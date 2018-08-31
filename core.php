@@ -165,6 +165,19 @@ function sess($f,$v=null){
     return (isset($_SESSION[$f]) ? $_SESSION[$f] : null);
 }
 
+function usess($f){
+    $t = null;
+    switch($f){
+        case(USER): $t="USER"; break;
+        case(UUID): $t="UUID"; break;
+        case(CUID): $t="CUID"; break;
+        case(HTTP): $t="HTTP"; break;
+    };
+    $f = $t?$t:$f;
+    //$_SESSION["DEBUG"] = "|SESS-".$f."-".$v."|";
+    if(isset($_SESSION[$f])) unset($_SESSION[$f]);
+}
+
 
 ## perform isertion into $_COOKIE array, giving values to new fields
 ## on success case, it returns the given value, else 0 is the answer
