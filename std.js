@@ -257,6 +257,15 @@ HTMLInputElement.prototype.up = function(
     form.append("forc", forc);
     form.append("mini", mini);
     xhr = new XMLHttpRequest();
+    xhr.onprogress = function(d){
+        var
+        x = document.getElementsByClassName("-progress");
+        if(x.length){
+            for(var i=x.length;i--;){
+                x[i].style.width = (d.loaded/d.total*100)+"%";
+            }
+        }
+    }
     if (func) xhr.upload.onload = function() {
         var timer = setInterval(function() {
             if (xhr.responseText || counter++ == 10000) {
@@ -1829,7 +1838,7 @@ class Abox {
     autofill(c = null) {
         if (c) { if (typeof c == "string") c = document.getElementById(c); } else c = document;
         var
-            x = c.getElementsByClassName("-autofill");
+        x = c.getElementsByClassName("-autofill");
         if (!x.length) return;
         for (var i = x.length; i--;) {
             if (typeof x[i] !== "object") break;
@@ -1844,7 +1853,7 @@ class Abox {
                     else if (x[i].tagName == "SELECT") {
                         if (x[i].dataset.tablefield) {
                             var
-                                y = x[i].dataset.tablefield.split(/[#;:,-]/g);
+                            y = x[i].dataset.tablefield.split(/[#;:,-]/g);
                             //console.log(y);
                             x[i].dataset.tablefield = [
                                 y[0] // table
@@ -1858,11 +1867,11 @@ class Abox {
                             ].join(";");
                             //console.log(x[i].dataset.tablefield);
                             x[i].refill();
-                        } else x[i].value = t.replace(/&quot;/g, "'");
+                        } else if(t) x[i].value = t.replace(/&quot;/g, "'");
                     } else if (x[i].classList.contains('-switched')) {
                         x[i].dataset.state = t ? "0" : "1";
                         x[i].click();
-                    } else x[i].innerText = t.replace(/&quot;/g, "'");
+                    } else if(t) x[i].innerText = t.replace(/&quot;/g, "'");
                     if (x[i].dataset.trigger) eval(x[i].dataset.trigger);
                 };
             };
