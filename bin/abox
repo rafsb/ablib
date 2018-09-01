@@ -137,7 +137,7 @@ if [[ $# -gt 0 ]]; then
 			if [[ -d $2/lib ]]; then
 				echo "copying new files"
 				sudo cp -r /opt/abox/* $2/lib
-				sudo rm -rf $2/lib/.git
+				##sudo rm -rf $2/lib/.git
 				proj=$(echo $2 | rev | cut -d'/' -f1 | rev)
 				echo "updating path for "$proj
 				cat /etc/abox/proj.conf | grep -v $proj | sudo tee /etc/abox/proj.conf > /dev/null
