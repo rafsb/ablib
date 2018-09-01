@@ -451,9 +451,9 @@ HTMLElement.prototype.inPage = function() {
     }
 };
 
-HTMLElement.prototype.scrollTo = function(el, t = 200) {
+HTMLElement.prototype.scrollTo = function(el, t = 400) {
     if (!el) return -1;
-    t /= 10;
+    t /= 100;
     var
         __self = this,
         count = 0,
@@ -470,7 +470,7 @@ HTMLElement.prototype.scrollTo = function(el, t = 200) {
     this.dataset.scrolling = setInterval(function() {
         if (++count >= t) clearInterval(__self.dataset.scrolling);
         __self.scrollTop = __self.scrollTop + pace;
-    }, 4);
+    },1);
 };
 
 HTMLElement.prototype.stopScroll = function() { if (this.dataset.scrolling) clearInterval(this.dataset.scrolling); return this; };
@@ -482,7 +482,7 @@ HTMLElement.prototype.stop = function() {
 }
 
 // EFFECTS
-HTMLElement.prototype.appear = function(t = 180, opos = null) {
+HTMLElement.prototype.appear = function(t = 80, opos = null) {
     var
     x = this;
     ot = opos || x.offsetTop;
@@ -496,7 +496,7 @@ HTMLElement.prototype.appear = function(t = 180, opos = null) {
     ab.organize();
 };
 
-HTMLElement.prototype.desappear = function(t = 180, r = null) {
+HTMLElement.prototype.desappear = function(t = 80, r = null) {
     var
     ot = this.offsetTop;
     this.trans({ top: ot + (this.animationsRange || 16), alpha: 0 }, t);
@@ -1744,9 +1744,7 @@ class Abox {
         }
 
         maps = document.getElementsByTagName("nocontent");
-        if (maps.length)
-            for (var i = maps.length; i--;) maps[i].delete();
-
+        if (maps.length) for (var i = maps.length; i--;) maps[i].delete();
         this.reorder();
     }
 
@@ -2201,6 +2199,14 @@ class Abox {
     }
 
     // calls framework's inner login modal window
+    tmpfsToChroot(f,t,v){
+        if(!f||!t){ ab.error("Faltando argumentos"); return; }
+        ab.exec('../etc/ttoc.php',{from:f,to00:t},function(r){ 
+            if(r.data.int()==1){ if(v) ab.success("Arquivos movidos da pasta temporária.");
+            }else{ if(v) ab.error("Arquivos na pasta temporária não puderam ser movidos, errno="+r.data); }
+        });
+    }
+
     login() { this.load("../lib/ui/login.php"); }
 
     currentUser() { return this.call("../lib/fn/currentuser.php", null, function(d) { return JSON.parse(d.data); }, true, false); };
