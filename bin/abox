@@ -111,11 +111,15 @@ if [[ $# -gt 0 ]]; then
 		if [[ $# -eq 2 ]]; then
 			if [[ $abox != "" ]]; then
 				[ -d $2/lib ] || sudo mkdir -p $2/lib
+				proj=$(pwd | rev | cut -d'/' -f3 | rev)
 				echo "copying files..."
 				sudo cp -r  /opt/abox/* $2/lib
 				cd $2/lib/bin
-				echo "done for "$(pwd | rev | cut -d'/' -f3 | rev)
-				sudo -u $(whoami) sh init_project.sh $(pwd | rev | cut -d'/' -f3 | rev)
+				echo "done for "$proj
+				sudo -u $(whoami) sh init_project.sh $proj
+				echo "adding "$proj" "$2" to projects path file"
+				cat /etc/abox/proj.conf | grep -v $proj | sudo tee /etc/abox/proj.conf
+				echo $proj" "$2 | sudo tee --append /etc/abox/proj.conf
 			else
 				echo "abox must be installed on system running:"
 				echo "    abox -I"
@@ -129,18 +133,54 @@ if [[ $# -gt 0 ]]; then
 		echo "updating base framework first"
 		cd /opt/abox && sudo git pull
 		if [[ $2 != "" ]]; then
+			if [[ $2 = "." ]]; then $2 = $(pwd); fi
 			if [[ -d $2/lib ]]; then
 				echo "copying new files"
 				sudo cp -r /opt/abox/* $2/lib
 				sudo rm -rf $2/lib/.git
+				proj=$(echo $2 | rev | cut -d'/' -f1 | rev)
+				echo "updating path for "$proj
+				cat /etc/abox/proj.conf | grep -v $proj | sudo tee /etc/abox/proj.conf > /dev/null
+				echo $proj" "$2 | sudo tee --append /etc/abox/proj.conf
+				echo "fixing permissions"
+				echo $2"/lib/bin/fix_permissions.sh "$2
+				sudo -u $(whoami) sh $2/lib/bin/fix_permissions.sh $2
 				echo "done" 
 			else
-				echo "abox project not found..."
+				echo "looking for "$2" on projects path"
+				proj=$(cat /etc/abox/proj.conf | grep $2)
+				echo $proj" found"
+				if [[ $proj != "" ]]; then 
+					p2=$(echo $proj | cut -d' ' -f2)
+					##abox -u $(echo $proj | cut -d' ' -f2)
+					if [[ -d $p2/lib ]]; then
+						echo "copying new files"
+						sudo cp -r /opt/abox/* $p2/lib
+						sudo rm -rf $p2/lib/.git
+						echo "fixing permissions"
+						echo $p2"/lib/bin/fix_permissions.sh "$p2
+						sudo -u $(whoami) sh $p2/lib/bin/fix_permissions.sh $p2
+						echo "done"
+					else
+						echo "abox project not found..."
+					fi
+				else 
+					echo "abox project not found..."
+				fi
 			fi
 		fi
 	fi
+	if [[ $1 = "-f" || $1 = "--find" ]]; then
+		#cat /etc/abox/proj.conf
+		proj=$(cat /etc/abox/proj.conf | grep $2)
+		if [[ $proj != "" ]]; then
+			echo "found "$proj;
+		else
+			echo "project not found";
+		fi
+	fi
 	if [[ $1 = "-h" || $1 = "--help" ]]; then
-		sh $(pwd)/abox
+		sh abox
 	fi
 else
 	echo "usage:"
@@ -153,6 +193,7 @@ else
 	echo "    -s, --stop      stops services"
 	echo "    -p, --proj      initializes project on a given folder as [PARAM]"
 	echo "    -u, --update    updates [PARAM] project's library"
+	echo "    -f, --find      seeks for [PARAM] on project's path file"
 	echo "    -h, --help      displays this usage"
 	echo "    -I, --install   install abox framework"
 	echo "    -U, --uninstall removes abox binaries from system, but projects are kept"
