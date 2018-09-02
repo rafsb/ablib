@@ -329,7 +329,7 @@ HTMLElement.prototype.trans = function(o = null, len = 80.0, fn = null) {
     if (o === null) return;
     //console.log(o);
     var
-    pace = window.innerWidth>700?10:20;
+    pace = 10;
     len /= pace;
     var
         iter = 0,
@@ -373,6 +373,17 @@ HTMLElement.prototype.trans = function(o = null, len = 80.0, fn = null) {
 };
 
 HTMLElement.prototype.stopTrans = function() { if (this.dataset.transition) clearInterval(this.dataset.transition); return this; };
+
+HTMLElement.prototype.scrollTo = function(el) {
+    if (!el) return -1;
+    var length = 0;
+    do {
+        //console.log(length);
+        length += el.offsetTop;
+        el = el.parentElement;
+    } while (el.myId() != this.myId());
+    this.scroll({top:length,behavior:"smooth"});
+};
 
 // fills the [-fill]'s select tag with given content'
 HTMLElement.prototype.fill = function(c = false) {
@@ -449,28 +460,6 @@ HTMLElement.prototype.inPage = function() {
     } else {
         return false;
     }
-};
-
-HTMLElement.prototype.scrollTo = function(el, t = 400) {
-    if (!el) return -1;
-    t /= 100;
-    var
-        __self = this,
-        count = 0,
-        pace = 0,
-        length = 0;
-    do {
-        //console.log(length);
-        length += el.offsetTop;
-        el = el.parentElement;
-    } while (el.myId() != this.myId());
-    pace = (length - this.scrollTop) / t;
-    //console.log(this.scrollTop,length,pace);
-    clearInterval(this.dataset.scrolling);
-    this.dataset.scrolling = setInterval(function() {
-        if (++count >= t) clearInterval(__self.dataset.scrolling);
-        __self.scrollTop = __self.scrollTop + pace;
-    },1);
 };
 
 HTMLElement.prototype.stopScroll = function() { if (this.dataset.scrolling) clearInterval(this.dataset.scrolling); return this; };
