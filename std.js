@@ -330,44 +330,43 @@ HTMLElement.prototype.trans = function(o = null, len = 80.0, fn = null) {
     //console.log(o);
     var
     pace = 10;
-    len /= pace;
+    len = (len/pace).int();
     var
-        iter = 0,
-        el = this,
-        cv = el.styleSheet(),
-        pl = o.left != null ? (o.left.float() - cv.getPropertyValue("left").float()) / len : 0,
-        pt = o.top != null ? (o.top.float() - cv.getPropertyValue("top").float()) / len : 0,
-        pw = o.width != null ? (o.width.float() - cv.getPropertyValue("width").float()) / len : 0,
-        ph = o.height != null ? (o.height.float() - cv.getPropertyValue("height").float()) / len : 0,
-        pa = o.alpha != null ? (o.alpha.float() - cv.getPropertyValue("opacity").float()) / len : 0;
-    //if(o.height) console.log((o.height-el.offsetHeight)/len,ph);
-    //if(o.alpha!==null) console.log(o.alpha.float(),"-",el.style.opacity.float(),"=",o.alpha.float()-el.style.opacity.float());
-    //el.style.display = "inline-block";
-    //if(o.height) console.log(el,o.height,el.offsetHeigth,len,ph);
+    iter = 0,
+    el = this;
+    //cv = el.styleSheet(),
+    plf = el.offsetLeft,
+    ptf = el.offsetTop,
+    pwf = el.offsetWidth,
+    phf = el.offsetHeight,
+    paf = getComputedStyle(el).getPropertyValue("opacity"),
+    pl = o.left   != null ? (o.left  - plf) / len : null,
+    pt = o.top    != null ? (o.top   - ptf) / len : null,
+    pw = o.width  != null ? (o.width - pwf) / len : null,
+    ph = o.height != null ? (o.height- phf) / len : null,
+    pa = o.alpha  != null ? (o.alpha.float() - paf) / len : null;
     if (el.dataset.transition) clearInterval(el.dataset.transition);
     el.dataset.transition = setInterval(function() {
-        if (iter++ >= len) {
-            clearInterval(el.dataset.transition);
-            el.dataset.transition = "";
-            
+        if (iter++ == len) {
             if(pt) el.style.top     = o.top.int()    + "px";
             if(pl) el.style.left    = o.left.int()   + "px";
             if(pw) el.style.width   = o.width.int()  + "px";
             if(ph) el.style.height  = o.height.int() + "px";
             if(pa) el.style.opacity = o.alpha.float();
-            
-            //if(ph) console.log("final "+ph+", "+el.style.height);
             if (fn) setTimeout(fn, 10);
+            clearInterval(el.dataset.transition);
+            el.dataset.transition = "";
         } else {
-            var
-                x = el.styleSheet();
-            if (pt) el.style.top = (x.getPropertyValue("top").float() + pt) + "px";
-            if (pl) el.style.left = (x.getPropertyValue("left").float() + pl) + "px";
-            if (pw) el.style.width = (x.getPropertyValue("width").float() + pw) + "px";
-            if (ph) el.style.height = (x.getPropertyValue("height").float() + ph) + "px";
-            if (pa) el.style.opacity = (x.getPropertyValue("opacity").float() + pa).toString();
-            //if(ph) console.login(ph,el.style.height,(is_img?el.height:el.offsetHeight + ph).int());
-            //if(pa) console.log(pa,x.getPropertyValue("opacity"),pa.float()+x.getPropertyValue("opacity").float());
+            if (pt&&pt!=o.top)   { ptf=el.offsetTop+pt; el.style.top      = ptf+"px";         }
+            if (pl&&pl!=o.left)  { plf=el.offsetLeft+pl; el.style.left     = plf+"px";         }
+            if (pw&&pw!=o.width) { pwf=el.offsetWidth+pw; el.style.width    = pwf+"px";         }
+            if (ph&&ph!=o.height){ phf=el.offsetHeight+ph; el.style.height   = phf+"px";         }
+            if (pa&&pa!=o.alpha){ 
+                paf=getComputedStyle(el).getPropertyValue("opacity").float()+pa;
+                if(paf<0) paf = 0;
+                else if(paf>1) paf=1;
+                el.style.opacity = paf; 
+            }
         }
     }, pace);
 };
@@ -477,18 +476,17 @@ HTMLElement.prototype.appear = function(t = 80, opos = null) {
     ot = opos || x.offsetTop;
     x.style.opacity = "0";
     x.style.display = "inline-block";
-    x.style.top = (ot + (this.animationsRange || 16)).toString() + "px";
-    x.trans({ top: ot, alpha: 1 }, t, this.isModal() ? function() {
+    x.style.top = (ot+ab.animationsRange)+"px";
+    x.trans({ top: ot, alpha: 1.0 }, t, this.isModal() ? function() {
         if (!x.dataset.initialposition) x.dataset.initialposition = x.offsetTop + "," + x.offsetLeft + "," + x.offsetHeight + "," + x.offsetWidth;
     } : null);
     if (x.isModal()) ab.reorder(x.myId());
     ab.organize();
 };
 
-HTMLElement.prototype.desappear = function(t = 80, r = null) {
-    var
-    ot = this.offsetTop;
-    this.trans({ top: ot + (this.animationsRange || 16), alpha: 0 }, t);
+HTMLElement.prototype.desappear = function(t = 40, r = null) {
+    var ot = this.offsetTop;
+    this.trans({ top: ot+ab.animationsRange, alpha: 0 }, t);
     if (ab && this.isModal()) {
         ab.windows.set(null, ab.windows.idx(this.myId()));
         ab.reorder();
@@ -499,7 +497,7 @@ HTMLElement.prototype.desappear = function(t = 80, r = null) {
             d.dataset.moving = '';
         }
         if (r) {
-            if (eval("ab.tmpfs." + d.myId())) eval("delete ab.tmpfs." + d.myId());
+            //if (eval("ab.tmpfs." + d.myId())) eval("delete ab.tmpfs." + d.myId());
             d.delete();
         } else {
             d.style.top = o + "px";
@@ -2041,7 +2039,7 @@ class Abox {
                     else ab.body().appendChild(x);
                     if (x.isModal()) ab.windows.push(x.id);
                     ab.loadPool.push(x.id);
-                    x.appear(80);
+                    x.appear(180);
                     var
                     scr = x.getElementsByTagName("script");
                     if (scr.length) for (var i = 0; i++ < scr.length;) eval(scr[i - 1].innerText.trim());
