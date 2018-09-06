@@ -108,20 +108,16 @@ toast {
     opacity: 0;
     overflow-x: hidden;
     border: 1px solid lightgray;
-    box-shadow: 0 0 6px rgba(0, 0, 0, .5);
+    box-shadow: 0 0 16px rgba(0, 0, 0, .5);
     z-index: 3000;
     word-wrap: break-word;
     text-align: justify;
-    animation: all .4s cubic-bezier(0.25, 0.1, 0.13, 1.07);
+    /*animation: all .4s cubic-bezier(0.25, 0.1, 0.13, 1.07);*/
     padding: 1.25rem 1.25rem;
-}
-/* BOXES */
-
-toast {
-    top: 80vh;
+    top: 0;
     left: 78vw;
     width: 18vw;
-    font-size: 1rem;
+    cursor: pointer;
 }
 
 @media screen and (max-width: 700px){
@@ -1154,10 +1150,6 @@ icon {
 }
 
 .fgold {
-    color: gold;
-}
-
-.fdarkgold {
     color: darkgoldenrod;
 }
 
@@ -1770,12 +1762,6 @@ fieldset>label {
     margin: 1vh 0;
 }
 
-toast:hover {
-    color: black;
-    background: white;
-    box-shadow: 0 0 12px rgba(0, 0, 0, .5);
-    opacity: 1;
-}
 
 tooltip {
     position: absolute;

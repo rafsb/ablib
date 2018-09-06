@@ -296,6 +296,18 @@ HTMLElement.prototype.myId = function() {
     return this.id;
 };
 
+HTMLElement.prototype.switchToggle = function() {
+    if (this.classList.contains("-switched")) {
+        if (this.dataset.state.int()) {
+            this.src = "src/img/std/switch_off.svg";
+            this.dataset.state = "0";
+        } else {
+            this.src = "src/img/std/switch_on.svg";
+            this.dataset.state = "1";
+        }
+    }
+};
+
 HTMLElement.prototype.styleSheet = function(d, v) {
     var
         x = window.getComputedStyle(this);
@@ -307,6 +319,8 @@ HTMLElement.prototype.idx = function() {
     var nodes = Array.prototype.slice.call(this.parentElement.children);
     return nodes.indexOf(this);
 };
+
+HTMLElement.prototype.unload = function(del=false){ ab.unload(this.myId(),del); }
 
 HTMLElement.prototype.delete = function() { this.parentElement.removeChild(this); };
 
@@ -329,49 +343,57 @@ HTMLElement.prototype.trans = function(o = null, len = 80.0, fn = null) {
     if (o === null) return;
     //console.log(o);
     var
-    pace = 10;
-    len = (len/pace).int();
+    pace = ab.viewport?10.0:100.0;
+    len = Math.ceil(len/pace);
     var
     iter = 0,
-    el = this;
-    //cv = el.styleSheet(),
-    plf = el.offsetLeft,
-    ptf = el.offsetTop,
-    pwf = el.offsetWidth,
-    phf = el.offsetHeight,
-    paf = getComputedStyle(el).getPropertyValue("opacity"),
-    pl = o.left   != null ? (o.left  - plf) / len : null,
-    pt = o.top    != null ? (o.top   - ptf) / len : null,
-    pw = o.width  != null ? (o.width - pwf) / len : null,
-    ph = o.height != null ? (o.height- phf) / len : null,
-    pa = o.alpha  != null ? (o.alpha.float() - paf) / len : null;
-    if (el.dataset.transition) clearInterval(el.dataset.transition);
-    el.dataset.transition = setInterval(function() {
-        if (iter++ == len) {
-            if(pt) el.style.top     = o.top.int()    + "px";
-            if(pl) el.style.left    = o.left.int()   + "px";
-            if(pw) el.style.width   = o.width.int()  + "px";
-            if(ph) el.style.height  = o.height.int() + "px";
-            if(pa) el.style.opacity = o.alpha.float();
-            if (fn) setTimeout(fn, 10);
-            clearInterval(el.dataset.transition);
-            el.dataset.transition = "";
+    el = this,
+    animation = ab.newId(8);
+    el.style.display = "inline-block";
+    cv = el.styleSheet(),
+    ptf = cv.getPropertyValue('top').float(),
+    plf = cv.getPropertyValue('left').float(),
+    pwf = cv.getPropertyValue('width').float(),
+    phf = cv.getPropertyValue('height').float(),
+    paf = cv.getPropertyValue('opacity').float(),
+    pl = plf!=o.left  &&o.left  !=null?(o.left  -plf)/len:null,
+    pt = ptf!=o.top   &&o.top   !=null?(o.top   -ptf)/len:null,
+    pw = pwf!=o.width &&o.width !=null?(o.width -pwf)/len:null,
+    ph = phf!=o.height&&o.height!=null?(o.height-phf)/len:null,
+    pa = paf!=o.alpha &&o.alpha !=null?(o.alpha -paf)/len:null;
+    //console.log('id='+el.myId(),', pa'+pa,', paf='+paf,', alpha='+o.alpha,', len='+len);
+    this.dataset.transition = ab.tmpfs[animation] = setInterval(function() {
+        if (++iter == len) {
+            if(pt!=null) el.style.top     = o.top.int()    + "px";
+            if(pl!=null) el.style.left    = o.left.int()   + "px";
+            if(pw!=null) el.style.width   = o.width.int()  + "px";
+            if(ph!=null) el.style.height  = o.height.int() + "px";
+            if(pa!=null) el.style.opacity = o.alpha.toFixed(1);
+            if(fn!=null) setTimeout(fn, 100);
+            el.stop(animation);
         } else {
-            if (pt&&pt!=o.top)   { ptf=el.offsetTop+pt; el.style.top      = ptf+"px";         }
-            if (pl&&pl!=o.left)  { plf=el.offsetLeft+pl; el.style.left     = plf+"px";         }
-            if (pw&&pw!=o.width) { pwf=el.offsetWidth+pw; el.style.width    = pwf+"px";         }
-            if (ph&&ph!=o.height){ phf=el.offsetHeight+ph; el.style.height   = phf+"px";         }
-            if (pa&&pa!=o.alpha){ 
-                paf=getComputedStyle(el).getPropertyValue("opacity").float()+pa;
+            if (pt!=null){ ptf+=pt; el.style.top    = ptf+"px"; } //console.log(ptf,pt)}
+            if (pl!=null){ plf+=pl; el.style.left   = plf+"px"; }
+            if (pw!=null){ pwf+=pw; el.style.width  = pwf+"px"; }
+            if (ph!=null){ phf+=ph; el.style.height = phf+"px"; }
+            if (pa!=null){ 
+                paf+=pa;
                 if(paf<0) paf = 0;
                 else if(paf>1) paf=1;
-                el.style.opacity = paf; 
+                el.style.opacity = paf.toFixed(1);
+                //console.log(pa,paf)
             }
         }
     }, pace);
+    //setTimeout(function(trans){ console.log(trans); },pace+1,el.dataset.transition);
 };
 
-HTMLElement.prototype.stopTrans = function() { if (this.dataset.transition) clearInterval(this.dataset.transition); return this; };
+HTMLElement.prototype.stop = function(an=false) { 
+    if(an){ clearInterval(ab.tmpfs[an]);  delete ab.tmpfs[an]; }
+    if (this.dataset.transition) clearInterval(this.dataset.transition); 
+    this.dataset.transition="";
+    return this; 
+};
 
 HTMLElement.prototype.scrollTo = function(el) {
     if (!el) return -1;
@@ -461,49 +483,45 @@ HTMLElement.prototype.inPage = function() {
     }
 };
 
-HTMLElement.prototype.stopScroll = function() { if (this.dataset.scrolling) clearInterval(this.dataset.scrolling); return this; };
-
-HTMLElement.prototype.stop = function() {
-    this.stopScroll();
-    this.stopTrans();
-    return this;
-}
-
 // EFFECTS
-HTMLElement.prototype.appear = function(t = 80, opos = null) {
+HTMLElement.prototype.appear = function(t = 200, py = null, px=null ) {
     var
     x = this;
-    ot = opos || x.offsetTop;
+    ot = py || x.offsetTop,
+    ol = px || x.offsetLeft;
     x.style.opacity = "0";
     x.style.display = "inline-block";
-    x.style.top = (ot+ab.animationsRange)+"px";
-    x.trans({ top: ot, alpha: 1.0 }, t, this.isModal() ? function() {
+    x.style.top  = (ot+ab.animationsRange)+"px";
+    x.style.left = (ol+ab.animationsRange)+"px";
+    x.dataset.loadstate = 'visible';
+    x.stop();
+    x.trans({ top: ot, left:ol, alpha: 1 }, t, this.isModal() ? function() {
         if (!x.dataset.initialposition) x.dataset.initialposition = x.offsetTop + "," + x.offsetLeft + "," + x.offsetHeight + "," + x.offsetWidth;
     } : null);
+    setTimeout(function(x){ x.stop(); },t+1, x);
     if (x.isModal()) ab.reorder(x.myId());
     ab.organize();
 };
 
-HTMLElement.prototype.desappear = function(t = 40, r = null) {
-    var ot = this.offsetTop;
-    this.trans({ top: ot+ab.animationsRange, alpha: 0 }, t);
+HTMLElement.prototype.desappear = function(t = 100, r = null) {
+    var
+    ot = this.offsetTop,
+    ol = this.offsetLeft;
+    this.trans({ top: ot+ab.animationsRange,left: ol+ab.animationsRange, alpha: 0 }, t);
     if (ab && this.isModal()) {
         ab.windows.set(null, ab.windows.idx(this.myId()));
         ab.reorder();
     }
-    setTimeout(function(r, d, o) {
-        if (d.dataset.moving) {
-            clearInterval(d.dataset.moving);
-            d.dataset.moving = '';
-        }
-        if (r) {
-            //if (eval("ab.tmpfs." + d.myId())) eval("delete ab.tmpfs." + d.myId());
-            d.delete();
-        } else {
-            d.style.top = o + "px";
+    setTimeout(function(r, d, y, x) {
+        if (r)  d.delete();
+        else {
+            d.style.top = y + "px";
+            d.style.top = x + "px";
             d.style.display = "none";
+            d.dataset.loadstate = 'hidden';
+            d.stop();
         }
-    }, t + 10, r, this, ot);
+    },t+10,r,this,ot,ol);
 };
 
 HTMLElement.prototype.checkout = function() {
@@ -928,15 +946,16 @@ class Data {
     * @member function
     *
     */
-    bind(tmp, tgt, fn = null, idx = 0) {
+    bind(tmp, tgt, fn = null, idx = 0, pace = 1) {
         var
-            callback;
+        callback,
+        tmpobj;
         if (typeof tmp == 'string') this.scope_.call(tmp, null, function(result) { tmp = result.status == 200 ? result.data.toDOM() : null; }, true, true);
         this.bindobj_ = {
             template: tmp || this.bindobj_.template,
             target: tgt || this.bindobj_.target,
             function: fn || this.bindobj_.function,
-            index: idx || this.bindobj_.index
+            index: idx!=null?idx:this.bindobj_.index
         };
         tmp = this.bindobj_.template;
         tgt = this.bindobj_.target;
@@ -949,25 +968,27 @@ class Data {
             if (tgt.dataset.callback) callback = tgt.dataset.callback.replace(/::this/g, "document.getElementById('" + tgt.myId() + "')").trim();
             //console.log(tgt.dataset.callback);
         }
-        ab.wait(80);
         tgt.innerHTML = "";
-        if (this.obj.length && this.obj[0].code != null) {
-            if (idx != null && this.obj[idx] && this.obj[idx].code != null) { this.obj = [this.obj[idx]]; } else if (idx != null && !this.obj[idx]) {
+        if (this.obj.length && this.obj[0].code !== null) {
+            tmpobj = this.obj;
+            //console.log(idx,this.obj[idx]);
+            if (idx != null && tmpobj[idx] && tmpobj[idx].code != null) { tmpobj = [tmpobj[idx]]; } else if (idx != null && !tmpobj[idx]) {
                 tgt.appendChild("<div class='rel tct ns' style='margin:0 1vw;opacity:1;'><icon class='xpd fxx fspan disabled' style='opacity:.5'>&#xe02e;</icon></div>".toDOM());
-                tgt.appear(80);
+                //tgt.appear(pace);
                 return;
             }
-            for (var i = 0; i++ < this.obj.length;) {
+            for (var i = -1; ++i < tmpobj.length;) {
                 //console.log(tmp);
                 var
-                    obj = this.obj[i - 1],
-                    tile = tmp.cloneNode(true),
-                    binds = tile.getElementsByClassName("-bind");
+                obj = tmpobj[i],
+                tile = tmp.cloneNode(true),
+                binds = tile.getElementsByClassName("-bind");
+                //console.log(obj);
                 if (!obj) break;
                 tile.id = obj.code;
                 for (var j = binds.length; j--;) {
                     var
-                        fieldValue = eval("obj." + binds[j].dataset.field);
+                    fieldValue = eval("obj." + binds[j].dataset.field);
                     if (fieldValue) {
                         fieldValue = fieldValue.replace("/","\/");
                         if (binds[j].tagName == "INPUT") binds[j].value = fieldValue;
@@ -989,7 +1010,8 @@ class Data {
             if (fn) fn.apply();
         } else tgt.appendChild("<div class='rel tct ns' style='margin:0 1vw;opacity:1;'><icon class='xpd fxx fspan disabled' style='opacity:.5'>&#xe02e;</icon></div>".toDOM());
         if (callback) eval(callback);
-        setTimeout(function() { tgt.appear(80); }, 200);
+        tgt.trans({top:0,left:0,alpha:1},80);
+        //setTimeout(function() { tgt.appear(pace); }, pace);
     }
 
     updateBind(fn = this.bindobj.function, idx = null) {
@@ -1449,7 +1471,6 @@ class Abox {
                 if (maps[i].dataset.state) maps[i].src = "src/img/std/switch_" + (maps[i].dataset.state.int() ? "on" : "off") + ".svg";
                 else maps[i].dataset.state = "0";
                 maps[i].addEventListener("click", function(e) {
-
                     if (this.dataset.state.int()) {
                         if (this.dataset.off) eval(this.dataset.off); // jshint ignore:line
                         this.src = "src/img/std/switch_off.svg";
@@ -1892,24 +1913,14 @@ class Abox {
 
     notify(n, c = ["white", "black"], l = AB_NOLOG) {
         var
-            notfys = document.getElementsByTagName("toast"),
-            toast = document.createElement("toast");
-        toast.style.background = c[0] ? c[0] : "white";
+        notfys = document.getElementsByTagName("toast"),
+        toast = document.createElement("toast");
+        toast.style.background = c[0] ? c[0] : "rgba(255,255,255,.8)";
         toast.style.color = c[1] ? c[1] : "black";
-        //toast.textContent = n?n:"Hello World!!!";
         toast.innerHTML = n ? n : "Hello World!!!";
         toast.style.left = ab.viewport==AB_LANDSCAPE?"78%":"7.5%";
-        toast.style.top = "0";
-        toast.onclick = function() { this.desappear(80, true); };
-        ab.body().appendChild(toast);
-        for (var i = notfys.length; i--;) {
-            notfys[i].stop().trans({ top: notfys[i].offsetTop + ab.h(1) + toast.offsetHeight, alpha: 1 }, 40 + 10 * 1);
-            //console.log({ top:notfys[i].offsetTop-ab.h(5) });
-        }
-        //var animationPreset = {top:this.h(88)-toast.offsetHeight, left:this.w(75), alpha:1.0 };
-        //console.log(animationPreset);
-        toast.stop().trans({ top: ab.h(1), alpha: 1.0 }, 40);
-        toast.dataset.delay = setTimeout(function() { toast.remove(); }, 8000);
+        toast.style.top = '2vh';
+        toast.onclick = function() { this.desappear(120, true); };
         toast.onmouseenter = function() {
             this.addClass("fbd");
             clearTimeout(this.dataset.delay);
@@ -1918,7 +1929,13 @@ class Abox {
             this.remClass("fbd");
             this.dataset.delay = setTimeout(function(t) { t.remove(); }, 2000, this);
         };
-        if (l === AB_LOG) { this.exec("../lib/fn/log.php", { text: n }); }
+        ab.body().appendChild(toast);
+        for (var i=notfys.length; i--;){
+            setTimeout(function(n){ n.stop().trans({ top: n.offsetTop+n.offsetHeight+ab.h(1), alpha: 1.0 }, 120); },(50*i)+10,notfys[i]);
+        }
+        //toast.stop().trans({ top: ab.h(1), alpha: 1.0 }, 220, function(){console.log('done');});
+        toast.dataset.delay = setTimeout(function() { toast.remove(); }, 8000);
+        //if (l === AB_LOG) { this.exec("../lib/fn/log.php", { text: n }); }
         //this.organize();
     }
 
@@ -1933,7 +1950,6 @@ class Abox {
      */
     call(u, o = null, f = false, s = false, l = false) {
         if (l) this.loading(AB_ON);
-        //console.log(u);
         var
             id = u.uton(),
             iter = 1000,
@@ -1947,22 +1963,7 @@ class Abox {
                 eval(f)({ status: xhr.status, data: xhr.responseText.trim(), id: id });
             };
         }
-        /*
-        if (!s) {
-            xhr.onload = function(data) {
-                //console.log(data.currentTarget.responseText);
-                if (f) {
-                    eval(f)({
-                        status: xhr.status,
-                        data: data.currentTarget.responseText.trim(),
-                        id: id
-                    });
-                }
-            }
-        }
-        */
         xhr.open("POST", u, !s);
-        //xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         xhr.setRequestHeader("Content-Type", "application/json");
 
         xhr.send(o ? JSON.stringify(o) : null);
@@ -1993,12 +1994,15 @@ class Abox {
     load(u, o = null, d = 80, t = null, l = true) {
         if (l) this.loading(l);
         var
+        x,
         id = u.uton(),
         uu = document.getElementById(id);
         if (uu) {
+            ab.organize();
             if (uu.isModal()) uu.restore();
             else uu.appear(d);
-            ab.loadPool.push(uu.myId());
+            if(ab.loadPool.drop(id))
+            ab.loadPool.push(id);
             this.loading(false);
             return;
         }
@@ -2014,39 +2018,44 @@ class Abox {
                                 .replace(/[%]/g, "ab.tmpfs.") // temporary workspace
                                 .replace(/[#]/g, d.id) // ID
                                 .replace(/[!]/g, ".data"); // refer to an ab's Data object
-                            d.data[i] = d.data[i].join("");
+                            d.data[i][0] = d.data[i][0].trim();
+                            d.data[i] = d.data[i].join("").replace(/^\s+|\s+$/g,'');
                         }
                     }
                 }
                 d.data = d.data.join("");
-                var
-                uu,
                 x = d.data.toDOM();
-                uu = document.getElementById(x.id);
-                if (uu) {
-                    if (uu.isModal()) uu.restore();
-                    else uu.appear(d);
-                    ab.loadPool.push(uu.myId());
-                    ab.loading(AB_OUT);
-                    return;
-                }
-                if (!x || !(typeof x == "object") || ["SCRIPT", "STYLE"].indexOf(x.tagName) >= 0){  
+                if (!x) return;
+                if(["SCRIPT", "STYLE"].indexOf(x.tagName) >= 0){  
                     if(x.tagName=="SCRIPT") eval(x.textContent);
                     return;
-                } else {
-                    if (!x.id) x.id = id;
-                    if (t) t.appendChild(x);
-                    else ab.body().appendChild(x);
-                    if (x.isModal()) ab.windows.push(x.id);
-                    ab.loadPool.push(x.id);
-                    x.appear(180);
-                    var
-                    scr = x.getElementsByTagName("script");
-                    if (scr.length) for (var i = 0; i++ < scr.length;) eval(scr[i - 1].innerText.trim());
-                }
+                } 
+                uu = document.getElementById(x.id); if(uu) uu.delete();
+                if (!x.id) x.id = id;
+                if (t) t.appendChild(x);
+                else ab.body().appendChild(x);
+                if (x.isModal()) ab.windows.push(x.id);
+                ab.loadPool.push(x.id);
+                var
+                scr = x.getElementsByTagName("script");
+                if (scr.length) for (var i = 0; i++ < scr.length;) eval(scr[i - 1].innerText.trim());
+                if(!ab.tmpfs[id]) ab.tmpfs[id] = {};
+                ab.tmpfs[id].name = x.id;
+                ab.tmpfs[id].container = x;
+                if(ab.tmpfs[id].init) ab.tmpfs[id].init();
+                //x.appear(t);
             }
             ab.loading(AB_OUT);
         }, false, l);
+    }
+
+    unload(id,del=false){
+        var
+        x = document.getElementById(id);
+        if(x){
+            x.desappear(80,del);
+            if(del) ab.loadPool.drop(id);
+        }
     }
 
     /*
