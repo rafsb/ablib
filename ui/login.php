@@ -14,5 +14,12 @@ $o->bstart();?>
         <div class="sbar tct"><input type='submit' class='bt hpd bblack fwhite' value='ENTRAR'></div>
         <div class='zbar tct'><a class='link hmg fxs' onclick="ab.load('../lib/ui/pswd_reset.php')">Esqueci minha senha</a></div>
     </form>
+    <script>
+    	{{%#}} = {
+    		init:function(){
+    			this.container.appear();
+    		}
+    	}
+    </script>
 <?php
 $o->bend(true);

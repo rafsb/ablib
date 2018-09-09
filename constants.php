@@ -8,7 +8,7 @@ define("UUID",2);
 define("CUID",3);
 define("ROOT",4);
 define("HTTP",5);
-define("AB_SYS","aboxaboxaboxaboxaboxaboxaboxabox");
+define("AB_SYS","ABOX00");
 define("DEBUG","DBG");
 
 /* 
