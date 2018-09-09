@@ -2,11 +2,11 @@
 namespace abox;
 require "../modal.php";
 
-$o = new Modal("login","ENTRAR",AB_DIALOG,AB_NOSSCOPE);
+$o = new Modal("{{ # }}","ENTRAR",AB_DIALOG,AB_NOSSCOPE);
 
 $o->bstart();?>
-    <form id="{{#}}" class='wf dys tct' action='javascript:void(0)' onsubmit="ab.apply(function(){
-        ab.signin($('#{{#}} input:eq(0)').val(), $('#{{#}} input:eq(1)').val(), $('#{{#}} .-switched').attr('data-state').int());
+    <form id="{{ # }}" class='wf dys tct' action='javascript:void(0)' onsubmit="ab.apply(function(){
+        ab.signin($('#{{ # }} input:eq(0)').val(), $('#{{ # }} input:eq(1)').val(), $('#{{ # }} .-switched').attr('data-state').int());
     })">
         <div class="zbar tct"><div class="w60"><input type='text' autocomplete="current-user" class="tct"><label>Usuário</label></div></div>
         <div class="zbar tct"><div class="w60"><input type='password' autocomplete="current-password" class="tct -hash"><label>Senha</label></div></div>

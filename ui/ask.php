@@ -33,11 +33,14 @@ $o->bstart();?>
         </div>
     </div>
     <script>
-        (function(){ 
-            var
-            el = $("#{{#}} p:first");
-            el.html(document.getElementById('<?=$from?>').dataset.message);
-        })();
+        {{ %# }} = {
+            init : function(){
+                var
+                el = $("#{{#}} p:first");
+                el.html(document.getElementById('<?=$from?>').dataset.message);
+                this.container.appear();
+            }
+        }
     </script>
 <?php
 $o->bend(true);

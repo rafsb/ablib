@@ -163,7 +163,7 @@ class Modal{
 		echo str_replace("{{#}}",$this->id,
 			'<div id="{{#}}"
 				class="-'.$this->type.' f'.$this->type.' b'.$this->type.' '.$this->classes.($this->blured?' -blur':'').'"
-				style="display:block;position:fixed;'
+				style="display:block;position:fixed;opacity:0'
 					.($this->size 	  ? 'width:'	  .$this->size[0]	  .';height:'.$this->size[1]     :'')
 					.($this->position ? ';top:' 	  .$this->position[0] .';left:'  .$this->position[1] :'')
 					.($this->color    ? ";background:".$this->color										 :'')
@@ -177,15 +177,6 @@ class Modal{
 				.'<session class="stretch '.($this->scrollscope?"-sscope":"").'">'
 					.$this->body
 				.'</session>
-				<script>
-					setTimeout(function(){
-						var
-						x = document.getElementById("{{#}}");
-						if(x){ x = x.getElementsByClassName("-hook")[0]; if(x) x.click(); }
-						$(document.getElementById("{{#}}")).draggable();'.
-						($this->scrollscope?"ab.scrolls();":"").'
-					},400);
-				</script>
 			</div>'
 		);
 	}

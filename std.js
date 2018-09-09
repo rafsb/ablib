@@ -5,7 +5,7 @@
  * CONFIGURATION
  */
 const AB_RESPONSIVENESS_THRESHOLD = 700;
-
+const AB_ANIMATION_DEFAULT_RANGE  = 16;
 /* 
  * CALL TYPES
  */
@@ -362,18 +362,19 @@ HTMLElement.prototype.trans = function(o = null, len = 80.0, fn = null) {
     ph = phf!=o.height&&o.height!=null?(o.height-phf)/len:null,
     pa = paf!=o.alpha &&o.alpha !=null?(o.alpha -paf)/len:null;
     //console.log('id='+el.myId(),', pa'+pa,', paf='+paf,', alpha='+o.alpha,', len='+len);
-    this.dataset.transition = ab.tmpfs[animation] = setInterval(function() {
-        if (++iter == len) {
-            if(pt!=null) el.style.top     = o.top.int()    + "px";
-            if(pl!=null) el.style.left    = o.left.int()   + "px";
-            if(pw!=null) el.style.width   = o.width.int()  + "px";
-            if(ph!=null) el.style.height  = o.height.int() + "px";
+    var transition = this.dataset.transition =  setInterval(function() {
+        if (++iter/len >= .9) {
+            //console.log(iter/len);
+            if(pt!=null) el.style.top     = o.top    + "px";
+            if(pl!=null) el.style.left    = o.left   + "px";
+            if(pw!=null) el.style.width   = o.width  + "px";
+            if(ph!=null) el.style.height  = o.height + "px";
             if(pa!=null) el.style.opacity = o.alpha.toFixed(1);
-            if(fn!=null) setTimeout(fn, 100);
-            el.stop(animation);
+            if(fn!=null) fn.apply();
+            el.stop(transition);
         } else {
             if (pt!=null){ ptf+=pt; el.style.top    = ptf+"px"; } //console.log(ptf,pt)}
-            if (pl!=null){ plf+=pl; el.style.left   = plf+"px"; }
+            if (pl!=null){ plf+=pl; el.style.left   = plf+"px"; }//console.log(plf,pl); }
             if (pw!=null){ pwf+=pw; el.style.width  = pwf+"px"; }
             if (ph!=null){ phf+=ph; el.style.height = phf+"px"; }
             if (pa!=null){ 
@@ -384,12 +385,13 @@ HTMLElement.prototype.trans = function(o = null, len = 80.0, fn = null) {
                 //console.log(pa,paf)
             }
         }
-    }, pace);
+    }, 1+Math.abs(pace));
+    return this;
     //setTimeout(function(trans){ console.log(trans); },pace+1,el.dataset.transition);
 };
 
 HTMLElement.prototype.stop = function(an=false) { 
-    if(an){ clearInterval(ab.tmpfs[an]);  delete ab.tmpfs[an]; }
+    if(an){ clearInterval(an); }
     if (this.dataset.transition) clearInterval(this.dataset.transition); 
     this.dataset.transition="";
     return this; 
@@ -491,23 +493,24 @@ HTMLElement.prototype.appear = function(t = 200, py = null, px=null ) {
     ol = px || x.offsetLeft;
     x.style.opacity = "0";
     x.style.display = "inline-block";
-    x.style.top  = (ot+ab.animationsRange)+"px";
-    x.style.left = (ol+ab.animationsRange)+"px";
+    x.style.top  = (ot+AB_ANIMATION_DEFAULT_RANGE)+"px";
+    x.style.left = (ol+AB_ANIMATION_DEFAULT_RANGE)+"px";
     x.dataset.loadstate = 'visible';
-    x.stop();
+    //x.stop();
     x.trans({ top: ot, left:ol, alpha: 1 }, t, this.isModal() ? function() {
         if (!x.dataset.initialposition) x.dataset.initialposition = x.offsetTop + "," + x.offsetLeft + "," + x.offsetHeight + "," + x.offsetWidth;
     } : null);
-    setTimeout(function(x){ x.stop(); },t+1, x);
+    //setTimeout(function(x){ x.stop(); },t+100, x);
     if (x.isModal()) ab.reorder(x.myId());
     ab.organize();
+    return this;
 };
 
 HTMLElement.prototype.desappear = function(t = 100, r = null) {
     var
     ot = this.offsetTop,
     ol = this.offsetLeft;
-    this.trans({ top: ot+ab.animationsRange,left: ol+ab.animationsRange, alpha: 0 }, t);
+    this.trans({ top: ot+AB_ANIMATION_DEFAULT_RANGE,left: ol+AB_ANIMATION_DEFAULT_RANGE, alpha: 0 }, t);
     if (ab && this.isModal()) {
         ab.windows.set(null, ab.windows.idx(this.myId()));
         ab.reorder();
@@ -522,6 +525,7 @@ HTMLElement.prototype.desappear = function(t = 100, r = null) {
             d.stop();
         }
     },t+10,r,this,ot,ol);
+    return this;
 };
 
 HTMLElement.prototype.checkout = function() {
@@ -554,7 +558,7 @@ HTMLElement.prototype.isModal = function() {
     if (!this.className) return false;
     var
         mod = ["-window", "-panel", "-dialog", "-wrapper"],
-        arr = this.className.split(" "),
+        arr = this.className.split(/\s+/g),
         i = 0,
         j = 0,
         matches = false;
@@ -946,7 +950,7 @@ class Data {
     * @member function
     *
     */
-    bind(tmp, tgt, fn = null, idx = 0, pace = 1) {
+    bind(tmp, tgt, fn = null, idx = null) {
         var
         callback,
         tmpobj;
@@ -963,22 +967,15 @@ class Data {
         idx = this.bindobj_.index;
         if (!tmp) return -1;
         if (!tgt) return -2;
-        else {
-            tgt.style.opacity = '0';
-            if (tgt.dataset.callback) callback = tgt.dataset.callback.replace(/::this/g, "document.getElementById('" + tgt.myId() + "')").trim();
-            //console.log(tgt.dataset.callback);
-        }
+        else if (tgt.dataset.callback) callback = tgt.dataset.callback.replace(/::this/g, "document.getElementById('" + tgt.myId() + "')").trim();
         tgt.innerHTML = "";
-        if (this.obj.length && this.obj[0].code !== null) {
+        if (this.obj.length) {
             tmpobj = this.obj;
-            //console.log(idx,this.obj[idx]);
             if (idx != null && tmpobj[idx] && tmpobj[idx].code != null) { tmpobj = [tmpobj[idx]]; } else if (idx != null && !tmpobj[idx]) {
-                tgt.appendChild("<div class='rel tct ns' style='margin:0 1vw;opacity:1;'><icon class='xpd fxx fspan disabled' style='opacity:.5'>&#xe02e;</icon></div>".toDOM());
-                //tgt.appear(pace);
+                tgt.appendChild("<div class='rel tct ns' style='margin:0 1vw;opacity:1;'><img src='src/img/logok.png' class='w60 xys disabled' style='opacity:.5'/></div>".toDOM());
                 return;
             }
             for (var i = -1; ++i < tmpobj.length;) {
-                //console.log(tmp);
                 var
                 obj = tmpobj[i],
                 tile = tmp.cloneNode(true),
@@ -988,7 +985,7 @@ class Data {
                 tile.id = obj.code;
                 for (var j = binds.length; j--;) {
                     var
-                    fieldValue = eval("obj." + binds[j].dataset.field);
+                    fieldValue = obj[binds[j].dataset.field];
                     if (fieldValue) {
                         fieldValue = fieldValue.replace("/","\/");
                         if (binds[j].tagName == "INPUT") binds[j].value = fieldValue;
@@ -1001,17 +998,15 @@ class Data {
                         } else binds[j].innerText = fieldValue;
                         binds[j].dataset.bindedvalue = fieldValue;
                     }
-                    binds[j].dataset.bindedobjectindex = i;
                     binds[j].addClass("-binded");
                     binds[j].remClass("-bind");
                 }
                 tgt.appendChild(tile);
             }
             if (fn) fn.apply();
-        } else tgt.appendChild("<div class='rel tct ns' style='margin:0 1vw;opacity:1;'><icon class='xpd fxx fspan disabled' style='opacity:.5'>&#xe02e;</icon></div>".toDOM());
+        } else tgt.appendChild("<div class='rel tct ns' style='margin:0 1vw;opacity:1;'><img src='src/img/logok.png' class='w60 xys disabled' style='opacity:.5'/></div>".toDOM());
         if (callback) eval(callback);
-        tgt.trans({top:0,left:0,alpha:1},80);
-        //setTimeout(function() { tgt.appear(pace); }, pace);
+        //else tgt.appear();
     }
 
     updateBind(fn = this.bindobj.function, idx = null) {
@@ -1631,7 +1626,7 @@ class Abox {
                     this.style.background = "initial";
                     this.style.color = "initial";
                 };
-                maps[i].addEventListener("click", function(e) { this.parentModal().desappear(80, true); }, { passive: true });
+                maps[i].addEventListener("click", function(e) { this.parentModal().desappear(80, true); if(ab.tmpfs[this.myId()]) delete ab.tmpfs[this.myId()]; }, { passive: true });
                 maps[i].remClass("-close");
             }
         }
@@ -1849,10 +1844,11 @@ class Abox {
         for (var i = x.length; i--;) {
             if (typeof x[i] !== "object") break;
             var
-                tmp = x[i].dataset.object.split(/[;:,-]/g);
+            tmp = x[i].dataset.object.split(/[;:,-]/g);
             if (tmp && tmp.length >= 2) {
                 var
-                    t = eval(tmp[0]).value(tmp[1]); // jshint ignore:line
+                t = eval(tmp[0]).value(tmp[1]); // jshint ignore:line
+                //console.log(tmp,t);
                 if (t != null) {
                     //console.log(t,tmp[0],tmp[1]);
                     if (x[i].tagName == "INPUT") x[i].value = t ? t.replace(/&quot;/g, "'") : "";
@@ -2001,7 +1997,7 @@ class Abox {
             ab.organize();
             if (uu.isModal()) uu.restore();
             else uu.appear(d);
-            if(ab.loadPool.drop(id))
+            ab.loadPool.drop(id);
             ab.loadPool.push(id);
             this.loading(false);
             return;
@@ -2224,37 +2220,32 @@ class Abox {
         else {
             if (!document.getElementsByTagName("tooltip").length) {
                 var
-                    tooltip = document.createElement("tooltip");
+                tooltip = document.createElement("tooltip");
                 tooltip.className = "pin bdark fwhite hpd hr";
                 ab.body().appendChild(tooltip);
             }
             var
-                x = document.getElementsByClassName("-tooltip");
+            x = document.getElementsByClassName("-tooltip"),
+            enter = function(e) {
+                var
+                ttips = document.getElementsByTagName("tooltip")[0];
+                ttips.style.top = (e.clientY + AB_ANIMATION_DEFAULT_RANGE) + "px";
+                ttips.style.left = (e.clientX + AB_ANIMATION_DEFAULT_RANGE) + "px";
+                if (this.dataset.message && this.dataset.message.indexOf("::text") > -1) this.dataset.message.replace("::text", this.innerText);
+                ttips.innerHTML = this.dataset.message;
+                ttips.stop().appear(120);
+                //ab.organize();
+            },
+            leave = function(e) {
+                var
+                ttips = document.getElementsByTagName("tooltip")[0];
+                ttips.stop().style.display = "none";
+            };
             for (var i = x.length; i--;) {
-                x[i].addEventListener("mouseenter", function() {
-                    if (this.dataset.tooltipshow) clearInterval(this.dataset.tooltipshow);
-                    if (this.dataset.tooltiphide) clearInterval(this.dataset.tooltiphide);
-                    var
-                        pos = ab.mousePos,
-                        ttips = document.getElementsByTagName("tooltip")[0];
-                    ttips.style.top = (pos.top + 32) + "px";
-                    ttips.style.left = (pos.left - 6) + "px";
-                    if (this.dataset.message && this.dataset.message.indexOf("::text") > -1) this.dataset.message.replace("::text", this.innerText);
-                    //console.log(this.dataset.message,this.innerText);
-                    ttips.innerHTML = this.dataset.message;
-                    ttips.dataset.tooltipshow = setTimeout(function() {
-                        ttips.appear(80, pos.top + 12);
-                        ttips.dataset.tooltiphide = setTimeout(function() { ttips.desappear(80, false); }, 4000);
-                    }, 1000);
-                    ab.organize();
-                }, { passive: true });
-                x[i].addEventListener("mouseleave", function() {
-                    var
-                        ttips = document.getElementsByTagName("tooltip")[0];
-                    clearInterval(ttips.dataset.tooltipshow);
-                    clearInterval(ttips.dataset.tooltiphide);
-                    ttips.style.display = "none";
-                }, { passive: true });
+                x[i].removeEventListener("mouseenter", enter, false);
+                x[i].removeEventListener("mouseleave", leave, false);
+                x[i].addEventListener("mouseenter", enter, {passive:true});
+                x[i].addEventListener("mouseleave", leave, {passive:true});
             }
         }
     }

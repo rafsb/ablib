@@ -38,5 +38,5 @@
 /*ICON FONTS*/
 @font-face {    font-family: "Awesome";         src: url("font/Awesome.ttf")        format("truetype"); }.ft-awesome        { font-family: Awesome;         }
 @font-face {    font-family: "Beauty";          src: url("font/Beauty.ttf")         format("truetype"); }.ft-beauty         { font-family: Beauty;          }
-@font-face {    font-family: "Elegant";         src: url("font/Elegant.ttf")        format("truetype"); }.ft-elegant        { font-family: Elegant;         }
+/*DEFAUT ON ABLIB:@font-face {    font-family: "Elegant";         src: url("font/Elegant.ttf")        format("truetype"); }.ft-elegant        { font-family: Elegant;         }*/
 @font-face {    font-family: "Romance";         src: url("font/Romance.ttf")        format("truetype"); }.ft-romance        { font-family: Romance;         }
