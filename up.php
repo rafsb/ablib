@@ -23,9 +23,9 @@ echo "* /";
 
 if($a->run()){
 	$o = (object)[];
-	$o->{"file"} = $rpath.$a->newname()."?_=".uniqid();
+	$o->{"file"} = $rpath.$a->newname();
 	$o->{"name"} = $a->newname();
-	$o->{"mini"} = $mini?"mini_".$a->newname()."?_=".uniqid():null;
+	$o->{"mini"} = $mini?"mini_".$a->newname():null;
 	$o->{"error"} = $a->log();
 	echo json_encode($o);
 }else echo '{"error":"'.$a->log().'"}';//.$a->log();//print_r($a);

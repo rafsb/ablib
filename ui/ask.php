@@ -38,6 +38,7 @@ $o->bstart();?>
                 var
                 el = $("#{{#}} p:first");
                 el.html(document.getElementById('<?=$from?>').dataset.message);
+                ab.organize();
                 this.container.appear();
             }
         }

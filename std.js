@@ -486,23 +486,23 @@ HTMLElement.prototype.inPage = function() {
 };
 
 // EFFECTS
-HTMLElement.prototype.appear = function(t = 200, py = null, px=null ) {
+HTMLElement.prototype.appear = function(t = 120, py = null, px=null ) {
     var
     x = this;
-    ot = py || x.offsetTop,
-    ol = px || x.offsetLeft;
+    ot = py!=null?py:x.offsetTop,
+    ol = px!=null?px:x.offsetLeft;
     x.style.opacity = "0";
     x.style.display = "inline-block";
     x.style.top  = (ot+AB_ANIMATION_DEFAULT_RANGE)+"px";
     x.style.left = (ol+AB_ANIMATION_DEFAULT_RANGE)+"px";
     x.dataset.loadstate = 'visible';
-    //x.stop();
-    x.trans({ top: ot, left:ol, alpha: 1 }, t, this.isModal() ? function() {
-        if (!x.dataset.initialposition) x.dataset.initialposition = x.offsetTop + "," + x.offsetLeft + "," + x.offsetHeight + "," + x.offsetWidth;
-    } : null);
-    //setTimeout(function(x){ x.stop(); },t+100, x);
+    x.stop();
+    setTimeout(function(x,ot,ol,t){
+        x.trans({ top: ot, left:ol, alpha: 1 }, t, x.isModal() ? function() {
+            if (!x.dataset.initialposition) x.dataset.initialposition = x.offsetTop + "," + x.offsetLeft + "," + x.offsetHeight + "," + x.offsetWidth;
+        } : null);
+    },t*.2,x,ot,ol,t*.8);
     if (x.isModal()) ab.reorder(x.myId());
-    ab.organize();
     return this;
 };
 
@@ -510,12 +510,15 @@ HTMLElement.prototype.desappear = function(t = 100, r = null) {
     var
     ot = this.offsetTop,
     ol = this.offsetLeft;
-    this.trans({ top: ot+AB_ANIMATION_DEFAULT_RANGE,left: ol+AB_ANIMATION_DEFAULT_RANGE, alpha: 0 }, t);
-    if (ab && this.isModal()) {
-        ab.windows.set(null, ab.windows.idx(this.myId()));
-        ab.reorder();
-    }
-    setTimeout(function(r, d, y, x) {
+    this.stop();
+    setTimeout(function(x,ot,ol,t){
+        x.trans({ top: ot+AB_ANIMATION_DEFAULT_RANGE,left: ol+AB_ANIMATION_DEFAULT_RANGE, alpha: 0 }, t);
+        if (ab && x.isModal()) {
+            ab.windows.set(null, ab.windows.idx(this.myId()));
+            ab.reorder();
+        }
+    },t*.2,this,ot,ol,t*.7);
+    setTimeout(function(r, d, y,x) {
         if (r)  d.delete();
         else {
             d.style.top = y + "px";
@@ -524,7 +527,7 @@ HTMLElement.prototype.desappear = function(t = 100, r = null) {
             d.dataset.loadstate = 'hidden';
             d.stop();
         }
-    },t+10,r,this,ot,ol);
+    },t,r,this,ot,ol);
     return this;
 };
 
@@ -1626,7 +1629,10 @@ class Abox {
                     this.style.background = "initial";
                     this.style.color = "initial";
                 };
-                maps[i].addEventListener("click", function(e) { this.parentModal().desappear(80, true); if(ab.tmpfs[this.myId()]) delete ab.tmpfs[this.myId()]; }, { passive: true });
+                maps[i].addEventListener("click", function(e) { 
+                    this.parentModal().desappear(80, true); 
+                    if(ab.tmpfs[this.parentModal().myId()]) delete ab.tmpfs[this.parentModal().myId()]; 
+                }, { passive: true });
                 maps[i].remClass("-close");
             }
         }
@@ -1970,7 +1976,7 @@ class Abox {
         }
     }
 
-    qcell(o = null) { if (o) return this.call("../lib/fn/qcell.php", o, function(d) { return d.data; }, true); }
+    qcell(o = null, fn=null) { if (o) return this.call("../lib/fn/qcell.php", o, fn?fn.apply(d):function(d) { return d.data; }, true); }
 
     qio(o = null, n = false) { if (o) return this.call("../lib/fn/qio.php", { data: o, n: n }, function(d) { return d.data; }, true, false); }
 
@@ -2221,31 +2227,27 @@ class Abox {
             if (!document.getElementsByTagName("tooltip").length) {
                 var
                 tooltip = document.createElement("tooltip");
-                tooltip.className = "pin bdark fwhite hpd hr";
                 ab.body().appendChild(tooltip);
             }
             var
-            x = document.getElementsByClassName("-tooltip"),
-            enter = function(e) {
-                var
-                ttips = document.getElementsByTagName("tooltip")[0];
-                ttips.style.top = (e.clientY + AB_ANIMATION_DEFAULT_RANGE) + "px";
-                ttips.style.left = (e.clientX + AB_ANIMATION_DEFAULT_RANGE) + "px";
-                if (this.dataset.message && this.dataset.message.indexOf("::text") > -1) this.dataset.message.replace("::text", this.innerText);
-                ttips.innerHTML = this.dataset.message;
-                ttips.stop().appear(120);
-                //ab.organize();
-            },
-            leave = function(e) {
-                var
-                ttips = document.getElementsByTagName("tooltip")[0];
-                ttips.stop().style.display = "none";
-            };
+            x = document.getElementsByClassName("-tooltip");
             for (var i = x.length; i--;) {
-                x[i].removeEventListener("mouseenter", enter, false);
-                x[i].removeEventListener("mouseleave", leave, false);
-                x[i].addEventListener("mouseenter", enter, {passive:true});
-                x[i].addEventListener("mouseleave", leave, {passive:true});
+                x[i].addEventListener("mouseenter", function(e) {
+                    var
+                    ttips = document.getElementsByTagName("tooltip")[0];
+                    ttips.style.top = (e.clientY + AB_ANIMATION_DEFAULT_RANGE) + "px";
+                    ttips.style.left = (e.clientX + AB_ANIMATION_DEFAULT_RANGE) + "px";
+                    if (this.dataset.message && this.dataset.message.indexOf("::text") > -1) this.dataset.message.replace("::text", this.innerText);
+                    ttips.innerHTML = this.dataset.message;
+                    ttips.style.display = 'block';
+                    ttips.stop().appear(120);
+                }, {passive:true});
+                x[i].addEventListener("mouseleave", function(e) {
+                    var
+                    ttips = document.getElementsByTagName("tooltip")[0];
+                    ttips.stop().style.display = "none";
+                }, {passive:true});
+                x[i].remClass('--tooltip');
             }
         }
     }

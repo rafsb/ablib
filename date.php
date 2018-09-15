@@ -80,7 +80,7 @@ class Date{
             if($d=="today") $tmp = new Date(AB_NOW);
             else if(strpos($d,'/')) $tmp = new Date(["date"=>$d]);
         }
-        $tmp = $this->days()-$tmp->days();
+        $tmp = (int)($tmp->days()-$this->days());
         return ($a==AB_ABSOLUTE ? abs($tmp):$tmp);
     }
 

@@ -9,7 +9,15 @@ $o = new Modal("{{#}}",conf("enterprise"),AB_DIALOG);
 $o->bstart();?>
     <p class='lt justify tlt syp dxp -map[=fxs]'><?=$advs?></p>
     <button class="wf tct bspan fwhite hyp dts" onclick="$('#{{#}} .-closed').click()">OK</button>
-    <script>$("#{{#}} button:eq(0)").focus();</script>
+    <script>
+    	{{%#}} = {
+	    	init:function(){
+	    		$("#{{#}} button:eq(0)").focus();
+	    		ab.organize();
+	    		this.container.appear();
+	    	}
+    	}
+    </script>
 <?php
 $o->bend();
 if(isset($setup["background"])) $o->paint($setup["background"]);
