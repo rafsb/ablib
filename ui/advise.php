@@ -13,8 +13,9 @@ $o->bstart();?>
     	{{%#}} = {
 	    	init:function(){
 	    		$("#{{#}} button:eq(0)").focus();
-	    		ab.organize();
+                $(this.container).draggable();
 	    		this.container.appear();
+                ab.organize();
 	    	}
     	}
     </script>

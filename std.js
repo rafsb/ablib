@@ -356,11 +356,11 @@ HTMLElement.prototype.trans = function(o = null, len = 80.0, fn = null) {
     pwf = cv.getPropertyValue('width').float(),
     phf = cv.getPropertyValue('height').float(),
     paf = cv.getPropertyValue('opacity').float(),
-    pl = o.left  !=null?o.left  /len:null,
-    pt = o.top   !=null?o.top   /len:null,
-    pw = o.width !=null?o.width /len:null,
-    ph = o.height!=null?o.height/len:null,
-    pa = o.alpha !=null?(o.alpha-paf)/len:null;
+    pl = o.left  !=null || o.left  !=undefined?o.left  /len:null,
+    pt = o.top   !=null || o.top   !=undefined?o.top   /len:null,
+    pw = o.width !=null || o.width !=undefined?o.width /len:null,
+    ph = o.height!=null || o.height!=undefined?o.height/len:null,
+    pa = o.alpha !=null || o.alpha !=undefined?(o.alpha-paf)/len:null;
     var transition = this.dataset.transition =  setInterval(function() {
         if (++iter/len >= .99) {
             //console.log(iter/len);
@@ -1860,12 +1860,12 @@ class Abox {
                 //console.log(tmp,t);
                 if (t != null) {
                     //console.log(t,tmp[0],tmp[1]);
-                    if (x[i].tagName == "INPUT") x[i].value = t ? t.replace(/&quot;/g, "'") : "";
+                    if (x[i].tagName == "INPUT") x[i].value = (t ? (typeof t == "string" ? t.replace(/&quot;/g, "'") : t) : "");
                     else if (x[i].tagName == "SELECT") {
                         if (x[i].dataset.tablefield) {
                             var
                             y = x[i].dataset.tablefield.split(/[#;:,-]/g);
-                            //console.log(y);
+                            //console.log(y,t);
                             x[i].dataset.tablefield = [
                                 y[0] // table
                                 , y[1] //field
@@ -1876,13 +1876,13 @@ class Abox {
                                     restrictions: "code='" + t + "'"
                                 })
                             ].join(";");
-                            //console.log(x[i].dataset.tablefield);
+                            console.log(x[i].dataset.tablefield);
                             x[i].refill();
                         } else if(t) x[i].value = t.replace(/&quot;/g, "'");
                     } else if (x[i].classList.contains('-switched')) {
                         x[i].dataset.state = t ? "0" : "1";
                         x[i].click();
-                    } else if(t) x[i].innerText = t.replace(/&quot;/g, "'");
+                    } else if(t) x[i].innerText = (typeof t == "string"?t.replace(/&quot;/g, "'"):t);
                     if (x[i].dataset.trigger) eval(x[i].dataset.trigger);
                 };
             };
@@ -1923,8 +1923,7 @@ class Abox {
         toast.style.background = c[0] ? c[0] : "rgba(255,255,255,.8)";
         toast.style.color = c[1] ? c[1] : "black";
         toast.innerHTML = n ? n : "Hello World!!!";
-        toast.style.left = ab.viewport==AB_LANDSCAPE?"78%":"7.5%";
-        toast.style.top = '2vh';
+        toast.style.opacity="0";
         toast.onclick = function() { this.desappear(120, true); };
         toast.onmouseenter = function() {
             this.addClass("fbd");
@@ -1936,7 +1935,7 @@ class Abox {
         };
         ab.body().appendChild(toast);
         for (var i=notfys.length; i--;){
-            setTimeout(function(n){ n.stop().trans({ top: n.offsetTop+n.offsetHeight+ab.h(1), alpha: 1.0 }, 120); },(50*i)+10,notfys[i]);
+            setTimeout(function(n){ n.stop().trans({ left:ab.w(78),top: n.offsetTop+n.offsetHeight+ab.h(1), alpha: 1.0 }, 120); },(50*i)+10,notfys[i]);
         }
         //toast.stop().trans({ top: ab.h(1), alpha: 1.0 }, 220, function(){console.log('done');});
         toast.dataset.delay = setTimeout(function() { toast.remove(); }, 8000);
@@ -1979,7 +1978,7 @@ class Abox {
         }
     }
 
-    qcell(o = null, fn=null) { if (o) return this.call("../lib/fn/qcell.php", o, fn?fn.apply(d):function(d) { return d.data; }, true); }
+    qcell(o = null, fn=null) { if (o) return this.call("../lib/fn/qcell.php", o, fn!==null?fn.apply(d):function(d) { return d.data; }, true); }
 
     qio(o = null, n = false) { if (o) return this.call("../lib/fn/qio.php", { data: o, n: n }, function(d) { return d.data; }, true, false); }
 
@@ -2441,7 +2440,7 @@ class Abox {
             ab.error("Favor indicar o template para envio...");
             return 0;
         }
-        ab.call("../etc/mailer.php",{conf:u,data:o},function(data){ if(fn) eval(fn)(data); });
+        ab.call("../lib/fn/mailer.php",{conf:u,data:o},function(data){ if(fn) eval(fn)(data); });
     }
 }
 

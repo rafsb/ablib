@@ -163,6 +163,15 @@ class Date{
     public function computable($d=true,$t=false){
         return (int)(($d&&$this->date()?implode("",array_reverse(explode('/',$this->date()))):"").($t&&$this->time()?implode("",explode(":",$this->time())):''));
     }
+
+    public function import($d){
+        $d = (string)$d;
+        if(strlen($d)>=8){
+            $this->date_ = substr($d,6,2)."/".substr($d,4,2)."/".substr($d,0,4);
+            if(strlen($d)>8) $this->time_ = substr($d,8,2).":".substr($d,10,2).":".substr($d,12,2);
+        }
+        return $this;
+    }
     /*
      * @constructor
      *

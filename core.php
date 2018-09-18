@@ -191,7 +191,7 @@ function cook($f,$v=null){
     }
     $f = $t?$t:$f;
     $pn = conf('project_name');
-    sess(DEBUG,sess(DEBUG)."|COOK-".$pn."_".$f."-".$v."|");
+    //sess(DEBUG,sess(DEBUG)."|COOK-".$pn."_".$f."-".$v."|");
     if($v!==null) setcookie($pn."_".$f,$v,(int)(1000*60*60*30*365),"/");
     return (isset($_COOKIE[$pn."_".$f])?$_COOKIE[$pn."_".$f]:0);
 }

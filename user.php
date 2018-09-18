@@ -53,7 +53,7 @@ function signin($u,$p,$k=0){
     if(pswd_check($o->data()->code,$p)>0){
         sess(USER,$o->data()->code);
         if($k) cook(USER,$o->data()->code);
-        qin("UPDATE Users SET last='".(new Date())->datetime()."' WHERE code='".$o->data()->code."'");
+        qin("UPDATE Users SET last='".(new Date())->computable()."' WHERE code='".$o->data()->code."'");
         return 1;
     }else return -6;
 }
