@@ -49,7 +49,7 @@ class Date{
      *
      */
     public function intl(){
-        $tmp = explode("/",$this->date_?$this->date_:$this->today());
+        $tmp = explode("/",$this->date_?$this->date_:$this->today(true));
         return($tmp[2]."-".$tmp[1]."-".$tmp[0]);
     }
 
