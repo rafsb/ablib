@@ -1,12 +1,12 @@
 /* jshint esversion:6*/
 /* jshint -W034 */
 
-/* 
+/*
  * CONFIGURATION
  */
 const AB_RESPONSIVENESS_THRESHOLD = 700;
 const AB_ANIMATION_DEFAULT_RANGE  = 16;
-/* 
+/*
  * CALL TYPES
  */
 const AB_SYS = "aboxaboxaboxaboxaboxaboxaboxabox";
@@ -20,7 +20,7 @@ const AB_OUT = false;
 const AB_OFF = false;
 const AB_DESTROY = true;
 const AB_DEBUG = "DBG";
-/* 
+/*
  * ABOX PECULIAR TYPES
  */
 const AB_FIELD = 0;
@@ -41,7 +41,7 @@ const AB_ASSOC = 14;
 const AB_MYSQLI_OBJ = 15;
 const AB_NOABSOLUTE = 16;
 
-/* 
+/*
  * HANDLER MODES
  */
 const AB_NEW = 0;
@@ -62,13 +62,13 @@ const AB_LOG = true;
 const AB_NOLOG = false;
 const AB_MINIFY = true;
 const AB_NOMINIFY = false;
-/* 
+/*
  * ENVIROMENTS
  */
 const AB_SESSION = 1;
 const AB_COOKIE = 2;
 
-/* 
+/*
  * OUATH CLIENTS
  */
 const AB_OLX = 1;
@@ -76,7 +76,7 @@ const AB_FACEBOOK = 2;
 const AB_INSTAGRAM = 3;
 const AB_GOOGLE = 4;
 
-/* 
+/*
  * SPECIAL ELEMENTS ENUMERATOR
  */
 const AB_TEXT = 1;
@@ -88,12 +88,12 @@ const AB_PANEL = 6;
 const AB_DIALOG = 7;
 const AB_WRAPPER = 8;
 
-/* 
+/*
  * XHR CALLBACK STATUS
  */
 const AB_SUCCESS = 200;
 
-/* 
+/*
  * WINDOW STATE
  */
 const AB_NORMAL = 0;
@@ -209,7 +209,7 @@ String.prototype.toDOM = function() {
 };
 
 String.prototype.ucwords = function(){
-    var 
+    var
     tmp = this.split(/\s+/g);
     for(var i=0;++i<tmp.length;){
         tmp[i-1] = tmp[i-1].toLowerCase();
@@ -377,20 +377,20 @@ HTMLElement.prototype.trans = function(o = null, len = 80.0, fn = null) {
             if (pl!=null){ el.style.left   = (plf+(iter*pl))+"px"; } //console.log(plf,pl);}
             if (pw!=null){ el.style.width  = (pwf+(iter*pw))+"px"; }
             if (ph!=null){ el.style.height = (phf+(iter*ph))+"px"; }
-            if (pa!=null){ 
+            if (pa!=null){
                 var
                 tmp= Math.abs((iter*pa)%1);
                 el.style.opacity = tmp.toFixed(1);
-                console.log(tmp.toFixed(1));
+                //console.log(tmp.toFixed(1));
             }
         }
     }, Math.abs(Math.ceil(pace)));
     return this;
 };
 
-HTMLElement.prototype.stop = function(an=false) { 
+HTMLElement.prototype.stop = function(an=false) {
     if(an){ clearInterval(an); }
-    else if (this.dataset.transition) clearInterval(this.dataset.transition); 
+    else if (this.dataset.transition) clearInterval(this.dataset.transition);
     this.dataset.transition="";
     return this;
 };
@@ -634,7 +634,7 @@ HTMLElement.prototype.climb = function(n = -1) {
 };
 
 /*
- * @class 
+ * @class
  *
  * Handle and store touples or matrixes comming from backend as an json object
  * Can interact with [handle] tag attributes to update registers on client side
@@ -799,7 +799,7 @@ class Pool {
 }
 
 /*
- * @class 
+ * @class
  *
  * Handle and store touples or matrixes comming from backend as an json object
  * Can interact with [handle] tag attributes to update registers on client side
@@ -811,7 +811,7 @@ class Data {
     /*
      * @constructor
      *
-     * table 
+     * table
      * field
      * restrictions
      * ordering
@@ -834,7 +834,7 @@ class Data {
      * @member function
      *
      * Initialize the inner object quering information for the 'multiverse'
-     * t = table 
+     * t = table
      * f = field
      * r = restrictions
      * o = element in which the result will be Ordered
@@ -1082,7 +1082,7 @@ class Data {
 }
 
 /*
- * @class 
+ * @class
  *
  * Handle dates considering brazilian date format
  *
@@ -1275,7 +1275,7 @@ class Datetime {
 }
 
 /*
- * @class 
+ * @class
  *
  * handle the minimum amount of time to wait until executions of a given function
  * good to prevent events like scroll and typing to fire some actions multiple
@@ -1288,7 +1288,7 @@ class Throttle {
      *
      * f = javascript function to be applied
      * t = time betwin executions of 'f' (250ms is the default)
-     * ex.: new __self.Throttle(minha_funcao,400); 
+     * ex.: new __self.Throttle(minha_funcao,400);
      *
      */
     constructor(f, t = 256, poff = true) {
@@ -1390,7 +1390,7 @@ class Abox {
             if (x) {
                 x.style.zIndex = 1100 + i,
                 z = x.styleSheet();
-                x.trans({ 
+                x.trans({
                     top: ab.h(87.5)-z.getPropertyValue('top')
                     ,left: this.tray.length()?z.getPropertyValue('left')+(i * ab.w(10)) : 0
                     ,width: z.getPropertyValue('width')-ab.w(10)
@@ -1417,7 +1417,7 @@ class Abox {
         }
         */
         this.viewport = (this.w() < AB_RESPONSIVENESS_THRESHOLD) ? AB_PORTRAIT : AB_LANDSCAPE;
-        
+
         var
         maps = document.querySelectorAll("[class*='-map'");
         if(maps.length) {
@@ -1459,7 +1459,7 @@ class Abox {
                 maps[i].className = maps[i].dataset.classes + " " + (ab.viewport==AB_LANDSCAPE?maps[i].dataset.landscape:maps[i].dataset.portrait);
             }
         }
-        
+
         maps = document.getElementsByClassName("-switch");
         if (maps.length) {
             for (var i = maps.length; i--;) {
@@ -1628,9 +1628,9 @@ class Abox {
                     this.style.background = "initial";
                     this.style.color = "initial";
                 };
-                maps[i].addEventListener("click", function(e) { 
-                    this.parentModal().desappear(80, true); 
-                    if(ab.tmpfs[this.parentModal().myId()]) delete ab.tmpfs[this.parentModal().myId()]; 
+                maps[i].addEventListener("click", function(e) {
+                    this.parentModal().desappear(80, true);
+                    if(ab.tmpfs[this.parentModal().myId()]) delete ab.tmpfs[this.parentModal().myId()];
                 }, { passive: true });
                 maps[i].remClass("-close");
             }
@@ -1968,7 +1968,7 @@ class Abox {
         xhr.setRequestHeader("Content-Type", "application/json");
 
         xhr.send(o ? JSON.stringify(o) : null);
-        
+
         if (s) {
             var o = { status: xhr.status, data: xhr.responseText.trim(), id: id };
             return (f ? eval(f)(o) : o);
@@ -2027,10 +2027,10 @@ class Abox {
                 d.data = d.data.join("");
                 x = d.data.toDOM();
                 if (!x) return;
-                if(["SCRIPT", "STYLE"].indexOf(x.tagName) >= 0){  
+                if(["SCRIPT", "STYLE"].indexOf(x.tagName) >= 0){
                     if(x.tagName=="SCRIPT") eval(x.textContent);
                     return;
-                } 
+                }
                 uu = document.getElementById(x.id); if(uu) uu.delete();
                 if (!x.id) x.id = id;
                 if (t) t.appendChild(x);
@@ -2198,7 +2198,7 @@ class Abox {
     // calls framework's inner login modal window
     tmpfsToChroot(f,t,v){
         if(!f||!t){ ab.error("Faltando argumentos"); return; }
-        ab.exec('../etc/ttoc.php',{from:f,to00:t},function(r){ 
+        ab.exec('../etc/ttoc.php',{from:f,to00:t},function(r){
             if(r.data.int()==1){ if(v) ab.success("Arquivos movidos da pasta temporária.");
             }else{ if(v) ab.error("Arquivos na pasta temporária não puderam ser movidos, errno="+r.data); }
         });
