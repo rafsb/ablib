@@ -160,7 +160,9 @@ class Date{
             $this->time(AB_NOW);
         }
     }
-    
+    public function computable($d=true,$t=false){
+        return (int)(($d&&$this->date()?implode("",array_reverse(explode('/',$this->date()))):"").($t&&$this->time()?implode("",explode(":",$this->time())):''));
+    }
     /*
      * @constructor
      *

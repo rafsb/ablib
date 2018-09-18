@@ -1090,7 +1090,7 @@ class Data {
 class Datetime {
     /*
      * @constructor
-     *
+     *  
      * d = date on brazilian format
      * ex.: new _Date("12/02/1988");
      *
@@ -1190,7 +1190,7 @@ class Datetime {
      * returns inner date respective epoch value
      *
      */
-    days(d = 0, t = AB_FLOAT, c = 0) {
+    days(t = AB_FLOAT, d = 0, c = 0) {
         if (!d && !this.__date__) return false;
         var tmp = "";
         if (d) {
@@ -1271,6 +1271,10 @@ class Datetime {
                 return this.today(d) + "_" + this.now(t);
             }
         }
+    }
+
+    computable(d=true,t=false){
+        return ((d&&this.__date__?this.__date__.split(/\//g).reverse().join(""):"")+(t&&this.__time__?this.__time__.split(/:/g).join(''):'')).int();
     }
 }
 
