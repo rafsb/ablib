@@ -17,6 +17,7 @@ $o->bstart();?>
     <script>
     	{{%#}} = {
     		init:function(){
+                ab.organize();
     			this.container.appear();
     		}
     	}

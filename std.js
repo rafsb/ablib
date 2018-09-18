@@ -349,52 +349,50 @@ HTMLElement.prototype.trans = function(o = null, len = 80.0, fn = null) {
     iter = 0,
     el = this,
     animation = ab.newId(8);
-    el.style.display = "inline-block";
+    el.style.display = "block";
     cv = el.styleSheet(),
     ptf = cv.getPropertyValue('top').float(),
     plf = cv.getPropertyValue('left').float(),
     pwf = cv.getPropertyValue('width').float(),
     phf = cv.getPropertyValue('height').float(),
     paf = cv.getPropertyValue('opacity').float(),
-    pl = plf!=o.left  &&o.left  !=null?(o.left  -plf)/len:null,
-    pt = ptf!=o.top   &&o.top   !=null?(o.top   -ptf)/len:null,
-    pw = pwf!=o.width &&o.width !=null?(o.width -pwf)/len:null,
-    ph = phf!=o.height&&o.height!=null?(o.height-phf)/len:null,
-    pa = paf!=o.alpha &&o.alpha !=null?(o.alpha -paf)/len:null;
-    //console.log('id='+el.myId(),', pa'+pa,', paf='+paf,', alpha='+o.alpha,', len='+len);
+    pl = o.left  !=null?o.left  /len:null,
+    pt = o.top   !=null?o.top   /len:null,
+    pw = o.width !=null?o.width /len:null,
+    ph = o.height!=null?o.height/len:null,
+    pa = o.alpha !=null?(o.alpha-paf)/len:null;
     var transition = this.dataset.transition =  setInterval(function() {
-        if (++iter/len >= .9) {
+        if (++iter/len >= .99) {
             //console.log(iter/len);
-            if(pt!=null) el.style.top     = o.top    + "px";
-            if(pl!=null) el.style.left    = o.left   + "px";
-            if(pw!=null) el.style.width   = o.width  + "px";
-            if(ph!=null) el.style.height  = o.height + "px";
-            if(pa!=null) el.style.opacity = o.alpha.toFixed(1);
+            if(pt!=null) el.style.top     = ptf+o.top    + "px";
+            if(pl!=null) el.style.left    = plf+o.left   + "px";
+            if(pw!=null) el.style.width   = pwf+o.width  + "px";
+            if(ph!=null) el.style.height  = phf+o.height + "px";
+            if(pa!=null) el.style.opacity = paf+o.alpha.toFixed(1);
             if(fn!=null) fn.apply();
             el.stop(transition);
         } else {
-            if (pt!=null){ ptf+=pt; el.style.top    = ptf+"px"; } //console.log(ptf,pt)}
-            if (pl!=null){ plf+=pl; el.style.left   = plf+"px"; }//console.log(plf,pl); }
-            if (pw!=null){ pwf+=pw; el.style.width  = pwf+"px"; }
-            if (ph!=null){ phf+=ph; el.style.height = phf+"px"; }
+
+            if (pt!=null){ el.style.top    = (ptf+(iter*pt))+"px"; } //console.log(ptf,pt);}
+            if (pl!=null){ el.style.left   = (plf+(iter*pl))+"px"; } //console.log(plf,pl);}
+            if (pw!=null){ el.style.width  = (pwf+(iter*pw))+"px"; }
+            if (ph!=null){ el.style.height = (phf+(iter*ph))+"px"; }
             if (pa!=null){ 
-                paf+=pa;
-                if(paf<0) paf = 0;
-                else if(paf>1) paf=1;
-                el.style.opacity = paf.toFixed(1);
-                //console.log(pa,paf)
+                var
+                tmp= Math.abs((iter*pa)%1);
+                el.style.opacity = tmp.toFixed(1);
+                console.log(tmp.toFixed(1));
             }
         }
-    }, 1+Math.abs(pace));
+    }, Math.abs(Math.ceil(pace)));
     return this;
-    //setTimeout(function(trans){ console.log(trans); },pace+1,el.dataset.transition);
 };
 
 HTMLElement.prototype.stop = function(an=false) { 
     if(an){ clearInterval(an); }
-    if (this.dataset.transition) clearInterval(this.dataset.transition); 
+    else if (this.dataset.transition) clearInterval(this.dataset.transition); 
     this.dataset.transition="";
-    return this; 
+    return this;
 };
 
 HTMLElement.prototype.scrollTo = function(el) {
@@ -489,45 +487,40 @@ HTMLElement.prototype.inPage = function() {
 HTMLElement.prototype.appear = function(t = 120, py = null, px=null ) {
     var
     x = this;
-    ot = py!=null?py:x.offsetTop,
-    ol = px!=null?px:x.offsetLeft;
+    ot = (py!=null?py:x.offsetTop),
+    ol = (px!=null?px:x.offsetLeft);
+    x.style.display = "block";
     x.style.opacity = "0";
-    x.style.display = "inline-block";
-    x.style.top  = (ot+AB_ANIMATION_DEFAULT_RANGE)+"px";
-    x.style.left = (ol+AB_ANIMATION_DEFAULT_RANGE)+"px";
+    x.style.top = ot+AB_ANIMATION_DEFAULT_RANGE+"px";
+    x.style.left = ol+AB_ANIMATION_DEFAULT_RANGE+"px";
     x.dataset.loadstate = 'visible';
-    x.stop();
-    setTimeout(function(x,ot,ol,t){
-        x.trans({ top: ot, left:ol, alpha: 1 }, t, x.isModal() ? function() {
-            if (!x.dataset.initialposition) x.dataset.initialposition = x.offsetTop + "," + x.offsetLeft + "," + x.offsetHeight + "," + x.offsetWidth;
-        } : null);
-    },t*.2,x,ot,ol,t*.8);
     if (x.isModal()) ab.reorder(x.myId());
-    return this;
+    return x.stop().trans({ top: AB_ANIMATION_DEFAULT_RANGE*(-1), left:AB_ANIMATION_DEFAULT_RANGE*(-1), alpha: 1 }, t, x.isModal() ? function() {
+        if (!x.dataset.initialposition) x.dataset.initialposition = x.offsetTop + "," + x.offsetLeft + "," + x.offsetHeight + "," + x.offsetWidth;
+    } : null);
 };
 
-HTMLElement.prototype.desappear = function(t = 100, r = null) {
+HTMLElement.prototype.desappear = function(t = 120, r = null) {
     var
-    ot = this.offsetTop,
-    ol = this.offsetLeft;
-    this.stop();
-    setTimeout(function(x,ot,ol,t){
-        x.trans({ top: ot+AB_ANIMATION_DEFAULT_RANGE,left: ol+AB_ANIMATION_DEFAULT_RANGE, alpha: 0 }, t);
-        if (ab && x.isModal()) {
-            ab.windows.set(null, ab.windows.idx(this.myId()));
-            ab.reorder();
-        }
-    },t*.2,this,ot,ol,t*.7);
+    x = this,
+    ot = x.offsetTop,
+    ol = x.offsetLeft;
+    if (x.isModal()) {
+        ab.windows.set(null, ab.windows.idx(this.myId()));
+        ab.reorder();
+    }
+    this.stop().trans({ top: AB_ANIMATION_DEFAULT_RANGE,left: AB_ANIMATION_DEFAULT_RANGE, alpha: 0 }, t);
     setTimeout(function(r, d, y,x) {
         if (r)  d.delete();
         else {
             d.style.top = y + "px";
             d.style.top = x + "px";
+            d.style.opacity = "0";
             d.style.display = "none";
             d.dataset.loadstate = 'hidden';
             d.stop();
         }
-    },t,r,this,ot,ol);
+    },t+1,r,x,ot,ol);
     return this;
 };
 
@@ -1395,8 +1388,14 @@ class Abox {
             var
                 x = document.getElementById(this.tray.get(i));
             if (x) {
-                x.style.zIndex = 1100 + i;
-                x.trans({ top: ab.h(87.5), left: this.tray.length() ? i * ab.w(10) : 0, width: ab.w(10), opacity: 1 }, 80);
+                x.style.zIndex = 1100 + i,
+                z = x.styleSheet();
+                x.trans({ 
+                    top: ab.h(87.5)-z.getPropertyValue('top')
+                    ,left: this.tray.length()?z.getPropertyValue('left')+(i * ab.w(10)) : 0
+                    ,width: z.getPropertyValue('width')-ab.w(10)
+                    ,alpha: 1
+                }, 80);
             }
         }
     }
