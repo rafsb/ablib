@@ -20,7 +20,9 @@ function logoff()
 function user(){ return sess(USER); }
 
 
-function username(){ return user()?qcell("Users","name"):""; }
+function username($c=null){ return qcell("Users","name","code='".($c?$c:user())."'"); }
+
+function user_exists($u){ if(!$u) return null; return qio("SELECT * FROM Users WHERE code='$u'"); }
 
 
 ## checks if a given passphrase matches it"s informed user"s ownership

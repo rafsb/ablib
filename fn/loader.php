@@ -1,0 +1,1 @@
+<?php require '../../etc/loader.php';if(abox\in()) echo abox\loader(abox\in());

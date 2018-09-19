@@ -349,18 +349,19 @@ HTMLElement.prototype.trans = function(o = null, len = 80.0, fn = null) {
     iter = 0,
     el = this,
     animation = ab.newId(8);
-    el.style.display = "block";
+    //el.style.display = "block";
     cv = el.styleSheet(),
     ptf = cv.getPropertyValue('top').float(),
     plf = cv.getPropertyValue('left').float(),
     pwf = cv.getPropertyValue('width').float(),
     phf = cv.getPropertyValue('height').float(),
     paf = cv.getPropertyValue('opacity').float(),
-    pl = o.left  !=null || o.left  !=undefined?o.left  /len:null,
-    pt = o.top   !=null || o.top   !=undefined?o.top   /len:null,
-    pw = o.width !=null || o.width !=undefined?o.width /len:null,
-    ph = o.height!=null || o.height!=undefined?o.height/len:null,
-    pa = o.alpha !=null || o.alpha !=undefined?(o.alpha-paf)/len:null;
+    pl = o.left  !=null && o.left  !=undefined ? o.left  /len:null,
+    pt = o.top   !=null && o.top   !=undefined ? o.top   /len:null,
+    pw = o.width !=null && o.width !=undefined ? o.width /len:null,
+    ph = o.height!=null && o.height!=undefined ? o.height/len:null,
+    pa = o.alpha !=null && o.alpha !=undefined ? (o.alpha-paf)/len:null;
+    //console.log(pl,pt,pw,ph,pa);
     var transition = this.dataset.transition =  setInterval(function() {
         if (++iter/len >= .99) {
             //console.log(iter/len);
@@ -368,21 +369,15 @@ HTMLElement.prototype.trans = function(o = null, len = 80.0, fn = null) {
             if(pl!=null) el.style.left    = plf+o.left   + "px";
             if(pw!=null) el.style.width   = pwf+o.width  + "px";
             if(ph!=null) el.style.height  = phf+o.height + "px";
-            if(pa!=null) el.style.opacity = paf+o.alpha.toFixed(1);
+            if(pa!=null) el.style.opacity = o.alpha.toFixed(1);
             if(fn!=null) fn.apply();
             el.stop(transition);
         } else {
-
-            if (pt!=null){ el.style.top    = (ptf+(iter*pt))+"px"; } //console.log(ptf,pt);}
-            if (pl!=null){ el.style.left   = (plf+(iter*pl))+"px"; } //console.log(plf,pl);}
-            if (pw!=null){ el.style.width  = (pwf+(iter*pw))+"px"; }
-            if (ph!=null){ el.style.height = (phf+(iter*ph))+"px"; }
-            if (pa!=null){
-                var
-                tmp= Math.abs((iter*pa)%1);
-                el.style.opacity = tmp.toFixed(1);
-                //console.log(tmp.toFixed(1));
-            }
+            if (pt!=null) el.style.top    = (ptf+(iter*pt))+"px";
+            if (pl!=null) el.style.left   = (plf+(iter*pl))+"px";
+            if (pw!=null) el.style.width  = (pwf+(iter*pw))+"px";
+            if (ph!=null) el.style.height = (phf+(iter*ph))+"px";
+            if (pa!=null) el.style.opacity = (iter*pa+paf).toFixed(1);
         }
     }, Math.abs(Math.ceil(pace)));
     return this;
@@ -394,6 +389,10 @@ HTMLElement.prototype.stop = function(an=false) {
     this.dataset.transition="";
     return this;
 };
+
+HTMLElement.prototype.stopScroll = function(){
+    this.scroll({top:this.scrollTop+1});
+}
 
 HTMLElement.prototype.scrollTo = function(el) {
     if (!el) return -1;
@@ -458,6 +457,8 @@ HTMLElement.prototype.refill = function(c = false) {
     this.addClass("-fill");
     this.remClass("-filled");
     this.fill(c);
+    this.onchange();
+    this.focus();
 }
 
 // return an object eith { offset:"pixels", where:"percentual" } if the elemenet is positioned on the viewport
@@ -497,7 +498,7 @@ HTMLElement.prototype.appear = function(t = 120, py = null, px=null ) {
     if (x.isModal()) ab.reorder(x.myId());
     return x.stop().trans({ top: AB_ANIMATION_DEFAULT_RANGE*(-1), left:AB_ANIMATION_DEFAULT_RANGE*(-1), alpha: 1 }, t, x.isModal() ? function() {
         if (!x.dataset.initialposition) x.dataset.initialposition = x.offsetTop + "," + x.offsetLeft + "," + x.offsetHeight + "," + x.offsetWidth;
-    } : null);
+    } : ab.organize());
 };
 
 HTMLElement.prototype.desappear = function(t = 120, r = null) {
@@ -873,7 +874,7 @@ class Data {
 
     run(fn = null, idx = 0, cf = null) {
         if (cf || this.configFile_) {
-            this.scope_.call("../etc/handler.php", { conf: cf ? cf : this.configFile_, data: this.obj[idx] }, fn, false, true);
+            this.scope_.call("../lib/fn/handler.php", { conf: cf ? cf : this.configFile_, data: this.obj[idx] }, fn, false, true);
             return this;
         } else return false;
     }
@@ -936,7 +937,7 @@ class Data {
         if (o.limit) this.limitRange(o.limit);
         if (!this.configFile_ || !this.loadMode_) return null;
         //console.log(o.data);
-        this.scope_.call("../etc/loader.php", { conf: this.configFile_, data: o.data ? o.data : null, limit: this.limitRange_ }, function(d) {
+        this.scope_.call("../lib/fn/loader.php", { conf: this.configFile_, data: o.data ? o.data : null, limit: this.limitRange_ }, function(d) {
             if (d.status == 200) __self.obj = JSON.parse(d.data);
             if (fn) eval(fn)(__self.obj);
             if (o.func) eval(o.func)(__self.obj);
@@ -1876,9 +1877,9 @@ class Abox {
                                     restrictions: "code='" + t + "'"
                                 })
                             ].join(";");
-                            console.log(x[i].dataset.tablefield);
+                            //console.log(x[i].dataset.tablefield);
                             x[i].refill();
-                        } else if(t) x[i].value = t.replace(/&quot;/g, "'");
+                        } else if(t) x[i].value = (typeof t == 'string'?t.replace(/&quot;/g, "'"):t);
                     } else if (x[i].classList.contains('-switched')) {
                         x[i].dataset.state = t ? "0" : "1";
                         x[i].click();
@@ -1917,8 +1918,7 @@ class Abox {
     }
 
     notify(n, c = ["white", "black"], l = AB_NOLOG) {
-        var
-        notfys = document.getElementsByTagName("toast"),
+        let
         toast = document.createElement("toast");
         toast.style.background = c[0] ? c[0] : "rgba(255,255,255,.8)";
         toast.style.color = c[1] ? c[1] : "black";
@@ -1934,8 +1934,10 @@ class Abox {
             this.dataset.delay = setTimeout(function(t) { t.remove(); }, 2000, this);
         };
         ab.body().appendChild(toast);
-        for (var i=notfys.length; i--;){
-            setTimeout(function(n){ n.stop().trans({ left:ab.w(78),top: n.offsetTop+n.offsetHeight+ab.h(1), alpha: 1.0 }, 120); },(50*i)+10,notfys[i]);
+        let
+        notfys = document.getElementsByTagName("toast");
+        for (let i=notfys.length; i--;){
+            setTimeout(function(n){ n.stop().appear(); },(50*i)+10,notfys[i]);
         }
         //toast.stop().trans({ top: ab.h(1), alpha: 1.0 }, 220, function(){console.log('done');});
         toast.dataset.delay = setTimeout(function() { toast.remove(); }, 8000);
@@ -2443,5 +2445,6 @@ class Abox {
         ab.call("../lib/fn/mailer.php",{conf:u,data:o},function(data){ if(fn) eval(fn)(data); });
     }
 }
-
-let ab = new Abox();
+var ab = new Abox();
+/*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
+console.log("    _    ____   _____  ______   ___  _____ _____\n   / \\  | __ ) / _ \\ \\/ / ___| / _ \\|  ___|_   _|\n  / _ \\ |  _ \\| | | \\  /\\___ \\| | | | |_    | |\n / ___ \\| |_) | |_| /  \\ ___) | |_| |  _|   | |\n/_/   \\_\\____/ \\___/_/\\_\\____/ \\___/|_|     |_|\n");
