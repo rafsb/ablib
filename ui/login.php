@@ -19,6 +19,7 @@ $o->bstart();?>
     		init:function(){
                 ab.organize();
     			this.container.appear();
+                ab.loading(AB_OUT)
     		}
     	}
     </script>

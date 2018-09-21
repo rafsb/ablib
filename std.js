@@ -359,14 +359,11 @@ HTMLElement.prototype.trans = function(o = null, len = AB_ANIMATION_DEFAULT_DURA
     //console.log(pl,pt,pw,ph,pa);
     var transition = this.dataset.transition =  setInterval(function() {
         if (++iter/len > .9) {
-            //console.log(iter/len);
-            /*
             if(pt!=null) el.style.top     = ptf+o.top    + "px";
             if(pl!=null) el.style.left    = plf+o.left   + "px";
             if(pw!=null) el.style.width   = pwf+o.width  + "px";
             if(ph!=null) el.style.height  = phf+o.height + "px";
             if(pa!=null) el.style.opacity = o.alpha.toFixed(1);
-            */
             if(fn!=null) fn.apply();
             el.stop(transition);
         } else {
@@ -376,7 +373,7 @@ HTMLElement.prototype.trans = function(o = null, len = AB_ANIMATION_DEFAULT_DURA
             if (ph!=null) el.style.height = (phf+(iter*ph))+"px";
             if (pa!=null) el.style.opacity = (iter*pa+paf).toFixed(1);
         }
-    }, Math.abs(Math.ceil(pace)));
+    }, 1+Math.abs(Math.ceil(pace)));
     return this;
 };
 
