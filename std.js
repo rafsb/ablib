@@ -358,13 +358,15 @@ HTMLElement.prototype.trans = function(o = null, len = AB_ANIMATION_DEFAULT_DURA
     pa = o.alpha !=null && o.alpha !=undefined ? (o.alpha-paf)/len:null;
     //console.log(pl,pt,pw,ph,pa);
     var transition = this.dataset.transition =  setInterval(function() {
-        if (++iter/len >= .99) {
+        if (++iter/len > .9) {
             //console.log(iter/len);
+            /*
             if(pt!=null) el.style.top     = ptf+o.top    + "px";
             if(pl!=null) el.style.left    = plf+o.left   + "px";
             if(pw!=null) el.style.width   = pwf+o.width  + "px";
             if(ph!=null) el.style.height  = phf+o.height + "px";
             if(pa!=null) el.style.opacity = o.alpha.toFixed(1);
+            */
             if(fn!=null) fn.apply();
             el.stop(transition);
         } else {
@@ -1884,20 +1886,21 @@ class Abox {
      *
      */
     loading(t = true) {
-        clearInterval(this.loading_);
         var
-            el = document.getElementsByClassName("-loading");
+        el = document.getElementsByClassName("-loading");
         if (!el.length) {
             var
             x = document.createElement("div");
-            x.className = "-loading tct";
+            x.className = "view tct -loading black-stripes";
+            x.dataset.loading_ = "";
             x.appendChild("<img class='-wheel' src='src/img/std/wheel.png'/>".toDOM());
             this.body().appendChild(x);
             el = [x];
         }
         if (t) {
             el[0].style.display = "block";
-            this.loading_ = setTimeout(function(e) { e.style.display = 'none'; }, 8000, el[0]);
+            if(el[0].dataset.loading_) clearInterval(el[0].dataset.loading_);
+            el[0].loading_ = setTimeout(function(e) { e.style.display = 'none'; }, 8000, el[0]);
         } else el[0].style.display = "none";
     }
 

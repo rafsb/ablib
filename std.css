@@ -1348,8 +1348,9 @@ p:not(.-nd) {
     width: 96px;
     height: 96px;
     border-radius: 50%;
-    -webkit-animation: spin 2s ease infinite;
-    animation: spin 2s cubic-bezier(0.25, 0.1, 0.13, 1.07) infinite;
+    /*-webkit-animation: spin 2s ease infinite;
+    animation: spin 2s cubic-bezier(0.25, 0.1, 0.13, 1.07) infinite;*/
+    animation: spin 1s ease infinite;
     text-align: center;
 }
 .-spin {
