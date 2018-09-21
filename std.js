@@ -6,6 +6,7 @@
  */
 const AB_RESPONSIVENESS_THRESHOLD = 700;
 const AB_ANIMATION_DEFAULT_RANGE  = 16;
+const AB_ANIMATION_DEFAULT_DURATION = 8.0*AB_ANIMATION_DEFAULT_RANGE;
 /*
  * CALL TYPES
  */
@@ -239,11 +240,9 @@ HTMLInputElement.prototype.up = function(
     forc = AB_NOFORCE, // f could be ab.modes.FORCE
 ) {
     if (!this.value || !this.files.length || !path) return;
-    ab.loading(AB_IN);
     //console.log(this.files[0].size);
     if (this.files[0].size > 1024 * 1024 * 2) {
         ab.error("Ops! Arquivo muito grande...");
-        ab.loading(0);
         return;
     }
     var ctnr = this.myId();
@@ -270,12 +269,9 @@ HTMLInputElement.prototype.up = function(
         var timer = setInterval(function() {
             if (xhr.responseText || counter++ == 10000) {
                 eval(func)(JSON.parse(xhr.responseText));
-                ab.loading(AB_OUT);
                 clearInterval(timer);
-                //__self.notify(xhr.responseText+", at "+counter);
             }
             if (counter >= 100000) {
-                ab.loading(AB_OUT);
                 ab.error();
                 clearInterval(timer);
             }
@@ -283,7 +279,6 @@ HTMLInputElement.prototype.up = function(
     }
     xhr.upload.onerror = function() {
         ab.error("Ops! Não foi possível subir esta imagem, tente novamente mais tarde...");
-        ab.loading(AB_OUT);
     };
     xhr.open("POST", "lib/up.php");
     xhr.send(form);
@@ -339,7 +334,7 @@ HTMLElement.prototype.addClass = function(c) {
     else return false;
 };
 
-HTMLElement.prototype.trans = function(o = null, len = 80.0, fn = null) {
+HTMLElement.prototype.trans = function(o = null, len = AB_ANIMATION_DEFAULT_DURATION, fn = null) {
     if (o === null) return;
     //console.log(o);
     var
@@ -457,7 +452,7 @@ HTMLElement.prototype.refill = function(c = false) {
     this.addClass("-fill");
     this.remClass("-filled");
     this.fill(c);
-    this.onchange();
+    if(typeof this.onchange == 'function') this.onchange();
     this.focus();
 }
 
@@ -485,7 +480,7 @@ HTMLElement.prototype.inPage = function() {
 };
 
 // EFFECTS
-HTMLElement.prototype.appear = function(t = 120, py = null, px=null ) {
+HTMLElement.prototype.appear = function(t = AB_ANIMATION_DEFAULT_DURATION, py = null, px=null ) {
     var
     x = this;
     ot = (py!=null?py:x.offsetTop),
@@ -501,7 +496,7 @@ HTMLElement.prototype.appear = function(t = 120, py = null, px=null ) {
     } : ab.organize());
 };
 
-HTMLElement.prototype.desappear = function(t = 120, r = null) {
+HTMLElement.prototype.desappear = function(t = AB_ANIMATION_DEFAULT_DURATION, r = null) {
     var
     x = this,
     ot = x.offsetTop,
@@ -578,7 +573,7 @@ HTMLElement.prototype.parentModal = function() {
     return z;
 };
 
-HTMLElement.prototype.minimize = function(d = 80) {
+HTMLElement.prototype.minimize = function(d = AB_ANIMATION_DEFAULT_DURATION) {
     var
         x = this.isModal() ? this : this.parentModal();
     if (x && (!x.dataset.windowsstatus || x.dataset.windowsstatus != 0)) {
@@ -591,7 +586,7 @@ HTMLElement.prototype.minimize = function(d = 80) {
     } else x.restore();
 };
 
-HTMLElement.prototype.maximize = function(d = 80) {
+HTMLElement.prototype.maximize = function(d = AB_ANIMATION_DEFAULT_DURATION) {
     var
         x = this.isModal() ? this : this.parentModal();
     if (x) {
@@ -606,7 +601,7 @@ HTMLElement.prototype.maximize = function(d = 80) {
     }
 };
 
-HTMLElement.prototype.restore = function(d = 80) {
+HTMLElement.prototype.restore = function(d = AB_ANIMATION_DEFAULT_DURATION) {
     var
         x = this.isModal() ? this : this.parentModal();
     if (x) {
@@ -680,7 +675,6 @@ class Auth {
     }
 
     authenticate(fn = null) {
-        ab.loading(1);
         return ab.exec(this.uri, {
             mode: "auth"
         }, function(d) {
@@ -1895,12 +1889,9 @@ class Abox {
             el = document.getElementsByClassName("-loading");
         if (!el.length) {
             var
-                x = document.createElement("div"),
-                y = document.createElement("img");
-            y.className = "-wheel";
-            y.src = "src/img/std/wheel.png";
-            x.appendChild(y);
+            x = document.createElement("div");
             x.className = "-loading tct";
+            x.appendChild("<img class='-wheel' src='src/img/std/wheel.png'/>".toDOM());
             this.body().appendChild(x);
             el = [x];
         }
@@ -1990,7 +1981,7 @@ class Abox {
      * or just: __self.load('welcome.php', HOME)
      *
      */
-    load(u, o = null, d = 80, t = null, l = true) {
+    load(u, o = null, d = AB_ANIMATION_DEFAULT_DURATION, t = null, l = true) {
         if (l) this.loading(l);
         var
         x,
@@ -2044,7 +2035,6 @@ class Abox {
                 if(ab.tmpfs[id].init) ab.tmpfs[id].init();
                 //x.appear(t);
             }
-            ab.loading(AB_OUT);
         }, false, l);
     }
 
@@ -2172,7 +2162,6 @@ class Abox {
                     ab.error();
                     break;
             }
-            ab.loading(AB_OUT);
         }), false, true);
     }
 
@@ -2424,10 +2413,15 @@ class Abox {
         return obj[field];
     }
 
-    wait(time = 80) {
+    wait(time = AB_ANIMATION_DEFAULT_DURATION) {
         var
             start = new Date().getTime();
         while ((new Date().getTime()) - start < time);
+    }
+
+    after(fn,o=null,t=AB_ANIMATION_DEFAULT_DURATION){
+        if(!fn&&typeof fn != "function") return -1;
+        setTimeout(function(f,o,t){eval(f)(o);},t,fn,o,this);
     }
 
     mail(u,o,fn){

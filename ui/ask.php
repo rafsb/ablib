@@ -40,6 +40,7 @@ $o->bstart();?>
                 el.html(document.getElementById('<?=$from?>').dataset.message);
                 ab.organize();
                 this.container.appear();
+                ab.after(ab.loading,AB_OUT);
             }
         }
     </script>
