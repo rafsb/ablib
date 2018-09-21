@@ -647,8 +647,8 @@ class Response {
         this.status_ = s;
         this.data_ = d;
     }
-    status(s) { return (s ? s === this.status_ : this.$status_); }
-    data() { return this.data_; }
+    status(s) { if(s) this.status_ = s; return this.$status_; }
+    data(d) { if(d) this.data_ = d; return this.data_; }
 }
 
 class Auth {
@@ -1435,26 +1435,19 @@ class Abox {
                 var
                 classes = maps[i].classList,
                 classnames = null;
-                //console.log("classlist=",classes);
                 for(var j=classes.length;j--;){
                     if(classes[j].indexOf('-map')>=0){
                         classnames = classes[j].replace("-map","").split(/[,;:=]/g);
-                        //console.log("CLASSNAMES=",classnames);
                         for(var k=classnames.length;k--;){
                             if(classnames[k]){
                                 if(classnames[k][0]=="@") maps[i].dataset.landscape = maps[i].dataset.landscape+" "+classnames[k].substr(1);
                                 if(classnames[k][0]=="#") maps[i].dataset.portrait = maps[i].dataset.portrait+" "+classnames[k].substr(1);
                             }
                         }
-                        //maps[i].remClass(classes[j]);
                     }else maps[i].dataset.classes = maps[i].dataset.classes + " " + classes[j];
                     maps[i].remClass(classes[j]);
                 }
                 maps[i].addClass("-mapped");
-                //console.log("CLASSLIST="+maps[i].classList.value);
-                //console.log("CLASSES="+maps[i].dataset.classes);
-                //console.log("LANDSCAPE="+maps[i].dataset.landscape);
-                //console.log("PORTRAIT="+maps[i].dataset.portrait);
             }
         }
 
@@ -2098,7 +2091,7 @@ class Abox {
 
     pswdChange(c) { this.load("../lib/ui/pswd_change.php"); }
 
-    pswdReset(c) { this.call("../lib/ui/pswd_reset.php", null, function(d) { ab.working("TODO: fn/pswd_reset.php"); }); }
+    pswdReset(fn=null) { this.load("../lib/ui/pswd_reset.php",{func:fn}); }
 
     // returns a string with 'n' length of random characteres
     newId(n = 8, p = "", t = AB_STRING) {
@@ -2201,7 +2194,7 @@ class Abox {
     }
 
     // calls framework's inner login modal window
-    tmpfsToChroot(f,t,v){
+    tmpfsToChroot(f=null,t=null,v=false){
         if(!f||!t){ ab.error("Faltando argumentos"); return; }
         ab.exec('../etc/ttoc.php',{from:f,to00:t},function(r){
             if(r.data.int()==1){ if(v) ab.success("Arquivos movidos da pasta temporária.");

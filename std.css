@@ -1484,8 +1484,12 @@ select~label {
     margin: 0;
     color: inherit;
 }
-
-
+input[type='text'],select,textarea{
+    color: inherit;
+}
+input[type='button']{
+    color: auto;
+}
 textarea~label{
     position: absolute;
     padding: .5rem .5rem;

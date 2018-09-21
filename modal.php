@@ -46,8 +46,7 @@ class ControlBox{
 		}
 		$content = "";
 		foreach($this->buttons as $bt){ $content .= "<div style='background:transparent;color:".$this->color.";' class='-$bt'></div>"; };
-		if(sizeof($this->userbuttons)){ foreach($this->userbuttons as $bt){ $content.=$bt; } }
-		sess("buttons","<nav class='-controlbox'>$content</nav>");
+		if(sizeof($this->userbuttons)){ foreach($this->userbuttons as $bt){ $content=$bt.$content; } }
 		return "<nav class='-controlbox'>$content</nav>";
 	}
 
@@ -142,9 +141,9 @@ class Modal{
 
 	function sscope(){ $this->scrollscope = true; }
 
-	function buttons($arr=null){ if($arr) $this->controlbox->buttons($arr); return $this->controlbox->buttons(); }
+	function buttons($arr=null){ if($arr&&is_array($arr)) $this->controlbox->buttons($arr); return $this->controlbox->buttons(); }
 
-	function appendbutton($arr=null){ if($arr) $this->controlbox->append($arr); return $this->controlbox->userbuttons(); }
+	function appendbutton($bt=null){ if($bt) $this->controlbox->append($bt); return $this->controlbox->userbuttons(); }
 
 	function bstart(){ ob_start(); }
 
