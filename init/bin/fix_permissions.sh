@@ -16,22 +16,22 @@ else
 			echo "could not find the http/www-data group, is httpd/nginx (or apache) installed? ={"
 		else
 			echo "group %www-data found!!!"
-			sudo usermod -aG www-data $user
-			sudo chown -R $user $1
-			sudo chgrp -R www-data $1
+			usermod -aG www-data $user
+			chown -R $user $1
+			chgrp -R www-data $1
 			echo "new ownership: "$(whoami)"@www-data"
 		fi
 	else
 		echo "group %http found!!!"
 		echo "adding "$user" to http group"
-		sudo usermod -aG http $user
-		sudo chown -R $user $1
-		sudo chgrp -R http $1
+		usermod -aG http $user
+		chown -R $user $1
+		chgrp -R http $1
 		echo "new ownership: "$user"@http"
 	fi
 	echo "reseting permissions as httpd/nginx rules"
-	find $1 -type d -exec sudo chmod 2775 {} \;
-	find $1 -type f -exec sudo chmod 2764 {} \;
+	find $1 -type d -exec chmod 2775 {} \;
+	find $1 -type f -exec chmod 2764 {} \;
 	echo "new permissions setted: d2775 f2764 as for prodution"
 	echo ""
 	echo "done =}"
