@@ -1476,7 +1476,11 @@ class Abox {
         maps = document.getElementsByClassName("-imgview");
         if (maps.length) {
             for (var i = maps.length; i--;) {
-                maps[i].addEventListener("click", function(e) { ab.load("../lib/ui/img_view.php", { pic0: this.src }, 20, null, true); }, { passive: true });
+                var
+                img = "";
+                if(maps[i].tagName.toLowerCase() == 'img') img = maps[i].src;
+                else img = maps[i].style.backgroundImage;
+                maps[i].addEventListener("click", function(e) { ab.load("../lib/ui/img_view.php", { pic0: img }, 20, null, true); }, { passive: true });
                 maps[i].remClass("-imgview");
             }
         }
