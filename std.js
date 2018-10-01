@@ -4,7 +4,7 @@
 /*
  * CONFIGURATION
  */
-const AB_RESPONSIVENESS_THRESHOLD = 700;
+const AB_RESPONSIVENESS_THRESHOLD = 1140;
 const AB_ANIMATION_DEFAULT_RANGE  = 16;
 const AB_ANIMATION_DEFAULT_DURATION = 8.0*AB_ANIMATION_DEFAULT_RANGE;
 /*
@@ -102,9 +102,9 @@ const AB_MINIMIZED = 1;
 const AB_MAXIMIZED = 2;
 
 
-const AB_PUBLIC = 0;
-const AB_USER = 1;
-const AB_MANAGER = 2;
+const AB_PUBLIC     = 0;
+const AB_USER       = 1;
+const AB_MANAGER    = 2;
 const AB_DIRECTOR = 3;
 const AB_TI1 = 4;
 const AB_TI2 = 5;
@@ -2436,6 +2436,6 @@ class Abox {
         ab.call("../lib/fn/mailer.php",{conf:u,data:o},function(data){ if(fn) eval(fn)(data); });
     }
 }
-var ab = new Abox();
+_ = ab = new Abox();
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 console.log("    _    ____   _____  ______   ___  _____ _____\n   / \\  | __ ) / _ \\ \\/ / ___| / _ \\|  ___|_   _|\n  / _ \\ |  _ \\| | | \\  /\\___ \\| | | | |_    | |\n / ___ \\| |_) | |_| /  \\ ___) | |_| |  _|   | |\n/_/   \\_\\____/ \\___/_/\\_\\____/ \\___/|_|     |_|\n");
