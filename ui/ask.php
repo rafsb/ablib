@@ -7,7 +7,7 @@ $from    = in("from");
 
 $o = new Modal("{{#}}",conf("enterprise"),AB_DIALOG);
 $o->bstart();?>
-    <div class="stretch" style="margin-bottom:2rem;overflow:visible">
+    <div class="stretch" style="margin-bottom:2.25rem;overflow:visible">
         <p class='lt justify tlt spd sys'></p>
         <div class='abs -tp100% -lt0 bar'>
             <div

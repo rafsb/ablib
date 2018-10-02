@@ -133,12 +133,14 @@ String.prototype.uton = function() { return this.replace(".php", "").replace(".h
 // return a intger value of an element such as input, for example
 String.prototype.int = function() {
     if (!this) return 0;
-    var
-        a = this;
-    if (a.split(/\./g).length > 1 && a.indexOf(",") < 0) a = a.replace(/[^0-9]/g, "");
-    if (a.indexOf(",") < a.indexOf(".")) a = parseInt(a.replace(/[,]/g, "").replace(/[^-0-9.]/g, ""));
-    else a = parseInt(a.replace(/[.]/g, "").replace(/[,]/g, ".").replace(/[^-0-9.]/g, ""));
-    return a * 1;
+    var 
+    a = this;
+    a = a.split(/[,.]/g);
+    console.log("isarray",a,Array.isArray(a));
+    if(Array.isArray(a) && a.length > 1) a.splice(a.length-1);
+    a = a.join('');
+    console.log("new",a);
+    return parseInt(a.replace(/[^-0-9]/g, "")) * 1;
 };
 
 String.prototype.float = function(f = 2) {
@@ -351,18 +353,18 @@ HTMLElement.prototype.trans = function(o = null, len = AB_ANIMATION_DEFAULT_DURA
     pwf = cv.getPropertyValue('width').float(),
     phf = cv.getPropertyValue('height').float(),
     paf = cv.getPropertyValue('opacity').float(),
-    pl = o.left  !=null && o.left  !=undefined ? o.left  /len:null,
-    pt = o.top   !=null && o.top   !=undefined ? o.top   /len:null,
-    pw = o.width !=null && o.width !=undefined ? o.width /len:null,
-    ph = o.height!=null && o.height!=undefined ? o.height/len:null,
-    pa = o.alpha !=null && o.alpha !=undefined ? (o.alpha-paf)/len:null;
-    //console.log(pl,pt,pw,ph,pa);
+    pl = o.left  != null && o.left  != undefined && o.left  != plf ? ( o.left   - plf ) / len : null,
+    pt = o.top   != null && o.top   != undefined && o.top   != ptf ? ( o.top    - ptf ) / len : null,
+    pw = o.width != null && o.width != undefined && o.width != pwf ? ( o.width  - pwf ) / len : null,
+    ph = o.height!= null && o.height!= undefined && o.height!= phf ? ( o.height - phf ) / len : null,
+    pa = o.alpha != null && o.alpha != undefined && o.alpha != paf ? ( o.alpha  - paf ) / len : null;
+    //console.log("LTWHA",pl,pt,pw,ph,pa);
     var transition = this.dataset.transition =  setInterval(function() {
         if (++iter/len > .9) {
-            if(pt!=null) el.style.top     = ptf+o.top    + "px";
-            if(pl!=null) el.style.left    = plf+o.left   + "px";
-            if(pw!=null) el.style.width   = pwf+o.width  + "px";
-            if(ph!=null) el.style.height  = phf+o.height + "px";
+            if(pt!=null) el.style.top     = o.top    + "px";
+            if(pl!=null) el.style.left    = o.left   + "px";
+            if(pw!=null) el.style.width   = o.width  + "px";
+            if(ph!=null) el.style.height  = o.height + "px";
             if(pa!=null) el.style.opacity = o.alpha.toFixed(1);
             if(fn!=null) fn.apply();
             el.stop(transition);
@@ -482,40 +484,45 @@ HTMLElement.prototype.inPage = function() {
 HTMLElement.prototype.appear = function(t = AB_ANIMATION_DEFAULT_DURATION, py = null, px=null ) {
     var
     x = this;
-    ot = (py!=null?py:x.offsetTop),
-    ol = (px!=null?px:x.offsetLeft);
-    x.style.display = "block";
-    x.style.opacity = "0";
-    x.style.top = ot+AB_ANIMATION_DEFAULT_RANGE+"px";
-    x.style.left = ol+AB_ANIMATION_DEFAULT_RANGE+"px";
+    if(!x.dataset.loadstate || x.dataset.loadstate != 'visible'){
+        x.style.opacity = "0";
+        x.style.display = "inline-block";
+        ot = (py!=null?py:x.styleSheet('top').int()),
+        ol = (px!=null?px:x.styleSheet('left').int());
+        x.style.top = ot+AB_ANIMATION_DEFAULT_RANGE+"px";
+        x.style.left = ol+AB_ANIMATION_DEFAULT_RANGE+"px";
+        if (x.isModal()) ab.reorder(x.myId());
+        x.dataset.loadstate = 'visible';
+        return x.stop().trans({ top : ot, left : ol, alpha : 1 }, t);
+    }
     x.dataset.loadstate = 'visible';
-    if (x.isModal()) ab.reorder(x.myId());
-    return x.stop().trans({ top: AB_ANIMATION_DEFAULT_RANGE*(-1), left:AB_ANIMATION_DEFAULT_RANGE*(-1), alpha: 1 }, t, x.isModal() ? function() {
-        if (!x.dataset.initialposition) x.dataset.initialposition = x.offsetTop + "," + x.offsetLeft + "," + x.offsetHeight + "," + x.offsetWidth;
-    } : ab.organize());
 };
 
 HTMLElement.prototype.desappear = function(t = AB_ANIMATION_DEFAULT_DURATION, r = null) {
     var
     x = this,
-    ot = x.offsetTop,
-    ol = x.offsetLeft;
-    if (x.isModal()) {
-        ab.windows.set(null, ab.windows.idx(this.myId()));
-        ab.reorder();
-    }
-    this.stop().trans({ top: AB_ANIMATION_DEFAULT_RANGE,left: AB_ANIMATION_DEFAULT_RANGE, alpha: 0 }, t);
-    setTimeout(function(r, d, y,x) {
-        if (r)  d.delete();
-        else {
-            d.style.top = y + "px";
-            d.style.top = x + "px";
-            d.style.opacity = "0";
-            d.style.display = "none";
-            d.dataset.loadstate = 'hidden';
-            d.stop();
+    ot = x.styleSheet('top').int() + AB_ANIMATION_DEFAULT_RANGE,
+    ol = x.styleSheet('left').int() + AB_ANIMATION_DEFAULT_RANGE;
+    if(!x.dataset.loadstate || x.dataset.loadstate != 'hidden') {
+        if (x.isModal()) {
+            ab.windows.set(null, ab.windows.idx(this.myId()));
+            ab.reorder();
         }
-    },t+1,r,x,ot,ol);
+        //console.log("initial",ot,ol);
+        this.stop().trans({ top : ot, left : ol, alpha: 0 }, t);
+        setTimeout(function(r, d, y,x) {
+            if (r)  d.delete();
+            else {
+                d.style.top = y + "px";
+                d.style.top = x + "px";
+                //d.style.opacity = ".1";
+                d.style.display = "none";
+                d.stop();
+                //console.log("final",y,x);
+            }
+        },t+1,r,x,ot-AB_ANIMATION_DEFAULT_RANGE,ol-AB_ANIMATION_DEFAULT_RANGE);
+    }
+    x.dataset.loadstate = 'hidden';
     return this;
 };
 
@@ -581,7 +588,7 @@ HTMLElement.prototype.minimize = function(d = AB_ANIMATION_DEFAULT_DURATION) {
         if (!ab.tray.has(x.myId())) ab.tray.push(x.myId());
         x.trans({ top: ab.h(87.5), left: 0, width: ab.w(10), height: ab.h(5), opacity: 1 }, 80, function() { ab.reorder(x.myId()); });
         x.dataset.windowsstatus = '0';
-        $(x).draggable('disable');
+        //$(x).draggable('disable');
     } else x.restore();
 };
 
@@ -595,7 +602,7 @@ HTMLElement.prototype.maximize = function(d = AB_ANIMATION_DEFAULT_DURATION) {
             if (ab.tray.has(x.myId())) ab.tray.drop(x.myId());
             x.trans({ top: 0, left: 0, width: ab.w(), height: ab.h(88), opacity: 1 }, 80, function() { ab.reorder(x.myId()); });
             x.dataset.windowsstatus = '1';
-            $(x).draggable('disable');
+            //$(x).draggable('disable');
         } else x.restore();
     }
 };
@@ -611,7 +618,7 @@ HTMLElement.prototype.restore = function(d = AB_ANIMATION_DEFAULT_DURATION) {
         //console.log("restoring "+x.myId());
         x.trans({ top: pos[0].int(), left: pos[1].int(), width: pos[3].int(), height: pos[2].int(), opacity: 1 }, 80, function() { ab.reorder(x.myId()); });
         x.dataset.windowsstatus = '2';
-        $(x).draggable('enable');
+        //$(x).draggable('enable');
     }
 }
 
@@ -1332,7 +1339,7 @@ class Abox {
 
     constructor() {
         var
-            __self = this;
+        __self = this;
         this.schema = null;
         this.config = null;
         this.mousePos = { top: null, left: null };
@@ -1345,10 +1352,10 @@ class Abox {
         this.tmpfs = new Pool();
         // INITIALIZERS
         var
-            mousetrack = new Throttle(function(e) {
-                ab.mousePos.left = e.clientX;
-                ab.mousePos.top = e.clientY;
-            }, 50);
+        mousetrack = new Throttle(function(e) {
+            ab.mousePos.left = e.clientX;
+            ab.mousePos.top = e.clientY;
+        }, 50);
         window.addEventListener("mousemove", function(e) { mousetrack.fire(e); }, { passive: true });
     }
 
@@ -1912,6 +1919,8 @@ class Abox {
         toast.style.color = c[1] ? c[1] : "black";
         toast.innerHTML = n ? n : "Hello World!!!";
         toast.style.opacity="0";
+        toast.style.top = "0px";
+        toast.style.left = ab.w(78) + "px";
         toast.onclick = function() { this.desappear(120, true); };
         toast.onmouseenter = function() {
             this.addClass("fbd");
@@ -1925,12 +1934,10 @@ class Abox {
         let
         notfys = document.getElementsByTagName("toast");
         for (let i=notfys.length; i--;){
-            setTimeout(function(n){ n.stop().appear(); },(50*i)+10,notfys[i]);
-        }
-        //toast.stop().trans({ top: ab.h(1), alpha: 1.0 }, 220, function(){console.log('done');});
+            //setTimeout(function(n){ n.stop().appear(); },(50*i)+10,notfys[i]);
+            notfys[i].trans({ top: notfys[i].offsetTop + toast.offsetHeight + ab.h(1), alpha: 1 }, 220);
+        }        
         toast.dataset.delay = setTimeout(function() { toast.remove(); }, 8000);
-        //if (l === AB_LOG) { this.exec("../lib/fn/log.php", { text: n }); }
-        //this.organize();
     }
 
     /*
@@ -2028,7 +2035,10 @@ class Abox {
                 if (!x.id) x.id = id;
                 if (t) t.appendChild(x);
                 else ab.body().appendChild(x);
-                if (x.isModal()) ab.windows.push(x.id);
+                if (x.isModal()){
+                    x.dataset.initialposition = x.styleSheet("top").int() + "," + x.styleSheet('left').int() + "," + x.styleSheet('height').int() + "," + x.styleSheet('width').int();
+                    ab.windows.push(x.id);
+                }
                 ab.loadPool.push(x.id);
                 var
                 scr = x.getElementsByTagName("script");
