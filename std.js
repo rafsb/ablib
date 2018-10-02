@@ -351,18 +351,18 @@ HTMLElement.prototype.trans = function(o = null, len = AB_ANIMATION_DEFAULT_DURA
     pwf = cv.getPropertyValue('width').float(),
     phf = cv.getPropertyValue('height').float(),
     paf = cv.getPropertyValue('opacity').float(),
-    pl = o.left  !=null && o.left  !=undefined ? o.left  /len:null,
-    pt = o.top   !=null && o.top   !=undefined ? o.top   /len:null,
-    pw = o.width !=null && o.width !=undefined ? o.width /len:null,
-    ph = o.height!=null && o.height!=undefined ? o.height/len:null,
-    pa = o.alpha !=null && o.alpha !=undefined ? (o.alpha-paf)/len:null;
+    pl = o.left  !=null && o.left  !=undefined ? ( o.left   - plf ) / len : null,
+    pt = o.top   !=null && o.top   !=undefined ? ( o.top    - ptf ) / len : null,
+    pw = o.width !=null && o.width !=undefined ? ( o.width  - pwf ) / len : null,
+    ph = o.height!=null && o.height!=undefined ? ( o.height - phf ) / len : null,
+    pa = o.alpha !=null && o.alpha !=undefined ? ( o.alpha  - paf ) / len : null;
     //console.log(pl,pt,pw,ph,pa);
     var transition = this.dataset.transition =  setInterval(function() {
         if (++iter/len > .9) {
-            if(pt!=null) el.style.top     = ptf+o.top    + "px";
-            if(pl!=null) el.style.left    = plf+o.left   + "px";
-            if(pw!=null) el.style.width   = pwf+o.width  + "px";
-            if(ph!=null) el.style.height  = phf+o.height + "px";
+            if(pt!=null) el.style.top     = o.top    + "px";
+            if(pl!=null) el.style.left    = o.left   + "px";
+            if(pw!=null) el.style.width   = o.width  + "px";
+            if(ph!=null) el.style.height  = o.height + "px";
             if(pa!=null) el.style.opacity = o.alpha.toFixed(1);
             if(fn!=null) fn.apply();
             el.stop(transition);
@@ -484,13 +484,13 @@ HTMLElement.prototype.appear = function(t = AB_ANIMATION_DEFAULT_DURATION, py = 
     x = this;
     ot = (py!=null?py:x.offsetTop),
     ol = (px!=null?px:x.offsetLeft);
-    x.style.display = "block";
+    x.style.display = "inline-block";
     x.style.opacity = "0";
     x.style.top = ot+AB_ANIMATION_DEFAULT_RANGE+"px";
     x.style.left = ol+AB_ANIMATION_DEFAULT_RANGE+"px";
     x.dataset.loadstate = 'visible';
     if (x.isModal()) ab.reorder(x.myId());
-    return x.stop().trans({ top: AB_ANIMATION_DEFAULT_RANGE*(-1), left:AB_ANIMATION_DEFAULT_RANGE*(-1), alpha: 1 }, t, x.isModal() ? function() {
+    return x.stop().trans({ top : ot, left : ol, alpha : 1 }, t, x.isModal() ? function() {
         if (!x.dataset.initialposition) x.dataset.initialposition = x.offsetTop + "," + x.offsetLeft + "," + x.offsetHeight + "," + x.offsetWidth;
     } : ab.organize());
 };
@@ -498,13 +498,13 @@ HTMLElement.prototype.appear = function(t = AB_ANIMATION_DEFAULT_DURATION, py = 
 HTMLElement.prototype.desappear = function(t = AB_ANIMATION_DEFAULT_DURATION, r = null) {
     var
     x = this,
-    ot = x.offsetTop,
-    ol = x.offsetLeft;
+    ot = x.offsetTop + AB_ANIMATION_DEFAULT_RANGE,
+    ol = x.offsetLeft + AB_ANIMATION_DEFAULT_RANGE;
     if (x.isModal()) {
         ab.windows.set(null, ab.windows.idx(this.myId()));
         ab.reorder();
     }
-    this.stop().trans({ top: AB_ANIMATION_DEFAULT_RANGE,left: AB_ANIMATION_DEFAULT_RANGE, alpha: 0 }, t);
+    this.stop().trans({ top : ot, left : ol, alpha: 0 }, t);
     setTimeout(function(r, d, y,x) {
         if (r)  d.delete();
         else {
@@ -1332,7 +1332,7 @@ class Abox {
 
     constructor() {
         var
-            __self = this;
+        __self = this;
         this.schema = null;
         this.config = null;
         this.mousePos = { top: null, left: null };
@@ -1345,10 +1345,10 @@ class Abox {
         this.tmpfs = new Pool();
         // INITIALIZERS
         var
-            mousetrack = new Throttle(function(e) {
-                ab.mousePos.left = e.clientX;
-                ab.mousePos.top = e.clientY;
-            }, 50);
+        mousetrack = new Throttle(function(e) {
+            ab.mousePos.left = e.clientX;
+            ab.mousePos.top = e.clientY;
+        }, 50);
         window.addEventListener("mousemove", function(e) { mousetrack.fire(e); }, { passive: true });
     }
 
