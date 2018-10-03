@@ -1,6 +1,6 @@
 * {
     position: relative;
-    transition: all .6s ease;
+    /*transition: all .6s ease;*/
     animation-fill-mode: forwards;
 }
 
