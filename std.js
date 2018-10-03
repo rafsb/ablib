@@ -338,6 +338,25 @@ HTMLElement.prototype.addClass = function(c) {
 
 HTMLElement.prototype.trans = function(o = null, len = AB_ANIMATION_DEFAULT_DURATION, fn = null) {
     if (o === null) return;
+    this.dataset.animationFunction ? this.stop(this.dataset.animationFunction) : undefined ;
+    this.dataset.animationFunction = '';
+    len/=1000;
+    this.style.transition = "all " + len + "s ease";
+    if(o.top!=undefined) this.style.top = o.top;
+    if(o.left!=undefined) this.style.left = o.left;
+    if(o.width!=undefined) this.style.width  = o.width;
+    if(o.height!=undefined) this.style.height   = o.height;
+    if(o.opacity!=undefined) this.style.opacity    = o.opacity;
+    if(o.marginTop!=undefined) this.style.marginTop  = o.marginTop;
+    if(o.marginLeft!=undefined) this.style.marginLeft  = o.marginLeft;
+    if(o.marginRight!=undefined) this.style.marginRight  = o.marginRight;
+    if(o.marginBottom!=undefined) this.style.marginBottom  = o.marginBottom;
+    if(o.paddinTop!=undefined) this.style.paddinTop  = o.paddinTop;
+    if(o.paddinLeft!=undefined) this.style.paddinLeft  = o.paddinLeft;
+    if(o.paddinRight!=undefined) this.style.paddinRight  = o.paddinRight;
+    if(o.paddinBottom!=undefined) this.style.paddinBottom  = o.paddinBottom;
+    if(o.fn!=undefined) this.dataset.animationFunction = setTimeout(fn,len*1000);
+    /*
     //console.log(o);
     var
     pace = ab.viewport?10.0:100.0;
@@ -376,6 +395,7 @@ HTMLElement.prototype.trans = function(o = null, len = AB_ANIMATION_DEFAULT_DURA
             if (pa!=null) el.style.opacity = (iter*pa+paf).toFixed(1);
         }
     }, 1+Math.abs(Math.ceil(pace)));
+    */
     return this;
 };
 
@@ -493,7 +513,7 @@ HTMLElement.prototype.appear = function(t = AB_ANIMATION_DEFAULT_DURATION, py = 
         x.style.left = ol+AB_ANIMATION_DEFAULT_RANGE+"px";
         if (x.isModal()) ab.reorder(x.myId());
         x.dataset.loadstate = 'visible';
-        return x.stop().trans({ top : ot, left : ol, alpha : 1 }, t);
+        return x.trans({ top : ot, left : ol, opacity : 1 }, t);
     }
     x.dataset.loadstate = 'visible';
 };
@@ -509,7 +529,7 @@ HTMLElement.prototype.desappear = function(t = AB_ANIMATION_DEFAULT_DURATION, r 
             ab.reorder();
         }
         //console.log("initial",ot,ol);
-        this.stop().trans({ top : ot, left : ol, alpha: 0 }, t);
+        this.trans({ top : ot, left : ol, opacity: 0 }, t);
         setTimeout(function(r, d, y,x) {
             if (r)  d.delete();
             else {
@@ -517,7 +537,6 @@ HTMLElement.prototype.desappear = function(t = AB_ANIMATION_DEFAULT_DURATION, r 
                 d.style.top = x + "px";
                 //d.style.opacity = ".1";
                 d.style.display = "none";
-                d.stop();
                 //console.log("final",y,x);
             }
         },t+1,r,x,ot-AB_ANIMATION_DEFAULT_RANGE,ol-AB_ANIMATION_DEFAULT_RANGE);
@@ -1399,7 +1418,7 @@ class Abox {
                     top: ab.h(87.5)-z.getPropertyValue('top')
                     ,left: this.tray.length()?z.getPropertyValue('left')+(i * ab.w(10)) : 0
                     ,width: z.getPropertyValue('width')-ab.w(10)
-                    ,alpha: 1
+                    ,opacity: 1
                 }, 80);
             }
         }
@@ -1935,7 +1954,7 @@ class Abox {
         notfys = document.getElementsByTagName("toast");
         for (let i=notfys.length; i--;){
             //setTimeout(function(n){ n.stop().appear(); },(50*i)+10,notfys[i]);
-            notfys[i].trans({ top: notfys[i].offsetTop + toast.offsetHeight + ab.h(1), alpha: 1 }, 220);
+            notfys[i].trans({ top: notfys[i].offsetTop + toast.offsetHeight + ab.h(1), opacity: 1 }, 220);
         }        
         toast.dataset.delay = setTimeout(function() { toast.remove(); }, 8000);
     }
