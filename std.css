@@ -1421,7 +1421,7 @@ textarea:hover,
 input:not([type=color]):not(.-nd):focus,
 select:focus,
 textarea:focus {
-    box-shadow: 4px 4px 16px rgba(0,0,0,.5);
+    box-shadow: 0 0 16px rgba(0,0,0,.5);
 }
 
 [type=tel]:not(.-nd),
@@ -1432,10 +1432,12 @@ textarea:focus {
 [type=search]:not(.-nd),
 select:not(.-nd),
 textarea:not(.-nd){
+    /*
     background: rgba(0,0,0,.1);
-    /*color: white;/*/
-    padding: 1.25rem 1rem .25rem 1rem;
-    width: calc(100% - 2.5rem);
+    color: white;
+    */
+    padding: 1.25rem 1rem .25rem 2rem;
+    width: calc(100% - 3.5rem);
 }
 
 textarea:not(.-nd) {
@@ -1453,6 +1455,7 @@ input:not(:placeholder-shown)~label,
 input:not([type='button']):focus~label,
 select:valid~label,
 select:focus~label {
+    transition: all .4s ease;
     position: absolute;
     padding: .25rem .75rem;
     font-size: .90rem;
@@ -1472,6 +1475,7 @@ input:placeholder-shown~label,
 input[type='button']:not(focus)~label,
 select~label,
 select~label {
+    transition: all .4s ease;
     top: .45rem;
     left: .25rem;
     padding: .75rem 1rem;
@@ -1509,6 +1513,7 @@ textarea~label{
 button,
 .button,
 .bt{
+    transition: all .4s ease;
     cursor: pointer;
     text-decoration: none;
     white-space: nowrap;
@@ -1690,6 +1695,7 @@ button:hover,
 
 /* ITEMS */
 .ihover:hover {
+    transition: all .4s ease;
     background: rgba(0,0,0,.2);
 }
 .zi,
@@ -1890,6 +1896,7 @@ td {
 
 row,
 .row {
+    transition: all .4s ease;
     float: left;
     text-align: left;
     padding: .25rem 1rem;

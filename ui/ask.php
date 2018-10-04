@@ -12,22 +12,20 @@ $o->bstart();?>
         <div class='abs -tp100% -lt0 bar'>
             <div
                 class="lt tct bdisabled fdark wh hyp cur" 
-                onclick="ab.apply(function(){
+                onclick="ab.apply(function(_me){
                     var x = document.getElementById('<?=$from?>');
-                    //console.log(x.dataset.reject);
+                    _me.parentModal().getElementsByClassName('-closed')[0].click();
                     if(x.dataset.reject) eval(x.dataset.reject.replace(/::this/g,'document.getElementById(\'<?=$from?>\')'));
-                    setTimeout(function(){ document.getElementById('{{#}}').desappear(120,true); },80);
-                })">
+                },this)">
                 NÃO
             </div>
             <div
                 class="lt bspan fwhite tct wh hyp cur"
-                onclick="ab.apply(function(){
+                onclick="ab.apply(function(_me){
                     var x = document.getElementById('<?=$from?>');
-                    //console.log(x.dataset.confirm);
+                    _me.parentModal().getElementsByClassName('-closed')[0].click();
                     if(x.dataset.confirm) eval(x.dataset.confirm.replace(/::this/g,'document.getElementById(\'<?=$from?>\')'));
-                    setTimeout(function(){ document.getElementById('{{#}}').desappear(120,true); },80);
-                })">
+                },this)">
                 SIM
             </div>
         </div>
@@ -40,7 +38,8 @@ $o->bstart();?>
                 el.html(document.getElementById('<?=$from?>').dataset.message);
                 ab.organize();
                 this.container.appear();
-                ab.after(ab.loading,AB_OUT);
+                ab.loading(AB_OUT);
+
             }
         }
     </script>

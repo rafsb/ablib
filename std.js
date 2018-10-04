@@ -4,9 +4,9 @@
 /*
  * CONFIGURATION
  */
-const AB_RESPONSIVENESS_THRESHOLD = 1140;
-const AB_ANIMATION_DEFAULT_RANGE  = 16;
-const AB_ANIMATION_DEFAULT_DURATION = 8.0*AB_ANIMATION_DEFAULT_RANGE;
+const AB_RESPONSIVENESS_THRESHOLD = 1200;
+const AB_ANIMATION_DEFAULT_RANGE  = 12;
+const AB_ANIMATION_DEFAULT_DURATION = 800;
 /*
  * CALL TYPES
  */
@@ -136,10 +136,10 @@ String.prototype.int = function() {
     var 
     a = this;
     a = a.split(/[,.]/g);
-    console.log("isarray",a,Array.isArray(a));
+    //console.log("isarray",a,Array.isArray(a));
     if(Array.isArray(a) && a.length > 1) a.splice(a.length-1);
     a = a.join('');
-    console.log("new",a);
+    //console.log("new",a);
     return parseInt(a.replace(/[^-0-9]/g, "")) * 1;
 };
 
@@ -336,69 +336,6 @@ HTMLElement.prototype.addClass = function(c) {
     else return false;
 };
 
-HTMLElement.prototype.trans = function(o = null, len = AB_ANIMATION_DEFAULT_DURATION, fn = null) {
-    if (o === null) return;
-    this.dataset.animationFunction ? this.stop(this.dataset.animationFunction) : undefined ;
-    this.dataset.animationFunction = '';
-    len/=1000;
-    this.style.transition = "all " + len + "s ease";
-    if(o.top!=undefined) this.style.top = o.top;
-    if(o.left!=undefined) this.style.left = o.left;
-    if(o.width!=undefined) this.style.width  = o.width;
-    if(o.height!=undefined) this.style.height   = o.height;
-    if(o.opacity!=undefined) this.style.opacity    = o.opacity;
-    if(o.marginTop!=undefined) this.style.marginTop  = o.marginTop;
-    if(o.marginLeft!=undefined) this.style.marginLeft  = o.marginLeft;
-    if(o.marginRight!=undefined) this.style.marginRight  = o.marginRight;
-    if(o.marginBottom!=undefined) this.style.marginBottom  = o.marginBottom;
-    if(o.paddinTop!=undefined) this.style.paddinTop  = o.paddinTop;
-    if(o.paddinLeft!=undefined) this.style.paddinLeft  = o.paddinLeft;
-    if(o.paddinRight!=undefined) this.style.paddinRight  = o.paddinRight;
-    if(o.paddinBottom!=undefined) this.style.paddinBottom  = o.paddinBottom;
-    if(o.fn!=undefined) this.dataset.animationFunction = setTimeout(fn,len*1000);
-    /*
-    //console.log(o);
-    var
-    pace = ab.viewport?10.0:100.0;
-    len = Math.ceil(len/pace);
-    var
-    iter = 0,
-    el = this,
-    animation = ab.newId(8);
-    //el.style.display = "block";
-    cv = el.styleSheet(),
-    ptf = cv.getPropertyValue('top').float(),
-    plf = cv.getPropertyValue('left').float(),
-    pwf = cv.getPropertyValue('width').float(),
-    phf = cv.getPropertyValue('height').float(),
-    paf = cv.getPropertyValue('opacity').float(),
-    pl = o.left  != null && o.left  != undefined && o.left  != plf ? ( o.left   - plf ) / len : null,
-    pt = o.top   != null && o.top   != undefined && o.top   != ptf ? ( o.top    - ptf ) / len : null,
-    pw = o.width != null && o.width != undefined && o.width != pwf ? ( o.width  - pwf ) / len : null,
-    ph = o.height!= null && o.height!= undefined && o.height!= phf ? ( o.height - phf ) / len : null,
-    pa = o.alpha != null && o.alpha != undefined && o.alpha != paf ? ( o.alpha  - paf ) / len : null;
-    //console.log("LTWHA",pl,pt,pw,ph,pa);
-    var transition = this.dataset.transition =  setInterval(function() {
-        if (++iter/len > .9) {
-            if(pt!=null) el.style.top     = o.top    + "px";
-            if(pl!=null) el.style.left    = o.left   + "px";
-            if(pw!=null) el.style.width   = o.width  + "px";
-            if(ph!=null) el.style.height  = o.height + "px";
-            if(pa!=null) el.style.opacity = o.alpha.toFixed(1);
-            if(fn!=null) fn.apply();
-            el.stop(transition);
-        } else {
-            if (pt!=null) el.style.top    = (ptf+(iter*pt))+"px";
-            if (pl!=null) el.style.left   = (plf+(iter*pl))+"px";
-            if (pw!=null) el.style.width  = (pwf+(iter*pw))+"px";
-            if (ph!=null) el.style.height = (phf+(iter*ph))+"px";
-            if (pa!=null) el.style.opacity = (iter*pa+paf).toFixed(1);
-        }
-    }, 1+Math.abs(Math.ceil(pace)));
-    */
-    return this;
-};
-
 HTMLElement.prototype.stop = function(an=false) {
     if(an){ clearInterval(an); }
     else if (this.dataset.transition) clearInterval(this.dataset.transition);
@@ -500,22 +437,48 @@ HTMLElement.prototype.inPage = function() {
     }
 };
 
+HTMLElement.prototype.trans = function(o = null, len = AB_ANIMATION_DEFAULT_DURATION, fn = null) {
+    if (o === null) return;
+    this.dataset.animationFunction ? this.stop(this.dataset.animationFunction) : undefined ;
+    this.dataset.animationFunction = '';
+    len/=1000;
+    this.style.transition = "all " + len + "s ease";
+    for(let i in o){
+        switch(i){
+            case "skew"  : this.style.transform = 'skew('+o[i]+','+o[i]+')'; break;
+            case "skewX" : this.style.transform = 'skewX('+o[i]+')'; break;
+            case "skewY" : this.style.transform = 'skewY('+o[i]+')'; break;
+            case "scale" : this.style.transform = 'scale('+o[i]+')'; break;
+            case "scaleX": this.style.transform = 'scaleX('+o[i]+')'; break;
+            case "scaleY": this.style.transform = 'scaleY('+o[i]+')'; break;
+            case "translate": this.style.transform = 'translate('+o[i]+','+o[i]+')'; break;
+            case "translateX": this.style.transform = 'translateX('+o[i]+')'; break;
+            case "translateY": this.style.transform = 'translateY('+o[i]+')'; break;
+            default      : this.style[i] = o[i]; break;
+        }
+    }
+    if(fn!==null) this.dataset.animationFunction = setTimeout(fn,len*1000);
+    return this;
+};
+
 // EFFECTS
-HTMLElement.prototype.appear = function(t = AB_ANIMATION_DEFAULT_DURATION, py = null, px=null ) {
+HTMLElement.prototype.appear = function(t=AB_ANIMATION_DEFAULT_DURATION, py=null, px=null ) {
     var
     x = this;
-    if(!x.dataset.loadstate || x.dataset.loadstate != 'visible'){
+    if(x.dataset.loadstate != 'visible'){
+        x.style.transition = "none";
         x.style.opacity = "0";
         x.style.display = "inline-block";
         ot = (py!=null?py:x.styleSheet('top').int()),
         ol = (px!=null?px:x.styleSheet('left').int());
-        x.style.top = ot+AB_ANIMATION_DEFAULT_RANGE+"px";
-        x.style.left = ol+AB_ANIMATION_DEFAULT_RANGE+"px";
+        x.style.top = (ot+AB_ANIMATION_DEFAULT_RANGE)+"px";
+        x.style.left = (ol+AB_ANIMATION_DEFAULT_RANGE)+"px";
+        x.style.transform = 'skewX(12deg)';
         if (x.isModal()) ab.reorder(x.myId());
-        x.dataset.loadstate = 'visible';
-        return x.trans({ top : ot, left : ol, opacity : 1 }, t);
+        x.trans({ top : ot+"px", left : ol+"px", skewX : '0deg',opacity : 1 }, t);
     }
     x.dataset.loadstate = 'visible';
+    return this;
 };
 
 HTMLElement.prototype.desappear = function(t = AB_ANIMATION_DEFAULT_DURATION, r = null) {
@@ -523,23 +486,22 @@ HTMLElement.prototype.desappear = function(t = AB_ANIMATION_DEFAULT_DURATION, r 
     x = this,
     ot = x.styleSheet('top').int() + AB_ANIMATION_DEFAULT_RANGE,
     ol = x.styleSheet('left').int() + AB_ANIMATION_DEFAULT_RANGE;
-    if(!x.dataset.loadstate || x.dataset.loadstate != 'hidden') {
+    x.style.transition = "none";
+    if(x.dataset.desappearId){ clearInterval( x.dataset.desappearId ); x.dataset.desappearId = ""; }
+    if(x.dataset.loadstate != 'hidden') {
         if (x.isModal()) {
             ab.windows.set(null, ab.windows.idx(this.myId()));
             ab.reorder();
         }
-        //console.log("initial",ot,ol);
-        this.trans({ top : ot, left : ol, opacity: 0 }, t);
-        setTimeout(function(r, d, y,x) {
-            if (r)  d.delete();
-            else {
-                d.style.top = y + "px";
-                d.style.top = x + "px";
-                //d.style.opacity = ".1";
-                d.style.display = "none";
-                //console.log("final",y,x);
+        x.trans({ top : ot+"px", left : ol+"px", skewX : '12deg', opacity: 0 }, t);
+        x.dataset.transitionId = setTimeout( function(x, r, _y, _x){ 
+            if(r)  x.delete(); 
+            else{
+                x.style.top = _y+"px";
+                x.style.left = _x+"px"
+                x.style.display = "none";
             }
-        },t+1,r,x,ot-AB_ANIMATION_DEFAULT_RANGE,ol-AB_ANIMATION_DEFAULT_RANGE);
+        }, t+1, x, r, ot-AB_ANIMATION_DEFAULT_RANGE, ol-AB_ANIMATION_DEFAULT_RANGE);
     }
     x.dataset.loadstate = 'hidden';
     return this;
@@ -619,9 +581,8 @@ HTMLElement.prototype.maximize = function(d = AB_ANIMATION_DEFAULT_DURATION) {
             if (!x.dataset.initialposition) x.dataset.initialposition = x.offsetTop + "," + x.offsetLeft + "," + x.offsetHeight + "," + x.offsetWidth;
             x.getElementsByClassName("-controlbox")[0].style.display = 'inline';
             if (ab.tray.has(x.myId())) ab.tray.drop(x.myId());
-            x.trans({ top: 0, left: 0, width: ab.w(), height: ab.h(88), opacity: 1 }, 80, function() { ab.reorder(x.myId()); });
+            x.trans({ top: "0px", left: "0px", width: "100vw", height: "100vh", opacity: 1 }, 80, function() { ab.reorder(x.myId()); });
             x.dataset.windowsstatus = '1';
-            //$(x).draggable('disable');
         } else x.restore();
     }
 };
@@ -1650,7 +1611,7 @@ class Abox {
                     this.style.color = "initial";
                 };
                 maps[i].addEventListener("click", function(e) {
-                    this.parentModal().desappear(80, true);
+                    this.parentModal().desappear(null, true);
                     if(ab.tmpfs[this.parentModal().myId()]) delete ab.tmpfs[this.parentModal().myId()];
                 }, { passive: true });
                 maps[i].remClass("-close");
@@ -1918,7 +1879,7 @@ class Abox {
         if (!el.length) {
             var
             x = document.createElement("div");
-            x.className = "view tct -loading black-stripes";
+            x.className = "view tct -loading";
             x.dataset.loading_ = "";
             x.appendChild("<img class='-wheel' src='src/img/std/wheel.png'/>".toDOM());
             this.body().appendChild(x);
@@ -1940,7 +1901,7 @@ class Abox {
         toast.style.opacity="0";
         toast.style.top = "0px";
         toast.style.left = ab.w(78) + "px";
-        toast.onclick = function() { this.desappear(120, true); };
+        toast.onclick = function() { this.desappear(null, true); };
         toast.onmouseenter = function() {
             this.addClass("fbd");
             clearTimeout(this.dataset.delay);
@@ -1954,7 +1915,7 @@ class Abox {
         notfys = document.getElementsByTagName("toast");
         for (let i=notfys.length; i--;){
             //setTimeout(function(n){ n.stop().appear(); },(50*i)+10,notfys[i]);
-            notfys[i].trans({ top: notfys[i].offsetTop + toast.offsetHeight + ab.h(1), opacity: 1 }, 220);
+            notfys[i].trans({ top: notfys[i].offsetTop + toast.offsetHeight + ab.h(.25) + "px", opacity: 1 }, 220);
         }        
         toast.dataset.delay = setTimeout(function() { toast.remove(); }, 8000);
     }
@@ -2075,7 +2036,7 @@ class Abox {
         var
         x = document.getElementById(id);
         if(x){
-            x.desappear(80,del);
+            x.desappear(null,del);
             if(del) ab.loadPool.drop(id);
         }
     }
@@ -2256,10 +2217,10 @@ class Abox {
                     ttips = document.getElementsByTagName("tooltip")[0];
                     ttips.style.top = (e.clientY + AB_ANIMATION_DEFAULT_RANGE) + "px";
                     ttips.style.left = (e.clientX + AB_ANIMATION_DEFAULT_RANGE) + "px";
-                    if (this.dataset.message && this.dataset.message.indexOf("::text") > -1) this.dataset.message.replace("::text", this.innerText);
+                    if (this.dataset.message && this.dataset.message.indexOf("::text") > -1) this.dataset.message.replace("::text", this.textContent);
                     ttips.innerHTML = this.dataset.message;
                     ttips.style.display = 'block';
-                    ttips.stop().appear(120);
+                    ttips.stop().appear();
                 }, {passive:true});
                 x[i].addEventListener("mouseleave", function(e) {
                     var
