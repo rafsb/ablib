@@ -1440,10 +1440,6 @@ textarea:not(.-nd){
     width: calc(100% - 3.5rem);
 }
 
-textarea:not(.-nd) {
-    padding: 1rem;
-}
-
 [type='color'],
 [type='file'] {
     background: inherit;
