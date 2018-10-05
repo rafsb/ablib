@@ -32,6 +32,11 @@ body {
 
 html { font-size: 12px; }
 
+
+table th {
+    background: white;
+    border: none;
+}
 /*
 @media only screen and (max-width: 800px) {
     html *:not(script):not(style) {
@@ -1421,7 +1426,7 @@ textarea:hover,
 input:not([type=color]):not(.-nd):focus,
 select:focus,
 textarea:focus {
-    box-shadow: 0 0 16px rgba(0,0,0,.5);
+    box-shadow: 0 0 8px rgba(0,0,0,.5);
 }
 
 [type=tel]:not(.-nd),
@@ -1436,8 +1441,8 @@ textarea:not(.-nd){
     background: rgba(0,0,0,.1);
     color: white;
     */
-    padding: 1.25rem 1rem .25rem 2rem;
-    width: calc(100% - 3.5rem);
+    padding: 1.25rem 2rem .25rem 2rem;
+    width: calc(100% - 4.5rem);
 }
 
 [type='color'],
@@ -1453,14 +1458,13 @@ select:valid~label,
 select:focus~label {
     transition: all .4s ease;
     position: absolute;
-    padding: .25rem .75rem;
-    font-size: .90rem;
-    left: 0;
-    top: 0;
+    /*padding: .25rem .75rem;*/
+    font-size: .75rem;
+    left: 1rem;
+    top: .25rem;
     visibility: visible !important;
     background: transparent;
     color: inherit;
-    opacity:.6;
 }
 
 option{
@@ -1471,11 +1475,11 @@ input:placeholder-shown~label,
 input[type='button']:not(focus)~label,
 select~label,
 select~label {
-    transition: all .4s ease;
-    top: .45rem;
-    left: .25rem;
-    padding: .75rem 1rem;
     position: absolute;
+    transition: all .4s ease;
+    top: calc(50% - .5rem);
+    left: 2rem;
+    /*padding: .75rem 1rem;*/
     font-weight: normal;
     pointer-events: none;
     white-space: nowrap;
@@ -1940,6 +1944,8 @@ progress {
 .black-stripes {
     background: repeating-linear-gradient( 90deg, rgba(44, 44, 44, .8), rgba(0, 0, 0, .6) 1px, #000 2px, #000 3px);
 }
+
+.skewed { transform: skew(-6deg,-6deg);  }
 
 ::placeholder{
     opacity: .6;

@@ -6,7 +6,7 @@
  */
 const AB_RESPONSIVENESS_THRESHOLD = 1200;
 const AB_ANIMATION_DEFAULT_RANGE  = 12;
-const AB_ANIMATION_DEFAULT_DURATION = 120;
+const AB_ANIMATION_DEFAULT_DURATION = 200;
 /*
  * CALL TYPES
  */
@@ -317,7 +317,7 @@ HTMLElement.prototype.idx = function() {
     return nodes.indexOf(this);
 };
 
-HTMLElement.prototype.unload = function(del=false){ ab.unload(this.myId(),del); }
+HTMLElement.prototype.unload = function(del=false,t=AB_ANIMATION_DEFAULT_DURATION){ ab.unload(this.myId(),del,t); }
 
 HTMLElement.prototype.delete = function() { this.parentElement.removeChild(this); };
 
@@ -467,15 +467,16 @@ HTMLElement.prototype.appear = function(t=AB_ANIMATION_DEFAULT_DURATION, py=null
     x = this;
     if(x.dataset.loadstate != 'visible'){
         x.style.transition = "none";
+        x.style.transform = 'skewX(-4deg)';
+        x.style.transform = 'skewY(-4deg)';
         x.style.opacity = "0";
-        x.style.display = "inline-block";
+        x.style.display = "block";
         ot = (py!=null?py:x.styleSheet('top').int()),
         ol = (px!=null?px:x.styleSheet('left').int());
         x.style.top = (ot+AB_ANIMATION_DEFAULT_RANGE)+"px";
         x.style.left = (ol+AB_ANIMATION_DEFAULT_RANGE)+"px";
-        x.style.transform = 'skewX(12deg)';
         if (x.isModal()) ab.reorder(x.myId());
-        x.trans({ top : ot+"px", left : ol+"px", skewX : '0deg',opacity : 1 }, t);
+        x.trans({ top : ot+"px", left : ol+"px", skew : '0deg',opacity : 1 }, t);
     }
     x.dataset.loadstate = 'visible';
     return this;
@@ -493,7 +494,7 @@ HTMLElement.prototype.desappear = function(t = AB_ANIMATION_DEFAULT_DURATION, r 
             ab.windows.set(null, ab.windows.idx(this.myId()));
             ab.reorder();
         }
-        x.trans({ top : ot+"px", left : ol+"px", skewX : '12deg', opacity: 0 }, t);
+        x.trans({ top : ot+"px", left : ol+"px", skew : '4deg', opacity: 0 }, t);
         x.dataset.transitionId = setTimeout( function(x, r, _y, _x){ 
             if(r)  x.delete(); 
             else{
@@ -536,11 +537,11 @@ HTMLElement.prototype.checkout = function() {
 HTMLElement.prototype.isModal = function() {
     if (!this.className) return false;
     var
-        mod = ["-window", "-panel", "-dialog", "-wrapper"],
-        arr = this.className.split(/\s+/g),
-        i = 0,
-        j = 0,
-        matches = false;
+    mod = ["-window", "-panel", "-dialog", "-wrapper"],
+    arr = this.className.split(/\s+/g),
+    i = 0,
+    j = 0,
+    matches = false;
     while (arr[i++] && !matches) {
         while (mod[j++] && !matches) {
             if (arr[i - 1] == mod[j - 1]) matches = { p: j - 1 };
@@ -1598,7 +1599,7 @@ class Abox {
             for (var i = maps.length; i--;) {
                 maps[i].addClass("-closed");
                 var
-                    ic = document.createElement("icon");
+                ic = document.createElement("icon");
                 ic.textContent = "M";
                 ic.className = "hpd"
                 maps[i].appendChild(ic);
@@ -1611,7 +1612,8 @@ class Abox {
                     this.style.color = "initial";
                 };
                 maps[i].addEventListener("click", function(e) {
-                    this.parentModal().desappear(null, true);
+                    if(this.parentModal()){ this.parentModal().desappear(AB_ANIMATION_DEFAULT_DURATION, AB_ON); ab.loadPool.drop(this.parentModal().myId()); }
+                    else{ this.parentElement.desappear(); ab.loadPool.drop(this.parentElement.myId()); }
                     if(ab.tmpfs[this.parentModal().myId()]) delete ab.tmpfs[this.parentModal().myId()];
                 }, { passive: true });
                 maps[i].remClass("-close");
@@ -2032,11 +2034,11 @@ class Abox {
         }, false, l);
     }
 
-    unload(id,del=false){
+    unload(id,del=false,t=AB_ANIMATION_DEFAULT_DURATION){
         var
         x = document.getElementById(id);
         if(x){
-            x.desappear(null,del);
+            x.desappear(t,del);
             if(del) ab.loadPool.drop(id);
         }
     }
@@ -2294,22 +2296,23 @@ class Abox {
      */
     dropdowns() {
         var
-            drops = document.getElementsByClassName("-dropdown");
+        drops = document.getElementsByClassName("-dropdown");
         if (drops.length) {
             for (var i = drops.length; i--;) {
                 var
-                    x = drops[i],
-                    bt = x.children[0],
-                    nv = x.children[1],
-                    cl = x.dataset.paint ? x.dataset.paint.split(/[,:;-\s+]/g) : [this.schema.bdialog, this.schema.fmain];
-                nv.style.top = bt.offsetHeight - 4 + "px";
+                x = drops[i],
+                bt = x.children[0],
+                nv = x.children[1],
+                cl = x.dataset.paint ? x.dataset.paint.split(/[,:;-\s+]/g) : [this.schema.bdialog, this.schema.fmain];
+                nv.style.top = (bt.offsetHeight-4)+"px";
                 nv.style.background = cl[0];
                 nv.style.color = cl[1];
+                nv.style.left = nv.classList&&(nv.classList.contains('rt')||nv.classList.contains('right'))?(-bt.offsetWidth-nv.offsetWidth+6)+'px':(bt.offsetLeft+6)+"px";
                 if(!nv.classList.contains("-nd")&&!nv.classList.contains("--no-default")){
                     nv.style.minWidth = (2 * bt.offsetWidth) + "px";
                     nv.style.paddingTop = "1rem";
                     nv.style.paddingBottom = "1rem";
-                    nv.addClass("ns");
+                    //nv.addClass("ns");
                 }
                 x.onmouseenter = function() {
                     this.children[0].style.background = cl[0];
@@ -2323,6 +2326,7 @@ class Abox {
                     this.children[0].style.color = null;
                     this.children[1].style.display = 'none';
                 };
+                //x.remClass("-dropdown");
             }
         }
     }
@@ -2423,7 +2427,7 @@ class Abox {
             ab.error("Favor indicar o template para envio...");
             return 0;
         }
-        ab.call("../lib/fn/mailer.php",{conf:u,data:o},function(data){ if(fn) eval(fn)(data); });
+        ab.call("../lib/fn/mailer.php",{conf:u,data:o},function(data){ if(fn) eval(fn)(data.data); });
     }
 }
 _ = ab = new Abox();

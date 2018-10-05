@@ -16,6 +16,7 @@ $o->bstart();?>
                 $(this.container).draggable();
 	    		this.container.appear();
                 ab.organize();
+                ab.loading(AB_OFF);
 	    	}
     	}
     </script>
