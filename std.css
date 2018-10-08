@@ -1566,7 +1566,7 @@ button:hover,
 
 .-dropdown>*:nth-child(2) {
     position: absolute;
-    left: 0;
+    /*left: 0;*/
     display: none;
     z-index: 2000;
     clear: both;
