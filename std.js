@@ -10,7 +10,7 @@ const AB_ANIMATION_DEFAULT_DURATION = 200;
 /*
  * CALL TYPES
  */
-const AB_SYS = "aboxaboxaboxaboxaboxaboxaboxabox";
+const AB_SYS = "ABOX00";
 const AB_SYNC = true;
 const AB_LOAD = true;
 const AB_ASYNC = false;
@@ -398,7 +398,7 @@ HTMLElement.prototype.fill = function(c = false) {
                     if (d[i].selected.int()) x.value = d[i].value;
                 }
                 if (fn) eval(fn);
-                if (c) x.blur();
+                if(c && typeof this.onchange == 'function') this.onchange();
             }, false, false
         );
     } else this.appendChild((new DOMParser()).parseFromString('<option value=""></option>', "text/xml"));
@@ -410,7 +410,6 @@ HTMLElement.prototype.refill = function(c = false) {
     this.addClass("-fill");
     this.remClass("-filled");
     this.fill(c);
-    if(typeof this.onchange == 'function') this.onchange();
     this.focus();
 }
 
@@ -2028,8 +2027,8 @@ class Abox {
                 if(!ab.tmpfs[id]) ab.tmpfs[id] = {};
                 ab.tmpfs[id].name = x.id;
                 ab.tmpfs[id].container = x;
-                if(ab.tmpfs[id].init) ab.tmpfs[id].init();
-                //x.appear(t);
+                if(!ab.tmpfs[id].data) ab.tmpfs[id].data = ab.data();
+                if(typeof ab.tmpfs[id].init == 'function') ab.tmpfs[id].init();
             }
         }, false, l);
     }

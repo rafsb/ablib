@@ -1458,7 +1458,6 @@ select:valid~label,
 select:focus~label {
     transition: all .4s ease;
     position: absolute;
-    /*padding: .25rem .75rem;*/
     font-size: .75rem;
     left: 1rem;
     top: .25rem;
@@ -1479,7 +1478,6 @@ select~label {
     transition: all .4s ease;
     top: calc(50% - .5rem);
     left: 2rem;
-    /*padding: .75rem 1rem;*/
     font-weight: normal;
     pointer-events: none;
     white-space: nowrap;
@@ -1521,7 +1519,7 @@ button,
     outline: none;
     text-overflow: ellipsis;
     text-align: center;
-    border-radius: 4px;
+    border-radius: 3px;
     font-family: inherit;
     font-weight: bolder;
     opacity: 1;

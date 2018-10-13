@@ -8,7 +8,7 @@ require "../core.php";?>
 		<img class="abs zero spd xls  -wd10vw -op.6" src='src/img/logow.png'/>
 		<!CLOSE>
 		<icon class="fb spd cur abs tshdk -op.7 -lt100vw -tp0 -closed -map@spd;" style="margin-left:-6rem;color:red" onclick="ab.apply(function(){
-			var page = ab.UUID?AB_PAGE_CHROOT:AB_PAGE_WELCOME, cont = ab.loadPool.length();
+			var page = ab.UUID?CI_PAGE_CHROOT:CI_PAGE_WELCOME, cont = ab.loadPool.length();
 			do{
 				var tmp = ab.loadPool.get(-1);
 				if(tmp!=='{{#}}'&&$('#'+tmp).length){ page=false; setTimeout(function(tmp){ $('#'+tmp)[0].appear(80); },80,tmp); break; }
