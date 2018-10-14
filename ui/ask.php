@@ -14,8 +14,8 @@ $o->bstart();?>
                 class="lt tct bdisabled fdark wh hyp cur" 
                 onclick="ab.apply(function(_me){
                     var x = document.getElementById('<?=$from?>');
-                    _me.parentModal().getElementsByClassName('-closed')[0].click();
                     if(x.dataset.reject) eval(x.dataset.reject.replace(/::this/g,'document.getElementById(\'<?=$from?>\')'));
+                    _me.parentModal().getElementsByClassName('-closed')[0].click();
                 },this)">
                 NÃO
             </div>
@@ -23,8 +23,8 @@ $o->bstart();?>
                 class="lt bspan fwhite tct wh hyp cur"
                 onclick="ab.apply(function(_me){
                     var x = document.getElementById('<?=$from?>');
-                    _me.parentModal().getElementsByClassName('-closed')[0].click();
                     if(x.dataset.confirm) eval(x.dataset.confirm.replace(/::this/g,'document.getElementById(\'<?=$from?>\')'));
+                    _me.parentModal().getElementsByClassName('-closed')[0].click();
                 },this)">
                 SIM
             </div>

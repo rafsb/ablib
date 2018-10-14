@@ -4,7 +4,7 @@
 /*
  * CONFIGURATION
  */
-const AB_RESPONSIVENESS_THRESHOLD = 1200;
+const AB_RESPONSIVENESS_THRESHOLD = 900;
 const AB_ANIMATION_DEFAULT_RANGE  = 12;
 const AB_ANIMATION_DEFAULT_DURATION = 200;
 /*
@@ -206,7 +206,7 @@ String.prototype.basicChar = function() { return this.replace(/\s+/g, "_").repla
 
 String.prototype.toDOM = function() {
     var
-        x = document.createElement("div");
+    x = document.createElement("div");
     x.innerHTML = this.replace(/\t+/g, "").trim();
     return x.firstChild;
 };
@@ -363,12 +363,12 @@ HTMLElement.prototype.fill = function(c = false) {
     if (this.tagName != "SELECT" || this.classList.contains("-filled") || !this.dataset.tablefield) return;
     this.addClass("-filled");
     var
-        id = this.myId(),
-        tmp = this.dataset.tablefield.split(/[;:]/g),
-        fn = this.dataset.callback ? this.dataset.callback.replace(/::this/g, "document.getElementById('" + this.myId() + "')") : null;
+    id = this.myId(),
+    tmp = this.dataset.tablefield.split(/[;:]/g),
+    fn = this.dataset.callback ? this.dataset.callback.replace(/::this/g, "document.getElementById('" + this.myId() + "')") : null;
     if (tmp.length > 1) {
         ab.call(
-            "../lib/ctrl/qsfill.php", {
+            "../lib/fn/qsfill.php", {
                 tabl: tmp[0],
                 fild: tmp[1],
                 rest: (tmp[2] ? tmp[2] : null),
@@ -377,8 +377,8 @@ HTMLElement.prototype.fill = function(c = false) {
             },
             function(d) {
                 var
-                    x = document.getElementById(id),
-                    t = document.createElement("option");
+                x = document.getElementById(id),
+                t = document.createElement("option");
                 if (d.status == 200) d = JSON.parse(d.data);
                 else { if (fn) eval(fn); return; }
                 x.innerHTML = "";
@@ -398,7 +398,7 @@ HTMLElement.prototype.fill = function(c = false) {
                     if (d[i].selected.int()) x.value = d[i].value;
                 }
                 if (fn) eval(fn);
-                if(c && typeof this.onchange == 'function') this.onchange();
+                if(c && typeof x.onchange == 'function') x.onchange();
             }, false, false
         );
     } else this.appendChild((new DOMParser()).parseFromString('<option value=""></option>', "text/xml"));
@@ -456,7 +456,7 @@ HTMLElement.prototype.trans = function(o = null, len = AB_ANIMATION_DEFAULT_DURA
             default      : this.style[i] = o[i]; break;
         }
     }
-    if(fn!==null) this.dataset.animationFunction = setTimeout(fn,len*1000);
+    if(fn!==null&&typeof fn=="function") this.dataset.animationFunction = setTimeout(fn,len*1000);
     return this;
 };
 
@@ -475,7 +475,7 @@ HTMLElement.prototype.appear = function(t=AB_ANIMATION_DEFAULT_DURATION, py=null
         x.style.top = (ot+AB_ANIMATION_DEFAULT_RANGE)+"px";
         x.style.left = (ol+AB_ANIMATION_DEFAULT_RANGE)+"px";
         if (x.isModal()) ab.reorder(x.myId());
-        x.trans({ top : ot+"px", left : ol+"px", skew : '0deg',opacity : 1 }, t);
+        x.trans({ top : ot+"px", left : ol+"px", skew : '0deg',opacity : 1 }, t,function(){ ab.organize(); });
     }
     x.dataset.loadstate = 'visible';
     return this;
@@ -614,6 +614,11 @@ HTMLElement.prototype.climb = function(n = -1) {
     }
     return el;
 };
+
+HTMLCollection.prototype.each = function(f=null){
+    if(!f || typeof f != 'function') return;
+    for(var i=0;i++<=this.length;) f(this[i-1],i-1);
+}
 
 /*
  * @class
@@ -1401,7 +1406,7 @@ class Abox {
             }
         }
         */
-        this.viewport = (this.w() < AB_RESPONSIVENESS_THRESHOLD) ? AB_PORTRAIT : AB_LANDSCAPE;
+        this.viewport = this.w() < AB_RESPONSIVENESS_THRESHOLD ? AB_PORTRAIT : AB_LANDSCAPE;
 
         var
         maps = document.querySelectorAll("[class*='-map'");
@@ -1742,7 +1747,7 @@ class Abox {
 
     controls() {
         var
-            ctrls = document.getElementsByClassName("-control");
+        ctrls = document.getElementsByClassName("-control");
         if (ctrls.length) {
             for (var i = ctrls.length; i--;) {
                 ctrls[i].addClass("-controlled");
@@ -2054,24 +2059,24 @@ class Abox {
     exec(u, o = null, f = null) { this.call(u, o, f, false, false); }
 
     conf_file_handler(f, v = null, fn = null) {
-        this.exec("../lib/ctrl/conf_parameters.php", { fild: f, val0: v }, function(d) {
+        this.exec("../lib/fn/conf_parameters.php", { fild: f, val0: v }, function(d) {
             if (d.status == "success") ab.success();
             else ab.error();
         }); // jshint ignore:line
     }
 
     schema_file_handler(f, v = null, fn = null) {
-        this.exec("../lib/ctrl/schema_parameters.php", { fild: f, val0: v }, function(d) {
+        this.exec("../lib/fn/schema_parameters.php", { fild: f, val0: v }, function(d) {
             if (d.status == "success") ab.success();
             else ab.error();
         });
     }
 
-    hashIt(h) { return this.call("../lib/ctrl/hash_it.php", { hash: h }, function(d) { return d.data; }, true, false); } // encrypt _Data 'h'
+    hashIt(h) { return this.call("../lib/fn/hash_it.php", { hash: h }, function(d) { return d.data; }, true, false); } // encrypt _Data 'h'
 
     pswdCheck(u, p) {
         // check user's ('u') password ('p')
-        return this.call("../lib/ctrl/pswd_check.php", { user: u, pswd: p }, function(d) { return d.data; }, true, false);
+        return this.call("../lib/fn/pswd_check.php", { user: u, pswd: p }, function(d) { return d.data; }, true, false);
     }
 
     pswdChange(c) { this.load("../lib/ui/pswd_change.php"); }
@@ -2099,7 +2104,7 @@ class Abox {
      */
     jout(o = null) {
         if (!o) return;
-        return this.call("../lib/ctrl/jout_sql.php", o, function(d) {
+        return this.call("../lib/fn/jout_sql.php", o, function(d) {
             if (d) return d;
             else return null;
         }, true, false)
@@ -2116,7 +2121,7 @@ class Abox {
      */
     signin(u = null, p = null, k = 1, f = null) {
         if (!u || !p) return -1;
-        this.call("../lib/ctrl/signin.php", { user: u, pswd: p, keep: k }, (f ? f : function(d) {
+        this.call("../lib/fn/signin.php", { user: u, pswd: p, keep: k }, (f ? f : function(d) {
             switch (d.data.int()) {
                 case (1):
                     ab.success("Login confirmado...");
@@ -2180,7 +2185,7 @@ class Abox {
     // calls framework's inner login modal window
     tmpfsToChroot(f=null,t=null,v=false){
         if(!f||!t){ ab.error("Faltando argumentos"); return; }
-        ab.exec('../etc/ttoc.php',{from:f,to00:t},function(r){
+        ab.exec('../lib/fn/ttoc.php',{from:f,to00:t},function(r){
             if(r.data.int()==1){ if(v) ab.success("Arquivos movidos da pasta temporária.");
             }else{ if(v) ab.error("Arquivos na pasta temporária não puderam ser movidos, errno="+r.data); }
         });
@@ -2218,8 +2223,7 @@ class Abox {
                     ttips = document.getElementsByTagName("tooltip")[0];
                     ttips.style.top = (e.clientY + AB_ANIMATION_DEFAULT_RANGE) + "px";
                     ttips.style.left = (e.clientX + AB_ANIMATION_DEFAULT_RANGE) + "px";
-                    if (this.dataset.message && this.dataset.message.indexOf("::text") > -1) this.dataset.message.replace("::text", this.textContent);
-                    ttips.innerHTML = this.dataset.message;
+                    ttips.innerHTML = this.dataset.message.replace(/::text/g, this.textContent);
                     ttips.style.display = 'block';
                     ttips.stop().appear();
                 }, {passive:true});
@@ -2400,7 +2404,7 @@ class Abox {
         return ret;
     }
 
-    env_vars(o) { return ab.call('../lib/ctrl/env_vars.php', o, function(d) { return d.data; }, true, false); }
+    env_vars(o) { return ab.call('../lib/fn/env_vars.php', o, function(d) { return d.data; }, true, false); }
 
     object_fetch(field, value, obj = this) {
         var
