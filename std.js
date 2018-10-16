@@ -17,8 +17,10 @@ const AB_ASYNC = false;
 const AB_NOLOAD = false;
 const AB_IN = true;
 const AB_ON = true;
+const AB_RIGHT = true;
 const AB_OUT = false;
 const AB_OFF = false;
+const AB_LEFT = false;
 const AB_DESTROY = true;
 const AB_DEBUG = "DBG";
 /*
@@ -475,7 +477,7 @@ HTMLElement.prototype.appear = function(t=AB_ANIMATION_DEFAULT_DURATION, py=null
         x.style.top = (ot+AB_ANIMATION_DEFAULT_RANGE)+"px";
         x.style.left = (ol+AB_ANIMATION_DEFAULT_RANGE)+"px";
         if (x.isModal()) ab.reorder(x.myId());
-        x.trans({ top : ot+"px", left : ol+"px", skew : '0deg',opacity : 1 }, t,function(){ ab.organize(); });
+        x.trans({ top : ot+"px", left : ol+"px", skew : '0deg',opacity : 1 }, t,function(){ ab.organize(); ab.loading(AB_OFF); });
     }
     x.dataset.loadstate = 'visible';
     return this;
@@ -985,7 +987,7 @@ class Data {
                 }
                 tgt.appendChild(tile);
             }
-            if (fn) fn.apply();
+            if (fn) fn();
         } else tgt.appendChild("<div class='rel tct ns' style='margin:0 1vw;opacity:1;'><img src='src/img/logok.png' class='w60 xys disabled' style='opacity:.5'/></div>".toDOM());
         if (callback) eval(callback);
         //else tgt.appear();
