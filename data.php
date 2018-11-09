@@ -70,7 +70,7 @@ class Data
     {
         if($f!==null && $v!==null)
         {
-            $this->register += [$f=>$v];
+            $this->register[$f] = $v;
             return $this->register[$f];
         }
         else
@@ -150,7 +150,9 @@ class Data
      */
     public function seeQuery(){ return $this->query; }
 
-    public function innerObj(){ return atoo($this->register); }
+    public function innerArray(){ return $this->register; }
+
+    public function innerObject() { return atoo($this->register); }
 
      /*
      * @member funciton

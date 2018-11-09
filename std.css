@@ -1412,7 +1412,7 @@ info {
     color: red;
 }
 
-input:not([type=color]),
+input,
 select,
 textarea {
     outline: none;
@@ -1420,77 +1420,42 @@ textarea {
     box-sizing: content-box;
     border-radius: 3px;
 }
-input:not([type=color]):not(.-nd):hover,
+input:not(.-nd):hover,
 select:hover,
 textarea:hover,
-input:not([type=color]):not(.-nd):focus,
+input:not(.-nd):focus,
 select:focus,
 textarea:focus {
     box-shadow: 0 0 8px rgba(0,0,0,.5);
 }
 
-[type=tel]:not(.-nd),
-[type=email]:not(.-nd),
-[type=text]:not(.-nd),
-[type=date]:not(.-nd),
-[type=password]:not(.-nd),
-[type=search]:not(.-nd),
+input:not(.-nd):not([type='button']):not([type='submit']),
 select:not(.-nd),
 textarea:not(.-nd){
-    /*
-    background: rgba(0,0,0,.1);
-    color: white;
-    */
     padding: 1.25rem 2rem .25rem 2rem;
-    width: calc(100% - 4.5rem);
-}
-
-[type='color'],
-[type='file'] {
-    background: inherit;
-    border: none;
-    min-width: 0;
+    width: calc(100% - 4.6rem);
 }
 
 input:not(:placeholder-shown)~label,
-input:not([type='button']):focus~label,
+input:focus~label,
 select:valid~label,
 select:focus~label {
-    transition: all .4s ease;
     position: absolute;
     font-size: .75rem;
     left: 1rem;
-    top: .25rem;
+    top: .5rem;
     visibility: visible !important;
     background: transparent;
     color: inherit;
 }
 
-option{
-    color: black;
-}
-
-input:placeholder-shown~label,
-input[type='button']:not(focus)~label,
-select~label,
+input:placeholder-shown:not(:focus)~label,
 select~label {
     position: absolute;
-    transition: all .4s ease;
     top: calc(50% - .5rem);
     left: 2rem;
-    font-weight: normal;
-    pointer-events: none;
-    white-space: nowrap;
     text-align: left;
-    background: transparent;
     margin: 0;
-    color: inherit;
-}
-input[type='text'],select,textarea{
-    color: inherit;
-}
-input[type='button']{
-    color: auto;
 }
 textarea~label{
     position: absolute;
@@ -1498,14 +1463,18 @@ textarea~label{
     font-size: 95%;
     left: 0;
     top: 0;
+}
+
+label {
     visibility: visible !important;
     background: transparent;
     color: inherit;
+    font-weight: bolder;
     opacity:.6;
+    pointer-events: none;
+    white-space: nowrap;
+    transition: all .4s ease;
 }
-
-
-
 [type="submit"],
 [type="button"],
 button,
@@ -1541,6 +1510,34 @@ button:hover,
     opacity: .8;
 }
 
+
+input[type="range"] {
+    webkit-appearance: none;
+    width: 100%;
+    height: 25px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
 .-controlbox {
     position: absolute;
     height:2rem;
@@ -1557,7 +1554,7 @@ button:hover,
 
 .-dropdown>*:nth-child(1) {
     position: relative;
-    display: inline-block;
+    display: block;
     overflow: visible;
     cursor: pointer;
 }
@@ -1752,17 +1749,16 @@ fieldset {
 
 fieldset>label {
     position: relative;
-    padding: 2vh 2vw;
+    padding: 2rem;
     float: left;
     white-space: nowrap;
     text-align: left;
     background: transparent;
     display: block;
-    font-size: 1rem;
+    font-size: 1.5rem;
     font-weight: bolder;
-    text-align: left;
-    width: calc(100% - 4vw);
-    margin: 1vh 0;
+    width: calc(100% - 2rem);
+    margin: 1rem 0;
 }
 
 

@@ -154,11 +154,11 @@ String.prototype.float = function(f = 2) {
     return a;
 };
 
-String.prototype.money = function() {
+String.prototype.money = function(c='') {
     var
         t = this.replace(/[^0-9]/g, "").split(""),
         m = t.splice(t.length - 2, 2);
-    return "R$ " + t.join("").replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1.") + "," + m.join("");
+    return (c?c+" ":'') + t.join("").replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1.") + "," + m.join("");
 };
 
 String.prototype.date = function() {
@@ -512,7 +512,7 @@ HTMLElement.prototype.desappear = function(t = AB_ANIMATION_DEFAULT_DURATION, r 
 HTMLElement.prototype.checkout = function() {
     if (!this.classList.contains('-required') || ["input", "select", "textarea"].indexOf(this.tagName.toLowerCase()) < 0) return -1;
     var
-        o = this.classList.contains('-controlled') ? this.dataset.object.split(/[;:,-]/g) : null;
+    o = this.classList.contains('-controlled') ? this.dataset.object.split(/[;:,-]/g) : null;
     //console.log(o);
     if (!this.value) {
         if (o) eval(o[0]).value(o[1], "");
@@ -520,8 +520,8 @@ HTMLElement.prototype.checkout = function() {
         return false;
     } else {
         var
-            prs = this.value ? this.value.replace(/["']/g, "&quot;") : '',
-            idx = 0;
+        prs = this.value ? this.value.replace(/["']/g, "&quot;") : '',
+        idx = 0;
         if (prs && o && o.length == 3) {
             if (o[2] == "bool") prs = prs ? 1 : 0;
             if (o[2] == "int") prs = prs.int();
@@ -988,7 +988,7 @@ class Data {
                 tgt.appendChild(tile);
             }
             if (fn) fn();
-        } else tgt.appendChild("<div class='rel tct ns' style='margin:0 1vw;opacity:1;'><img src='src/img/logok.png' class='w60 xys disabled' style='opacity:.5'/></div>".toDOM());
+        } else tgt.appendChild("<div class='wf tct ns'><img src='src/img/logok.png' class='w40 disabled' style='opacity:.5'/></div>".toDOM());
         if (callback) eval(callback);
         //else tgt.appear();
     }
@@ -1314,7 +1314,7 @@ class Throttle {
      */
     fire(d) {
         var
-            now = (new Date()).getTime();
+            now = (new Date()).getTime()    ;
         if (now - this.delay > this.timer) {
             eval(this.func)(d);
             this.timer = now;
@@ -1415,30 +1415,31 @@ class Abox {
         if(maps.length) {
             for (var i = maps.length; i--;) {
                 //console.log(maps[i].classList);
-                if(maps[i].classList.contains("-mapped")) return;
-                maps[i].dataset.landscape = "";
-                maps[i].dataset.portrait = "";
-                maps[i].dataset.classes = "";
-                var
-                classes = maps[i].classList,
-                classnames = null;
-                for(var j=classes.length;j--;){
-                    if(classes[j].indexOf('-map')>=0){
-                        classnames = classes[j].replace("-map","").split(/[,;:=]/g);
-                        for(var k=classnames.length;k--;){
-                            if(classnames[k]){
-                                if(classnames[k][0]=="@") maps[i].dataset.landscape = maps[i].dataset.landscape+" "+classnames[k].substr(1);
-                                if(classnames[k][0]=="#") maps[i].dataset.portrait = maps[i].dataset.portrait+" "+classnames[k].substr(1);
+                if(!maps[i].classList.contains("-ismapped")){
+                    maps[i].dataset.landscape = "";
+                    maps[i].dataset.portrait = "";
+                    maps[i].dataset.classes = "";
+                    var
+                    classes = maps[i].classList,
+                    classnames = null;
+                    for(var j=classes.length;j--;){
+                        if(classes[j].indexOf('-map')>=0){
+                            classnames = classes[j].replace("-map","").split(/[,;:=]/g);
+                            for(var k=classnames.length;k--;){
+                                if(classnames[k]){
+                                    if(classnames[k][0]=="@") maps[i].dataset.landscape = maps[i].dataset.landscape+" "+classnames[k].substr(1);
+                                    if(classnames[k][0]=="#") maps[i].dataset.portrait = maps[i].dataset.portrait+" "+classnames[k].substr(1);
+                                }
                             }
-                        }
-                    }else maps[i].dataset.classes = maps[i].dataset.classes + " " + classes[j];
-                    maps[i].remClass(classes[j]);
+                        }else maps[i].dataset.classes = maps[i].dataset.classes + " " + classes[j];
+                        maps[i].remClass(classes[j]);
+                    }
+                    maps[i].addClass("-ismapped");
                 }
-                maps[i].addClass("-mapped");
             }
         }
 
-        maps = document.getElementsByClassName("-mapped");
+        maps = document.getElementsByClassName("-ismapped");
         if (maps.length) {
             for (var i = maps.length; i--;) {
                 maps[i].className = maps[i].dataset.classes + " " + (ab.viewport==AB_LANDSCAPE?maps[i].dataset.landscape:maps[i].dataset.portrait);
@@ -2006,7 +2007,8 @@ class Abox {
                             d.data[i][0] = d.data[i][0]
                                 .replace(/[%]/g, "ab.tmpfs.") // temporary workspace
                                 .replace(/[#]/g, d.id) // ID
-                                .replace(/[!]/g, ".data"); // refer to an ab's Data object
+                                .replace(/[!]/g, ".data") // refer to an ab's Data object
+                                .replace(/[?]/g, ".conf"); // refer to an ab's Data object
                             d.data[i][0] = d.data[i][0].trim();
                             d.data[i] = d.data[i].join("").replace(/^\s+|\s+$/g,'');
                         }
@@ -2035,6 +2037,7 @@ class Abox {
                 ab.tmpfs[id].name = x.id;
                 ab.tmpfs[id].container = x;
                 if(!ab.tmpfs[id].data) ab.tmpfs[id].data = ab.data();
+                if(!ab.tmpfs[id].conf) ab.tmpfs[id].conf = ab.data();
                 if(typeof ab.tmpfs[id].init == 'function') ab.tmpfs[id].init();
             }
         }, false, l);
@@ -2239,7 +2242,6 @@ class Abox {
         }
     }
 
-
     fills() {
         var
             x = document.getElementsByClassName("-fill");
@@ -2308,29 +2310,38 @@ class Abox {
                 x = drops[i],
                 bt = x.children[0],
                 nv = x.children[1],
-                cl = x.dataset.paint ? x.dataset.paint.split(/[,:;-\s+]/g) : [this.schema.bdialog, this.schema.fmain];
-                nv.style.top = (bt.offsetHeight-4)+"px";
-                nv.style.background = cl[0];
-                nv.style.color = cl[1];
-                nv.style.left = nv.classList&&(nv.classList.contains('rt')||nv.classList.contains('right'))?(-bt.offsetWidth-nv.offsetWidth+6)+'px':(bt.offsetLeft+6)+"px";
+                cl = x.dataset.paint ? x.dataset.paint.split(/[,:;-\s+]/g) : ['initial', null],
+                btclr = bt.styleSheet('color'),
+                fin = function(x) {
+                    x.style.background = cl[0];
+                    x.children[0].style.color = cl[1] ? cl[1] : 'inherit';
+                    x.children[0].style.opacity = cl[2] ? cl[2] : 1;
+                    x.children[1].style.color = cl[1] ? cl[1] : 'inherit';
+                    x.children[1].style.background = cl[0] ? cl[0] : 'inherit';
+                    x.children[1].style.opacity = cl[2] ? cl[2] : 1;
+                    x.children[1].style.top = x.children[0].offsetHeight+"px";
+                    x.children[1].style.left = x.children[1].classList&&(x.children[1].classList.contains('rt')||x.children[1].classList.contains('right'))?(x.children[0].offsetLeft-(x.children[0].offsetWidth-x.children[1].offsetWidth)-4)+'px':(x.children[0].offsetLeft+2)+"px";
+                    x.children[1].style.display = 'flex';
+                },
+                fout = function(x) {
+                    x.style.background = 'none';
+                    x.children[0].style.color = btclr;
+                    x.children[1].style.display = 'none';
+                };
+                //x.style.position = 'relative';
+                //nv.style.position = 'absolute';
                 if(!nv.classList.contains("-nd")&&!nv.classList.contains("--no-default")){
-                    nv.style.minWidth = (2 * bt.offsetWidth) + "px";
+                    nv.style.minWidth = (bt.offsetWidth-bt.styleSheet('paddingLeft').int()-bt.styleSheet('paddingRight').int()) + "px";
                     nv.style.paddingTop = "1rem";
                     nv.style.paddingBottom = "1rem";
-                    //nv.addClass("ns");
                 }
-                x.onmouseenter = function() {
-                    this.children[0].style.background = cl[0];
-                    this.children[0].style.color = cl[1];
-                    this.children[0].style.opacity = cl[2] ? cl[2] : 1;
-                    this.children[1].style.opacity = cl[2] ? cl[2] : 1;
-                    this.children[1].style.display = 'inline-block';
-                };
-                x.onmouseleave = function() {
-                    this.children[0].style.background = "initial";
-                    this.children[0].style.color = null;
-                    this.children[1].style.display = 'none';
-                };
+                if(x.classList.contains('--use-input')){
+                    bt.onfocus = function(){ fin(this.climb()); };
+                    bt.onblur = function(){ fout(this.climb()); };
+                }else{
+                    x.onmouseenter = function(){ fin(this); };
+                    x.onmouseleave = function(){ fout(this); };
+                }
                 //x.remClass("-dropdown");
             }
         }
@@ -2350,7 +2361,7 @@ class Abox {
                     this.value = this.value ? this.value.document() : "";
                 }
                 if (x.classList.contains("-mask-money")) {
-                    x.addEventListener("keyup", function(e) { this.value = this.value.money(); }, { passive: true });
+                    x.addEventListener("keyup", function(e) { this.value = this.value.money(this.dataset.currency); }, { passive: true });
                     x.remClass("-mask-money");
                     this.value = this.value ? this.value.money() : "";
                 }
@@ -2435,6 +2446,11 @@ class Abox {
         ab.call("../lib/fn/mailer.php",{conf:u,data:o},function(data){ if(fn) eval(fn)(data.data); });
     }
 }
+
 _ = ab = new Abox();
+
+remap = new Throttle(function(){ console.log(ab.viewport); ab.organize(); },100);
+
+window.addEventListener('resize',function(){ remap.fire(); });
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 console.log("    _    ____   _____  ______   ___  _____ _____\n   / \\  | __ ) / _ \\ \\/ / ___| / _ \\|  ___|_   _|\n  / _ \\ |  _ \\| | | \\  /\\___ \\| | | | |_    | |\n / ___ \\| |_) | |_| /  \\ ___) | |_| |  _|   | |\n/_/   \\_\\____/ \\___/_/\\_\\____/ \\___/|_|     |_|\n");

@@ -139,7 +139,7 @@ function log($t=null){
 
 
 // returnd a 32 bytes unique character sequence, used as code for example
-function get_hash(){ return \md5(\uniqid(\rand())); }
+function get_hash($s=64){ return substr(\md5(\uniqid(\rand())),0,$s); }
 
 
 /* perform a hash into the given argument returning a 64 lengh string
@@ -294,3 +294,15 @@ function rem_folder($p=0){
  *
  */
 function rem_file($p=null){ if($p===null) return; return \unlink($p); }
+
+function copy_folder($f,$t) { 
+    $dir = opendir($f); 
+    mkdir($t);
+    while($file = readdir($dir)){ 
+        if($file!='.'&&$file!='..'){ 
+            if(is_dir($f.'/'.$file)) copy_folder($f.'/'.$file,$t.'/'.$file); 
+            else copy($f.'/'.$file, $t.'/'.$file); 
+        }
+    }
+    closedir($dir);
+}
