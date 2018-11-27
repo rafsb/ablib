@@ -1,0 +1,4 @@
+# handle /htaccess/movie-name internally
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^/]+)/([^/]+)/?$ index.php?uri=%{REQUEST_URI} [L,QSA]

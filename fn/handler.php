@@ -1,1 +1,0 @@
-<?php require '../../etc/handler.php';echo 0; if(abox\in()) echo abox\handler(abox\in());
