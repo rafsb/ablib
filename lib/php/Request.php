@@ -14,16 +14,17 @@ class Request {
     ## perform isertion into $_COOKIE array, giving values to new fields
     ## on success case, it returns the given value, else 0 is the answer
     ## i.e: cook("user","abox"), is the same as $_SESSION["projectName_user"] = "abox"
-    public function cook($f,$v=null){
-        if($v!==null) setcookie("SP-".$f,$v,(int)(1000*60*60*30*365),"/");
-        return (isset($_COOKIE["SP-".$f])?$_COOKIE["SP-".$f]:0);
+    public function cook($field,$value=null,$time=1000*60*60*30*365){
+        //$time+=time();
+        if($value!==null) setcookie(User::logged()."-".$field,$value,$time,"/");
+        return (isset($_COOKIE[User::logged()."-".$field])?$_COOKIE[User::logged()."-".$field]:0);
     }
 
     ## reads the $_POST array arguments into the page it"s included, but not all of them, only those inside "obj"
     ## "obj" is the parameter that works like a bridge from fn.js to fn.php
     ## $_POST["obj"] may contain many conn inside, passing a argument, it return the selected field, if it"s setted
     public function in($f=null){
-        $tmp = otoa(json_decode(file_get_contents("php://input")));
+        $tmp = Convert::otoa(json_decode(file_get_contents("php://input")));
         if($f!==null){
             if(isset($tmp["obj"])) return (!empty($tmp["obj"][$f]) ? $tmp["obj"][$f] : null);
             else return(!empty($tmp[$f]) ? $tmp[$f] : null);

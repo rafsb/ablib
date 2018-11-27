@@ -4,8 +4,8 @@ class Mysql {
     ## usage: $result = mysql()->query('SQL QUERY HERE')
     function conn($datasource=DEFAULT_DB){
         $tmp = (new App()) -> mysql_config($datasource);
-        // print_r($tmp);
-        $c = new \mysqli($tmp->host,$tmp->user,$tmp->pass,$tmp->base);
+        //print_r($tmp);
+        $c = new \mysqli($tmp -> host,$tmp -> user,$tmp -> pass,$tmp -> base);
         $c->set_charset("utf8");
         if($c->connect_error){ if(DEBUG) echo PHP_EOL . "MYSQL CONNECTION ERROR"; return -1; }
         return $c;
@@ -35,24 +35,28 @@ class Mysql {
     ## selections Queries (i.e: qio('SELECT * FROM table')
     ## return the entire object Mysql::result_object if some register matches the search query and 0 as it fails
     ## usage: $result = qout('SELECT * FROM table')
-    function out($query,$obj=__MYSQL_OBJ,$datasource=DEFAULT_DB){
+    function out($query,$obj=__MYSQLI_OBJ,$datasource=DEFAULT_DB){
         if(!$query){ if(DEBUG) echo PHP_EOL . "NO QUERY GIVEN"; return null; }
         $result = Convert::atoo(["status"=>0, "data"=>null]);
         if($query && (strpos(strtolower($query),"select") >= 0)){
             $record = (Mysql::conn($datasource)) -> query( $query );
             if(gettype($record) == "object" && $record -> num_rows){                
+                //print_r($record);
+                //print_r($obj);
                 $data = null;
                 switch($obj){
                     case(__ASSOC)     : { $data = (array)$record->fetch_assoc(); }                                                      break;
                     case(__ARRAY)     : { $data = []; while($nt = $record->fetch_assoc()) $data[] = $nt; }                              break;
                     case(__JSON)      : { $data = []; while($nt = $record->fetch_assoc()) $data[] = $nt; $data = json_encode($data); }  break;
                     case(__OBJECT)    : { $data = Convert::atoo($record->fetch_assoc()); }                                              break;
-                    case(__MYSQL_OBJ) : { $data = $record; }                                                                            break;
+                    case(__MYSQLI_OBJ) : { $data = $record; }                                                                            break;
                 }
+                //print_r($data);
                 $result -> status = true;
                 $result -> data = ($data ? $data : Convert::atoo(["error"=>"empty data"]));
             }
         }
+        //print_r($result);
         return $result;
     }
 
@@ -61,11 +65,10 @@ class Mysql {
     ## it can perform any query string, althogh is designed to work better with
     ## selections Queries (i.e: qio('SELECT * FROM table')
     ## return 1 if some register matches the search query and 0 as it fails
-    function count($table,$restriction,$datasource){
-        if(!$table||!$restriction){ if(DEBUG) echo PHP_EOL . "NO TABLE NOR RESTRICTION: T[$t] - R[$restriction]"; return null; }
-        $q = "SELECT * FROM $t WHERE $r";
-        $r = Mysql::out($q,$datasource);
-        if($r->status() && $r->data() && $r->data()->num_rows) return (int)$r->data()->num_rows;
+    function count($query,$datasource=DEFAULT_DB){
+        if(!$query){ if(DEBUG) echo PHP_EOL . "NO QUERY: Q[$queryt]"; return null; }
+        $request = Mysql::out($query,__MYSQLI_OBJ,$datasource);
+        if($request -> status && $request -> data && $request -> data -> num_rows) return (int)$request -> data -> num_rows;
         else return 0;
     }
     ## return a value from a single cell into the mysql result query, if it matches, else return 0
@@ -73,10 +76,12 @@ class Mysql {
     ## $f: inform what cell exatanly it will read
     ## $r: stands for restrictions, as 'code=1', if it argument is blank, the result may be unlike your which
     ## because the first matched row's cell will be returned
-    function cell($t,$f,$r=null,$datasource=DEFAULT_DB){
-        if(!$r) $r="code='".user()."'";
-        $a = Mysql::out("select $f from $t where $r",__OBJECT,$datasource);
-        $a = ($a->status?(isset($a->data->{$f})?$a->data->{$f}:null):null);
-        return $a;
+    function cell($table,$cell,$restriction=null,$datasource=DEFAULT_DB){
+        if(!$restriction) $restriction="id='".User::logged()."'";
+        $tmp = Mysql::out("select $cell from $table where $restriction",__ASSOC,$datasource);
+        //echo "select $cell from $table where $restriction";
+        //print_r($tmp);
+        $tmp = ($tmp -> status ? (isset($tmp -> data[ $cell ]) ? $tmp -> data[ $cell ] : "-2") : "-1" );
+        return $tmp;
     }
 }

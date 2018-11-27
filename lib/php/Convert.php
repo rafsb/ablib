@@ -3,7 +3,7 @@ class convert{
     // stdobject to array
     public function otoa($o){
         $r = (array)$o;
-        foreach($r as $k => $v){ if(is_object($v)) $v = otoa($v); }
+        foreach($r as $k => $v){ if(is_object($v)) $v = Convert::otoa($v); }
         return $r;
     }
 
@@ -11,7 +11,7 @@ class convert{
         if(!is_array($a)){ return json_decode(json_encode(["error"=>"argument is not an array()"])); }
         //print_r($a);
         foreach($a as $k=>$v){
-            if(is_array($v)) $a[$k] = atoo($v);
+            if(is_array($v)) $a[$k] = Convert::atoo($v);
         }
         return json_decode(json_encode($a));
     }
@@ -22,7 +22,7 @@ class convert{
         if(gettype($a)=="array"){
             $t = "";
             foreach($a as $k=>$v){
-                if(is_array($a[$k])) $t.=atoh($a[$k]);
+                if(is_array($a[$k])) $t.=Convert::atoh($a[$k]);
                 else $t.=str_replace(" ","+",$k)."=".str_replace(" ","+",$v)."&";
             }
             return substr($t,0,strlen($t)-1);

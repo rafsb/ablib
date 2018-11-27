@@ -4,30 +4,18 @@ define("DEBUG",true);
 
 class App {
 	public function mysql_config($database=DEFAULT_DB){
-		$_DATABASES = [
-			DEFAULT_DB => [
-				"base" => "spumedb",
-				"user" => "spume",
-				"pass" => "spudba",
-				"host" => "127.0.0.1"
-			]
-		];
-		return isset($_DATABASES[$database]) ? Convert::atoo($_DATABASES[$database]) : null;
+		$_DATABASES = IO::jout(IO::root("webroot/conf.json"));
+		return isset($_DATABASES->datasources) && isset($_DATABASES->datasources->{$database}) ? $_DATABASES->datasources->{$database} : null;
 	}
 
 	public function config($field=null){
-		$_CONFIG = [
-			"Developer_senior" 	=> "rafsb",
-			"Developer_jr" 		=> "sugar",
-			"Copyright" 		=> "spume.co",
-			"Project_name" 		=> "Long Time Tools"
-		];
-		if($field && isset($_CONFIG[$field])) return $_CONFIG[$field];
+		$_CONFIG = IO::jout(IO::root("webroot/conf.json"));
+		if($field && isset($_CONFIG->{$field})) return $_CONFIG->{$field};
 		return $_CONFIG;
 	}
 
-	public function devel(){ return App::config("Developer"); }
+	public function devel(){ return App::config("developer"); }
 
-	public function project_name(){ return App::config("Project_name"); }
+	public function project_name(){ return App::config("project_name"); }
 
 }

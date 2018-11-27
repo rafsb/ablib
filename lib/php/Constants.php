@@ -51,5 +51,5 @@ define("__ASSOC",0);
 define("__ARRAY",1);
 define("__JSON",2);
 define("__OBJECT",3);
-define("MYSQLI_OBJ",4);
+define("__MYSQLI_OBJ",4);
 /***************/?>

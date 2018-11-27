@@ -21,25 +21,16 @@ class User {
     public function exists($u){ if(!$u) return null; return queries::count("Users","code='$u'") ? true : false; }
 
     ## checks if a given passphrase matches it"s informed user"s ownership
-    function passwd_check($c,$p){
-        return queries::count("Users","code='".$c."' and pswd='".hash("sha256",$c.$p)."'") ? true : false;
-    }
-
-
-    ## usualy called on login screens
-    ## checks if a given passphrase matches it"s informed user"s ownership
-    ## keep the user logged using cookie if $k (stands for keep) is true (1)
-    function signin($u,$p,$k=0){
-        if(!($u && $p)) return -1;
-        $o = queries::out("Users","user='$u'",AB___OBJECT);
-        if(!$o->status()) return $o;
-        if((int)core::conf("mail_check") && !(int)$o->data()->mchk) return ["status">-4,"data"=>"user's email is not checked up"];
-        if($this->passwd_check($o->data()->code,$p)>0){
-            Request::sess("USER",$o->data()->code);
-            if($k) Request::cook("USER",$o->data()->code);
-            queries::up("Users","last='".(new Date())->computable()."'","code='".$o->data()->code."'");
-            return core::response(1,"signed");
-        }else return core::response(0,"password doesn't match");
+    function passwd_check($user_id,$password, $datasource=DEFAULT_DB){
+        //echo hash("sha256",$user_id.$password);
+        //echo "SELECT * FROM Users WHERE code='$user_id' and pswd='".hash("sha256",$user_id.$password)."'";
+        $tmp = Mysql::count("SELECT * FROM Users WHERE id='$user_id' and pswd='".hash("sha256",$user_id.$password)."'",$datasource) ? 1 : 0;
+        if($tmp){
+            Request::sess("USER",$user_id);
+            Request::cook("USER",$user_id);
+            Request::cook("ACTIVE",$user_id,time()+3600);
+        }
+        return $tmp;
     }
 
     function level($l=0){ 
