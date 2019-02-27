@@ -1,14 +1,14 @@
 /* FONTS */
-@font-face { font-family: "Comfortaa-light";  src: url("../../fonts/Comfortaa/Light.ttf")  format("truetype"); }
-@font-face { font-family: "Comfortaa-regular";src: url("../../fonts/Comfortaa/Regular.ttf")format("truetype"); }
-@font-face { font-family: "Comfortaa-bold";   src: url("../../fonts/Comfortaa/Bold.ttf")   format("truetype"); }
+@font-face { font-family: "Comfortaa-light";  src: url("../../src/fonts/Comfortaa/Light.ttf")  format("truetype"); }
+@font-face { font-family: "Comfortaa-regular";src: url("../../src/fonts/Comfortaa/Regular.ttf")format("truetype"); }
+@font-face { font-family: "Comfortaa-bold";   src: url("../../src/fonts/Comfortaa/Bold.ttf")   format("truetype"); }
 .-flight  { font-family: 'Comfortaa', 'Comfortaa-light', cursive; }
 .-fregular{ font-family: 'Comfortaa', 'Comfortaa-regular', cursive; }
 .-fbold   { font-family: 'Comfortaa', 'Comfortaa-bold', cursive; }
 
-@font-face { font-family: "SourceSans-light";  src: url("../../fonts/SourceSans/Light.ttf")  format("truetype"); }
-@font-face { font-family: "SourceSans-regular";src: url("../../fonts/SourceSans/Regular.ttf")format("truetype"); }
-@font-face { font-family: "SourceSans-bold";   src: url("../../fonts/SourceSans/Bold.ttf")   format("truetype"); }
+@font-face { font-family: "SourceSans-light";  src: url("../../src/fonts/SourceSans/Light.ttf")  format("truetype"); }
+@font-face { font-family: "SourceSans-regular";src: url("../../src/fonts/SourceSans/Regular.ttf")format("truetype"); }
+@font-face { font-family: "SourceSans-bold";   src: url("../../src/fonts/SourceSans/Bold.ttf")   format("truetype"); }
 .-ssans-light  { font-family: 'Source Sans Pro', 'SourceSans-light', cursive; }
 .-ssans-regular{ font-family: 'Source Sans Pro', 'SourceSans-regular', cursive; }
 .-ssans-bold   { font-family: 'Source Sans Pro', 'SourceSans-bold', cursive; }
