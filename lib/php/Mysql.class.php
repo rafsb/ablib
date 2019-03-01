@@ -4,7 +4,6 @@ class Mysql {
     ## usage: $result = mysql()->query('SQL QUERY HERE')
     function conn($datasource=DEFAULT_DB){
         $tmp = (new App()) -> mysql_config($datasource);
-        //print_r($tmp);
         $c = new \mysqli($tmp -> host,$tmp -> user,$tmp -> pass,$tmp -> base);
         $c->set_charset("utf8");
         if($c->connect_error){ if(DEBUG) echo PHP_EOL . "MYSQL CONNECTION ERROR"; return -1; }
@@ -16,7 +15,6 @@ class Mysql {
     ## insertions Queries (i.e: qin('INSERT INTO table VALUES('...','...'))
     ## return 1 for success query and 0 as it fails
     function in($table,$obj,$datasource=DEFAULT_DB){
-        //print_r($t,$f);
         if(!$table||!$obj){ if(DEBUG) echo PHP_EOL . "TABLE, OBJECT OR DATABASE MISSING: T[$table] - O[".var_dump($obj)."] - D[$datasource]"; return null; }
         $table = "INSERT INTO $table ('";
         $tmp = ") VALUES ('";
@@ -40,9 +38,7 @@ class Mysql {
         $result = Convert::atoo(["status"=>0, "data"=>null]);
         if($query && (strpos(strtolower($query),"select") >= 0)){
             $record = (Mysql::conn($datasource)) -> query( $query );
-            if(gettype($record) == "object" && $record -> num_rows){                
-                //print_r($record);
-                //print_r($obj);
+            if(gettype($record) == "object" && $record -> num_rows){
                 $data = null;
                 switch($obj){
                     case(__ASSOC)     : { $data = (array)$record->fetch_assoc(); }                                                      break;
@@ -51,12 +47,10 @@ class Mysql {
                     case(__OBJECT)    : { $data = Convert::atoo($record->fetch_assoc()); }                                              break;
                     case(__MYSQLI_OBJ) : { $data = $record; }                                                                            break;
                 }
-                //print_r($data);
                 $result -> status = true;
                 $result -> data = ($data ? $data : Convert::atoo(["error"=>"empty data"]));
             }
         }
-        //print_r($result);
         return $result;
     }
 
@@ -79,8 +73,6 @@ class Mysql {
     function cell($table,$cell,$restriction=null,$datasource=DEFAULT_DB){
         if(!$restriction) $restriction="id='".User::logged()."'";
         $tmp = Mysql::out("select $cell from $table where $restriction",__ASSOC,$datasource);
-        //echo "select $cell from $table where $restriction";
-        //print_r($tmp);
         $tmp = ($tmp -> status ? (isset($tmp -> data[ $cell ]) ? $tmp -> data[ $cell ] : "-2") : "-1" );
         return $tmp;
     }

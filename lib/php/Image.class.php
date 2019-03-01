@@ -149,7 +149,6 @@ class Pics
      *
      */
     public function run(){
-        //print_r($this->extn);
         if(!in_array(strtolower($this->extn), ["jpg","png","gif","bmp","svg","jpeg","tiff"])){
             $this->log0 .= "|error: file extension didn't match(".$this->ext().")";
             $this->stts = false; 
@@ -194,6 +193,5 @@ class Pics
             $this->extn = $this->extn[sizeof($this->extn)-1];
         }
         $this->newname = ($n?$n:$this->file["name"].".".$this->extn);
-        //print_r($this->file);
     }
 }

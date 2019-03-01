@@ -13,7 +13,7 @@ define("SYNC",true);
 define("ASYNC",false);
 define("IN",true);
 define("OUT",false);
-define("SCAN",true);
+define("SCAN",'{*}');
 define("NOSCAN",false);
 
 /*
@@ -52,4 +52,7 @@ define("__ARRAY",1);
 define("__JSON",2);
 define("__OBJECT",3);
 define("__MYSQLI_OBJ",4);
+
+define("DC",'/');
+
 /***************/?>

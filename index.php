@@ -1,8 +1,6 @@
 <?php
 session_start();
-
 function __autoload($class){
-    
     $class = preg_replace("/\\\\/",'/',$class);
     $path  = __DIR__ . DIRECTORY_SEPARATOR . "webroot" . DIRECTORY_SEPARATOR . "classes" . DIRECTORY_SEPARATOR . strtolower($class) . ".class.php";
 
@@ -11,7 +9,6 @@ function __autoload($class){
         $path = __DIR__ . DIRECTORY_SEPARATOR . "lib" . DIRECTORY_SEPARATOR . "php" . DIRECTORY_SEPARATOR . strtolower($class) . ".class.php";
         if(is_file($path)) include_once $path;
     }
-
 }
 
 require "lib" . DIRECTORY_SEPARATOR . "php" . DIRECTORY_SEPARATOR . "Constants.php";
@@ -26,4 +23,7 @@ if(Core::get('uri')){
     
     try{ eval($uri); } catch(Exception $e){ IO::debug($e); } 
 
-}else (new Index) -> render(true);
+}else{
+    include __DIR__ . DIRECTORY_SEPARATOR . "webroot" . DIRECTORY_SEPARATOR . "index.php";
+    (new Index()) -> render();
+}

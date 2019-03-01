@@ -1,56 +1,89 @@
 <?php
 class Page {
+	private $argv_ = [];
 
-	public function view($view){
-		$view = IO::root() . "webroot" . DIRECTORY_SEPARATOR . "views" . DIRECTORY_SEPARATOR . strtolower($view) . ".php";
-		if(is_file($view)) $this -> layout = $view;
-		else if(DEBUG) echo PHP_EOL . "NO VIEW FOUND: V[$view]";
+	private $body_;
+
+	private $layout_ = null;
+
+	private $allow_access_ = false;
+	
+	private $default_layout_ = true;
+
+	protected $html_first_portion_ = '';
+
+	protected $html_last_portion_ = '';
+
+	protected function onload(){}
+
+	protected function read(){
+		ob_start();
 	}
 
-	public function render($default=true){
+	protected function record($print = false){
+		$this -> body_ = ob_end_clean();
+		if($print) $this -> print();
+		else return trim($this -> body_);
+	}
+
+	protected function print(){
+		echo trim($this -> body_);
+	}
+
+	protected function args(){
+		return $this -> argv_;
+	}
+
+	protected function import($file = null){
+		$pos = ".php";
+		if(is_string($file)) include_once IO::root("webroot" . DC . "views" . DC . $file . $pos);
+		if(is_array($file)&&sizeof($file)) foreach ($file as $k => $v){
+			if(is_string($v)) include_once IO::root("webroot" . DC . "views" . DC . $k . DC . $v . $pos);
+			else foreach ($v as $vv) include_once IO::root("webroot" . DC . "views" . DC . $k . DC . $vv . $pos);
+		}
+	}
+
+	protected function view($view = null){
+		if($view!==null){
+			$view = IO::root() . "webroot" . DC . "views" . DC . strtolower($view) . ".php";
+			if(is_file($view)) $this -> layout_ = $view;
+			else $this -> layout_ = "error";
+		}
+		return $this -> layout_;
+	}
+
+	protected function default_layout($tog = null){
+		if($tog !== null) $this -> $default_layout_ = $tog;
+		return $this -> default_layout_;
+	}
+
+	protected function allow_access($origin = false){
+		if($origin) $this -> allow_access_ = $origin;
+		return $this -> allow_access_;
+	}
+
+	public function render(){
 		
-		if($this -> layout) $page = implode(DIRECTORY_SEPARATOR,explode('_',strtolower($this -> layout)));
-		else $page = implode(DIRECTORY_SEPARATOR,explode('_',strtolower(get_called_class())));
+		$this -> default_layout_ = true;
 
-		//print_r($page);
-		
-		$view = IO::root() . DIRECTORY_SEPARATOR . "webroot" . DIRECTORY_SEPARATOR . "views" . DIRECTORY_SEPARATOR . $page . ".php";
-
-		// print_r($this -> args);
-
-		foreach ($this -> arg as $k => $v) $$k = $v;
+		if(!$this -> view()) $this -> view(strtolower(get_called_class()));
 	
-		if($default){
-			//header("Access-Control-Allow-Origin: *"); // OLY FOR PUBLIC API USE
-		    header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
-		    header("Content-Type: text/html; charset=UTF-8",true);
-		    ob_start()?>
-			    <!DOCTYPE html>
-			    <html lang="pt-BR">
-			        <head>
-			            <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
-			            <meta name="viewport" content="width=device-width, initial-scale=1">
-			            <meta name="description" content=""/>
-			            <meta name="author" content="<?=App::devel()?>"/>
-			            <?php
-			            foreach(IO::js(SCAN) as $file)                 { ?> <script type="text/javascript" src="lib/js/<?=$file?>"></script>        <?php }
-			            foreach(IO::scan("webroot/js","js") as $file)  { ?> <script type="text/javascript" src="webroot/js/<?=$file?>"></script>    <?php }
-			            foreach(IO::css(SCAN) as $file)                { ?> <link rel="stylesheet" href="lib/css/<?=$file?>"/>                      <?php }
-			            foreach(IO::scan("webroot/css","css") as $file){ ?> <link rel="stylesheet" href="webroot/css/<?=$file?>"/>                 <?php } ?>
-			            <title><?=App::project_name()?></title>
-			        </head>
-			        <body class="-zero">
-			<?php
-			echo trim(ob_get_clean());
+		if($this -> default_layout()){
+			include_once IO::root() . "webroot" . DC . "views" . DC ."templates" . DC . "default_layout.php";
 		}
 		
-		if(is_file($view)){ include_once $view; }
-		
-		if($default){?> </body></html> <?php }
-	
+		echo $this -> html_first_portion_;
+
+		if(DEBUG) echo "<pre>" . IO::debug() . "</pre>";
+
+		echo $this -> onload();
+
+		if($this -> view())  include_once $this -> view();
+
+		echo $this -> html_last_portion_;
 	}
 
 	public function __construct(){
-		$this -> argv = Request::in();
+		$this -> argv_ = Request::in();
 	}
 }

@@ -9,7 +9,6 @@ class convert{
 
     public function atoo($a){
         if(!is_array($a)){ return json_decode(json_encode(["error"=>"argument is not an array()"])); }
-        //print_r($a);
         foreach($a as $k=>$v){
             if(is_array($v)) $a[$k] = Convert::atoo($v);
         }

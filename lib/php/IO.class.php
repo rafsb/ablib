@@ -10,15 +10,32 @@ class IO {
         return $tmp;
     }
 
-    public function js($scan = false){ 
-        $folder = IO::root("lib" . DIRECTORY_SEPARATOR . "js" .DIRECTORY_SEPARATOR);
-        return $scan ? IO::scan($folder,"js") : $folder; 
+    public function scripts($file = null){ 
+        $pre = "<script type='text/javascript' src='/lib/js/";
+        $pos = "'></script>";
+        if($file!==SCAN) echo $pre . $file . ".js" . $pos;
+        else foreach(IO::scan("lib/js","js") as $file) echo $pre . $file . $pos;
     }
 
+    public function js($file = null){
+        $pre = "<script type='text/javascript' src='";
+        $pos = "'></script>";
+        if($file!==SCAN) echo $pre . $file . ".js" . $pos;
+        else foreach(IO::scan("webroot/js","js") as $file) echo $pre . $file . $pos;
+    }
     
-    public function css($scan = false){ 
-        $folder = IO::root("lib" . DIRECTORY_SEPARATOR . "css" .DIRECTORY_SEPARATOR);
-        return $scan ? IO::scan($folder,"css") : $folder; 
+    public function stylesheets($file = null){ 
+        $pre = "<link rel='stylesheet' href='/lib/css/";
+        $pos = "'/>";
+        if($file!==SCAN) echo $pre . $file . ".css" . $pos;
+        else foreach(IO::scan("lib/css","css") as $file) echo $pre . $file . $pos;
+    }
+
+    public function css($file = null){
+        $pre = "<link rel='stylesheet' href='";
+        $pos = "'/>";
+        if($file!==SCAN) echo $pre . $file . ".css" . $pos;
+        else foreach(IO::scan("webroot/css","css") as $file) echo $pre . $file . $pos;
     }
 
     public function jin($path=null,$obj=null,$mode=REPLACE)
@@ -80,7 +97,6 @@ class IO {
      */
     public function rmf($p=0){
         if(!$p || !\is_dir($p)) return;
-        //print_r($p);
         if(substr($p,strlen($p)-1)!=="/") $p .= "/";
         $files = \glob($p.'*', GLOB_MARK);
         foreach($files as $file){
@@ -112,7 +128,10 @@ class IO {
 
     public function mv($f,$t){ if($this->copy_folder($f,$t)) \rem_folder($f); }
 
-    public function debug($anything){ print_r($anything); die; }
+    public function debug($anything=null){
+        if($anything!==null) Debug::show(); 
+        else print_r($anything);
+    }
 
     public function __construct(){
         $this->root_folder = $this->root();

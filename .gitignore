@@ -1,7 +1,1 @@
-00/
-var/logs/
-var/tmp/
-var/cache/
-var/user/
-webroot/
-favicon.ico
+var

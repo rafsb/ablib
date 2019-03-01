@@ -1,6 +1,6 @@
 html{ scroll-behavior: smooth }
-body{ position: relative; text-align: inherit; animation-fill-mode: forwards;display:inline-block;}/* POSITIONING */
-body *:not(script):not(style) { font-family: inherit; position: relative; }
+body{ position: relative; text-align: inherit; animation-fill-mode: forwards;display:inline-block;}
+body *:not(script):not(style) { font-family: inherit; position: relative; display:inline-block;}
 
 @media only screen and (max-width: 1079px) { body { font-size:  9px } }
 @media only screen and (max-width: 1919px) { body { font-size: 12px } }
