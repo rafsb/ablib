@@ -5,8 +5,8 @@ class IO {
 
     public function root($path=null){ 
         $tmp = __DIR__;
-        while(!file_exists($tmp . DIRECTORY_SEPARATOR . "ROOT")) $tmp .= DIRECTORY_SEPARATOR . "..";
-        $tmp .= DIRECTORY_SEPARATOR . ($path ? $path : '');
+        while(!file_exists($tmp . DS . "ROOT")) $tmp .= DS . "..";
+        $tmp .= DS . ($path ? $path : '');
         return $tmp;
     }
 
@@ -18,7 +18,7 @@ class IO {
     }
 
     public function js($file = null){
-        $pre = "<script type='text/javascript' src='";
+        $pre = "<script type='text/javascript' src='webroot/js/";
         $pos = "'></script>";
         if($file!==SCAN) echo $pre . $file . ".js" . $pos;
         else foreach(IO::scan("webroot/js","js") as $file) echo $pre . $file . $pos;
@@ -32,7 +32,7 @@ class IO {
     }
 
     public function css($file = null){
-        $pre = "<link rel='stylesheet' href='";
+        $pre = "<link rel='stylesheet' href='webroot/css/";
         $pos = "'/>";
         if($file!==SCAN) echo $pre . $file . ".css" . $pos;
         else foreach(IO::scan("webroot/css","css") as $file) echo $pre . $file . $pos;
@@ -65,7 +65,7 @@ class IO {
     }
 
     public function log($content){
-        IO::fwrite(IO::root("var" . DIRECTORY_SEPARATOR . "logs" . DIRECTORY_SEPARATOR . User::logged() . "-default.log"));
+        IO::fwrite(IO::root("var" . DS . "logs" . DS . User::logged() . "-default.log"));
     }
 
     /* signature: get_files('img/',"png");

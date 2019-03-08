@@ -12,7 +12,7 @@ function __autoload($class){
 }
 
 require "lib" . DIRECTORY_SEPARATOR . "php" . DIRECTORY_SEPARATOR . "Constants.php";
-require "lib" . DIRECTORY_SEPARATOR . "php" . DIRECTORY_SEPARATOR . "App.php";
+require "lib" . DS . "php" . DS . "App.php";
 
 if(!User::logged()) if(Request::cook("USER") && Request::cook("ACTIVE")) Request::sess("USER",Request::cook("USER"));
 
@@ -24,6 +24,6 @@ if(Core::get('uri')){
     try{ eval($uri); } catch(Exception $e){ IO::debug($e); } 
 
 }else{
-    include __DIR__ . DIRECTORY_SEPARATOR . "webroot" . DIRECTORY_SEPARATOR . "index.php";
+    include __DIR__ . DS . "webroot" . DS . "index.php";
     (new Index()) -> render();
 }

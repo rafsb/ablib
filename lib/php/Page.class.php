@@ -36,16 +36,16 @@ class Page {
 
 	protected function import($file = null){
 		$pos = ".php";
-		if(is_string($file)) include_once IO::root("webroot" . DC . "views" . DC . $file . $pos);
+		if(is_string($file)) include_once IO::root("webroot" . DS . "views" . DS . $file . $pos);
 		if(is_array($file)&&sizeof($file)) foreach ($file as $k => $v){
-			if(is_string($v)) include_once IO::root("webroot" . DC . "views" . DC . $k . DC . $v . $pos);
-			else foreach ($v as $vv) include_once IO::root("webroot" . DC . "views" . DC . $k . DC . $vv . $pos);
+			if(is_string($v)) include_once IO::root("webroot" . DS . "views" . DS . $k . DS . $v . $pos);
+			else foreach ($v as $vv) include_once IO::root("webroot" . DS . "views" . DS . $k . DS . $vv . $pos);
 		}
 	}
 
 	protected function view($view = null){
 		if($view!==null){
-			$view = IO::root() . "webroot" . DC . "views" . DC . strtolower($view) . ".php";
+			$view = IO::root() . "webroot" . DS . "views" . DS . strtolower($view) . ".php";
 			if(is_file($view)) $this -> layout_ = $view;
 			else $this -> layout_ = "error";
 		}
@@ -69,7 +69,7 @@ class Page {
 		if(!$this -> view()) $this -> view(strtolower(get_called_class()));
 	
 		if($this -> default_layout()){
-			include_once IO::root() . "webroot" . DC . "views" . DC ."templates" . DC . "default_layout.php";
+			include_once IO::root() . "webroot" . DS . "views" . DS ."templates" . DS . "layout" . DS . "default.php";
 		}
 		
 		echo $this -> html_first_portion_;
