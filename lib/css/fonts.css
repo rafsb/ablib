@@ -12,3 +12,6 @@
 .-ssans-light  { font-family: 'Source Sans Pro', 'SourceSans-light', cursive; }
 .-ssans-regular{ font-family: 'Source Sans Pro', 'SourceSans-regular', cursive; }
 .-ssans-bold   { font-family: 'Source Sans Pro', 'SourceSans-bold', cursive; }
+
+@font-face { font-family: "Bubbler";          src: url("../../src/fonts/BubblerOne.ttf")       format("truetype"); }
+.-bubbler { font-family: 'Bubbler One', 'Bubbler', cursive; }

@@ -18,7 +18,7 @@ class IO {
     }
 
     public function js($file = null){
-        $pre = "<script type='text/javascript' src='";
+        $pre = "<script type='text/javascript' src='webroot/js/";
         $pos = "'></script>";
         if($file!==SCAN) echo $pre . $file . ".js" . $pos;
         else foreach(IO::scan("webroot/js","js") as $file) echo $pre . $file . $pos;
@@ -32,7 +32,7 @@ class IO {
     }
 
     public function css($file = null){
-        $pre = "<link rel='stylesheet' href='";
+        $pre = "<link rel='stylesheet' href='webroot/css/";
         $pos = "'/>";
         if($file!==SCAN) echo $pre . $file . ".css" . $pos;
         else foreach(IO::scan("webroot/css","css") as $file) echo $pre . $file . $pos;
