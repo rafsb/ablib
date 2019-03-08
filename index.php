@@ -24,6 +24,8 @@ if(Core::get('uri')){
     try{ eval($uri); } catch(Exception $e){ IO::debug($e); } 
 
 }else{
+
     include __DIR__ . DS . "webroot" . DS . "index.php";
     (new Index()) -> render();
+    
 }

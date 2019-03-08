@@ -1,1 +1,2 @@
-<header class="-row" style="background: pink">HEADER</header>
+<header class="-row" style="background: pink"></header>
+<?php=IO::js("home")?>
