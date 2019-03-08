@@ -64,7 +64,7 @@ class Page {
 
 	public function render(){
 		
-		$this -> default_layout_ = true;
+		// $this -> default_layout_ = true;
 
 		if(!$this -> view()) $this -> view(strtolower(get_called_class()));
 	
@@ -74,7 +74,7 @@ class Page {
 		
 		echo $this -> html_first_portion_;
 
-		if(DEBUG) echo "<pre>" . IO::debug() . "</pre>";
+		// if(DEBUG) echo "<pre>" . IO::debug() . "</pre>";
 
 		echo $this -> onload();
 

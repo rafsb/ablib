@@ -1,6 +1,6 @@
 <?php
 define ("DEFAULT_DB","spumedb");
-define("DEBUG",true);
+define("DEBUG",1);
 
 class App {
 	public function mysql_config($database=DEFAULT_DB){

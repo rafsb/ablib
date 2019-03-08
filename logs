@@ -1,1 +1,0 @@
-cat var/logs/error.log && echo '' > var/logs/error.log
