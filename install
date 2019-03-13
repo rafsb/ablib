@@ -1,2 +1,4 @@
 #!/bin/bash -e
-rsync -av install.d ..
+rsync -av install.d/ ..
+mkdir -p ../lib
+rsync -av ./ ../lib
