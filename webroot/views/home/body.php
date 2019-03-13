@@ -1,1 +1,0 @@
-<section class="-left -wd-2third -content-center" style="height:calc(100vh - 3rem); background:rgb(23,156,128)">MAIN</section>

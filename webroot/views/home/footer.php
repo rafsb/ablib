@@ -1,1 +1,0 @@
-<footer class="-row" style="background: dodgerblue">FOOTER</footer>
