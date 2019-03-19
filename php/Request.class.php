@@ -28,11 +28,11 @@ class Request {
         if(!$tmp) $tmp = $_POST;
         if(!$tmp) $tmp = $_GET;
         if($f!==null){
-            if(isset($tmp["obj"])) return (!empty($tmp["obj"][$f]) ? $tmp["obj"][$f] : null);
-            else return(!empty($tmp[$f]) ? $tmp[$f] : null);
+            if(isset($tmp["obj"])) return (!empty($tmp["obj"][$f]) ? $tmp["obj"][$f] : []);
+            else return(!empty($tmp[$f]) ? $tmp[$f] : []);
         }else{
             if(!empty($tmp["obj"])) return $tmp["obj"];
-            else return(!empty($tmp) ? $tmp : null);
+            else return(!empty($tmp) ? $tmp : []);
         }
     }
 
@@ -42,15 +42,15 @@ class Request {
     public function post($f=null)
     {
         if($f!==null)
-            if(isset($_POST["obj"])) return (!empty($_POST["obj"][$f]) ? $_POST["obj"][$f] : null);
-            else return(!empty($_POST[$f]) ? $_POST[$f] : null);
+            if(isset($_POST["obj"])) return (!empty($_POST["obj"][$f]) ? $_POST["obj"][$f] : []);
+            else return(!empty($_POST[$f]) ? $_POST[$f] : []);
         else
             if(!empty($_POST["obj"])) return $_POST["obj"];
-            else return $_POST?$_POST:null;
+            else return $_POST?$_POST:[];
     }
 
     public function get($f=null){
-        if($f!==null) return (isset($_GET[$f]) ? $_GET[$f] : null);
-        else return(isset($_GET) ? $_GET : null);
+        if($f!==null) return (isset($_GET[$f]) ? $_GET[$f] : []);
+        else return(isset($_GET) ? $_GET : []);
     }
 }

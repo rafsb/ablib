@@ -21,13 +21,12 @@
 //
 
 const
-SP_ANIMDURATION = 400;
-SP_RESPONSIVE_TRESHOLD = 1080;
+ANIMATION_LENGTH = 400;
 DEBUG = true;
 
 var
-mouseAxis = { x:0, y:0 };
-
+mouseAxis = { x:0, y:0 },
+Page = { w:window.innerWidth, h:window.innerHeight };
 // 					_        _
 //  _ __  _ __ ___ | |_ ___ | |_ _   _ _ __   ___  ___
 // | '_ \| '__/ _ \| __/ _ \| __| | | | '_ \ / _ \/ __|
@@ -37,7 +36,7 @@ mouseAxis = { x:0, y:0 };
 //
 /*
 ==> Animate any html or svg element with css animation capabilities */
-Element.prototype.anime = function(o=null, len=SP_ANIMDURATION, fn = null, trans = null, delay = 0) {
+Element.prototype.anime = function(o=null, len=ANIMATION_LENGTH, fn = null, trans = null, delay = 0) {
     if (o===null) return this;
     // if(this.dataset.animationFunction) clearInterval(this.dataset.animationFunction);
     len/=1000;
@@ -293,12 +292,12 @@ Element.prototype.uid = function(name=null){
 }
 
 
-Element.prototype.appear = function(len = SP_ANIMDURATION){
+Element.prototype.appear = function(len = ANIMATION_LENGTH){
     this.setStyle({transition:"none",display:'inline', opacity:0});
     this.anime({opacity:1},len);
 }
 
-Element.prototype.desappear = function(len = SP_ANIMDURATION, remove = false){
+Element.prototype.desappear = function(len = ANIMATION_LENGTH, remove = false){
     this.anime({opacity:0},len,(me)=>{ if(remove&&me&&me.parent()) me.parent().removeChild(me); else me.style.display = "none" });
 }
 
@@ -336,7 +335,7 @@ NodeList.prototype.last = function(){ return this.length&&this[this.length-1] }
 
 NodeList.prototype.at = function(n=0){ return (this.length>=n)&&this[n] }
 
-NodeList.prototype.anime = function(obj,len=SP_ANIMDURATION,fn=null,trans=null,delay=null){
+NodeList.prototype.anime = function(obj,len=ANIMATION_LENGTH,fn=null,trans=null,delay=null){
     this.each((x)=>{x.anime(obj,len,fn,trans,delay)});
     return this
 }
@@ -509,7 +508,7 @@ class THROTTLE {
      * ex.: new __self.Throttle(minha_funcao,400);
      *
      */
-    constructor(f, t = SP_ANIMDURATION/2) {
+    constructor(f, t = ANIMATION_LENGTH/2) {
         this.assign(f,t);
     }
 
@@ -547,7 +546,7 @@ class THROTTLE {
     }
 }
 
-class SPUME {
+class FAAU {
 	call(url, args=null, fn=false, sync=false, __VP = window.innerWidth>SP_RESPONSIVE_TRESHOLD) {
         var
         xhr = new XMLHttpRequest();
@@ -675,7 +674,7 @@ class SPUME {
 
     remove(){ this.nodearray.each((x)=>{x.remove()})}
 
-    anime(obj,len=SP_ANIMDURATION,fn=null,trans=null,delay=null){
+    anime(obj,len=ANIMATION_LENGTH,fn=null,trans=null,delay=null){
         this.nodearray.each((x,y)=>{x.anime(obj,len,fn,trans,delay)})
         return this;
     }
@@ -694,9 +693,9 @@ class SPUME {
     }
 }
 
-window.spu = new SPUME();
+window.faau = new FAAU();
 window.$ = function(wrapper=null,context=document){
-    return (new SPUME(wrapper,context)).nodearray;
+    return (new FAAU(wrapper,context)).nodearray;
 }
 
 try{
@@ -718,4 +717,5 @@ try{
 
 window.onmousemove = (e) => mouseAxis = { x: e.clientX, y: e.clientY }
 
+window.onresize = function(){ Page.w = window.innerWidth; page.h = window.innerHeight }
 console.log(' ___ _ __  _   _ _ __ ___   ___   ___ ___  \n/ __| \'_ \\| | | | \'_ ` _ \\ / _ \\ / __/ _ \\ \n\\__ \\ |_) | |_| | | | | | |  __/| (_| (_) |\n|___/ .__/ \\__,_|_| |_| |_|\\___(_)___\\___/ \n    |_|');
