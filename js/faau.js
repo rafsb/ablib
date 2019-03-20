@@ -1,10 +1,4 @@
 /**************************************************************************
-                                                              _
- 	 ___ _ __  _   _ _ __ ___   ___   ___ ___   __      _____| |__
-	/ __| '_ \| | | | '_ ` _ \ / _ \ / __/ _ \  \ \ /\ / / _ \ '_ \
-	\__ \ |_) | |_| | | | | | |  __/| (_| (_) |  \ V  V /  __/ |_) |
-	|___/ .__/ \__,_|_| |_| |_|\___(_)___\___/    \_/\_/ \___|_.__/
-	    |_|
   	 ___                                             _
  	/  _|_ __ __ _ _ __ ___   _____      _____  _ __| | __
 	| |_| '__/ _` | '_ ` _ \ / _ \ \ /\ / / _ \| '__| |/ /
@@ -13,27 +7,14 @@
 
 
 ****************************************************************************/
-//                      _
-//   ___ ___  _ __  ___| |_ ___
-//  / __/ _ \| '_ \/ __| __/ __|
-// | (_| (_) | | | \__ \ |_\__ \
-//  \___\___/|_| |_|___/\__|___/
-//
-
 const
 ANIMATION_LENGTH = 400;
 DEBUG = true;
 
 var
 mouseAxis = { x:0, y:0 },
-Page = { w:window.innerWidth, h:window.innerHeight };
-// 					_        _
-//  _ __  _ __ ___ | |_ ___ | |_ _   _ _ __   ___  ___
-// | '_ \| '__/ _ \| __/ _ \| __| | | | '_ \ / _ \/ __|
-// | |_) | | | (_) | || (_) | |_| |_| | |_) |  __/\__ \
-// | .__/|_|  \___/ \__\___/ \__|\__, | .__/ \___||___/
-// |_|                           |___/|_|
-//
+ENV = { w:window.innerWidth, h:window.innerHeight };
+
 /*
 ==> Animate any html or svg element with css animation capabilities */
 Element.prototype.anime = function(o=null, len=ANIMATION_LENGTH, fn = null, trans = null, delay = 0) {
@@ -163,6 +144,11 @@ Element.prototype.dataSort = function(data=null,dir="asc"){
 
 Element.prototype.index = function(){
     return [].slice.call(this.parent().children).indexOf(this)-1;
+}
+
+HTMLInputElement.prototype.setValue = function(v=""){
+    this.value = v;
+    return this
 }
 
 // returns a String encrypted, ex.: "rafael".hash()
@@ -693,10 +679,11 @@ class FAAU {
     }
 }
 
-window.faau = new FAAU();
-window.$ = function(wrapper=null,context=document){
+var
+faau = new FAAU(),
+$ = function(wrapper=null,context=document){
     return (new FAAU(wrapper,context)).nodearray;
-}
+};
 
 try{
     if(SVG){
@@ -718,4 +705,5 @@ try{
 window.onmousemove = (e) => mouseAxis = { x: e.clientX, y: e.clientY }
 
 window.onresize = function(){ Page.w = window.innerWidth; page.h = window.innerHeight }
-console.log(' ___ _ __  _   _ _ __ ___   ___   ___ ___  \n/ __| \'_ \\| | | | \'_ ` _ \\ / _ \\ / __/ _ \\ \n\\__ \\ |_) | |_| | | | | | |  __/| (_| (_) |\n|___/ .__/ \\__,_|_| |_| |_|\\___(_)___\\___/ \n    |_|');
+
+console.log('  __\n\ / _| __ _  __ _ _   _\n\| |_ / _` |/ _` | | | |\n\|  _| (_| | (_| | |_| |\n\|_|  \\__,_|\\__,_|\\__,_|')
