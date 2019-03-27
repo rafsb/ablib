@@ -4,9 +4,9 @@ class Request {
     ## on success case, it returns the given value, else 0 is the answer
     ## i.e: sess("us\er","abox"), is the same as $_SESSION["projectName_user"] = "abox"
 
-    public function sess($f,$v=null){
+    public static function sess($f,$v=null){
         if($v!==null) $_SESSION[$f] = $v;
-        return (isset($_SESSION[$f]) ? $_SESSION[$f] : 0);
+        return (isset($_SESSION[$f]) ? $_SESSION[$f] : '');
     }
 
     public function usess($f){ if(isset($_SESSION[$f])) unset($_SESSION[$f]); }
@@ -14,7 +14,7 @@ class Request {
     ## perform isertion into $_COOKIE array, giving values to new fields
     ## on success case, it returns the given value, else 0 is the answer
     ## i.e: cook("user","abox"), is the same as $_SESSION["projectName_user"] = "abox"
-    public function cook($field,$value=null,$time=1000*60*60*30*365){
+    public static function cook($field,$value=null,$time=1000*60*60*30*365){
         //$time+=time();
         if($value!==null) setcookie(User::logged()."-".$field,$value,$time,"/");
         return (isset($_COOKIE[User::logged()."-".$field])?$_COOKIE[User::logged()."-".$field]:0);
@@ -23,7 +23,7 @@ class Request {
     ## reads the $_POST array arguments into the page it"s included, but not all of them, only those inside "obj"
     ## "obj" is the parameter that works like a bridge from fn.js to fn.php
     ## $_POST["obj"] may contain many conn inside, passing a argument, it return the selected field, if it"s setted
-    public function in($f=null){
+    public static function in($f=null){
         $tmp = Convert::otoa(json_decode(file_get_contents("php://input")));
         if(!$tmp) $tmp = $_POST;
         if(!$tmp) $tmp = $_GET;

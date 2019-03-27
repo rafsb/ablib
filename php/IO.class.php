@@ -3,7 +3,7 @@ class IO {
 
     private $root_folder;
 
-    public function root($path=null){ 
+    public static function root($path=null){ 
         $tmp = __DIR__;
         while(!file_exists($tmp . DS . "ROOT")) $tmp .= DS . "..";
         $tmp .= DS . ($path ? $path : '');
@@ -14,35 +14,35 @@ class IO {
         return IO::root() . DS .  $uri;
     }
 
-    public function scripts($file = null){ 
+    public static function scripts($file = null){ 
         $pre = "<script type='text/javascript' src='/lib/js/";
         $pos = "'></script>";
         if($file!==SCAN) echo $pre . $file . ".js" . $pos;
         else foreach(IO::scan("lib/js","js") as $file) echo $pre . $file . $pos;
     }
 
-    public function js($file = null){
+    public static function js($file = null){
         $pre = "<script type='text/javascript' src='webroot/js/";
         $pos = "'></script>";
         if($file!==SCAN) echo $pre . $file . ".js" . $pos;
         else foreach(IO::scan("webroot/js","js") as $file) echo $pre . $file . $pos;
     }
     
-    public function stylesheets($file = null){ 
+    public static function stylesheets($file = null){ 
         $pre = "<link rel='stylesheet' href='/lib/css/";
         $pos = "'/>";
         if($file!==SCAN) echo $pre . $file . ".css" . $pos;
         else foreach(IO::scan("lib/css","css") as $file) echo $pre . $file . $pos;
     }
 
-    public function css($file = null){
+    public static function css($file = null){
         $pre = "<link rel='stylesheet' href='webroot/css/";
         $pos = "'/>";
         if($file!==SCAN) echo $pre . $file . ".css" . $pos;
         else foreach(IO::scan("webroot/css","css") as $file) echo $pre . $file . $pos;
     }
 
-    public function jin($path=null,$obj=null,$mode=REPLACE)
+    public static function jin($path=null,$obj=null,$mode=REPLACE)
     {
         $s = false;
         if($path && $obj){
@@ -58,17 +58,17 @@ class IO {
      * $p = path to save the file with archive name
      *
      */
-    public function jout($path){ return json_decode(file_get_contents($path)); }
+    public static function jout($path){ return json_decode(file_get_contents($path)); }
 
-    public function fread($f){ return $f ? file_get_contents($f) : null; }
+    public static function fread($f){ return $f ? file_get_contents($f) : null; }
 
-    public function fwrite($f,$content,$mode=APPEND){ 
+    public static function fwrite($f,$content,$mode=APPEND){ 
         $tmp = ($mode == APPEND ? IO::fread($f) : "") . $content;
         file_put_contents($f,$tmp);
         return 1;
     }
 
-    public function log($content){
+    public static function log($content){
         IO::fwrite(IO::root("var" . DS . "logs" . DS . User::logged() . "-default.log"));
     }
 
@@ -79,7 +79,7 @@ class IO {
      * $x = file's extension to be supressed
      *
      */
-    public function scan($folder=null,$extension=null){
+    public static function scan($folder=null,$extension=null){
         if($folder===null || !@\is_dir($folder)) return [];
         $tmp = @\scandir($folder);
         $result = [];

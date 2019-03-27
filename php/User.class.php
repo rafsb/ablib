@@ -14,7 +14,7 @@ class User {
     }
     
     ## return the code of a logged user, in a casa there"s no logged one, it return 0
-    public function logged(){ return Request::sess("USER"); }
+    public static function logged(){ return Request::sess("USER"); }
 
     public function user_name($c=null){ return queries::cell("Users","name","code='".($c?$c:user::logged())."'"); }
 

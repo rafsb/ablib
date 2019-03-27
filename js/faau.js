@@ -13,7 +13,7 @@ DEBUG = true;
 
 var
 mouseAxis = { x:0, y:0 },
-ENV = { w:window.innerWidth, h:window.innerHeight };
+ENV = { w:window.innerWidth, h:window.innerHeight, pages: {}};
 
 /*
 ==> Animate any html or svg element with css animation capabilities */
@@ -533,7 +533,7 @@ class THROTTLE {
 }
 
 class FAAU {
-	call(url, args=null, fn=false, sync=false, __VP = window.innerWidth>SP_RESPONSIVE_TRESHOLD) {
+	call(url, args=null, fn=false, sync=false, __ENV = ENV) {
         var
         xhr = new XMLHttpRequest();
         args = args ? args : {};
@@ -704,6 +704,6 @@ try{
 
 window.onmousemove = (e) => mouseAxis = { x: e.clientX, y: e.clientY }
 
-window.onresize = function(){ Page.w = window.innerWidth; page.h = window.innerHeight }
+window.onresize = function(){ ENV.w = window.innerWidth; ENV.h = window.innerHeight }
 
 console.log('  __\n\ / _| __ _  __ _ _   _\n\| |_ / _` |/ _` | | | |\n\|  _| (_| | (_| | |_| |\n\|_|  \\__,_|\\__,_|\\__,_|')

@@ -4,9 +4,9 @@ class Page {
 
 	protected $view_;
 
-	protected $layout_;
-
 	protected $result_;
+
+	protected $layout_;
 
 	protected $allow_access_ = false;
 
@@ -37,19 +37,15 @@ class Page {
 	}
 
 	protected function view($view = null){
-		if($view!==null){
-			$view = IO::root() . "webroot" . DS . "views" . DS . strtolower($view) . ".php";
-			if(is_file($view)) $this -> view_ = $view;
-			else $this -> view_ = false;
-		}
+		$view = IO::root() . "webroot" . DS . "views" . DS . strtolower($view===null?get_called_class():$view) . ".php";	
+		if(is_file($view)) $this -> view_ = $view;
 		return $this -> view_;
 	}
 
 	protected function layout($layout = null){
-		if($layout!==null){
-			$layout = IO::root() . "webroot" . DS . "views" . DS . "templates" . DS . "layout" . DS . strtolower($layout) . ".php";
+		if($layout!==false){
+			$layout = IO::root() . "webroot" . DS . "views" . DS . "templates" . DS . "layout" . DS . strtolower($layout!==null?$layout:get_called_class()) . ".php";
 			if(is_file($layout)) $this -> layout_ = $layout;
-			else $this -> layout_ = false;
 		}
 		return $this -> layout_;
 	}
@@ -72,13 +68,14 @@ class Page {
 
 	public function render($argv = []){
 
-		$this -> argv_ = $this -> argv_+$argv;
+		$this -> argv_ = $this -> argv_ + $argv;
 		
 		$this -> before();
 
 		if($this -> layout()) include_once $this -> layout();
 		else if($this -> view())  include_once $this -> view();
 		else if($this -> result()) echo $this -> result();
+		else Debug::show();
 
 	}
 

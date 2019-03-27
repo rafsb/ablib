@@ -71,7 +71,7 @@ class Core {
 		echo $this->html; 
 	}
 
-	public function get($f=null){
+	public static function get($f=null){
 		if($f){ if(isset($_GET[$f])) return $_GET[$f]; else return null; }
 		return convert::atoo($_GET);
 	}
@@ -80,7 +80,7 @@ class Core {
 		return convert::atoo($_GET);
 	}
 
-	public function in($f=null){
+	public static function in($f=null){
 		$tmp = json_decode(file_get_contents("php://input"));
 		if($f){
 			if(isset($tmp->{$f})) return $tmp->{$f};

@@ -3,7 +3,7 @@ define ("DEFAULT_DB","spumedb");
 define("DEBUG",1);
 
 class App {
-	public function mysql_config($database=DEFAULT_DB){
+	public static  function mysql_config($database=DEFAULT_DB){
 		$file = IO::root() . "etc/sql.d/" . $database . ".json";
 		if(is_file($file)) $db = IO::jout($file);
 		else $db = null;
@@ -11,14 +11,14 @@ class App {
 		return $db;
 	}
 
-	public function config($field=null){
+	public static  function config($field=null){
 		$_CONFIG = IO::jout(IO::root("etc/project.json"));
 		if($field && isset($_CONFIG->{$field})) return $_CONFIG->{$field};
 		return $_CONFIG;
 	}
 
-	public function devel(){ return App::config("developer"); }
+	public static function devel(){ return App::config("developer"); }
 
-	public function project_name(){ return App::config("project_name"); }
+	public static function project_name(){ return App::config("project_name"); }
 
 }
