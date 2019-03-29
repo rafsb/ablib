@@ -42,15 +42,8 @@ class IO {
         else foreach(IO::scan("webroot/css","css") as $file) echo $pre . $file . $pos;
     }
 
-    public static function jin($path=null,$obj=null,$mode=REPLACE)
-    {
-        $s = false;
-        if($path && $obj){
-            $f = fopen($path,'w');
-            if(IO::fwrite($f,json_encode($obj,JSON_PRETTY_PRINT))){ $s = 1; }
-            fclose($f);
-        }
-        return $s;
+     public static function jin($path=null,$obj=null,$mode=REPLACE,$default_path=true){
+        return IO::write($path,json_encode($obj,JSON_PRETTY_PRINT),$mode,$default_path);
     }
 
     /* signature: jin('var/config.json');
@@ -58,18 +51,32 @@ class IO {
      * $p = path to save the file with archive name
      *
      */
-    public static function jout($path){ return json_decode(file_get_contents($path)); }
+    public static function jout($path,$default_path=true){ 
+        // return IO::read($path,$default_path);
+        return json_decode(IO::read($path,$default_path)); 
+    }
 
-    public static function fread($f){ return $f ? file_get_contents($f) : null; }
+    public static function read($f, $default_path = true){ 
+        if($default_path) $f = IO::root() . CACHE_DIR . $f;
+        return $f&&is_file($f) ? file_get_contents($f) : '0';
+    }
 
-    public static function fwrite($f,$content,$mode=APPEND){ 
-        $tmp = ($mode == APPEND ? IO::fread($f) : "") . $content;
-        file_put_contents($f,$tmp);
+    public static function write($f,$content,$mode=REPLACE,$default_path = true){
+        if($default_path) $f = IO::root() . CACHE_DIR . $f;
+        $tmp = explode(DS,$f);
+        // echo implode(DS,array_slice($tmp,0,sizeof($tmp)-1));
+        $tmp = implode(DS,array_slice($tmp,0,sizeof($tmp)-1));
+        umask(000);
+        echo "<pre>";
+        if(!is_dir($tmp)){ echo "mkdir $tmp"; mkdir($tmp,2777,true); }
+        $tmp = ($mode == APPEND ? IO::read($f) : "") . $content;
+        // echo "<pre>$f";print_r($content);
+        file_put_contents($f,$content);
         return 1;
     }
 
     public static function log($content){
-        IO::fwrite(IO::root("var" . DS . "logs" . DS . User::logged() . "-default.log"));
+        IO::fwrite(IO::root("logs" . DS . User::logged() . "-default.log"));
     }
 
     /* signature: get_files('img/',"png");

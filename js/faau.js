@@ -8,13 +8,9 @@
 
 ****************************************************************************/
 const
+RESPONSIVE_TRESHOLD = 1366,
 ANIMATION_LENGTH = 400;
 DEBUG = true;
-
-var
-mouseAxis = { x:0, y:0 },
-ENV = { w:window.innerWidth, h:window.innerHeight, pages: {}};
-
 /*
 ==> Animate any html or svg element with css animation capabilities */
 Element.prototype.anime = function(o=null, len=ANIMATION_LENGTH, fn = null, trans = null, delay = 0) {
@@ -273,7 +269,7 @@ Element.prototype.toggleClass = function(c) {
 
 Element.prototype.uid = function(name=null){
 	if(name) this.id = name;
-	if(!this.id) this.id = spu.nuid(8);
+	if(!this.id) this.id = faau.nuid(8);
 	return this.id;
 }
 
@@ -557,16 +553,16 @@ class FAAU {
     load(url, args=null, target=null, fn=false, sync=false){
     	this.call(url, args, function(r){
     		if(r.status) r = r.data.morph();
-            if(!r.id) r.id = spu.nuid();
+            if(!r.id) r.id = faau.nuid();
     		var
     		tmp = r.get("script");
-    		if(!target) target = spu.get('body')[0];
+    		if(!target) target = faau.get('body')[0];
     		target.appendChild(r);
     		if(tmp.length){
     			for(var i=0;i++<tmp.length;){ eval(tmp[i-1].textContent); }
     		}
     		if(fn) fn({id:r.id,data:r});
-            else spu.get("#"+r.id).first().anime({opacity:1},600);
+            else faau.get("#"+r.id).first().anime({opacity:1},600);
     	}, sync);
     }
 
@@ -586,7 +582,7 @@ class FAAU {
             opacity:0,
             position:"fixed"
         }).innerHTML = n ? n : "Hello <b>World</b>!!!";
-        if(window.innerWidth>SP_RESPONSIVE_TRESHOLD){
+        if(window.innerWidth>RESPONSIVE_TRESHOLD){
             toast.setStyle({
                 top:0,
                 left:"78vw",
@@ -610,7 +606,7 @@ class FAAU {
         };
         document.getElementsByTagName('body')[0].appendChild(toast);
         let
-        notfys = spu.get("toast");
+        notfys = faau.get("toast");
 
         notfys.each((x,i)=>{x.anime({ top: ( ( toast.offsetHeight + 8 ) * i + 16) + "px", opacity: 1 }, 220) });
         toast.dataset.delay = setTimeout(function() { toast.desappear(400,true); }, 4000);
@@ -619,7 +615,7 @@ class FAAU {
     hintify(n, o={},delall=true,keep=false,special=false,evenSpecial=false){
         if(delall) $(".--hintifyied"+(evenSpecial?", .--hintifyied-sp":"")).each((x)=>{x.parent().removeChild(x)});
         let
-        toast = spu.new("toast");
+        toast = faau.new("toast");
         n = (typeof n == 'string' ? n.morph() : n);
         o.display = 'inline-block';
         o.transform = 'scale(1.05)';
@@ -705,5 +701,10 @@ try{
 window.onmousemove = (e) => mouseAxis = { x: e.clientX, y: e.clientY }
 
 window.onresize = function(){ ENV.w = window.innerWidth; ENV.h = window.innerHeight }
+
+var
+mouseAxis = { x:0, y:0 },
+execution = new Pool(),
+ENV = { w:window.innerWidth, h:window.innerHeight, pages: {}};
 
 console.log('  __\n\ / _| __ _  __ _ _   _\n\| |_ / _` |/ _` | | | |\n\|  _| (_| | (_| | |_| |\n\|_|  \\__,_|\\__,_|\\__,_|')

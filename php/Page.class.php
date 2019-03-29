@@ -36,9 +36,10 @@ class Page {
 		}
 	}
 
-	protected function view($view = null){
-		$view = IO::root() . "webroot" . DS . "views" . DS . strtolower($view===null?get_called_class():$view) . ".php";	
+	protected function view($view = null, $print=false){
+		$view = IO::root() . "webroot" . DS . "views" . DS . strtolower($view===null?get_called_class():$view) . ".php";
 		if(is_file($view)) $this -> view_ = $view;
+		if($print) include_once $view;
 		return $this -> view_;
 	}
 

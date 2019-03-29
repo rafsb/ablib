@@ -54,3 +54,4 @@ define("__OBJECT",3);
 define("__MYSQLI_OBJ",4);
 
 define("DS",'/');
+define("CACHE_DIR",'logs'.DS.'cache'.DS);

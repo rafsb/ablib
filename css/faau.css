@@ -141,7 +141,7 @@ body *:not(script):not(style) { font-family: inherit; position: relative; displa
 	to { transform: rotate(360deg) }
 }
 .-pulse {
-	animation: pulse-kf 4s ease-in-out infinite
+	animation: pulse-kf 6s ease-in-out infinite
 }
 @keyframes pulse-kf {
 	0% { transform: scale(1) }

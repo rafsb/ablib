@@ -1,10 +1,9 @@
 <?php
-namespace spume;
-require_once 'core.php';
-class mail {
-	public function send($data,$conf=null){
+class Mail {
+	public function send($conf=null,$data=null){
+		if(!$data) $data = Request::in();
 		if($data){
-			if(is_array($data)) $data = atoo($data);
+			if(is_array($data)) $data = Convert::atoo($data);
 			$logo = "";
 			$devl = "";
 			$from = isset($data->mail) ? $data->mail : "";
@@ -13,8 +12,9 @@ class mail {
 			$message = isset($data->mesg) ? $data->mesg : "";
 			$date = date("d/m/y");
 			$stts = true;
-			eval(file_get_contents(__DIR__."/../../etc/mailer.d/default.conf"));
-			if($conf) eval(file_get_contents(__DIR__.'/../../etc/mailer.d/'.$conf.'.conf'));
+			if(is_file(__DIR__."/../../etc/mailer.d/default.conf")) eval(file_get_contents(__DIR__."/../../etc/mailer.d/default.conf"));
+			$conf = $conf ? $conf : $data->conf;
+			if($conf&&is_file(__DIR__.'/../../etc/mailer.d/'.$conf.'.conf')) eval(file_get_contents(__DIR__.'/../../etc/mailer.d/'.$conf.'.conf'));
 			$headers  = "MIME-Version: 1.0" . "\r\n";
 			$headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
 			$headers .= "From: <".$from.">" . "\r\n";
@@ -24,7 +24,7 @@ class mail {
 					<head>
 						<title>".$subject."</title>
 					</head>
-					<body style='width:100%;position:relative;top:0;left:0;text-align:center;padding:5vh 0'>
+					<body style='width:100%;position:relative;top:0;left:0;text-align:center;padding:5vh 0;background:#1F1F1F;color:whitesmoke;'>
 						<!PADDING>
 						<!PADDING>
 						<!PADDING>
@@ -32,7 +32,7 @@ class mail {
 						<div style='width:100%; padding-top:2rem'>
 							<img style='position:relative;width:20%' src='".$logo."'/>
 						</div>
-						<div style='position:relative;width:100%;padding:2rem 0;background:whitesmoke;text-align:center'>
+						<div style='position:relative;width:100%;padding:2rem 0;text-align:center'>
 							<div style='width:80%;margin-left:10%'>".$message."</div>
 							<br>
 							<br>
@@ -57,8 +57,13 @@ class mail {
 					</body>
 				</html>
 			";
-			if($stts&&$to&&$subject&&$msgbody&&$headers){ mail($to,$subject,$msgbody,$headers); return 1; }
-			else return 0;
+
+			// echo $msgbody;
+
+			// print_r($data);
+
+			if($stts&&$to&&$subject&&$msgbody&&$headers){ mail($to,$subject,$msgbody,$headers); echo 1; }
+			else echo 0;
 		}
 	}
 }

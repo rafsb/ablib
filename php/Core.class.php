@@ -71,23 +71,23 @@ class Core {
 		echo $this->html; 
 	}
 
-	public static function get($f=null){
-		if($f){ if(isset($_GET[$f])) return $_GET[$f]; else return null; }
-		return convert::atoo($_GET);
-	}
-	public function post($f=null){
-		if($f){ if(isset($_GET[$f])) return $_GET[$f] ; else return null; }
-		return convert::atoo($_GET);
-	}
+	// public static function get($f=null){
+	// 	if($f){ if(isset($_GET[$f])) return $_GET[$f]; else return null; }
+	// 	return convert::atoo($_GET);
+	// }
+	// public function post($f=null){
+	// 	if($f){ if(isset($_GET[$f])) return $_GET[$f] ; else return null; }
+	// 	return convert::atoo($_GET);
+	// }
 
-	public static function in($f=null){
-		$tmp = json_decode(file_get_contents("php://input"));
-		if($f){
-			if(isset($tmp->{$f})) return $tmp->{$f};
-			else return null;
-		}
-		return $tmp;
-	}
+	// public static function in($f=null){
+	// 	$tmp = json_decode(file_get_contents("php://input"));
+	// 	if($f){
+	// 		if(isset($tmp->{$f})) return $tmp->{$f};
+	// 		else return null;
+	// 	}
+	// 	return $tmp;
+	// }
 
 	public function call($url=null){ include_once IO::root($url ? $url : (Core::in("url") ? Core::in('url') : null )); 	}
 }
