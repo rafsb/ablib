@@ -1,25 +1,33 @@
 <?php
 session_start();
-function __autoload($class){
+spl_autoload_register(function($class){
     $class = preg_replace("/\\\\/",'/',$class);
-    $path = __DIR__ . DIRECTORY_SEPARATOR . "lib" . DIRECTORY_SEPARATOR . "php" . DIRECTORY_SEPARATOR . $class . ".class.php";
+    $path  = __DIR__ . DIRECTORY_SEPARATOR . "webroot" . DIRECTORY_SEPARATOR . "classes" . DIRECTORY_SEPARATOR . ucfirst($class) . ".class.php";
+
     if(is_file($path)) include_once $path;
     else{
-        $path = __DIR__ . DIRECTORY_SEPARATOR . "webroot" . DIRECTORY_SEPARATOR . "classes" . DIRECTORY_SEPARATOR . $class . ".class.php";
+        $path = __DIR__ . DIRECTORY_SEPARATOR . "lib" . DIRECTORY_SEPARATOR . "php" . DIRECTORY_SEPARATOR . ucfirst($class) . ".class.php";
         if(is_file($path)) include_once $path;
     }
-}
-require "lib" . DIRECTORY_SEPARATOR . "php" . DIRECTORY_SEPARATOR . "Constants.php";
-require "lib" . DIRECTORY_SEPARATOR . "php" . DIRECTORY_SEPARATOR . "App.php";
+});
 
-$args = Request::in();
+require "lib" . DIRECTORY_SEPARATOR . "php" . DIRECTORY_SEPARATOR . "Constants.php";
+require "lib" . DS . "php" . DS . "App.php";
 
 if(!User::logged()) if(Request::cook("USER") && Request::cook("ACTIVE")) Request::sess("USER",Request::cook("USER"));
-if(Core::get('uri')){
-    $uri = explode('/',Core::get('uri'));
-    $uri = '(new ' . ucfirst($uri[1]) . ")->" . (isset($uri[2]) && $uri[2] ? $uri[2] : "render") . "(" . implode(',',array_slice($uri,3)) . ($args?",".implode(',',$args)) . ");";
+
+if(Request::get('uri')){
+    
+    $args = explode('/',Request::get('uri'));
+    $uri = '(new ' . ucfirst($args[1]) . ")->" . (isset($args[2]) && $args[2] ? $args[2] : "render") . "(" . implode(',',array_slice($args,3)) . ");";
+
     try{ eval($uri); } catch(Exception $e){ IO::debug($e); } 
+
 }else{
-    include __DIR__ . DS . "webroot" . DS . "main.php";
-    (new Main()) -> render($args);
+    $page = __DIR__ . DS . "webroot" . DS . "classes" . DS . "Home.class.php";
+    // echo $page;
+    if(is_file($page)){
+        include_once $page;
+        (new Home()) -> render();
+    }else Debug::show();
 }

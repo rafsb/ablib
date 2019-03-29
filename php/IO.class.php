@@ -67,8 +67,8 @@ class IO {
         // echo implode(DS,array_slice($tmp,0,sizeof($tmp)-1));
         $tmp = implode(DS,array_slice($tmp,0,sizeof($tmp)-1));
         umask(000);
-        echo "<pre>";
-        if(!is_dir($tmp)){ echo "mkdir $tmp"; mkdir($tmp,2777,true); }
+        // echo "<pre>";
+        if(!is_dir($tmp)) mkdir($tmp,2777,true);
         $tmp = ($mode == APPEND ? IO::read($f) : "") . $content;
         // echo "<pre>$f";print_r($content);
         file_put_contents($f,$content);

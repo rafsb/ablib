@@ -12,7 +12,7 @@ class App {
 	}
 
 	public static  function config($field=null){
-		$_CONFIG = IO::jout(IO::root("etc/project.json"));
+		$_CONFIG = IO::jout("etc/project.json",false);
 		if($field && isset($_CONFIG->{$field})) return $_CONFIG->{$field};
 		return $_CONFIG;
 	}
