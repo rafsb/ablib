@@ -11,10 +11,6 @@ const
 ANIMATION_LENGTH = 400;
 DEBUG = true;
 
-var
-mouseAxis = { x:0, y:0 },
-ENV = { w:window.innerWidth, h:window.innerHeight, pages: {}};
-
 /*
 ==> Animate any html or svg element with css animation capabilities */
 Element.prototype.anime = function(o=null, len=ANIMATION_LENGTH, fn = null, trans = null, delay = 0) {
@@ -705,5 +701,11 @@ try{
 window.onmousemove = (e) => mouseAxis = { x: e.clientX, y: e.clientY }
 
 window.onresize = function(){ ENV.w = window.innerWidth; ENV.h = window.innerHeight }
+
+var
+mouseAxis = { x:0, y:0 },
+ENV = { w:window.innerWidth, h:window.innerHeight, pages: {}},
+execution = new Pool();
+
 
 console.log('  __\n\ / _| __ _  __ _ _   _\n\| |_ / _` |/ _` | | | |\n\|  _| (_| | (_| | |_| |\n\|_|  \\__,_|\\__,_|\\__,_|')
