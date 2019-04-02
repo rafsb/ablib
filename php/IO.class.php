@@ -61,7 +61,7 @@ class IO {
 
     public static function read($f){ 
         if(substr($f,0,1)==DS) $f = IO::root() . $f;
-        else $f = IO::root() . CACHE_DIR . $f;
+        else $f = IO::root() . App::dir() . $f;
         // echo $f;
         return $f&&is_file($f) ? file_get_contents($f) : "";
     }
@@ -69,7 +69,7 @@ class IO {
     public static function write($f,$content,$mode=REPLACE){
         // echo "<pre>$content";
         if(substr($f,0,1)==DS) $f = IO::root() . $f;
-        else $f = IO::root() . CACHE_DIR . $f;
+        else $f = IO::root() . App::dir() . $f;
         $tmp = explode(DS,$f);
         // echo implode(DS,array_slice($tmp,0,sizeof($tmp)-1));
         $tmp = implode(DS,array_slice($tmp,0,sizeof($tmp)-1));

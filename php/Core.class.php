@@ -8,7 +8,8 @@ class Core {
 	 * conf("user") will read it and return "rafsb"
 	 */
 	public function response($status,$data){
-		return json_decode(json_encode(["status"=>$status,"data"=>$data]));
+		Request::sess("DEBUG",Request::sess("DEBUG") . json_encode(Convert::atoo(["status"=>$status,"data"=>$data]),JSON_PRETTY_PRINT));
+		return false;
 	}
 	
 	public function call($url=null){ include_once IO::root($url ? $url : (Core::in("url") ? Core::in('url') : null )); 	}
