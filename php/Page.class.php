@@ -19,11 +19,19 @@ class Page {
 	protected function import($file = null){
 		$pos = ".php";
 		$path = IO::root("webroot" . DS . "views" . DS);
-		if(is_string($file)) include_once $path . $file . $pos;
-		if(is_array($file)&&sizeof($file)) foreach ($file as $k => $v){
-			if(is_string($v)) include_once $path . $k . DS . $v . $pos;
-			else foreach ($v as $vv) include_once $path . $k . DS . $vv . $pos;
+		if(is_string($file)){ include_once $path . $file . $pos; }
+		if(is_array($file)) foreach ($file as $k => $v){
+			if(is_string($v)){ include_once $path . $k . DS . $v . $pos; }
+			else foreach ($v as $kk => $vv){ 
+				if(is_string($vv)){ include_once $path . $k . DS . $vv . $pos; }
+				else if(is_array($vv)) foreach ($vv as $vvv) {
+					include_once $path . $k . DS . $kk . DS . $vvv . $pos;
+					// echo '<pre>';
+					// print_r($vv);;
+				}
+			}
 		}
+		// print_r($file);
 	}
 
 	protected function svg($file){
@@ -37,10 +45,11 @@ class Page {
 	}
 
 	protected function view($view = null, $print=false){
-		$view = IO::root() . "webroot" . DS . "views" . DS . strtolower($view===null?get_called_class():$view) . ".php";
-		if(is_file($view)) $this -> view_ = $view;
-		if($print) include_once $view;
-		return $this -> view_;
+		if($view===null) $view = $this -> view_;
+		else $this -> view_ = $view;
+		$view = IO::root() . "webroot" . DS . "views" . DS . strtolower($this -> view_ === null?get_called_class():$this -> view_) . ".php";
+		if(is_file($view)) if($print) include_once $view;
+		return $view;
 	}
 
 	protected function layout($layout = null){

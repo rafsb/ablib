@@ -52,7 +52,7 @@ class Mail {
 							Powered BY
 						</div>
 						<div style='position:relative;width:100%;text-align:center;padding-bottom:4rem'>
-							<img style='height:2rem' src='".$devl."'/>
+							<img style='width:20%' src='".$devl."'/>
 						</div>
 					</body>
 				</html>

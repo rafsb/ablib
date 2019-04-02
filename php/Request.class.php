@@ -5,8 +5,9 @@ class Request {
     ## i.e: sess("us\er","abox"), is the same as $_SESSION["projectName_user"] = "abox"
 
     public static function sess($f,$v=null){
+        // print_r($_SESSION);
         if($v!==null) $_SESSION[$f] = $v;
-        return (isset($_SESSION[$f]) ? $_SESSION[$f] : '');
+        return (isset($_SESSION[$f]) ? $_SESSION[$f] : false);
     }
 
     public function usess($f){ if(isset($_SESSION[$f])) unset($_SESSION[$f]); }

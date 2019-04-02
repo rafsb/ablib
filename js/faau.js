@@ -574,6 +574,8 @@ class FAAU {
         let
         toast = document.createElement("toast");
         toast.setStyle({
+            fontSize: "1rem",
+            fontFamily: 'OpenSans',
             background: c&&c[0] ? c[0] : "rgba(255,255,255,.8)",
             color: c&&c[1] ? c[1] : "black",
             boxShadow:"0 0 8px gray",
@@ -585,10 +587,10 @@ class FAAU {
         if(window.innerWidth>RESPONSIVE_TRESHOLD){
             toast.setStyle({
                 top:0,
-                left:"78vw",
+                left:"80vw",
                 width:"calc(20vw - 4rem)",
-                padding:"2rem",
-                borderRadius:"3px",
+                padding:".5rem",
+                borderRadius:".5rem",
             });
         }else{
             toast.setStyle({

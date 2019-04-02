@@ -3,7 +3,8 @@ class User {
     // clean all site"s data on local and server, even the session conn
     public function logoff()
     {
-        @\setcookie("SP-USER","",0,"/");
+        @\setcookie("USER","",0,"/");
+        @\setcookie("ACTIVE","",0,"/");
         @\session_start();
         @\session_unset();
         @\session_destroy();
