@@ -8,8 +8,8 @@ body *:not(script):not(style) { font-family: inherit; position: relative; displa
 
 @media only screen and (min-width: 1366px) {
 	body { font-size: 14px }
-	.-fixed         { position: fixed; }
-	.-absolute      { position: absolute; }
+	/* .-fixed         { position: fixed; }
+	.-absolute      { position: absolute; } */
 	.-wd-3quart 	{ width: 	  75%; }
 	.-wd-3quart-min { min-width:  75%; }
 	.-wd-3quart-max { max-width:  75%; }
