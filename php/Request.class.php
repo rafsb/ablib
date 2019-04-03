@@ -5,8 +5,9 @@ class Request {
     ## i.e: sess("us\er","abox"), is the same as $_SESSION["projectName_user"] = "abox"
 
     public static function sess($f,$v=null){
+        // print_r($_SESSION);
         if($v!==null) $_SESSION[$f] = $v;
-        return (isset($_SESSION[$f]) ? $_SESSION[$f] : '');
+        return (isset($_SESSION[$f]) ? $_SESSION[$f] : false);
     }
 
     public function usess($f){ if(isset($_SESSION[$f])) unset($_SESSION[$f]); }
@@ -39,7 +40,7 @@ class Request {
     ## reads the $_POST array arguments into the page it"s included, but not all of them, only those inside "obj"
     ## "obj" is the parameter that works like a bridge from fn.js to fn.php
     ## $_POST["obj"] may contain many conn inside, passing a argument, it return the selected field, if it"s setted
-    public function post($f=null)
+    public static function post($f=null)
     {
         if($f!==null)
             if(isset($_POST["obj"])) return (!empty($_POST["obj"][$f]) ? $_POST["obj"][$f] : []);
@@ -49,7 +50,7 @@ class Request {
             else return $_POST?$_POST:[];
     }
 
-    public function get($f=null){
+    public static function get($f=null){
         if($f!==null) return (isset($_GET[$f]) ? $_GET[$f] : []);
         else return(isset($_GET) ? $_GET : []);
     }

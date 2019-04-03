@@ -42,15 +42,11 @@ class IO {
         else foreach(IO::scan("webroot/css","css") as $file) echo $pre . $file . $pos;
     }
 
-    public static function jin($path=null,$obj=null,$mode=REPLACE)
-    {
-        $s = false;
-        if($path && $obj){
-            $f = fopen($path,'w');
-            if(IO::fwrite($f,json_encode($obj,JSON_PRETTY_PRINT))){ $s = 1; }
-            fclose($f);
-        }
-        return $s;
+     public static function jin($path=null,$obj=null){
+        if(!$path) return -1;
+        if(!$obj) return -2;
+        // echo "<pre>"; print_r($obj);
+        return IO::write($path,json_encode($obj),$mode,$default_path);
     }
 
     /* signature: jin('var/config.json');
@@ -58,18 +54,35 @@ class IO {
      * $p = path to save the file with archive name
      *
      */
-    public static function jout($path){ return json_decode(file_get_contents($path)); }
+    public static function jout($path){ 
+        // echo "<pre>" . var_dump(IO::read($path));
+        return json_decode(IO::read($path)); 
+    }
 
-    public static function fread($f){ return $f ? file_get_contents($f) : null; }
+    public static function read($f){ 
+        if(substr($f,0,1)==DS) $f = IO::root() . $f;
+        else $f = IO::root() . App::dir() . $f;
+        // echo $f;
+        return $f&&is_file($f) ? file_get_contents($f) : "";
+    }
 
-    public static function fwrite($f,$content,$mode=APPEND){ 
-        $tmp = ($mode == APPEND ? IO::fread($f) : "") . $content;
-        file_put_contents($f,$tmp);
-        return 1;
+    public static function write($f,$content,$mode=REPLACE){
+        // echo "<pre>$content";
+        if(substr($f,0,1)==DS) $f = IO::root() . $f;
+        else $f = IO::root() . App::dir() . $f;
+        $tmp = explode(DS,$f);
+        // echo implode(DS,array_slice($tmp,0,sizeof($tmp)-1));
+        $tmp = implode(DS,array_slice($tmp,0,sizeof($tmp)-1));
+        umask(111);
+        // echo "<pre>$tmp";
+        if(!is_dir($tmp)) mkdir($tmp,2777,true);
+        $tmp = ($mode == APPEND ? IO::read($f) : "") . $content;
+        // echo "<pre>$f";print_r($content);
+        file_put_contents($f,$content);
     }
 
     public static function log($content){
-        IO::fwrite(IO::root("var" . DS . "logs" . DS . User::logged() . "-default.log"));
+        IO::fwrite(IO::root("logs" . DS . User::logged() . "-default.log"));
     }
 
     /* signature: get_files('img/',"png");
@@ -79,7 +92,8 @@ class IO {
      * $x = file's extension to be supressed
      *
      */
-    public static function scan($folder=null,$extension=null){
+    public static function scan($folder=null,$extension=null,$root=true){
+        if(substr($folder,0,1)==DS) $folder = IO::root() . $folder;
         if($folder===null || !@\is_dir($folder)) return [];
         $tmp = @\scandir($folder);
         $result = [];
