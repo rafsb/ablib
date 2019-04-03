@@ -2,18 +2,18 @@
 class Page {
 	protected $argv_ = [];
 
-	protected $view_;
+	protected $view_ = "@";
 
-	protected $result_;
+	protected $result_ = null;
 
-	protected $layout_;
+	protected $layout_ = "default";
 
 	protected $allow_access_ = false;
 
 	protected function before(){}
 
 	protected function args(){
-		return $this -> argv_;
+		return $this->argv_;
 	}
 
 	protected function import($file = null){
@@ -26,8 +26,6 @@ class Page {
 				if(is_string($vv)){ include_once $path . $k . DS . $vv . $pos; }
 				else if(is_array($vv)) foreach ($vv as $vvv) {
 					include_once $path . $k . DS . $kk . DS . $vvv . $pos;
-					// echo '<pre>';
-					// print_r($vv);;
 				}
 			}
 		}
@@ -44,52 +42,44 @@ class Page {
 		}
 	}
 
-	protected function view($view = null, $print=false){
-		if($view===null) $view = $this -> view_;
-		else $this -> view_ = $view;
-		$view = IO::root() . "webroot" . DS . "views" . DS . strtolower($this -> view_ === null?get_called_class():$this -> view_) . ".php";
-		if(is_file($view)) if($print) include_once $view;
-		return $view;
+	protected function view($view = null){
+		if($view!==null) $this->view_ = $view;
+		$tmp = IO::root() . "webroot" . DS . "views" . DS . strtolower($this->view_=="@"?get_called_class():$this->view_) . ".php";
+		return is_file($tmp) ? $tmp : Core::response(-1,"View file not found: $view");
 	}
 
 	protected function layout($layout = null){
-		if($layout!==false){
-			$layout = IO::root() . "webroot" . DS . "views" . DS . "templates" . DS . "layout" . DS . strtolower($layout!==null?$layout:get_called_class()) . ".php";
-			if(is_file($layout)) $this -> layout_ = $layout;
-		}
-		return $this -> layout_;
-	}
-
-	protected function default_layout(){
-		return $this -> layout("default");
+		if($layout!==null) $this->layout_ = $layout;
+		$tmp = IO::root() . "webroot" . DS . "views" . DS . "templates" . DS . "layout" . DS . strtolower($this->layout_=="@"?get_called_class():$this->layout_) . ".php";
+		return is_file($tmp) ? $tmp : Core::response(-1,"Layout file not found: $layout");
 	}
 
 	protected function result($result = null){
-		if($result!==null){
-			$this -> result_ = $result;
-		}
-		return $this -> result_;
+		if($result!==null) $this->result_ = $result;
+		return $this->result_;
 	}
 
 	protected function allow_access($origin = false){
-		if($origin) $this -> allow_access_ = $origin;
-		return $this -> allow_access_;
+		if($origin) $this->allow_access_ = $origin;
+		return $this->allow_access_;
 	}
 
 	public function render($argv = []){
 
-		$this -> argv_ = $this -> argv_ + $argv;
+		$this->argv_ = $this->argv_ + $argv;
 		
-		$this -> before();
+		$this->before();
 
-		if($this -> layout()) include_once $this -> layout();
-		else if($this -> view())  include_once $this -> view();
-		else if($this -> result()) echo $this -> result();
+		// echo $this->layout()." - ".$this->view();
+
+		if($this->layout()) include_once $this->layout();
+		else if($this->view())  include_once $this->view();
+		else if($this->result()) echo $this->result();
 		else Debug::show();
 
 	}
 
 	public function __construct(){
-		$this -> argv_ = Request::in();
+		$this->argv_ = Request::in();
 	}
 }

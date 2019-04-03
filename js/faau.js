@@ -143,6 +143,10 @@ Element.prototype.index = function(){
     return [].slice.call(this.parent().children).indexOf(this)-1;
 }
 
+Element.prototype.evalute = function(){
+    this.get("script").each((x)=>{ eval(x.textContent) })
+};
+
 HTMLInputElement.prototype.setValue = function(v=""){
     this.value = v;
     return this
