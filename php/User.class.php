@@ -47,9 +47,9 @@ class User
         if(APP::driver()==DATABASE) $tmp = Mysql::count("SELECT * FROM Users WHERE user='$user' and pswd='".hash("sha512",$password)."'") ? 1 : 0;
         else $tmp = _User_traits::find("name",$user)->pswd==hash("sha512",$password) ? 1 : 0;
         
-        echo "<pre>";
-        echo hash("sha512",$password) . " \n\n " .  _User_traits::find("name",$user)->pswd;
-        die;
+        // echo "<pre>";
+        // echo hash("sha512",$password) . " \n\n " .  _User_traits::find("name",$user)->pswd;
+        // die;
 
         return $tmp ? 1 : 0;
     }

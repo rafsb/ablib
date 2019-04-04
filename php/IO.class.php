@@ -43,8 +43,8 @@ class IO {
     }
 
      public static function jin($path=null,$obj=null){
-        if(!$path) return -1;
-        if(!$obj) return -2;
+        if(!$path) return Core::response(-1,"No path given");
+        if(!$obj) return Core::response(-2,"No object given");
         // echo "<pre>"; print_r($obj);
         return IO::write($path,json_encode($obj),$mode,$default_path);
     }
@@ -67,18 +67,15 @@ class IO {
     }
 
     public static function write($f,$content,$mode=REPLACE){
-        // echo "<pre>$content";
         if(substr($f,0,1)==DS) $f = IO::root() . $f;
         else $f = IO::root() . App::dir() . $f;
         $tmp = explode(DS,$f);
-        // echo implode(DS,array_slice($tmp,0,sizeof($tmp)-1));
         $tmp = implode(DS,array_slice($tmp,0,sizeof($tmp)-1));
         umask(111);
-        // echo "<pre>$tmp";
         if(!is_dir($tmp)) mkdir($tmp,2777,true);
         $tmp = ($mode == APPEND ? IO::read($f) : "") . $content;
-        // echo "<pre>$f";print_r($content);
         file_put_contents($f,$content);
+        return is_file($f) ? 1 : 0;
     }
 
     public static function log($content){

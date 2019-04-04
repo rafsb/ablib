@@ -28,13 +28,9 @@ class Request {
         $tmp = Convert::otoa(json_decode(file_get_contents("php://input")));
         if(!$tmp) $tmp = $_POST;
         if(!$tmp) $tmp = $_GET;
-        if($f!==null){
-            if(isset($tmp["obj"])) return (!empty($tmp["obj"][$f]) ? $tmp["obj"][$f] : []);
-            else return(!empty($tmp[$f]) ? $tmp[$f] : []);
-        }else{
-            if(!empty($tmp["obj"])) return $tmp["obj"];
-            else return(!empty($tmp) ? $tmp : []);
-        }
+        // print_r($tmp); echo $f . $tmp[$f];;
+        if($f!==null) return(!empty($tmp[$f]) ? $tmp[$f] : null);
+        else return(!empty($tmp) ? $tmp : null);
     }
 
     ## reads the $_POST array arguments into the page it"s included, but not all of them, only those inside "obj"
