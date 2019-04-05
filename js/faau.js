@@ -13,7 +13,47 @@ ANIMATION_LENGTH = 400;
 DEBUG = true;
 
 /*
+
 ==> Animate any html or svg element with css animation capabilities */
+
+
+
+
+HTMLInputElement.prototype.up = function(name,path,fn=null,mini=false){
+    let
+    ctnr = this.uid(),
+    form = new FormData(),
+    counter = 0;
+
+    name = name || faau.uid(13);
+
+    form.append("picture", this.files[0]);
+    form.append("name", name);
+    form.append("path", path);
+    form.append("minify", mini?1:0);
+    xhr = new XMLHttpRequest();
+    xhr.onprogress = function(d){
+        $("-progress").anime({width:(d.loaded/d.total*100)+"%"});
+    }
+    if(fn) xhr.upload.onload = function() {
+        var timer = setInterval(function() {
+            if (xhr.responseText) {
+                eval(fn)(JSON.parse(xhr.responseText));
+                clearInterval(timer);
+            }
+            if (counter++ >= 1000) {
+                faau.notify("Ops! Imagem não pode ser carregada, chama o Berts!",["#ff0066","white"]);
+                clearInterval(timer);
+            }
+        }, 100);
+    }
+    xhr.upload.onerror = function() {
+        faau.notify("Ops! Não foi possível subir esta imagem... chama o berts...",["#ff0066","white"]);
+    };
+    xhr.open("POST", "image/upload");
+    xhr.send(form);
+}
+
 Element.prototype.anime = function(o=null, len=ANIMATION_LENGTH, fn = null, trans = null, delay = 0) {
     if (o===null) return this;
     // if(this.dataset.animationFunction) clearInterval(this.dataset.animationFunction);

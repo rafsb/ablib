@@ -43,8 +43,9 @@ class IO {
     }
 
      public static function jin($path=null,$obj=null){
-        if(!$path) return Core::response(-1,"No path given");
-        if(!$obj) return Core::response(-2,"No object given");
+        // print_r($obj); die;
+        if($path===null) return Core::response(-1,"No path given");
+        if($obj===null) return Core::response(-2,"No object given");
         // echo "<pre>"; print_r($obj);
         return IO::write($path,json_encode($obj),$mode,$default_path);
     }
@@ -75,6 +76,7 @@ class IO {
         if(!is_dir($tmp)) mkdir($tmp,2777,true);
         $tmp = ($mode == APPEND ? IO::read($f) : "") . $content;
         file_put_contents($f,$content);
+        // echo "<pre>$f\n$tmp";die;
         return is_file($f) ? 1 : 0;
     }
 

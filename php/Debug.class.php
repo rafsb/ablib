@@ -10,6 +10,6 @@ class Debug {
 		echo PHP_EOL;
 		echo PHP_EOL;
 		echo PHP_EOL;
-		echo Request::sess("DEBUG");
+		echo print_r(Request::sess("DEBUG"));
 	}
 }

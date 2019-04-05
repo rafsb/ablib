@@ -6,7 +6,7 @@ class Page {
 
 	protected $result_ = null;
 
-	protected $layout_ = "default";
+	protected $layout_ = null;
 
 	protected $allow_access_ = false;
 
@@ -42,6 +42,23 @@ class Page {
 		}
 	}
 
+	protected function tile($t, $args=[]){
+		if(is_file(IO::root() . "webroot" . DS . "views" . DS . "templates" . DS . "tiles" . DS . $t . ".htm" )){
+			$tmp = IO::read("/webroot" . DS . "views" . DS . "templates" . DS . "tiles" . DS . $t . ".htm");
+			// print_r($tmp);
+			if(sizeof($args)){
+				foreach($args as $k => $v){
+					// echo $tmp;
+					$tmp = str_replace("@".$k, $v, $tmp);
+				}
+			}
+			echo "<!--";
+			var_dump($tmp);
+			echo " -->";
+			return $tmp;
+		}else return Core::response(-1, "Template not found!");
+	}
+
 	protected function view($view = null){
 		if($view!==null) $this->view_ = $view;
 		$tmp = IO::root() . "webroot" . DS . "views" . DS . strtolower($this->view_=="@"?get_called_class():$this->view_) . ".php";
@@ -66,7 +83,7 @@ class Page {
 
 	public function render($argv = []){
 
-		$this->argv_ = array_merge($this->argv_,$argv);
+		$this->argv_ = array_merge($this->argv_,Convert::otoa($argv));
 		
 		$this->before();
 
