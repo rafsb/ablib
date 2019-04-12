@@ -37,6 +37,8 @@ define("LOG",true);
 define("NOLOG",false);
 define("PRINT",true);
 define("NOPRINT",false);
+define("APP",true);
+define("CLIENT",false);
 
 /*
  * ENVIROMENTS
@@ -47,11 +49,11 @@ define("COOKIE",2);
 /*
  * RESPONSE FORMATS
  */
-define("__ASSOC",0);
-define("__ARRAY",1);
-define("__JSON",2);
-define("__OBJECT",3);
-define("__MYSQLI_OBJ",4);
+define("ASSOC",0);
+define("ARRAY",1);
+define("JSON",2);
+define("OBJECT",3);
+define("MYSQLI_OBJ",4);
 
 define("DISK","disk");
 define("DATABASE","database");

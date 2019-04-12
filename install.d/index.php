@@ -1,11 +1,13 @@
 <?php
 session_start();
-spl_autoload_register(function($class){
+spl_autoload_register(function($class)
+{
     $class = preg_replace("/\\\\/",'/',$class);
     $path  = __DIR__ . DIRECTORY_SEPARATOR . "webroot" . DIRECTORY_SEPARATOR . "classes" . DIRECTORY_SEPARATOR . ucfirst($class) . ".class.php";
 
     if(is_file($path)) include_once $path;
-    else{
+    else
+    {
         $path = __DIR__ . DIRECTORY_SEPARATOR . "lib" . DIRECTORY_SEPARATOR . "php" . DIRECTORY_SEPARATOR . ucfirst($class) . ".class.php";
         if(is_file($path)) include_once $path;
     }
@@ -16,20 +18,15 @@ require "lib" . DS . "php" . DS . "App.php";
 
 if(!User::logged()) if(Request::cook("USER") && Request::cook("ACTIVE")) Request::sess("USER",Request::cook("USER"));
 
-if(Request::get('uri')){
-    
+if(Request::get('uri'))
+{    
     $args = explode('/',Request::get('uri'));
     $uri = '(new ' . ucfirst($args[1]) . ")->" . (isset($args[2]) && $args[2] ? $args[2] : "render") . "(" . implode(',',array_slice($args,3)) . ");";
 
-    // echo $uri;
-
-    try{ eval($uri); } catch(Exception $e){ IO::debug($e); } 
-
-}else{
-    $page = __DIR__ . DS . "webroot" . DS . "classes" . DS . "Home.class.php";
-    // echo $page;
-    if(is_file($page)){
-        include_once $page;
-        (new Home()) -> render();
-    }else Debug::show();
+    try{ eval($uri); } catch(Exception $e){ IO::debug($e); }
+}
+else 
+{
+    include_once __DIR__ . DS . "lib" . DS . "php" . DS . "App.php";
+    App::init();
 }
