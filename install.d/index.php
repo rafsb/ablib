@@ -19,14 +19,14 @@ require "lib" . DS . "php" . DS . "App.php";
 if(!User::logged()) if(Request::cook("USER") && Request::cook("ACTIVE")) Request::sess("USER",Request::cook("USER"));
 
 if(Request::get('uri'))
-{    
+{   
     $args = explode('/',Request::get('uri'));
     $uri = '(new ' . ucfirst($args[1]) . ")->" . (isset($args[2]) && $args[2] ? $args[2] : "render") . "(" . implode(',',array_slice($args,3)) . ");";
 
     try{ eval($uri); } catch(Exception $e){ IO::debug($e); }
 }
-else 
+else
 {
-    include_once __DIR__ . DS . "lib" . DS . "php" . DS . "App.php";
+    include_once __DIR__ . DS . "wwwroot" . DS . "App.php";
     App::init();
 }

@@ -83,7 +83,8 @@ class Page {
 
 	public function render($argv = []){
 
-		$this->argv_ = array_merge($this->argv_,Convert::otoa($argv));
+
+		$this->argv_ = $this->argv_ ? array_merge($this->argv_,(array)$argv) : (array)$argv;
 		
 		$this->before();
 
