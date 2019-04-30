@@ -7,7 +7,7 @@ class Core {
 	 * conf("user","rafsb") will SET 'rafsb' to a file (root)/.conf/user.cfg
 	 * conf("user") will read it and return "rafsb"
 	 */
-	public function response($status,$data){
+	public static function response($status,$data){
 		$data = ["status"=>$status,"data"=>$data];
 		Request::sess("DEBUG",array_merge(is_array(Request::sess("DEBUG"))?Request::sess("DEBUG"):[],$data));
 		return 0;
