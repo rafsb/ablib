@@ -8,9 +8,10 @@
 
 ****************************************************************************/
 const
-RESPONSIVE_TRESHOLD = 1366,
-ANIMATION_LENGTH = 400;
-DEBUG = true;
+RESPONSIVE_TRESHOLD = 1366
+, ANIMATION_LENGTH = 800
+, DEBUG = true
+, REVERSE_PROXY_CLIENT_URI = "https://cors-anywhere.herokuapp.com/";
 
 /*
 
@@ -54,30 +55,27 @@ HTMLInputElement.prototype.up = function(name,path,fn=null,mini=false){
     xhr.send(form);
 }
 
-Element.prototype.anime = function(o=null, len=ANIMATION_LENGTH, fn = null, trans = null, delay = 0) {
-    if (o===null) return this;
-    // if(this.dataset.animationFunction) clearInterval(this.dataset.animationFunction);
+Element.prototype.anime = function(obj,len=ANIMATION_LENGTH,delay=0,fn=null,trans=null){
     len/=1000;
     trans = trans ? trans : "ease";
     this.style.transition = "all " + len.toFixed(2) + "s "+trans;
-    // console.log(("all " + len.toFixed(2) + "s "+trans+" "+(delay?delay/1000:0)+"s"));
     this.style.transitionDelay = (delay?delay/1000:0).toFixed(2)+"s";
-    for(let i in o){
+    for(let i in obj){
         switch(i){
-            case "skew"  : this.style.transform = 'skew('+o[i]+','+o[i]+')'; break;
-            case "skewX" : this.style.transform = 'skewX('+o[i]+')'; break;
-            case "skewY" : this.style.transform = 'skewY('+o[i]+')'; break;
-            case "scale" : this.style.transform = 'scale('+o[i]+')'; break;
-            case "scaleX" : this.style.transform = 'scaleX('+o[i]+')'; break;
-            case "scaleY" : this.style.transform = 'scaleY('+o[i]+')'; break;
-            case "translate" : this.style.transform = 'translate('+o[i]+','+o[i]+')'; break;
-            case "translateX" : this.style.transform = 'translateX('+o[i]+')'; break;
-            case "translateY" : this.style.transform = 'translateY('+o[i]+')'; break;
-            case "rotate" : this.style.transform = 'rotate('+o[i]+')'; break;
-            default : this.style[i] = o[i]; break;
+            case "skew"  : this.style.transform = 'skew('+obj[i]+','+obj[i]+')'; break;
+            case "skewX" : this.style.transform = 'skewX('+obj[i]+')'; break;
+            case "skewY" : this.style.transform = 'skewY('+obj[i]+')'; break;
+            case "scale" : this.style.transform = 'scale('+obj[i]+')'; break;
+            case "scaleX" : this.style.transform = 'scaleX('+obj[i]+')'; break;
+            case "scaleY" : this.style.transform = 'scaleY('+obj[i]+')'; break;
+            case "translate" : this.style.transform = 'translate('+obj[i]+','+obj[i]+')'; break;
+            case "translateX" : this.style.transform = 'translateX('+obj[i]+')'; break;
+            case "translateY" : this.style.transform = 'translateY('+obj[i]+')'; break;
+            case "rotate" : this.style.transform = 'rotate('+obj[i]+')'; break;
+            default : this.style[i] = obj[i]; break;
         }
     }
-    if(fn!==null&&typeof fn=="function") this.dataset.animationFunction = setTimeout(fn,len*1000+delay+1,this);
+    if(fn!==null&&typeof fn=="function") this.dataset.animationFunction = setTimeout(fn.bind(this),len*1000+delay+1);
     else this.dataset.animationFunction = "";
     return this
 }
@@ -86,7 +84,7 @@ Element.prototype.empty = function(a=null){
     if(a){
         if(typeof a == 'string') a = a.split(',');
     }else a = []
-    this.get("*").each((x)=>{if(!(a.indexOf(x.tagName)+1)) x.parentElement.removeChild(x)});
+    this.get("*").each(function(){if(!(a.indexOf(this.tagName)+1)) this.remove()});
     return this;
 }
 
@@ -159,6 +157,11 @@ Element.prototype.pre = function(obj=null){
     return this
 }
 
+Element.prototype.has = function(cls=null){
+    if(cls) return this.classList.contains(cls);
+    return false
+}
+
 Element.prototype.dataSort = function(data=null,dir="asc"){
     let
     me = this,
@@ -174,7 +177,7 @@ Element.prototype.dataSort = function(data=null,dir="asc"){
                 }
             }
         }
-        all.each((x)=>{ me.app(x) })
+        all.each(function(){ me.app(this) })
     }
     return this
 };
@@ -267,7 +270,7 @@ Element.prototype.inPage = function() {
 
 /*
 ==> Make a container element with overflow-y's scrollable scrolls to a given 'el' element */
-Element.prototype.scrollTo = function(el) {
+Element.prototype.scrollTo = function(el,fn=null) {
     if (!el) return -1;
     var length = 0;
     do {
@@ -275,6 +278,7 @@ Element.prototype.scrollTo = function(el) {
         el = el.parentElement;
     } while (el.uid() != this.uid());
     this.scroll({top:length,behavior:"smooth"});
+    fn&&fn();
 };
 
 Element.prototype.stopScroll = function(){
@@ -325,7 +329,7 @@ Element.prototype.appear = function(len = ANIMATION_LENGTH){
 }
 
 Element.prototype.desappear = function(len = ANIMATION_LENGTH, remove = false){
-    this.anime({opacity:0},len,(me)=>{ if(remove&&me&&me.parent()) me.parent().removeChild(me); else me.style.display = "none" });
+    this.anime({opacity:0},len,0,(me)=>{ if(remove&&me&&me.parent()) me.parent().removeChild(me); else if(me) me.style.display = "none" });
 }
 
 Element.prototype.remove = function(){ this.parent().removeChild(this) }
@@ -334,7 +338,9 @@ Element.prototype.at = function(i=0){
     return this.nodearray.at(i)
 };
 
-Array.prototype.each = function(fn){ if(fn){ for(var i=0;i++<this.length;) fn(this[i-1],i-1); } return this }
+Array.prototype.each = function(fn){ if(fn){ for(var i=0;i++<this.length;) fn.bind(this[i-1])(i-1,this[i-1]); } return this }
+
+Array.prototype.not = function(el){ if(this.indexOf(el)+1){ return (this.splice(0,this.indexOf(el))+","+this.splice(this.indexOf(el)+1)).split(",") } }
 
 Array.prototype.last = function(){ return this.length ? this[this.length-1] : null; }
 
@@ -342,14 +348,60 @@ Array.prototype.first = function(){ return this.length ? this[0] : null; }
 
 Array.prototype.at = function(n=0){ return this.length>=n ? this[n] : null; }
 
+Array.prototype.setStyle = function(obj,fn=null){
+    this.each(function(){this.setStyle(obj,fn)});
+    return this
+}
+
+Array.prototype.setData = function(obj,fn=null){
+    this.each(function(){thid.setData(obj,fn)});
+    return this
+}
+
+Array.prototype.addClass = function(cl=null){
+    if(cl) this.each(function(){this.addClass(cl)});
+    return this
+}
+
+Array.prototype.remClass = function(cl=null){
+    if(cl) this.each(function(){this.remClass(cl)});
+    return this
+}
+
+Array.prototype.toggleClass = function(cl=null){
+    if(cl) this.each(function(){this.toggleClass(cl)});
+    return this
+}
+
+Array.prototype.remove = function(){
+    this.each(function(){this.remove()});
+    return this
+}
+
+NodeList.prototype.scroll = function(offset=0){
+    this.each(function(){this.scroll({top:offset,behavior:"smooth"})});
+    return this
+}
+
 NodeList.prototype.array = function(){
     return [].slice.call(this)
 };
 
+NodeList.prototype.not = function(el){
+    let
+    arr = [];
+    this.each((i,x)=>{ if(x!=el) arr.push(x) });
+    return arr
+};
+
 NodeList.prototype.each = function(fn){
-	if(fn){ for(var i=0;i++<this.length;) fn(this[i-1],i-1); }
+	if(fn) this.array().each(fn);
     return this
-}
+};
+
+NodeList.prototype.desappear = function(len=null,rem=null){
+    this.each(function(){ this.desappear(len,rem) })
+};
 
 NodeList.prototype.on = function(act=null,fn=null){
     if(act&&fn)this.each((x)=>{ x.on(act,fn) });
@@ -362,43 +414,49 @@ NodeList.prototype.last = function(){ return this.length&&this[this.length-1] }
 
 NodeList.prototype.at = function(n=0){ return (this.length>=n)&&this[n] }
 
-NodeList.prototype.anime = function(obj,len=ANIMATION_LENGTH,fn=null,trans=null,delay=null){
-    this.each((x)=>{x.anime(obj,len,fn,trans,delay)});
+NodeList.prototype.anime = function(obj,len=ANIMATION_LENGTH,delay=0,fn=null,trans=null){
+    this.each(function(){this.anime(obj,len,delay,fn,trans)});
     return this
 }
+
 NodeList.prototype.setStyle = function(obj,fn=null){
-    this.each((x)=>{x.setStyle(obj,fn)});
+    this.each(function(){this.setStyle(obj,fn)});
     return this
 }
 
 NodeList.prototype.setData = function(obj,fn=null){
-    this.each((x)=>{x.setData(obj,fn)});
+    this.each(function(){this.setData(obj,fn)});
     return this
 }
 
 NodeList.prototype.addClass = function(cl=null){
-    if(cl) this.each((x)=>{x.addClass(cl)});
+    if(cl) this.each(function(){this.addClass(cl)});
     return this
 }
 
 NodeList.prototype.remClass = function(cl=null){
-    if(cl) this.each((x)=>{x.remClass(cl)});
+    if(cl) this.each(function(){this.remClass(cl)});
     return this
 }
 
 NodeList.prototype.toggleClass = function(cl=null){
-    if(cl) this.each((x)=>{x.toggleClass(cl)});
+    if(cl) this.each(function(){this.toggleClass(cl)});
     return this
 }
 
 
 NodeList.prototype.remove = function(){
-    this.each((x)=>{x.parentElement.removeChild(x)});
+    this.each(function(){this.remove()});
+    return this
+}
+
+HTMLCollection.prototype.remove = function(){
+    this.each(function(){this.remove()});
     return this
 }
 
 HTMLCollection.prototype.each = function(fn){
-    if(fn){ for(var i=0;i++<this.length;) fn(this[i-1],i-1); }
+    if(fn) this.array().each(fn);
     return this
 }
 
@@ -417,7 +475,7 @@ Object.defineProperty(Object.prototype, "spy", {
         o = this[p]
         , n = o
         , get = function(){ return n }
-        , set = function(v){ o = n; return n = fn(v,p,this) };
+        , set = function(v){ o = n; return n = fn.bind(this)(v,this,p) };
         if(delete this[p]){ // can't watch constants
             Object.defineProperty(this,p,{ get: get, set: set })
         }
@@ -460,7 +518,7 @@ class Pool {
     }
     sort(x){
         if(Array.isArray(x)){
-            x.each((x)=>{ this.add(x) })
+            x.each((i,x)=>{ this.add(x) })
         }
         return this;
     }
@@ -477,7 +535,7 @@ class Pool {
     }
     plus(t=0){ return this.at(this.moment +t) }
     fire(x){
-        this.execution.each((f,i)=>{ 
+        this.execution.each((i,f)=>{ 
             this.timeserie.push(setTimeout(f,this.timeline[i]+(typeof x == 'number' ? (i+1)*x : 0),this.setup,i)) 
             // f(this.setup,i) 
         });
@@ -486,7 +544,7 @@ class Pool {
     }
     stop(i=null){
         if(i!==null){ if(this.timeserie[i]) clearInterval(this.timeserie[i]) }
-        else this.timeserie.each((x)=>{ clearInterval(x) })
+        else this.timeserie.each((i,x)=>{ clearInterval(x) })
         return this
     }
     clear(){
@@ -502,7 +560,7 @@ class Pool {
         console.log("CONFIGURATION");
         console.log(this.setup);
         console.log("TIMESERIE");
-        this.timeline.each((x,i)=>{console.log("AT:"+x+" => DO:"+this.execution[i])})
+        this.timeline.each((i,x)=>{console.log("AT:"+x+" => DO:"+this.execution[i])})
     }
     after(fn=null){
         if(fn&&typeof fn=='function') setTimeout(fn,this.moment+1);
@@ -515,6 +573,51 @@ class Pool {
         this.execution = [];
         this.setup = {};
         return this.add(x)
+    }
+}
+
+class Swipe {
+    constructor(el){
+        this.x = null;
+        this.y = null;
+        this.e = typeof(el) === 'string' ? $(el).at() : el;
+
+        this.e.on('touchstart', function(v) {
+            this.x = v.touches[0].clientX;
+            this.y = v.touches[0].clientY;
+        }.bind(this));
+    }
+
+    left(fn){ this.__LEFT__ = new THROTTLE(fn,64); return this }
+
+    right(fn){ this.__RIGHT__ = new THROTTLE(fn,64); return this }
+
+    up(fn){ this.__UP__ = new THROTTLE(fn,64); return this }
+
+    down(fn){ this.__DOWN__ = new THROTTLE(fn,64); return this }
+
+    move(v){
+        if(!this.x || !this.y) return;
+        let
+        diff = (x,i)=>{ return x-i }, 
+        X = v.touches[0].clientX,
+        Y = v.touches[0].clientY;
+
+        this.xdir = diff(this.x,X);
+        this.ydir = diff(this.y,Y);
+
+        if(Math.abs(this.xdir)>Math.abs(this.ydir)){ // Most significant.
+            if(this.__LEFT__&&this.xdir>0) this.__LEFT__.apply();
+            else if(this.__RIGHT__) this.__RIGHT__.apply();
+        }else{
+            if(this.__UP__&&this.ydir>0) this.__UP__.apply();
+            else if(this.__DOWN__) this.__DOWN__.apply();
+        }
+        this.x = this.y = null;
+    }
+
+    apply() {
+        this.e.on('touchmove', function(v) { this.move(v) }.bind(this))
     }
 }
 
@@ -565,7 +668,7 @@ class THROTTLE {
      */
     apply(d) {
         let
-        now = (new Date()).getTime()    ;
+        now = (new Date()).getTime();
         if (now - this.delay > this.timer) {
             eval(this.func)(d);
             this.timer = now;
@@ -574,14 +677,14 @@ class THROTTLE {
 }
 
 class FAAU {
-	call(url, args=null, fn=false, sync=false, __ENV = ENV) {
+	call(url, args=null, fn=false, sync=false) {
         var
         xhr = new XMLHttpRequest();
         args = args ? args : {};
         if(!sync&&fn){
 	        xhr.onreadystatechange = function() {
 	            if (xhr.readyState == 4) {
-	                fn({ status: xhr.status, data: xhr.responseText.trim(), url:url, args:args });
+	               return fn({ status: xhr.status, data: xhr.responseText.trim(), url:url, args:args });
 	            };
 	        }
 	    }
@@ -595,19 +698,20 @@ class FAAU {
         }
     }
 
-    load(url, args=null, target=null, fn=false, sync=false){
-    	this.call(url, args, function(r){
+    load(url, args=null, element=null, fn=false, sync=false){
+    	this.call(url, args, function(r, target=element){
     		if(r.status) r = r.data.morph();
+            else return DEBUG ? this.error("error loading "+url) : null;
             if(!r.id) r.id = faau.nuid();
     		var
     		tmp = r.get("script");
     		if(!target) target = faau.get('body')[0];
-    		target.appendChild(r);
+            target.app(r);
     		if(tmp.length){
     			for(var i=0;i++<tmp.length;){ eval(tmp[i-1].textContent); }
     		}
     		if(fn) fn({id:r.id,data:r});
-            else faau.get("#"+r.id).first().anime({opacity:1},600);
+            // else faau.get("#"+r.id).first().anime({opacity:1},600);
     	}, sync);
     }
 
@@ -655,12 +759,16 @@ class FAAU {
         let
         notfys = faau.get("toast");
 
-        notfys.each((x,i)=>{x.anime({ top: ( ( toast.offsetHeight + 8 ) * i + 16) + "px", opacity: 1 }, 220) });
+        notfys.each((i)=>{this.anime({ top: ( ( toast.offsetHeight + 8 ) * i + 16) + "px", opacity: 1 }, 220) });
         toast.dataset.delay = setTimeout(function() { toast.desappear(400,true); }, 4000);
     }
 
+    error(message=null){
+        faau.notify(message || "Ops! Something went wrong...", ["#7F2B2A","whitesmoke"])
+    }
+
     hintify(n, o={},delall=true,keep=false,special=false,evenSpecial=false){
-        if(delall) $(".--hintifyied"+(evenSpecial?", .--hintifyied-sp":"")).each((x)=>{x.parent().removeChild(x)});
+        if(delall) $(".--hintifyied"+(evenSpecial?", .--hintifyied-sp":"")).each(function(){this.parent().removeChild(this)});
         let
         toast = faau.new("toast");
         n = (typeof n == 'string' ? n.morph() : n);
@@ -678,14 +786,14 @@ class FAAU {
         o.position = "absolute";
         o.fontSize = o.fontSize ? o.fontSize : "1rem";
         toast.setStyle(o).addClass("--hintifyied"+(special?"-sp":"")).appendChild(n ? n : ("<b>···</b>!!!").morph());
-        if(toast.get(".--close").length) toast.get(".--close").at().on("click",function(){ $(".--hintifyied"+(special?", .--hintifyied-sp":"")).each((x)=>{x.parent().removeChild(x)}) });
+        if(toast.get(".--close").length) toast.get(".--close").at().on("click",function(){ $(".--hintifyied"+(special?", .--hintifyied-sp":"")).remove() });
         else toast.on("click",function() { this.remove() });
-        if(!keep) toast.on("mouseleave",function() {$(".--hintifyied"+(special?", .--hintifyied-sp":"")).each((x)=>{x.parent().removeChild(x)}) });
+        if(!keep) toast.on("mouseleave",function() {$(".--hintifyied"+(special?", .--hintifyied-sp":"")).remove() });
         toast.anime({scale:1,opacity:1});
         $('body')[0].app(toast);
     }
 
-    apply(fn,obj){ return (fn ? eval(fn)(obj) : null); }
+    apply(fn,obj=null){ return (fn ? fn.bind(this)(obj) : null) }
 
     get(w=null,c=null){ this.nodearray = $(w,c); return this }
 
@@ -699,12 +807,12 @@ class FAAU {
 
     last(){return this.nodearray.last()}
 
-    empty(except=null){ this.nodearray.each((x)=>{x.empty(except)})}
+    empty(except=null){ this.nodearray.each(function(){this.empty(except)})}
 
-    remove(){ this.nodearray.each((x)=>{x.remove()})}
+    remove(){ this.nodearray.each(function(){this.remove()})}
 
-    anime(obj,len=ANIMATION_LENGTH,fn=null,trans=null,delay=null){
-        this.nodearray.each((x,y)=>{x.anime(obj,len,fn,trans,delay)})
+    anime(obj,len=ANIMATION_LENGTH,delay=0,fn=null,trans=null){
+        this.nodearray.each(function(){this.anime(obj,len,delay,fn,trans)})
         return this;
     }
 
@@ -751,7 +859,8 @@ window.onresize = function(){ ENV.w = window.innerWidth; ENV.h = window.innerHei
 
 var
 mouseAxis = { x:0, y:0 },
-execution = new Pool(),
-ENV = { w:window.innerWidth, h:window.innerHeight, pages: {}};
+execution = new Pool();
+
+window.ENV = { w:window.innerWidth, h:window.innerHeight, pages: {}, history:[], templates:{}};
 
 console.log('  __\n\ / _| __ _  __ _ _   _\n\| |_ / _` |/ _` | | | |\n\|  _| (_| | (_| | |_| |\n\|_|  \\__,_|\\__,_|\\__,_|')
