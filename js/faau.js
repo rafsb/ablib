@@ -445,9 +445,9 @@ HTMLFormElement.prototype.json = function() {
     let
     json = {};
     this.get("input, select, textarea").each(function(i) {
-        if(!this.has('-skip')) json[this.name] = this.value;
+        if(!this.has('-skip')) json[this.name] = (this.tagName.toUpperCase()=="TEXTAREA"&&this.has("-list") ? this.value.split('\n') : this.value);
     })
-    return json;
+    return json
 };
 
 Object.defineProperty(Object.prototype, "spy", {
@@ -751,6 +751,29 @@ class FAAU {
         toast.dataset.delay = setTimeout(function() { toast.desappear(ANIMATION_LENGTH/2,true); }, ANIMATION_LENGTH*5);
     }
 
+    loading(show=true){
+        if(!show){
+            $(".--default-loading").each(function(){ clearInterval(this.dataset.animation); this.remove() });
+            return;
+        }
+        app.body.app(document.createElement("div").addClass("-fixed -view -zero --default-loading"));
+
+        app.fw.load("src/img/backgrounds/loading.svg",null,$(".--default-loading")[0],()=>{
+            let
+            circle = $(".--default-loading .--loading-circle")[0];
+            if(!circle) return;
+            circle.setStyle({"stroke-dasharray":circle.getTotalLength()+","+circle.getTotalLength()});
+            $(".--default-loading")[0].dataset.animation = setInterval(()=>{
+                let
+                circle = $(".--default-loading .--loading-circle")[0];
+                if(circle){ 
+                    circle.setStyle({"stroke-dashoffset":0});
+                    circle.anime({"stroke-dashoffset":circle.getTotalLength()*2},1000,1,null,"ease-in-out")
+                }
+            },1200)
+        })
+    }
+
     error(message=null) {
         faau.notify(message || "Ops! Something went wrong...", ["#7F2B2A","whitesmoke"])
     }
@@ -834,16 +857,16 @@ $ = function(wrapper=null,context=document) {
 try{
     if(SVG) {
         SVG.extend(SVG.Text, {
-          path: function(d) {
-              let
-              track, path  = new SVG.TextPath;
-              if (d instanceof SVG.Path) track = d;
-              else track = this.doc().defs().path(d);
-              while (this.node.hasChildNodes()) path.node.appendChild(this.node.firstChild);
-              this.node.appendChild(path.node);
-              path.attr('href', '#' + track, SVG.xlink);
-              return this;
-          }
+            path: function(d) {
+                let
+                track, path  = new SVG.TextPath;
+                if (d instanceof SVG.Path) track = d;
+                else track = this.doc().defs().path(d);
+                while (this.node.hasChildNodes()) path.node.appendChild(this.node.firstChild);
+                this.node.appendChild(path.node);
+                path.attr('href', '#' + track, SVG.xlink);
+                return this
+            }
         });
     }
 }catch(e) { console.log(e) }
@@ -858,4 +881,4 @@ initPool = new Pool();
 
 window.ENV = { w:window.innerWidth, h:window.innerHeight, pages: {}, history:[], templates:{}};
 
-console.log('  __\n\ / _| __ _  __ _ _   _\n\| |_ / _` |/ _` | | | |\n\|  _| (_| | (_| | |_| |\n\|_|  \\__,_|\\__,_|\\__,_|')
+console.log('  __\n\ / _| __ _  __ _ _   _\n\| |_ / _` |/ _` | | | |\n\|  _| (_| | (_| | |_| |\n\|_|  \\__,_|\\__,_|\\__,_|');
