@@ -463,8 +463,8 @@ HTMLCollection.prototype.each = function(fn){
 HTMLFormElement.prototype.json = function(){
     var
     json = {};
-    this.get("input, select, textarea").each(function(el){
-        json[el.name] = el.value;
+    this.get("input, select, textarea").each(function(i){
+        if(!this.has("-skip")) json[this.name] = this.value;
     })
     return json;
 };
@@ -517,8 +517,10 @@ class Pool {
         return this
     }
     sort(x){
+        let
+        me = this;
         if(Array.isArray(x)){
-            x.each((i,x)=>{ this.add(x) })
+            x.each(function(){ me.add(this) })
         }
         return this;
     }
@@ -535,8 +537,10 @@ class Pool {
     }
     plus(t=0){ return this.at(this.moment +t) }
     fire(x){
-        this.execution.each((i,f)=>{ 
-            this.timeserie.push(setTimeout(f,this.timeline[i]+(typeof x == 'number' ? (i+1)*x : 0),this.setup,i)) 
+        let
+        me = this;
+        this.execution.each(function(i){ 
+            me.timeserie.push(setTimeout(this,me.timeline[i]+(typeof x == 'number' ? (i+1)*x : 0),me.setup,i)) 
             // f(this.setup,i) 
         });
         if(typeof x == 'function') setTimeout(x,this.moment+1,this.setup);
@@ -859,7 +863,7 @@ window.onresize = function(){ ENV.w = window.innerWidth; ENV.h = window.innerHei
 
 var
 mouseAxis = { x:0, y:0 },
-execution = new Pool();
+initPool = new Pool();
 
 window.ENV = { w:window.innerWidth, h:window.innerHeight, pages: {}, history:[], templates:{}};
 

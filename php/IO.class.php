@@ -12,21 +12,14 @@ class IO {
         $pre = "<script type='text/javascript' src='" . ($mode==APP ? "lib" : "webroot") . "/js/";
         $pos = "'></script>";
         if($file!==SCAN) echo $pre . $file . ".js" . $pos;
-        else foreach(IO::scan(($mode==APP ? "lib" : "webroot") . DS . "js","js") as $file) echo $pre . $file . $pos;
-    }
-    
-    public static function stylesheets($file = null){ 
-        $pre = "<link rel='stylesheet' href='/lib/css/";
-        $pos = "'/>";
-        if($file!==SCAN) echo $pre . $file . ".css" . $pos;
-        else foreach(IO::scan("lib/css","css") as $file) echo $pre . $file . $pos;
+        else foreach(IO::scan(($mode==APP ? "/lib" : "/webroot") . DS . "js","js") as $file) echo $pre . $file . $pos;
     }
 
     public static function css($file = null, $mode=CLIENT){
         $pre = "<link rel='stylesheet' href='" . ($mode==APP ? "lib" : "webroot") . "/css/";
         $pos = "'/>";
         if($file!==SCAN) echo $pre . $file . ".css" . $pos;
-        else foreach(IO::scan(($mode==APP ? "lib" : "webroot") . DS . "css","css") as $file) echo $pre . $file . $pos;
+        else foreach(IO::scan(($mode==APP ? "/lib" : "/webroot") . DS . "css","css") as $file) echo $pre . $file . $pos;
     }
 
      public static function jin($path=null,$obj=null){
@@ -79,9 +72,9 @@ class IO {
      *
      */
     public static function scan($folder=null,$extension=null,$root=true){
-        if(substr($folder,0,1)==DS) $folder = IO::root() . $folder;
-        if($folder===null || !@\is_dir($folder)) return [];
-        $tmp = @\scandir($folder);
+        if(substr($folder,0,1)==DS) $folder = IO::root($folder);
+        if($folder===null || !\is_dir($folder)) return [];
+        $tmp = \scandir($folder);
         $result = [];
         if($tmp){
             foreach($tmp as $t){

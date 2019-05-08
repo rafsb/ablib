@@ -13,5 +13,9 @@ class Core {
 		return 0;
 	}
 	
-	public function call($url=null){ include_once IO::root($url ? $url : (Core::in("url") ? Core::in('url') : null )); 	}
+	public static function bin($shell, $args=[]){
+		$cmd = IO::root("src/bin/") . $shell . " ";
+		foreach($args as $a) $cmd .= $a . " ";
+		return shell_exec($cmd);
+	}
 }

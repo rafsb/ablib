@@ -6,7 +6,7 @@ class Page {
 
 	protected $result_ = null;
 
-	protected $layout_ = null;
+	protected $layout_ = "default";
 
 	protected $allow_access_ = false;
 
