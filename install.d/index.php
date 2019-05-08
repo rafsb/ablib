@@ -14,7 +14,7 @@ spl_autoload_register(function($class)
 });
 
 require "lib" . DIRECTORY_SEPARATOR . "php" . DIRECTORY_SEPARATOR . "Constants.php";
-require "lib" . DS . "php" . DS . "App.php";
+require "webroot" . DS . "App.php";
 
 if(!User::logged()) if(Request::cook("USER") && Request::cook("ACTIVE")) Request::sess("USER",Request::cook("USER"));
 
@@ -27,6 +27,5 @@ if(Request::get('uri'))
 }
 else
 {
-    include_once __DIR__ . DS . "wwwroot" . DS . "App.php";
     App::init();
 }

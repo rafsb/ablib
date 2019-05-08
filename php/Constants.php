@@ -3,6 +3,7 @@
 /* 
  * USERS
  */
+define("DEBUG",true);
 define("USER",1);
 define("UUID",2);
 

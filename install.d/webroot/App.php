@@ -25,5 +25,5 @@ class App {
 
 	public static function dir(){ return App::config("persistenced")->dir; }
 
-	public static function init(){ (new Screen)->render(); }
+	public static function init(){ (new Home)->render(); }
 }

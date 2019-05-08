@@ -78,10 +78,11 @@ class IO {
      * $x = file's extension to be supressed
      *
      */
-    public static function scan($folder=null,$extension=null,$root=true){
+    public static function scan($folder=null,$extension=null){
         if(substr($folder,0,1)==DS) $folder = IO::root() . $folder;
-        if($folder===null || !@\is_dir($folder)) return [];
-        $tmp = @\scandir($folder);
+        if($folder===null || !\is_dir($folder)) return [];
+        $tmp = \scandir($folder);
+        // var_dump($tmp);
         $result = [];
         if($tmp){
             foreach($tmp as $t){
@@ -100,6 +101,7 @@ class IO {
      *
      */
     public function rmf($p=0){
+        if(substr($p,0,1)==DS) $p = IO::root() . $p;
         if(!$p || !\is_dir($p)) return;
         if(substr($p,strlen($p)-1)!=="/") $p .= "/";
         $files = \glob($p.'*', GLOB_MARK);
@@ -107,17 +109,24 @@ class IO {
             if (\is_dir($file)) IO::rmf($file);
             else \unlink($file);
         }
-        if(\is_dir($p)) \rmdir($p);
+        if(\is_dir($p)) @\rmdir($p);
     }
 
+    public static function mkf($dir,$perm=2644){
+        if(substr($dir,0,1)==DS) $dir = IO::root() . $dir;
+        // umask(002);
+        if(!is_dir($dir)) mkdir($dir,$perm,true);
+        chmod($dir,$perm);
+    }
     /* signature: rem_file('var/config.json');
      * removes only a single file, not a folder
      * $p = path to the file to be removed from server
      *
      */
-    public function rm($p=null){ if($p===null) return; return \unlink($p); }
+    public function rm($p=null){ if($p===null) return; if(substr($p,0,1)==DS) $p = IO::root() . $p; return \unlink($p); }
 
-    public function cpr($f,$t) { 
+    public function cpr($f,$t) {
+        if(substr($f,0,1)==DS) $f = IO::root() . $f;
         $dir = opendir($f); 
         mkdir($t);
         while($file = readdir($dir)){ 
@@ -130,7 +139,11 @@ class IO {
         return \if_dir($t) ? true : false;
     }
 
-    public function mv($f,$t){ if($this->copy_folder($f,$t)) \rem_folder($f); }
+    public function mv($f,$t){
+        if(substr($f,0,1)==DS) $f = IO::root() . $f;
+        if(substr($t,0,1)==DS) $t = IO::root() . $t;
+        if($this->copy_folder($f,$t)) \rem_folder($f);
+    }
 
     public function debug($anything=null){
         if($anything!==null) Debug::show(); 

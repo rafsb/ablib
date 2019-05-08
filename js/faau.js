@@ -13,18 +13,11 @@ RESPONSIVE_TRESHOLD = 1366
 , DEBUG = true
 , REVERSE_PROXY_CLIENT_URI = "https://cors-anywhere.herokuapp.com/";
 
-/*
-
-==> Animate any html or svg element with css animation capabilities */
-
-
-
-
-HTMLInputElement.prototype.up = function(name,path,fn=null,mini=false){
+HTMLInputElement.prototype.up = function(name, path, fn=null, mini=false) {
     let
-    ctnr = this.uid(),
-    form = new FormData(),
-    counter = 0;
+    ctnr = this.uid()
+    , form = new FormData()
+    , counter = 0;
 
     name = name || faau.uid(13);
 
@@ -32,21 +25,23 @@ HTMLInputElement.prototype.up = function(name,path,fn=null,mini=false){
     form.append("name", name);
     form.append("path", path);
     form.append("minify", mini?1:0);
+
     xhr = new XMLHttpRequest();
-    xhr.onprogress = function(d){
-        $("-progress").anime({width:(d.loaded/d.total*100)+"%"});
-    }
+    // xhr.onprogress = function(d) {
+    //     $(".--progress").anime({width:(d.loaded/d.total*100)+"%"});
+    // }
     if(fn) xhr.upload.onload = function() {
-        var timer = setInterval(function() {
+        let
+        timer = setInterval(function() {
             if (xhr.responseText) {
                 eval(fn)(JSON.parse(xhr.responseText));
                 clearInterval(timer);
             }
-            if (counter++ >= 1000) {
+            if (counter++ >= ANIMATION_LENGTH) {
                 faau.notify("Ops! Imagem não pode ser carregada, chama o Berts!",["#ff0066","white"]);
                 clearInterval(timer);
             }
-        }, 100);
+        }, ANIMATION_LENGTH/10);
     }
     xhr.upload.onerror = function() {
         faau.notify("Ops! Não foi possível subir esta imagem... chama o berts...",["#ff0066","white"]);
@@ -55,13 +50,13 @@ HTMLInputElement.prototype.up = function(name,path,fn=null,mini=false){
     xhr.send(form);
 }
 
-Element.prototype.anime = function(obj,len=ANIMATION_LENGTH,delay=0,fn=null,trans=null){
+Element.prototype.anime = function(obj,len=ANIMATION_LENGTH,delay=0,fn=null,trans=null) {
     len/=1000;
     trans = trans ? trans : "ease";
     this.style.transition = "all " + len.toFixed(2) + "s "+trans;
     this.style.transitionDelay = (delay?delay/1000:0).toFixed(2)+"s";
-    for(let i in obj){
-        switch(i){
+    for(let i in obj) {
+        switch(i) {
             case "skew"  : this.style.transform = 'skew('+obj[i]+','+obj[i]+')'; break;
             case "skewX" : this.style.transform = 'skewX('+obj[i]+')'; break;
             case "skewY" : this.style.transform = 'skewY('+obj[i]+')'; break;
@@ -80,20 +75,19 @@ Element.prototype.anime = function(obj,len=ANIMATION_LENGTH,delay=0,fn=null,tran
     return this
 }
 
-Element.prototype.empty = function(a=null){
-    if(a){
-        if(typeof a == 'string') a = a.split(',');
-    }else a = []
-    this.get("*").each(function(){if(!(a.indexOf(this.tagName)+1)) this.remove()});
-    return this;
+Element.prototype.empty = function(a=null) {
+    if(a){ if(typeof a == 'string') a = a.split(',') }
+    else a = [];
+    this.get("*").each(function() {if(!(a.indexOf(this.tagName)+1)) this.remove()});
+    return this
 }
 
 Element.prototype.setStyle = function(o=null, fn = null) {
     if (o===null) return this;
     this.style.transition = "none";
     this.style.transitionDuration = 0;
-    for(let i in o){
-        switch(i){
+    for(let i in o) {
+        switch(i) {
             case "skew"  : this.style.transform = 'skew('+o[i]+','+o[i]+')'; break;
             case "skewX" : this.style.transform = 'skewX('+o[i]+')'; break;
             case "skewY" : this.style.transform = 'skewY('+o[i]+')'; break;
@@ -107,68 +101,68 @@ Element.prototype.setStyle = function(o=null, fn = null) {
             default : this.style[i] = o[i]; break;
         }
     }
-    if(fn!==null&&typeof fn=="function") fn(this);
-    return this;
+    if(fn!==null&&typeof fn=="function") setTimeout(fn.bind(this),16);
+    return this
 }
 
-Element.prototype.text = function(tx=null){
+Element.prototype.text = function(tx=null) {
     if(tx) this.textContent = tx;
     else return this.textContent;
     return this
 };
 
-Element.prototype.html = function(tx=null){
+Element.prototype.html = function(tx=null) {
     if(tx) this.innerHTML = tx;
     else return this.innerHTML;
     return this
 };
 
-Element.prototype.setData = function(o=null, fn = null){
+Element.prototype.setData = function(o=null, fn = null) {
     if (o===null) return this;
     for(let i in o) this.dataset[i] = o[i];
     if(fn!==null&&typeof fn=="function") fn(this);
     return this;
 }
 
-Element.prototype.setAttr = function(o=null, fn = null){
+Element.prototype.setAttr = function(o=null, fn = null) {
     if (o===null) return this;
     for(let i in o) this.setAttribute(i,o[i]);
     if(fn!==null&&typeof fn=="function") fn(this);
     return this;
 }
 
-Element.prototype.aft = function(obj=null){
+Element.prototype.aft = function(obj=null) {
     if(obj) this.insertAdjacentElement("afterend",obj);
     return this
 }
 
-Element.prototype.bef = function(obj=null){
+Element.prototype.bef = function(obj=null) {
     if(obj) this.insertAdjacentElement("beforebegin",obj);
     return this
 }
 
-Element.prototype.app = function(obj=null){
+Element.prototype.app = function(obj=null) {
     if(obj) this.insertAdjacentElement("beforeend",obj);
     return this
 }
 
-Element.prototype.pre = function(obj=null){
+Element.prototype.pre = function(obj=null) {
     if(obj) this.insertAdjacentElement("afterbegin",obj);
     return this
 }
 
-Element.prototype.has = function(cls=null){
+Element.prototype.has = function(cls=null) {
     if(cls) return this.classList.contains(cls);
     return false
 }
 
-Element.prototype.dataSort = function(data=null,dir="asc"){
+Element.prototype.dataSort = function(data=null,dir="asc") {
     let
     me = this,
     all = [].slice.call(this.children);
-    if(all.length){
-        for(var i=all.length;i--;){
-            for(var j=0;j<i;j++){
+    if(all.length) {
+        for(let i=all.length;i--;) {
+            for(let j=0;j<i;j++) {
                 if((dir=="asc"&&(all[j].dataset[data]>all[j+1].dataset[data]))||(dir=="desc"&&(all[j].dataset[data]<all[j+1].dataset[data]))) {
                     let
                     tmp = all[j];
@@ -177,20 +171,20 @@ Element.prototype.dataSort = function(data=null,dir="asc"){
                 }
             }
         }
-        all.each(function(){ me.app(this) })
+        all.each(function() { me.app(this) })
     }
     return this
 };
 
-Element.prototype.index = function(){
+Element.prototype.index = function() {
     return [].slice.call(this.parent().children).indexOf(this)-1;
 }
 
-Element.prototype.evalute = function(){
+Element.prototype.evalute = function() {
     this.get("script").each((x)=>{ eval(x.textContent) })
 };
 
-HTMLInputElement.prototype.setValue = function(v=""){
+HTMLInputElement.prototype.setValue = function(v="") {
     this.value = v;
     return this
 }
@@ -202,6 +196,7 @@ String.prototype.hash = function() {
     if (!j) return h;
     while (i++ < j) {
         c = this.charCodeAt(i - 1);
+        console.log(c);
         h = ((h << 5) - h) + c;
         h |= 0;
     }
@@ -221,15 +216,6 @@ String.prototype.json = function() {
     return result;
 };
 
-// Object.prototype.delay = function(len=null){
-// 	if(len) this.dataset.animeuntill = (new Date()).getTime() + len;
-// 	var
-// 	x = this.dataset.animeuntill? parseInt(this.dataset.animeuntill) : null;
-// 	//console.log(x);
-// 	if(!x||(new Date()).getTime() > x) return this;
-// 	else return this.delay();
-// }
-
 /*
 ==> Transmute an ordinary string into an html elemnt */
 String.prototype.morph = function() {
@@ -239,12 +225,12 @@ String.prototype.morph = function() {
     return x.firstChild;
 };
 
-Element.prototype.on = function(action,fn,passive=true){
+Element.prototype.on = function(action,fn,passive=true) {
     this.addEventListener(action,fn, {passive:passive})
     return this
 };
 
-Element.prototype.parent = function(pace=1){
+Element.prototype.parent = function(pace=1) {
     let
     tmp = this;
     while(pace--) tmp = tmp.parentElement;
@@ -252,7 +238,7 @@ Element.prototype.parent = function(pace=1){
 }
 
 Element.prototype.inPage = function() {
-    var
+    let
     page = {
         top: this.parentElement.scrollTop,
         bottom: this.parentElement.scrollTop + window.innerHeight,
@@ -272,7 +258,8 @@ Element.prototype.inPage = function() {
 ==> Make a container element with overflow-y's scrollable scrolls to a given 'el' element */
 Element.prototype.scrollTo = function(el,fn=null) {
     if (!el) return -1;
-    var length = 0;
+    let
+    length = 0;
     do {
         length += el.offsetTop;
         el = el.parentElement;
@@ -281,11 +268,11 @@ Element.prototype.scrollTo = function(el,fn=null) {
     fn&&fn();
 };
 
-Element.prototype.stopScroll = function(){
+Element.prototype.stopScroll = function() {
     this.scroll({top:this.scrollTop+1});
 }
 
-Element.prototype.get = function(el){
+Element.prototype.get = function(el) {
 	if(el) return this.querySelectorAll(el);
 	else return this;
 }
@@ -299,184 +286,178 @@ Element.prototype.remClass = function(c) {
 };
 
 Element.prototype.addClass = function(c) {
-    var
+    let
     tmp = c.split(/\s+/g), i=tmp.length;
     while(i--) this.classList.add(tmp[i]);
     return this;
 };
 
 Element.prototype.toggleClass = function(c) {
-    var
+    let
     tmp = c.split(/\s+/g), i=tmp.length;
     while(i--) {
-      if (tmp[i]){
+      if (tmp[i]) {
         if(!this.classList.contains(tmp[i]))
           this.classList.add(tmp[i]); else this.classList.remove(tmp[i]);
         }
       } return this;
 };
 
-Element.prototype.uid = function(name=null){
+Element.prototype.uid = function(name=null) {
 	if(name) this.id = name;
 	if(!this.id) this.id = faau.nuid(8);
 	return this.id;
 }
 
+Element.prototype.move = function(obj,len=ANIMATION_LENGTH, anim="linear") {
+    len /= 1000;
+    this.style.transition = "all "+len+"s "+anim;
+    if(obj.top)this.style.transform = "translateY("+obj.top+")";
+    if(obj.left)this.style.transform = "translateY("+obj.left+")";
+}
 
-Element.prototype.appear = function(len = ANIMATION_LENGTH){
+Element.prototype.appear = function(len = ANIMATION_LENGTH) {
     this.setStyle({transition:"none",display:'inline', opacity:0});
     this.anime({opacity:1},len);
 }
 
-Element.prototype.desappear = function(len = ANIMATION_LENGTH, remove = false){
-    this.anime({opacity:0},len,0,(me)=>{ if(remove&&me&&me.parent()) me.parent().removeChild(me); else if(me) me.style.display = "none" });
+Element.prototype.desappear = function(len = ANIMATION_LENGTH, remove = false) {
+    this.anime({opacity:0},len,0,function() { if(remove) this.remove(); else this.style.display = "none" });
 }
 
-Element.prototype.remove = function(){ this.parent().removeChild(this) }
+Element.prototype.remove = function() { this&&this.parent()&&this.parent().removeChild(this) }
 
-Element.prototype.at = function(i=0){
+Element.prototype.at = function(i=0) {
     return this.nodearray.at(i)
 };
 
-Array.prototype.each = function(fn){ if(fn){ for(var i=0;i++<this.length;) fn.bind(this[i-1])(i-1,this[i-1]); } return this }
+Array.prototype.each = function(fn) { if(fn) { for(let i=0;i++<this.length;) fn.bind(this[i-1])(i-1); } return this }
 
-Array.prototype.not = function(el){ if(this.indexOf(el)+1){ return (this.splice(0,this.indexOf(el))+","+this.splice(this.indexOf(el)+1)).split(",") } }
+Array.prototype.not = function(el) { if(this.indexOf(el)+1) { return (this.splice(0,this.indexOf(el))+","+this.splice(this.indexOf(el)+1)).split(",") } }
 
-Array.prototype.last = function(){ return this.length ? this[this.length-1] : null; }
+Array.prototype.last = function() { return this.length ? this[this.length-1] : null; }
 
-Array.prototype.first = function(){ return this.length ? this[0] : null; }
+Array.prototype.first = function() { return this.length ? this[0] : null; }
 
-Array.prototype.at = function(n=0){ return this.length>=n ? this[n] : null; }
+Array.prototype.at = function(n=0) { return this.length>=n ? this[n] : null; }
 
-Array.prototype.setStyle = function(obj,fn=null){
-    this.each(function(){this.setStyle(obj,fn)});
+Array.prototype.setStyle = function(obj,fn=null) {
+    this.each(function() {this.setStyle(obj,fn)});
     return this
 }
 
-Array.prototype.setData = function(obj,fn=null){
-    this.each(function(){thid.setData(obj,fn)});
+Array.prototype.setData = function(obj,fn=null) {
+    this.each(function() {this.setData(obj,fn)});
     return this
 }
 
-Array.prototype.addClass = function(cl=null){
-    if(cl) this.each(function(){this.addClass(cl)});
+Array.prototype.addClass = function(cl=null) {
+    if(cl) this.each(function() {this.addClass(cl)});
     return this
 }
 
-Array.prototype.remClass = function(cl=null){
-    if(cl) this.each(function(){this.remClass(cl)});
+Array.prototype.remClass = function(cl=null) {
+    if(cl) this.each(function() {this.remClass(cl)});
     return this
 }
 
-Array.prototype.toggleClass = function(cl=null){
-    if(cl) this.each(function(){this.toggleClass(cl)});
+Array.prototype.toggleClass = function(cl=null) {
+    if(cl) this.each(function() {this.toggleClass(cl)});
     return this
 }
 
-Array.prototype.remove = function(){
-    this.each(function(){this.remove()});
+Array.prototype.remove = function() {
+    this.each(function() {this.parentElement.removeChild(x)});
     return this
 }
 
-NodeList.prototype.scroll = function(offset=0){
-    this.each(function(){this.scroll({top:offset,behavior:"smooth"})});
-    return this
-}
-
-NodeList.prototype.array = function(){
+NodeList.prototype.array = function() {
     return [].slice.call(this)
 };
 
-NodeList.prototype.not = function(el){
+NodeList.prototype.not = function(el) {
     let
     arr = [];
-    this.each((i,x)=>{ if(x!=el) arr.push(x) });
-    return arr
+    return !this.each(function() { if(this!=el) arr.push(this) }) || arr
 };
 
-NodeList.prototype.each = function(fn){
+NodeList.prototype.each = function(fn) {
 	if(fn) this.array().each(fn);
     return this
 };
 
-NodeList.prototype.desappear = function(len=null,rem=null){
-    this.each(function(){ this.desappear(len,rem) })
+NodeList.prototype.desappear = function(len=null,rem=null) {
+    this.each(function() { this.desappear(len,rem) })
 };
 
-NodeList.prototype.on = function(act=null,fn=null){
+NodeList.prototype.on = function(act=null,fn=null) {
     if(act&&fn)this.each((x)=>{ x.on(act,fn) });
     return this
 };
 
-NodeList.prototype.first = function(){ return this.length&&this[0] }
+NodeList.prototype.first = function() { return this.length&&this[0] }
 
-NodeList.prototype.last = function(){ return this.length&&this[this.length-1] }
+NodeList.prototype.last = function() { return this.length&&this[this.length-1] }
 
-NodeList.prototype.at = function(n=0){ return (this.length>=n)&&this[n] }
+NodeList.prototype.at = function(n=0) { return (this.length>=n)&&this[n] }
 
-NodeList.prototype.anime = function(obj,len=ANIMATION_LENGTH,delay=0,fn=null,trans=null){
-    this.each(function(){this.anime(obj,len,delay,fn,trans)});
+NodeList.prototype.anime = function(obj,len=ANIMATION_LENGTH,delay=0,fn=null,trans=null) {
+    this.each(function() {this.anime(obj,len,delay,fn,trans)});
     return this
 }
 
-NodeList.prototype.setStyle = function(obj,fn=null){
-    this.each(function(){this.setStyle(obj,fn)});
+NodeList.prototype.setStyle = function(obj,fn=null) {
+    this.each(function() {this.setStyle(obj,fn)});
     return this
 }
 
-NodeList.prototype.setData = function(obj,fn=null){
-    this.each(function(){this.setData(obj,fn)});
+NodeList.prototype.setData = function(obj,fn=null) {
+    this.each(function() {this.setData(obj,fn)});
     return this
 }
 
-NodeList.prototype.addClass = function(cl=null){
-    if(cl) this.each(function(){this.addClass(cl)});
+NodeList.prototype.addClass = function(cl=null) {
+    if(cl) this.each(function() {this.addClass(cl)});
     return this
 }
 
-NodeList.prototype.remClass = function(cl=null){
-    if(cl) this.each(function(){this.remClass(cl)});
+NodeList.prototype.remClass = function(cl=null) {
+    if(cl) this.each(function() {this.remClass(cl)});
     return this
 }
 
-NodeList.prototype.toggleClass = function(cl=null){
-    if(cl) this.each(function(){this.toggleClass(cl)});
+NodeList.prototype.toggleClass = function(cl=null) {
+    if(cl) this.each(function() {this.toggleClass(cl)});
     return this
 }
 
-
-NodeList.prototype.remove = function(){
-    this.each(function(){this.remove()});
+NodeList.prototype.remove = function() {
+    this.each(function() {this.remove()});
     return this
 }
 
-HTMLCollection.prototype.remove = function(){
-    this.each(function(){this.remove()});
-    return this
-}
-
-HTMLCollection.prototype.each = function(fn){
+HTMLCollection.prototype.each = function(fn) {
     if(fn) this.array().each(fn);
     return this
 }
 
-HTMLFormElement.prototype.json = function(){
-    var
+HTMLFormElement.prototype.json = function() {
+    let
     json = {};
-    this.get("input, select, textarea").each(function(el){
-        json[el.name] = el.value;
+    this.get("input, select, textarea").each(function(i) {
+        if(!this.has('-skip')) json[this.name] = this.value;
     })
     return json;
 };
 
 Object.defineProperty(Object.prototype, "spy", {
     value: function (p,fn) {
-        var
+        let
         o = this[p]
         , n = o
-        , get = function(){ return n }
-        , set = function(v){ o = n; return n = fn.bind(this)(v,this,p) };
-        if(delete this[p]){ // can't watch constants
+        , get = function() { return n }
+        , set = function(v) { o = n; return n = fn.bind(this)(v,p) };
+        if(delete this[p]) { // can't watch constants
             Object.defineProperty(this,p,{ get: get, set: set })
         }
     }
@@ -485,7 +466,7 @@ Object.defineProperty(Object.prototype, "spy", {
 // object.unwatch
 Object.defineProperty(Object.prototype, "unspy", {
     value: function (prop) {
-        var
+        let
         val = this[prop];
         delete this[prop];
         this[prop] = val;
@@ -501,10 +482,10 @@ Object.defineProperty(Object.prototype, "unspy", {
 
 
 class Pool {
-    add(x=null,v=null){
-        if(x){
+    add(x=null,v=null) {
+        if(x) {
             if(Array.isArray(x)) this.sort(x);
-            if(typeof x === 'function'){ 
+            if(typeof x === 'function') { 
                 this.execution.push(x);
                 if(this.execution.length > this.timeline.length) this.at(v)
             }
@@ -512,42 +493,44 @@ class Pool {
         }
         return this;
     }
-    push(x){
+    push(x) {
         this.add(x);
         return this
     }
-    sort(x){
-        if(Array.isArray(x)){
-            x.each((i,x)=>{ this.add(x) })
+    sort(x) {
+        let
+        pool = this;
+        if(Array.isArray(x)) {
+            x.each(function(){ pool.add(this) })
         }
         return this;
     }
-    conf(k=null,v=null){
-        if(k!==null){            
+    conf(k=null,v=null) {
+        if(k!==null) {            
             if(v!==null) this.setup[k]=v;
         }
         return this
     }
-    at(t=null){
+    at(t=null) {
         this.moment = t&&parseInt(t) ? t : this.moment+1;
         this.timeline.push(this.moment);
         return this
     }
-    plus(t=0){ return this.at(this.moment +t) }
-    fire(x){
-        this.execution.each((i,f)=>{ 
-            this.timeserie.push(setTimeout(f,this.timeline[i]+(typeof x == 'number' ? (i+1)*x : 0),this.setup,i)) 
-            // f(this.setup,i) 
+    plus(t=0) { return this.at(this.moment +t) }
+    fire() {
+        let
+        pool = this;
+        this.execution.each(function(i){ 
+            if(typeof this == 'function') setTimeout(this,pool.moment+1,pool.setup);
         });
-        if(typeof x == 'function') setTimeout(x,this.moment+1,this.setup);
         return this
     }
-    stop(i=null){
-        if(i!==null){ if(this.timeserie[i]) clearInterval(this.timeserie[i]) }
+    stop(i=null) {
+        if(i!==null) { if(this.timeserie[i]) clearInterval(this.timeserie[i]) }
         else this.timeserie.each((i,x)=>{ clearInterval(x) })
         return this
     }
-    clear(){
+    clear() {
         this.stop();
         this.moment = 0;
         this.timeline = [];
@@ -556,17 +539,17 @@ class Pool {
         this.setup = {};
         return this
     }
-    debug(){
+    debug() {
         console.log("CONFIGURATION");
         console.log(this.setup);
         console.log("TIMESERIE");
         this.timeline.each((i,x)=>{console.log("AT:"+x+" => DO:"+this.execution[i])})
     }
-    after(fn=null){
+    after(fn=null) {
         if(fn&&typeof fn=='function') setTimeout(fn,this.moment+1);
         return this
     }
-    constructor(x){
+    constructor(x) {
         this.moment = 0;
         this.timeline = [];
         this.timeserie = [];
@@ -577,7 +560,8 @@ class Pool {
 }
 
 class Swipe {
-    constructor(el){
+    constructor(el,len=128) {
+        this.len = len;
         this.x = null;
         this.y = null;
         this.e = typeof(el) === 'string' ? $(el).at() : el;
@@ -588,15 +572,15 @@ class Swipe {
         }.bind(this));
     }
 
-    left(fn){ this.__LEFT__ = new THROTTLE(fn,64); return this }
+    left(fn) { this.__LEFT__ = new THROTTLE(fn,this.len); return this }
 
-    right(fn){ this.__RIGHT__ = new THROTTLE(fn,64); return this }
+    right(fn) { this.__RIGHT__ = new THROTTLE(fn,this.len); return this }
 
-    up(fn){ this.__UP__ = new THROTTLE(fn,64); return this }
+    up(fn) { this.__UP__ = new THROTTLE(fn,this.len); return this }
 
-    down(fn){ this.__DOWN__ = new THROTTLE(fn,64); return this }
+    down(fn) { this.__DOWN__ = new THROTTLE(fn,this.len); return this }
 
-    move(v){
+    move(v) {
         if(!this.x || !this.y) return;
         let
         diff = (x,i)=>{ return x-i }, 
@@ -606,17 +590,17 @@ class Swipe {
         this.xdir = diff(this.x,X);
         this.ydir = diff(this.y,Y);
 
-        if(Math.abs(this.xdir)>Math.abs(this.ydir)){ // Most significant.
-            if(this.__LEFT__&&this.xdir>0) this.__LEFT__.apply();
-            else if(this.__RIGHT__) this.__RIGHT__.apply();
+        if(Math.abs(this.xdir)>Math.abs(this.ydir)) { // Most significant.
+            if(this.__LEFT__&&this.xdir>0) this.__LEFT__.fire();
+            else if(this.__RIGHT__) this.__RIGHT__.fire();
         }else{
-            if(this.__UP__&&this.ydir>0) this.__UP__.apply();
-            else if(this.__DOWN__) this.__DOWN__.apply();
+            if(this.__UP__&&this.ydir>0) this.__UP__.fire();
+            else if(this.__DOWN__) this.__DOWN__.fire();
         }
         this.x = this.y = null;
     }
 
-    apply() {
+    fire() {
         this.e.on('touchmove', function(v) { this.move(v) }.bind(this))
     }
 }
@@ -666,7 +650,7 @@ class THROTTLE {
      * given ammount of time is passed, otherway if won't do anything
      *
      */
-    apply(d) {
+    fire(d) {
         let
         now = (new Date()).getTime();
         if (now - this.delay > this.timer) {
@@ -677,19 +661,21 @@ class THROTTLE {
 }
 
 class FAAU {
-	call(url, args=null, fn=false, sync=false) {
-        var
+	call(url, args=null, fn=false, head=null, method='POST', sync=false) {
+        let
         xhr = new XMLHttpRequest();
         args = args ? args : {};
-        if(!sync&&fn){
+        if(!sync&&fn) {
 	        xhr.onreadystatechange = function() {
 	            if (xhr.readyState == 4) {
 	               return fn({ status: xhr.status, data: xhr.responseText.trim(), url:url, args:args });
 	            };
 	        }
 	    }
-        xhr.open("POST", url, !sync);
+        xhr.open(method, url, !sync);
         xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("Accept", 'application/json');
+        if(head) for(let i in head){ xhr.setRequestHeader(i,head[i]);console.log(i,head[i]) };
         xhr.send(JSON.stringify(args));
         if(sync) {
             let
@@ -698,28 +684,28 @@ class FAAU {
         }
     }
 
-    load(url, args=null, element=null, fn=false, sync=false){
-    	this.call(url, args, function(r, target=element){
-    		if(r.status) r = r.data.morph();
-            else return DEBUG ? this.error("error loading "+url) : null;
+    load(url, args=null, element=null, fn=false, sync=false) {
+    	this.call(url, args, function(r, target=element) {
+    		if(r.status==200) r = r.data.morph();
+            else return DEBUG ? faau.error("error loading "+url) : null;
             if(!r.id) r.id = faau.nuid();
-    		var
+    		let
     		tmp = r.get("script");
     		if(!target) target = faau.get('body')[0];
             target.app(r);
-    		if(tmp.length){
-    			for(var i=0;i++<tmp.length;){ eval(tmp[i-1].textContent); }
+    		if(tmp.length) {
+    			for(let i=0;i++<tmp.length;) { eval(tmp[i-1].textContent); }
     		}
     		if(fn) fn({id:r.id,data:r});
             // else faau.get("#"+r.id).first().anime({opacity:1},600);
     	}, sync);
     }
 
-	get(el,scop=null){ return scop ? scop.querySelectorAll(el) : this.nodes.querySelectorAll(el); }
+	get(el,scop=null) { return scop ? scop.querySelectorAll(el) : this.nodes.querySelectorAll(el); }
 
-	nuid(n=8){ var a = "SP"; n-=2; while(n-->0){ a+="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('')[parseInt((Math.random()*36)%36)]; } return a; }
+	nuid(n=8) { let a = "SP"; n-=2; while(n-->0) { a+="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('')[parseInt((Math.random()*36)%36)]; } return a; }
 
-    notify(n, c=null){
+    notify(n, c=null) {
         let
         toast = document.createElement("toast");
         toast.setStyle({
@@ -733,7 +719,7 @@ class FAAU {
             opacity:0,
             position:"fixed"
         }).innerHTML = n ? n : "Hello <b>World</b>!!!";
-        if(window.innerWidth>RESPONSIVE_TRESHOLD){
+        if(window.innerWidth>RESPONSIVE_TRESHOLD) {
             toast.setStyle({
                 top:0,
                 left:"80vw",
@@ -750,25 +736,30 @@ class FAAU {
                 padding:"1.5rem",
             });
         }
-        toast.onclick = function() { clearTimeout(this.dataset.delay);this.desappear(400,true); };
+        toast.onclick = function() { clearTimeout(this.dataset.delay);this.desappear(ANIMATION_LENGTH/2,true); };
         toast.onmouseenter = function() { clearTimeout(this.dataset.delay); };
         toast.onmouseleave = function() {
-            this.dataset.delay = setTimeout(function(t) { t.desappear(400,true); }, 1000, this);
+            this.dataset.delay = setTimeout(function(t) { t.desappear(ANIMATION_LENGTH/2,true); }, ANIMATION_LENGTH, this);
         };
         document.getElementsByTagName('body')[0].appendChild(toast);
         let
         notfys = faau.get("toast");
 
-        notfys.each((i)=>{this.anime({ top: ( ( toast.offsetHeight + 8 ) * i + 16) + "px", opacity: 1 }, 220) });
-        toast.dataset.delay = setTimeout(function() { toast.desappear(400,true); }, 4000);
+        notfys.each(function(i) { this.anime({ translateY: ( ( toast.offsetHeight + 8 ) * i + 16) + "px", opacity: 1 }, ANIMATION_LENGTH/4) });
+
+        toast.dataset.delay = setTimeout(function() { toast.desappear(ANIMATION_LENGTH/2,true); }, ANIMATION_LENGTH*5);
     }
 
-    error(message=null){
+    error(message=null) {
         faau.notify(message || "Ops! Something went wrong...", ["#7F2B2A","whitesmoke"])
     }
+    success(message=null) {
+        faau.notify(message || "Hooray! Success!", ["#3CB371","whitesmoke"])
+    }
 
-    hintify(n, o={},delall=true,keep=false,special=false,evenSpecial=false){
-        if(delall) $(".--hintifyied"+(evenSpecial?", .--hintifyied-sp":"")).each(function(){this.parent().removeChild(this)});
+    hintify(n, o={},delall=true,keep=false,special=false,evenSpecial=false) {
+        if(delall) $(".--hintifyied"+(evenSpecial?", .--hintifyied-sp":"")).each(function() {this.remove()});
+
         let
         toast = faau.new("toast");
         n = (typeof n == 'string' ? n.morph() : n);
@@ -786,45 +777,48 @@ class FAAU {
         o.position = "absolute";
         o.fontSize = o.fontSize ? o.fontSize : "1rem";
         toast.setStyle(o).addClass("--hintifyied"+(special?"-sp":"")).appendChild(n ? n : ("<b>···</b>!!!").morph());
-        if(toast.get(".--close").length) toast.get(".--close").at().on("click",function(){ $(".--hintifyied"+(special?", .--hintifyied-sp":"")).remove() });
+
+        if(toast.get(".--close").length) toast.get(".--close").at().on("click",function() { $(".--hintifyied"+(special?", .--hintifyied-sp":"")).remove() });
         else toast.on("click",function() { this.remove() });
         if(!keep) toast.on("mouseleave",function() {$(".--hintifyied"+(special?", .--hintifyied-sp":"")).remove() });
+
         toast.anime({scale:1,opacity:1});
         $('body')[0].app(toast);
     }
 
-    apply(fn,obj=null){ return (fn ? fn.bind(this)(obj) : null) }
+    apply(fn,obj=null) { return (fn ? fn.bind(this)(obj) : null) }
 
-    get(w=null,c=null){ this.nodearray = $(w,c); return this }
+    get(w=null,c=null) { this.nodearray = $(w,c); return this }
 
     get length() { return this.nodearray.length }
 
-    each(fn=null){this.nodearray.each(fn);return this }
+    each(fn=null) {this.nodearray.each(fn);return this }
 
-    at(n=0){ return this.nodearray.at(n) }
+    at(n=0) { return this.nodearray.at(n) }
 
-    first(){return this.nodearray.first()}
+    first() {return this.nodearray.first()}
 
-    last(){return this.nodearray.last()}
+    last() {return this.nodearray.last()}
 
-    empty(except=null){ this.nodearray.each(function(){this.empty(except)})}
+    empty(except=null) { this.nodearray.each(function() {this.empty(except)})}
 
-    remove(){ this.nodearray.each(function(){this.remove()})}
+    remove() { this.nodearray.each(function() {this.remove()})}
 
-    anime(obj,len=ANIMATION_LENGTH,delay=0,fn=null,trans=null){
-        this.nodearray.each(function(){this.anime(obj,len,delay,fn,trans)})
+    anime(obj,len=ANIMATION_LENGTH,delay=0,fn=null,trans=null) {
+        this.nodearray.each(function() {this.anime(obj,len,delay,fn,trans)})
         return this;
     }
 
-    new(node='div'){
+    new(node='div') {
         return document.createElement(node)
     }
 
-    constructor(wrapper,context){
+    constructor(wrapper,context) {
         this.nodes = document;
         this.nodearray = [];
-        if(wrapper){
-            var el = (context ? (typeof context == 'string' ? document.querySelectorAll(context)[0] : context) : document);
+        if(wrapper) {
+            let 
+            el = (context ? (typeof context == 'string' ? document.querySelectorAll(context)[0] : context) : document);
             this.nodearray = el ? el.querySelectorAll(wrapper) : [];
         }
     }
@@ -832,15 +826,15 @@ class FAAU {
 
 var
 faau = new FAAU(),
-$ = function(wrapper=null,context=document){
+$ = function(wrapper=null,context=document) {
     return (new FAAU(wrapper,context)).nodearray;
 };
 
 try{
-    if(SVG){
+    if(SVG) {
         SVG.extend(SVG.Text, {
           path: function(d) {
-              var
+              let
               track, path  = new SVG.TextPath;
               if (d instanceof SVG.Path) track = d;
               else track = this.doc().defs().path(d);
@@ -851,15 +845,15 @@ try{
           }
         });
     }
-}catch(e){ console.log(e) }
+}catch(e) { console.log(e) }
 
 window.onmousemove = (e) => mouseAxis = { x: e.clientX, y: e.clientY }
 
-window.onresize = function(){ ENV.w = window.innerWidth; ENV.h = window.innerHeight }
+window.onresize = function() { ENV.w = window.innerWidth; ENV.h = window.innerHeight }
 
 var
 mouseAxis = { x:0, y:0 },
-execution = new Pool();
+initPool = new Pool();
 
 window.ENV = { w:window.innerWidth, h:window.innerHeight, pages: {}, history:[], templates:{}};
 

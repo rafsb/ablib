@@ -1,4 +1,14 @@
 #!/bin/bash -e
-rsync -av install.d/ ..
-mkdir -p ../lib
-rsync -av ./ ../lib
+
+echo 'here';
+
+HERE=$(pwd);
+INST="$HERE/install.d/";
+ROOT="$HERE/../";
+RLIB="$HERE/lib/";
+
+echo 'here';
+
+rsync -av $INST $ROOT;
+mkdir -p $RLIB;
+rsync -av $HERE $RLIB;

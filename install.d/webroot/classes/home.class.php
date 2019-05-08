@@ -1,2 +1,2 @@
 <?php
-class Index extends Page {}
+class Home extends Page {}

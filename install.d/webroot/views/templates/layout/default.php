@@ -74,7 +74,7 @@ header('Content-Type: text/html; charset=UTF-8',true);?>
     </body>
     <script type="text/javascript">
         (function(){
-            app&&app.fire()
+            app&&app.initialize()
         })();
     </script>
 </html>
