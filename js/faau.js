@@ -395,7 +395,7 @@ NodeList.prototype.desappear = function(len=null,rem=null) {
 };
 
 NodeList.prototype.on = function(act=null,fn=null) {
-    if(act&&fn)this.each((x)=>{ x.on(act,fn) });
+    if(act&&fn)this.each(function(){ this.on(act,fn) });
     return this
 };
 
