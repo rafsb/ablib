@@ -375,6 +375,10 @@ NodeList.prototype.array = function() {
     return [].slice.call(this)
 };
 
+NodeList.prototype.empty = function() {
+    return this.each(function(){ this.empty() })
+};
+
 NodeList.prototype.not = function(el) {
     let
     arr = [];
@@ -760,17 +764,17 @@ class FAAU {
 
         app.fw.load("src/img/backgrounds/loading.svg",null,$(".--default-loading")[0],()=>{
             let
-            circle = $(".--default-loading .--loading-circle")[0];
+            circle = $(".--default-loading .--loading-circle")[0].setStyle({transformOrigin:"top left", scale:window.innerWidth/1920});
             if(!circle) return;
-            circle.setStyle({"stroke-dasharray":circle.getTotalLength()+","+circle.getTotalLength()});
+            circle.setStyle({"stroke-dasharray":circle.getTotalLength()+","+circle.getTotalLength()+","+circle.getTotalLength()});
             $(".--default-loading")[0].dataset.animation = setInterval(()=>{
                 let
                 circle = $(".--default-loading .--loading-circle")[0];
                 if(circle){ 
                     circle.setStyle({"stroke-dashoffset":0});
-                    circle.anime({"stroke-dashoffset":circle.getTotalLength()*2},1000,1,null,"ease-in-out")
+                    circle.anime({"stroke-dashoffset":circle.getTotalLength()*4},2200,0,null,"ease-in-out")
                 }
-            },1200)
+            },2201)
         })
     }
 

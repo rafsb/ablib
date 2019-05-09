@@ -12,14 +12,14 @@ class IO {
         $pre = "<script type='text/javascript' src='" . ($mode==APP ? "lib" : "webroot") . "/js/";
         $pos = "'></script>";
         if($file!==SCAN) echo $pre . $file . ".js" . $pos;
-        else foreach(IO::scan(($mode==APP ? "/lib" : "/webroot") . DS . "js","js") as $file) echo $pre . $file . $pos;
+        else foreach(IO::scan(($mode==APP ? "lib" : "webroot") . DS . "js","js") as $file) echo $pre . $file . $pos;
     }
 
     public static function css($file = null, $mode=CLIENT){
         $pre = "<link rel='stylesheet' href='" . ($mode==APP ? "lib" : "webroot") . "/css/";
         $pos = "'/>";
         if($file!==SCAN) echo $pre . $file . ".css" . $pos;
-        else foreach(IO::scan(($mode==APP ? "/lib" : "/webroot") . DS . "css","css") as $file) echo $pre . $file . $pos;
+        else foreach(IO::scan(($mode==APP ? "lib" : "webroot") . DS . "css","css") as $file) echo $pre . $file . $pos;
     }
 
      public static function jin($path=null,$obj=null){
@@ -41,15 +41,16 @@ class IO {
     }
 
     public static function read($f){ 
-        if(substr($f,0,1)==DS) $f = IO::root() . $f;
-        else $f = IO::root() . App::dir() . $f;
+        if(substr($f,0,1)!=DS) $f = IO::root() . $f;
         // echo $f;
         return $f&&is_file($f) ? file_get_contents($f) : "";
     }
 
     public static function write($f,$content,$mode=REPLACE){
-        if(substr($f,0,1)==DS) $f = IO::root() . $f;
-        else $f = IO::root() . App::dir() . $f;
+        if(substr($f,0,1)!=DS) $f = IO::root() . $f;
+
+        echo $f;
+
         $tmp = explode(DS,$f);
         $tmp = implode(DS,array_slice($tmp,0,sizeof($tmp)-1));
         umask(111);
@@ -72,7 +73,7 @@ class IO {
      *
      */
     public static function scan($folder=null,$extension=null){
-        if(substr($folder,0,1)==DS) $folder = IO::root() . $folder;
+        if(substr($folder,0,1)!=DS) $folder = IO::root() . $folder;
         if($folder===null || !\is_dir($folder)) return [];
         $tmp = \scandir($folder);
         // var_dump($tmp);
@@ -95,9 +96,9 @@ class IO {
      *
      */
     public function rmf($p=0){
-        if(substr($p,0,1)==DS) $p = IO::root() . $p;
+        if(substr($p,0,1)!=DS) $p = IO::root() . $p;
         if(!$p || !\is_dir($p)) return;
-        if(substr($p,strlen($p)-1)!=="/") $p .= "/";
+        if(substr($p,strlen($p)-1)!=DS) $p .= DS;
         $files = \glob($p.'*', GLOB_MARK);
         foreach($files as $file){
             if (\is_dir($file)) IO::rmf($file);
@@ -107,7 +108,7 @@ class IO {
     }
 
     public static function mkf($dir,$perm=2644){
-        if(substr($dir,0,1)==DS) $dir = IO::root() . $dir;
+        if(substr($dir,0,1)!=DS) $dir = IO::root() . $dir;
         // umask(002);
         if(!is_dir($dir)) mkdir($dir,$perm,true);
         chmod($dir,$perm);
@@ -117,10 +118,10 @@ class IO {
      * $p = path to the file to be removed from server
      *
      */
-    public function rm($p=null){ if($p===null) return; if(substr($p,0,1)==DS) $p = IO::root() . $p; return \unlink($p); }
+    public function rm($p=null){ if($p===null) return; if(substr($p,0,1)!=DS) $p = IO::root() . $p; return \unlink($p); }
 
     public function cpr($f,$t) {
-        if(substr($f,0,1)==DS) $f = IO::root() . $f;
+        if(substr($f,0,1)!=DS) $f = IO::root() . $f;
         $dir = opendir($f); 
         mkdir($t);
         while($file = readdir($dir)){ 
@@ -134,8 +135,8 @@ class IO {
     }
 
     public function mv($f,$t){
-        if(substr($f,0,1)==DS) $f = IO::root() . $f;
-        if(substr($t,0,1)==DS) $t = IO::root() . $t;
+        if(substr($f,0,1)!=DS) $f = IO::root() . $f;
+        if(substr($t,0,1)!=DS) $t = IO::root() . $t;
         if($this->copy_folder($f,$t)) \rem_folder($f);
     }
 
