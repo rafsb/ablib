@@ -6,7 +6,7 @@ class Page {
 
 	protected $result_ = null;
 
-	protected $layout_ = null;
+	protected $layout_ = "default";
 
 	protected $allow_access_ = false;
 
@@ -62,6 +62,7 @@ class Page {
 	protected function view($view = null){
 		if($view!==null) $this->view_ = $view;
 		$tmp = IO::root() . "webroot" . DS . "views" . DS . strtolower($this->view_=="@"?get_called_class():$this->view_) . ".php";
+		// echo is_file($tmp)?"yep":"none";
 		return is_file($tmp) ? $tmp : Core::response(-1,"View file not found: $view");
 	}
 
@@ -83,7 +84,8 @@ class Page {
 
 	public function render($argv = []){
 
-		$this->argv_ = array_merge($this->argv_,Convert::otoa($argv));
+
+		$this->argv_ = $this->argv_ ? array_merge($this->argv_,(array)$argv) : (array)$argv;
 		
 		$this->before();
 

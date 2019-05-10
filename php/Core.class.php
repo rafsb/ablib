@@ -7,11 +7,16 @@ class Core {
 	 * conf("user","rafsb") will SET 'rafsb' to a file (root)/.conf/user.cfg
 	 * conf("user") will read it and return "rafsb"
 	 */
-	public function response($status,$data){
+	public static function response($status,$data){
 		$data = ["status"=>$status,"data"=>$data];
 		Request::sess("DEBUG",array_merge(is_array(Request::sess("DEBUG"))?Request::sess("DEBUG"):[],$data));
+		if(DEBUG) print_r(Request::sess("DEBUG"));
 		return 0;
 	}
 	
-	public function call($url=null){ include_once IO::root($url ? $url : (Core::in("url") ? Core::in('url') : null )); 	}
+	public static function bin($bin,$args=null){
+		$cmd = "sh " . IO::root("src/bin") . DS . $bin;
+		if($args&&is_array($args)) foreach($args as $a) $cmd .= " " . $a;
+		return shell_exec($cmd);
+	}
 }

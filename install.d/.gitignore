@@ -1,3 +1,4 @@
-var/
-lib/
-logs/
+#var/
+#lib/
+#logs/
+#manifest.json
