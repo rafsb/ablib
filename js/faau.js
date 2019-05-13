@@ -57,16 +57,19 @@ Element.prototype.anime = function(obj,len=ANIMATION_LENGTH,delay=0,fn=null,tran
     this.style.transitionDelay = (delay?delay/1000:0).toFixed(2)+"s";
     for(let i in obj) {
         switch(i) {
-            case "skew"  : this.style.transform = 'skew('+obj[i]+','+obj[i]+')'; break;
-            case "skewX" : this.style.transform = 'skewX('+obj[i]+')'; break;
-            case "skewY" : this.style.transform = 'skewY('+obj[i]+')'; break;
-            case "scale" : this.style.transform = 'scale('+obj[i]+')'; break;
+            case "skew"   : this.style.transform = 'skew('+obj[i]+','+obj[i]+')'; break;
+            case "skewX"  : this.style.transform = 'skewX('+obj[i]+')'; break;
+            case "skewY"  : this.style.transform = 'skewY('+obj[i]+')'; break;
+            case "scale"  : this.style.transform = 'scale('+obj[i]+')'; break;
             case "scaleX" : this.style.transform = 'scaleX('+obj[i]+')'; break;
             case "scaleY" : this.style.transform = 'scaleY('+obj[i]+')'; break;
-            case "translate" : this.style.transform = 'translate('+obj[i]+','+obj[i]+')'; break;
+            case "translate"  : this.style.transform = 'translate('+obj[i]+','+obj[i]+')'; break;
             case "translateX" : this.style.transform = 'translateX('+obj[i]+')'; break;
             case "translateY" : this.style.transform = 'translateY('+obj[i]+')'; break;
-            case "rotate" : this.style.transform = 'rotate('+obj[i]+')'; break;
+            case "rotate"     : this.style.transform = 'rotate('+obj[i]+')'; break;
+            case "opacity"    : this.style.filter = 'opacity('+obj[i]+')'; break;
+            case "grayscale"  : this.style.filter = 'grayscale('+obj[i]+')'; break;
+            case "invert"     : this.style.filter = 'invert('+obj[i]+')'; break;
             default : this.style[i] = obj[i]; break;
         }
     }
@@ -312,8 +315,8 @@ Element.prototype.uid = function(name=null) {
 Element.prototype.move = function(obj,len=ANIMATION_LENGTH, anim="linear") {
     len /= 1000;
     this.style.transition = "all "+len+"s "+anim;
-    if(obj.top)this.style.transform = "translateY("+obj.top+")";
-    if(obj.left)this.style.transform = "translateY("+obj.left+")";
+    if(obj.top!==undefined)this.style.transform = "translateY("+(this.offsetTop-obj.top)+")";
+    if(obj.left!==undefined)this.style.transform = "translateY("+(this.offsetLeft-obj.left)+")";
 }
 
 Element.prototype.appear = function(len = ANIMATION_LENGTH) {
