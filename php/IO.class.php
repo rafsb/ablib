@@ -49,20 +49,22 @@ class IO {
     public static function write($f,$content,$mode=REPLACE){
         if(substr($f,0,1)!=DS) $f = IO::root() . $f;
 
-        echo $f;
+        // echo $f;
+        // die;
 
         $tmp = explode(DS,$f);
         $tmp = implode(DS,array_slice($tmp,0,sizeof($tmp)-1));
-        umask(111);
-        if(!is_dir($tmp)) mkdir($tmp,2777,true);
+        if(!is_dir($tmp)) mkdir($tmp,0777,true);
+        @chmod($tmp,0777);
         $tmp = ($mode == APPEND ? IO::read($f) : "") . $content;
         file_put_contents($f,$content);
+        @chmod($f,0777);
         // echo "<pre>$f\n$tmp";die;
         return is_file($f) ? 1 : 0;
     }
 
     public static function log($content){
-        IO::fwrite(IO::root("logs" . DS . User::logged() . "-default.log"));
+        IO::write(IO::root("logs" . DS . User::logged() . "-default.log"));
     }
 
     /* signature: get_files('img/',"png");
@@ -72,7 +74,7 @@ class IO {
      * $x = file's extension to be supressed
      *
      */
-    public static function scan($folder=null,$extension=null){
+    public static function scan($folder=null,$extension=null, $withfolders=true){
         if(substr($folder,0,1)!=DS) $folder = IO::root() . $folder;
         if($folder===null || !\is_dir($folder)) return [];
         $tmp = \scandir($folder);
@@ -82,8 +84,10 @@ class IO {
         if($tmp){
             foreach($tmp as $t){
                 if(!($t=="." || $t=="..")){
-                    if($extension!==null){ if(substr($t,strlen($extension)*-1)==$extension) $result[] = $t; }
-                    else $result[] = $t;
+                    if($extension!==null){ 
+                        if(substr($t,strlen($extension)*-1)==$extension) $result[] = $t; 
+                    }
+                    else if($withfolders||!is_dir($folder.DS.$t)) $result[] = $t;
                 }
             }
         }
@@ -107,7 +111,7 @@ class IO {
         if(\is_dir($p)) @\rmdir($p);
     }
 
-    public static function mkf($dir,$perm=2644){
+    public static function mkf($dir,$perm=0644){
         if(substr($dir,0,1)!=DS) $dir = IO::root() . $dir;
         // umask(002);
         if(!is_dir($dir)) mkdir($dir,$perm,true);
@@ -123,21 +127,23 @@ class IO {
     public function cpr($f,$t) {
         if(substr($f,0,1)!=DS) $f = IO::root() . $f;
         $dir = opendir($f); 
-        mkdir($t);
+        if(!is_dir($t)) mkdir($t,0764,true);
+        chmod($t,0764);
         while($file = readdir($dir)){ 
             if($file!='.'&&$file!='..'){ 
-                if(is_dir($f.'/'.$file)) copy_folder($f.'/'.$file,$t.'/'.$file); 
-                else copy($f.'/'.$file, $t.'/'.$file); 
+                if(is_dir($f.'/'.$file)) IO::cpr($f.'/'.$file, $t.'/'.$file); 
+                else copy($f.'/'.$file, $t.'/'.$file);
+                chmod($t.'/'.$file,0775);
             }
         }
         closedir($dir);
-        return \if_dir($t) ? true : false;
+        return \is_dir($t) ? true : false;
     }
 
     public function mv($f,$t){
         if(substr($f,0,1)!=DS) $f = IO::root() . $f;
         if(substr($t,0,1)!=DS) $t = IO::root() . $t;
-        if($this->copy_folder($f,$t)) \rem_folder($f);
+        if($this->cpr($f,$t)) IO::rmf($f);
     }
 
     public function debug($anything=null){
