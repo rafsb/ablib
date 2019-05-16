@@ -11,7 +11,11 @@ const
 RESPONSIVE_TRESHOLD = 1366
 , ANIMATION_LENGTH = 800
 , DEBUG = true
-, REVERSE_PROXY_CLIENT_URI = "https://cors-anywhere.herokuapp.com/";
+, REVERSE_PROXY_CLIENT_URI = "https://cors-anywhere.herokuapp.com/"
+, SUM       = 0
+, MEDIAN    = 1
+, HARMONIC  = 2
+;
 
 HTMLInputElement.prototype.up = function(name, path, fn=null, mini=false) {
     let
@@ -335,6 +339,17 @@ Element.prototype.at = function(i=0) {
 };
 
 Array.prototype.each = function(fn) { if(fn) { for(let i=0;i++<this.length;) fn.bind(this[i-1])(i-1); } return this }
+
+Array.prototype.calc = function(type=SUM){
+    let
+    res = 0;
+    switch (type){
+        case (SUM): this.each(function(){ res+=this*1 }); break;
+        case (MEDIAN): this.each(function(){ res+=this*1 }); res = res/this.length; break;
+        case (HARMONIC): this.each(function(){ res+=1/this*1 }); res = this.length/res; break;
+    }
+    return res;
+};
 
 Array.prototype.not = function(el) { if(this.indexOf(el)+1) { return (this.splice(0,this.indexOf(el))+","+this.splice(this.indexOf(el)+1)).split(",") } }
 

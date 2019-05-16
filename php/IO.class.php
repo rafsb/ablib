@@ -128,7 +128,7 @@ class IO {
         if(substr($f,0,1)!=DS) $f = IO::root() . $f;
         $dir = opendir($f); 
         if(!is_dir($t)) mkdir($t,0764,true);
-        chmod($t,0764);
+        chmod($t,0775);
         while($file = readdir($dir)){ 
             if($file!='.'&&$file!='..'){ 
                 if(is_dir($f.'/'.$file)) IO::cpr($f.'/'.$file, $t.'/'.$file); 
