@@ -463,6 +463,10 @@ HTMLCollection.prototype.each = function(fn) {
     return this
 }
 
+HTMLCollection.prototype.array = function() {
+    return [].slice.call(this)
+};
+
 HTMLFormElement.prototype.json = function() {
     let
     json = {};
