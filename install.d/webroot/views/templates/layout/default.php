@@ -65,7 +65,7 @@ header('Content-Type: text/html; charset=UTF-8',true);?>
         <title><?=App::project_name()?></title>
 
     </head>
-    <body class='-view -content-center -confortaa'>
+    <body class='-row -zero -content-center -confortaa'>
 
         <?php
         $load = $this -> view() ? $this -> view() : IO::root() . "/webroot/views/" . strtolower(get_called_class()) . ".php";
