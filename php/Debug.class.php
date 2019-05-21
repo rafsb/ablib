@@ -6,7 +6,7 @@ class Debug {
 		echo PHP_EOL;
 		echo PHP_EOL;
 		echo PHP_EOL;
-		echo IO::fread(IO::root("var" . DS . "logs" . DS . User::logged() . "-default.log"));
+		echo IO::read("var" . DS . "logs" . DS . User::logged() . "-default.log");
 		echo PHP_EOL;
 		echo PHP_EOL;
 		echo PHP_EOL;

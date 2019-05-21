@@ -61,15 +61,15 @@ class Page {
 
 	protected function view($view = null){
 		if($view!==null) $this->view_ = $view;
-		$tmp = IO::root() . "webroot" . DS . "views" . DS . strtolower($this->view_=="@"?get_called_class():$this->view_) . ".php";
+		if($this->view_) $tmp = IO::root() . "webroot" . DS . "views" . DS . strtolower($this->view_=="@"?get_called_class():$this->view_) . ".php";
 		// echo is_file($tmp)?"yep":"none";
-		return is_file($tmp) ? $tmp : Core::response(-1,"View file not found: $view");
+		return $this->view_ ? (is_file($tmp) ? $tmp : Core::response(-1,"View file not found: $view")):false;
 	}
 
 	protected function layout($layout = null){
 		if($layout!==null) $this->layout_ = $layout;
-		$tmp = IO::root() . "webroot" . DS . "views" . DS . "templates" . DS . "layout" . DS . strtolower($this->layout_=="@"?get_called_class():$this->layout_) . ".php";
-		return is_file($tmp) ? $tmp : Core::response(-1,"Layout file not found: $layout");
+		if($this->layout_) $tmp = IO::root() . "webroot" . DS . "views" . DS . "templates" . DS . "layout" . DS . strtolower($this->layout_=="@"?get_called_class():$this->layout_) . ".php";
+		return $this->layout_ ? (is_file($tmp) ? $tmp : Core::response(-1,"Layout file not found: $layout")) : false;
 	}
 
 	protected function result($result = null){
