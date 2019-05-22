@@ -913,7 +913,7 @@ try{
 
 window.onmousemove = (e) => mouseAxis = { x: e.clientX, y: e.clientY }
 
-window.onresize = function() { ENV.w = window.innerWidth; ENV.h = window.innerHeight; app.detectDevice() }
+window.onresize = function() { ENV.w = window.innerWidth; ENV.h = window.innerHeight;  }
 
 var
 mouseAxis = { x:0, y:0 },
