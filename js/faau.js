@@ -388,6 +388,10 @@ Array.prototype.remove = function() {
     this.each(function() {this.parentElement.removeChild(x)});
     return this
 }
+ Array.prototype.setValue = function(v='') {
+    this.each(function(){this.value=v});
+    return this
+}
 
 NodeList.prototype.array = function() {
     return [].slice.call(this)
@@ -458,6 +462,11 @@ NodeList.prototype.remove = function() {
     return this
 }
 
+NodeList.prototype.setValue = function(v='') {
+    this.each(function() {this.value = v});
+    return this
+}
+
 HTMLCollection.prototype.each = function(fn) {
     if(fn) this.array().each(fn);
     return this
@@ -466,6 +475,11 @@ HTMLCollection.prototype.each = function(fn) {
 HTMLCollection.prototype.array = function() {
     return [].slice.call(this)
 };
+
+HTMLCollection.prototype.setValue = function(v='') {
+    this.each(function() {this.value = v});
+    return this
+}
 
 HTMLFormElement.prototype.json = function() {
     let
@@ -695,7 +709,7 @@ class FAAU {
         if(!sync&&fn) {
 	        xhr.onreadystatechange = function() {
 	            if (xhr.readyState == 4) {
-	               return fn({ status: xhr.status, data: xhr.responseText.trim(), url:url, args:args });
+	               return fn.bind({ status: xhr.status, data: xhr.responseText.trim(), url:url, args:args })();
 	            };
 	        }
 	    }
@@ -730,7 +744,7 @@ class FAAU {
 
 	get(el,scop=null) { return scop ? scop.querySelectorAll(el) : this.nodes.querySelectorAll(el); }
 
-	nuid(n=8) { let a = "SP"; n-=2; while(n-->0) { a+="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('')[parseInt((Math.random()*36)%36)]; } return a; }
+	nuid(n=8) { let a = "FA"; n-=2; while(n-->0) { a+="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('')[parseInt((Math.random()*36)%36)]; } return a; }
 
     notify(n, c=null) {
         let
@@ -784,7 +798,7 @@ class FAAU {
         }
         app.body.app(document.createElement("div").addClass("-fixed -view -zero --default-loading"));
 
-        app.fw.load("src/img/backgrounds/loading.svg",null,$(".--default-loading")[0],()=>{
+        app.fw.load("src/img/loading.svg",null,$(".--default-loading")[0],()=>{
             let
             circle = $(".--default-loading .--loading-circle")[0].setStyle({transformOrigin:"top left", scale:window.innerWidth/1920});
             if(!circle) return;

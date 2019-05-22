@@ -94,6 +94,18 @@ class IO {
         return $result;
     }
 
+    public static function folders($path){
+        if(\substr($path,0,1)!=DS) $path = IO::root() . $path;
+        $arr = [];
+        $tmp = IO::scan($path, null, true);
+        if(\sizeof($tmp)){
+            foreach($tmp as $f){
+                if(\is_dir($path . DS . $f)) $arr[] = $f;
+            }
+        }
+        return $arr;
+    }
+
     /* signature: rem_folder('var/config.json');
      * removes a folder even if not empty
      * $p = path to the folder to be removed from server
@@ -101,7 +113,7 @@ class IO {
      */
     public function rmf($p=0){
         if(substr($p,0,1)!=DS) $p = IO::root() . $p;
-        if(!$p || !\is_dir($p)) return;
+        if(!$p || !\is_dir($p)) return 0;
         if(substr($p,strlen($p)-1)!=DS) $p .= DS;
         $files = \glob($p.'*', GLOB_MARK);
         foreach($files as $file){
@@ -109,6 +121,7 @@ class IO {
             else \unlink($file);
         }
         if(\is_dir($p)) @\rmdir($p);
+        return \is_dir($p) ? 0 : 1;
     }
 
     public static function mkf($dir,$perm=0644){
@@ -116,6 +129,7 @@ class IO {
         // umask(002);
         if(!is_dir($dir)) mkdir($dir,$perm,true);
         chmod($dir,$perm);
+        return is_dir($dir) ? 1 : 0;
     }
     /* signature: rem_file('var/config.json');
      * removes only a single file, not a folder
