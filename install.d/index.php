@@ -21,9 +21,9 @@ if(!User::logged()) if(Request::cook("USER") && Request::cook("ACTIVE")) Request
 if(Request::get('uri'))
 {   
     $args = explode('/',Request::get('uri'));
-    $uri = '(new ' . ucfirst($args[1]) . ")->" . (isset($args[2]) && $args[2] ? $args[2] : "render") . "(" . implode(',',array_slice($args,3)) . ");";
+    $uri = 'echo (new ' . ucfirst($args[1]) . ")->" . (isset($args[2]) && $args[2] ? $args[2] : "render") . "(" . implode(',',array_slice($args,3)) . ");";
 
-    try{ eval($uri); } catch(Exception $e){ IO::debug($e); }
+    try{ eval($uri); } catch(Exception $e){ Core::response(-1,var_dump($e)); }
 }
 else
 {

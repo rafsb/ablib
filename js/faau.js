@@ -801,11 +801,11 @@ class FAAU {
         }
         app.body.app(document.createElement("div").addClass("-fixed -view -zero --default-loading"));
 
-        app.fw.load("src/img/loading.svg",null,$(".--default-loading")[0],()=>{
+        app.fw.load("src/img/loading.svg",null,$(".--default-loading")[0],function(){
             let
-            circle = $(".--default-loading .--loading-circle")[0].setStyle({transformOrigin:"top left", scale:window.innerWidth/1920});
+            circle = $(".--default-loading .--loading-circle")[0];
             if(!circle) return;
-            circle.setStyle({"stroke-dasharray":circle.getTotalLength()+","+circle.getTotalLength()+","+circle.getTotalLength()});
+            circle.setStyle({transformOrigin:"top left", scale:window.innerWidth/1920,"stroke-dasharray":circle.getTotalLength()+","+circle.getTotalLength()+","+circle.getTotalLength()});
             $(".--default-loading")[0].dataset.animation = setInterval(()=>{
                 let
                 circle = $(".--default-loading .--loading-circle")[0];
