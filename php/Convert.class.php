@@ -28,4 +28,9 @@ class convert{
         }
         return 0;
     }
+
+    public static function json($input){
+        if(is_object($input)||is_array($input)) return json_encode($input);
+        return json_decode($input);
+    }
 }
