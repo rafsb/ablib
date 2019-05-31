@@ -203,7 +203,6 @@ String.prototype.hash = function() {
     if (!j) return h;
     while (i++ < j) {
         c = this.charCodeAt(i - 1);
-        console.log(c);
         h = ((h << 5) - h) + c;
         h |= 0;
     }
@@ -720,7 +719,7 @@ class FAAU {
         xhr.open(method, url, !sync);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.setRequestHeader("Accept", 'application/json');
-        if(head) for(let i in head){ xhr.setRequestHeader(i,head[i]);console.log(i,head[i]) };
+        if(head) for(let i in head){ xhr.setRequestHeader(i,head[i]); };
         xhr.send(JSON.stringify(args));
         if(sync) {
             let

@@ -3,7 +3,6 @@
 /* 
  * USERS
  */
-define("DEBUG",true);
 define("USER",1);
 define("UUID",2);
 
@@ -50,13 +49,19 @@ define("COOKIE",2);
 /*
  * RESPONSE FORMATS
  */
-define("ASSOC",0);
-define("ARRAY",1);
-define("JSON",2);
-define("OBJECT",3);
-define("MYSQLI_OBJ",4);
+define("__ASSOC__",0);
+define("__ARRAY__",1);
+define("__JSON__",2);
+define("__OBJECT__",3);
+define("__MYSQLI_OBJ__",4);
+
+define("SHA1","sha1");
+define("SHA256","sha256");
+define("SHA512","sha512");
+define("MD5","md5");
 
 define("DISK","disk");
 define("DATABASE","database");
+define("DEFAULT_DB","default");
 
 define("DS",'/');

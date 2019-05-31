@@ -1,5 +1,5 @@
 <?php
-if($this -> allow_access()) header('Access-Control-Allow-Origin: ' . $this -> allow_access()); // OLY FOR PUBLIC API USE
+if($this->allow_access()) header('Access-Control-Allow-Origin: ' . $this->allow_access()); // OLY FOR PUBLIC API USE
 header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept');
 header('Content-Type: text/html; charset=UTF-8',true);?>
 <!DOCTYPE html>
@@ -68,8 +68,10 @@ header('Content-Type: text/html; charset=UTF-8',true);?>
     <body class='-row -zero -content-center -confortaa'>
 
         <?php
-        $load = $this -> view() ? $this -> view() : IO::root() . "/webroot/views/" . strtolower(get_called_class()) . ".php";
-        if(is_file($load)) include $load;?>
+        $load = $this->view() ? $this->view() : IO::root() . "/webroot/views/" . strtolower(get_called_class()) . ".php";
+        if(is_file($load)) include $load;
+        else if($this->result()) echo $this->result();
+        else if(DEBUG) Debug::show();?>
 
     </body>
     <script type="text/javascript">
