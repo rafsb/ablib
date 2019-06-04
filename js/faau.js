@@ -71,7 +71,7 @@ Element.prototype.anime = function(obj,len=ANIMATION_LENGTH,delay=0,fn=null,tran
             case "translateX" : this.style.transform = 'translateX('+obj[i]+')'; break;
             case "translateY" : this.style.transform = 'translateY('+obj[i]+')'; break;
             case "rotate"     : this.style.transform = 'rotate('+obj[i]+')'; break;
-            case "opacity"    : this.style.filter = 'opacity('+obj[i]+')'; break;
+            // case "opacity"    : this.style.filter = 'opacity('+obj[i]+')'; break;
             case "grayscale"  : this.style.filter = 'grayscale('+obj[i]+')'; break;
             case "invert"     : this.style.filter = 'invert('+obj[i]+')'; break;
             default : this.style[i] = obj[i]; break;
@@ -391,10 +391,18 @@ Array.prototype.remove = function() {
     this.each(function() {this.parentElement.removeChild(x)});
     return this
 }
- Array.prototype.setValue = function(v='') {
+Array.prototype.setValue = function(v='') {
     this.each(function(){this.value=v});
     return this
 }
+
+Array.prototype.stringify = function() {
+    return JSON.stringify(this);
+};
+
+Object.prototype.stringify = function() {
+    return JSON.stringify(this);
+};
 
 NodeList.prototype.array = function() {
     return [].slice.call(this)
@@ -717,8 +725,8 @@ class FAAU {
 	        }
 	    }
         xhr.open(method, url, !sync);
-        xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.setRequestHeader("Accept", 'application/json');
+        // xhr.setRequestHeader("Content-Type", "plain/text");
+        // xhr.setRequestHeader("Accept", 'application/json');
         if(head) for(let i in head){ xhr.setRequestHeader(i,head[i]); };
         xhr.send(JSON.stringify(args));
         if(sync) {
@@ -877,6 +885,13 @@ class FAAU {
 
     new(node='div') {
         return document.createElement(node)
+    }
+
+    storage(field=null,value=null){
+        if(!field) return false;
+        if(!value) return window.localStorage.getItem(field);
+        window.localStorage.setItem(field,value);
+        return true;
     }
 
     constructor(wrapper,context) {
