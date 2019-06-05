@@ -71,7 +71,7 @@ Element.prototype.anime = function(obj,len=ANIMATION_LENGTH,delay=0,fn=null,tran
             case "translateX" : this.style.transform = 'translateX('+obj[i]+')'; break;
             case "translateY" : this.style.transform = 'translateY('+obj[i]+')'; break;
             case "rotate"     : this.style.transform = 'rotate('+obj[i]+')'; break;
-            case "opacity"    : this.style.filter = 'opacity('+obj[i]+')'; break;
+            // case "opacity"    : this.style.filter = 'opacity('+obj[i]+')'; break;
             case "grayscale"  : this.style.filter = 'grayscale('+obj[i]+')'; break;
             case "invert"     : this.style.filter = 'invert('+obj[i]+')'; break;
             default : this.style[i] = obj[i]; break;
@@ -127,14 +127,21 @@ Element.prototype.html = function(tx=null) {
 Element.prototype.setData = function(o=null, fn = null) {
     if (o===null) return this;
     for(let i in o) this.dataset[i] = o[i];
-    if(fn!==null&&typeof fn=="function") fn(this);
+    if(fn!==null&&typeof fn=="function") fn.bind(this)();
+    return this;
+}
+
+Element.prototype.setText = function(t=null, fn = null) {
+    if (t===null) return this;
+    this.innerHTML = t;
+    if(fn!==null&&typeof fn=="function") fn.bind(this)();
     return this;
 }
 
 Element.prototype.setAttr = function(o=null, fn = null) {
     if (o===null) return this;
     for(let i in o) this.setAttribute(i,o[i]);
-    if(fn!==null&&typeof fn=="function") fn(this);
+    if(fn!==null&&typeof fn=="function") fn.bind(this)();
     return this;
 }
 
@@ -203,7 +210,6 @@ String.prototype.hash = function() {
     if (!j) return h;
     while (i++ < j) {
         c = this.charCodeAt(i - 1);
-        console.log(c);
         h = ((h << 5) - h) + c;
         h |= 0;
     }
@@ -368,7 +374,12 @@ Array.prototype.setStyle = function(obj,fn=null) {
     return this
 }
 
-Array.prototype.setData = function(obj,fn=null) {
+Array.prototype.setData = function(txt,fn=null) {
+    this.each(function() {this.setText(txt,fn)});
+    return this
+}
+
+Array.prototype.setText = function(obj,fn=null) {
     this.each(function() {this.setData(obj,fn)});
     return this
 }
@@ -392,10 +403,18 @@ Array.prototype.remove = function() {
     this.each(function() {this.parentElement.removeChild(x)});
     return this
 }
- Array.prototype.setValue = function(v='') {
+Array.prototype.setValue = function(v='') {
     this.each(function(){this.value=v});
     return this
 }
+
+Array.prototype.stringify = function() {
+    return JSON.stringify(this);
+};
+
+Object.prototype.stringify = function() {
+    return JSON.stringify(this);
+};
 
 NodeList.prototype.array = function() {
     return [].slice.call(this)
@@ -443,6 +462,11 @@ NodeList.prototype.setStyle = function(obj,fn=null) {
 
 NodeList.prototype.setData = function(obj,fn=null) {
     this.each(function() {this.setData(obj,fn)});
+    return this
+}
+
+NodeList.prototype.setText = function(txt,fn=null) {
+    this.each(function() {this.setData(txt,fn)});
     return this
 }
 
@@ -718,9 +742,9 @@ class FAAU {
 	        }
 	    }
         xhr.open(method, url, !sync);
-        xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.setRequestHeader("Accept", 'application/json');
-        if(head) for(let i in head){ xhr.setRequestHeader(i,head[i]);console.log(i,head[i]) };
+        // xhr.setRequestHeader("Content-Type", "plain/text");
+        // xhr.setRequestHeader("Accept", 'application/json');
+        if(head) for(let i in head){ xhr.setRequestHeader(i,head[i]); };
         xhr.send(JSON.stringify(args));
         if(sync) {
             let
@@ -878,6 +902,13 @@ class FAAU {
 
     new(node='div') {
         return document.createElement(node)
+    }
+
+    storage(field=null,value=null){
+        if(!field) return false;
+        if(!value) return window.localStorage.getItem(field);
+        window.localStorage.setItem(field,value);
+        return true;
     }
 
     constructor(wrapper,context) {

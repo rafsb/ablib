@@ -1,16 +1,16 @@
 <?php
-class convert{
+class Convert{
     // stdobject to array
     public static function otoa($o){
         $r = (array)$o;
-        foreach($r as $k => $v){ if(is_object($v)) $v = Convert::otoa($v); }
+        foreach($r as $k => $v){ if(is_object($v)) $v = self::otoa($v); }
         return $r;
     }
 
     public static function atoo($a){
         if(!is_array($a)){ return json_decode(json_encode(["error"=>"argument is not an array()"])); }
         foreach($a as $k=>$v){
-            if(is_array($v)) $a[$k] = Convert::atoo($v);
+            if(is_array($v)) $a[$k] = self::atoo($v);
         }
         return json_decode(json_encode($a));
     }
@@ -21,7 +21,7 @@ class convert{
         if(gettype($a)=="array"){
             $t = "";
             foreach($a as $k=>$v){
-                if(is_array($a[$k])) $t.=Convert::atoh($a[$k]);
+                if(is_array($a[$k])) $t.=self::atoh($a[$k]);
                 else $t.=str_replace(" ","+",$k)."=".str_replace(" ","+",$v)."&";
             }
             return substr($t,0,strlen($t)-1);
