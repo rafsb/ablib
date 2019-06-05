@@ -127,14 +127,21 @@ Element.prototype.html = function(tx=null) {
 Element.prototype.setData = function(o=null, fn = null) {
     if (o===null) return this;
     for(let i in o) this.dataset[i] = o[i];
-    if(fn!==null&&typeof fn=="function") fn(this);
+    if(fn!==null&&typeof fn=="function") fn.bind(this)();
+    return this;
+}
+
+Element.prototype.setText = function(t=null, fn = null) {
+    if (t===null) return this;
+    this.innerHTML = t;
+    if(fn!==null&&typeof fn=="function") fn.bind(this)();
     return this;
 }
 
 Element.prototype.setAttr = function(o=null, fn = null) {
     if (o===null) return this;
     for(let i in o) this.setAttribute(i,o[i]);
-    if(fn!==null&&typeof fn=="function") fn(this);
+    if(fn!==null&&typeof fn=="function") fn.bind(this)();
     return this;
 }
 
@@ -367,7 +374,12 @@ Array.prototype.setStyle = function(obj,fn=null) {
     return this
 }
 
-Array.prototype.setData = function(obj,fn=null) {
+Array.prototype.setData = function(txt,fn=null) {
+    this.each(function() {this.setText(txt,fn)});
+    return this
+}
+
+Array.prototype.setText = function(obj,fn=null) {
     this.each(function() {this.setData(obj,fn)});
     return this
 }
@@ -450,6 +462,11 @@ NodeList.prototype.setStyle = function(obj,fn=null) {
 
 NodeList.prototype.setData = function(obj,fn=null) {
     this.each(function() {this.setData(obj,fn)});
+    return this
+}
+
+NodeList.prototype.setText = function(txt,fn=null) {
+    this.each(function() {this.setData(txt,fn)});
     return this
 }
 
