@@ -1,14 +1,29 @@
 <?php
-define ("DEFAULT_DB","spumedb");
+define("DEBUG", false);
 
 class App {
-	public static  function mysql_config($database=DEFAULT_DB){
-		$file = IO::root() . "/etc/sql.d/" . $database . ".json";
-		if(is_file($file)) $db = IO::jout($file);
-		else $db = null;
-		if($db) $db->{'base'} = $database;
-		return $db;
-	}
+    private static $host = "10.150.158.227";
+    private static $username = "spume";
+    private static $passwd = "spume3224$";
+    private static $database = "users";
+    private static $encoding = "utf8";
+
+	static $datasources = [
+        "default"  => []
+        , "dash"  => [ "database" => "sp_history_dashboard" ]
+    ];
+
+    public static function connections($datasource=DEFAULT_DB){
+        $tmp = isset(self::$datasources[$datasource]) ? self::$datasources[$datasource] : [];
+        if($tmp){
+            if(!isset($tmp["host"]))     $tmp["host"]     = self::$host;
+            if(!isset($tmp["username"])) $tmp["username"] = self::$username;
+            if(!isset($tmp["passwd"]))   $tmp["passwd"]   = self::$passwd;
+            if(!isset($tmp["database"])) $tmp["database"] = self::$database;
+            if(!isset($tmp["encoding"])) $tmp["encoding"] = self::$encoding;
+        }
+        return $tmp;
+    }
 
 	public static  function config($field=null){
 		$_CONFIG = IO::jout("/etc/project.json");
@@ -20,9 +35,5 @@ class App {
 
 	public static function project_name(){ return App::config("project_name"); }
 
-	public static function driver(){ return App::config("persistenced")->driver; }
-
-	public static function dir(){ return App::config("persistenced")->dir; }
-
-	public static function init(){ (new Home)->render(); }
+	public static function init(){ (new Auth)->render(); }
 }

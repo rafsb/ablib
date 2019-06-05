@@ -6,5 +6,5 @@ ROOT="$HERE/../";
 RLIB="$HERE/lib/";
 
 rsync -av $INST $ROOT;
-mkdir -p $RLIB;
-rsync -av $HERE $RLIB;
+# mkdir -p $RLIB;
+# rsync -av $HERE $RLIB;
