@@ -1,7 +1,2 @@
-#!/bin/bash -e
-HERE=$(pwd)
-INST="$HERE/lib/install.d/"
-ROOT="$HERE"
-rsync -av $INST $ROOT
-# mkdir -p $RLIB;
-# rsync -av $HERE $RLIB;
+#!/bin/bash
+cp -rv lib/install.d/* .
