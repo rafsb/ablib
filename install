@@ -1,10 +1,2 @@
 #!/bin/bash
-<<<<<<< HEAD
-echo "folder to start project: $1/"
-INST="$1/lib/install.d/"
-echo "copying from: $INST"
-rsync -a $INST "$1/"
-echo "done $INST >> $1/"
-=======
 cp -rv lib/install.d/* .
->>>>>>> dcb036d9602186f313ef99ce27767dedcaddbac2
