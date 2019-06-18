@@ -1,7 +1,6 @@
-#!/bin/bash -e
-HERE=$(pwd)
-INST="$HERE/lib/install.d/"
-ROOT="$HERE"
-rsync -av $INST $ROOT
-# mkdir -p $RLIB;
-# rsync -av $HERE $RLIB;
+#!/bin/bash
+echo "folder to start project: $1/"
+INST="$1/lib/install.d/"
+echo "copying from: $INST"
+rsync -a $INST "$1/"
+echo "done $INST >> $1/"
