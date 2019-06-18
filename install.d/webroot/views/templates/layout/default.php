@@ -40,13 +40,13 @@ header('Content-Type: text/html; charset=UTF-8',true);?>
         <meta name="application-name" content="Spume | Real Time" />
         <meta name="msapplication-navbutton-color" content="#343A40" />
         <meta name="msapplication-TileColor" content="#343A40" />
-        <meta name="msapplication-TileImage" content="assets/custom/favicon/mstile-144x144.png" />
+        <meta name="msapplication-TileImage" content="src/img/icons/favicon/mstile-144x144.png" />
         <meta name="msapplication-config" content="browserconfig.xml" />
 
         <!-- Favicons -->
-        <link rel="icon" type="image/png" sizes="32x32" href="assets/custom/favicon/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="assets/custom/favicon/favicon-16x16.png" />
-        <link rel="shortcut icon" type="image/x-icon" href="assets/custom/favicon/favicon.ico" /> <!-- 16x16 32x32 48x48 -->
+        <link rel="icon" type="image/png" sizes="32x32" href="src/img/icons/favicon/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="src/img/icons/favicon/favicon-16x16.png" />
+        <link rel="shortcut icon" type="image/x-icon" href="src/img/icons/favicon/favicon.ico" /> <!-- 16x16 32x32 48x48 -->
         
         <!-- Custom Tags -->
         <meta name='description' content=''/>
@@ -57,7 +57,11 @@ header('Content-Type: text/html; charset=UTF-8',true);?>
         IO::js(SCAN,APP);
         IO::js(SCAN,CLIENT);?>
 
-        <!-- Scripts -->
+        <!-- Firebase support -->
+        <!-- <script src="https://www.gstatic.com/firebasejs/6.1.1/firebase-app.js"></script> -->
+		<!-- <script src="https://www.gstatic.com/firebasejs/6.1.1/firebase-database.js"></script> -->
+
+        <!-- Stylesheets -->
         <?php
         IO::css(SCAN,APP);
         IO::css(SCAN,CLIENT);?>
@@ -72,10 +76,30 @@ header('Content-Type: text/html; charset=UTF-8',true);?>
         if(is_file($load)) include $load;
         else if($this->result()) echo $this->result();
         else if(DEBUG) Debug::show();?>
-
+        
     </body>
+    
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <!-- <script src="/__/firebase/6.1.1/firebase-app.js"></script> -->
+    <!-- TODO: Add SDKs for Firebase products that you want to use https://firebase.google.com/docs/web/setup#reserved-urls -->
+    <!-- Initialize Firebase -->
+    <!-- <script src="/__/firebase/init.js"></script> -->
+
     <script type="text/javascript">
+        /* Firebase support */
+        // var // Your web app's Firebase configuration
+		// firebaseConfig = {
+		//    apiKey: "AIzaSyDGCBaCOuAuyp0QH5aC8fIK0gz5htVj-6M",
+		//    authDomain: "rafsb-apps.firebaseapp.com",
+		//    databaseURL: "https://rafsb-apps.firebaseio.com",
+		//    projectId: "rafsb-apps",
+		//    storageBucket: "rafsb-apps.appspot.com",
+		//    messagingSenderId: "279336801488",
+		//    appId: "1:279336801488:web:e2cf1dd155bcb42d"
+		// };
         (function(){
+            // Firebase support
+            // firebase.initializeApp(firebaseConfig);
             app&&app.initialize()
         })();
     </script>
