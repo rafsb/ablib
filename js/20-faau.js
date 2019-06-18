@@ -877,7 +877,7 @@ class FAAU {
         $('body')[0].app(toast);
     }
 
-    apply(fn,obj=null) { return (fn ? fn.bind(this)(obj) : null) }
+    apply(fn,obj=null) { return (fn ? fn.bind(obj)() : null) }
 
     get(w=null,c=null) { this.nodearray = $(w,c); return this }
 
