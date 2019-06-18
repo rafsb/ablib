@@ -1,21 +1,22 @@
 /**************************************************************************
-  	 ___                                             _
- 	/  _|_ __ __ _ _ __ ___   _____      _____  _ __| | __
-	| |_| '__/ _` | '_ ` _ \ / _ \ \ /\ / / _ \| '__| |/ /
-	|  _| | | (_| | | | | | |  __/\ V  V / (_) | |  |   <
-	|_| |_|  \__,_|_| |_| |_|\___| \_/\_/ \___/|_|  |_|\_\
+     ___                                             _
+    /  _|_ __ __ _ _ __ ___   _____      _____  _ __| | __
+    | |_| '__/ _` | '_ ` _ \ / _ \ \ /\ / / _ \| '__| |/ /
+    |  _| | | (_| | | | | | |  __/\ V  V / (_) | |  |   <
+    |_| |_|  \__,_|_| |_| |_|\___| \_/\_/ \___/|_|  |_|\_\
 
 
 ****************************************************************************/
 const
 RESPONSIVE_TRESHOLD = 1366
-, ANIMATION_LENGTH = 800
+, PASSWD_AUTO_HASH  = true
+, ANIMATION_LENGTH  = 400
 , DEBUG = true
 , REVERSE_PROXY_CLIENT_URI = "https://cors-anywhere.herokuapp.com/"
 , SUM       = 0
 , MEDIAN    = 1
 , HARMONIC  = 2
-;
+, REMOVE    = true;
 
 HTMLInputElement.prototype.up = function(name, path, fn=null, mini=false) {
     let
@@ -286,8 +287,8 @@ Element.prototype.stopScroll = function() {
 }
 
 Element.prototype.get = function(el) {
-	if(el) return this.querySelectorAll(el);
-	else return this;
+    if(el) return this.querySelectorAll(el);
+    else return this;
 }
 
 
@@ -317,9 +318,9 @@ Element.prototype.toggleClass = function(c) {
 };
 
 Element.prototype.uid = function(name=null) {
-	if(name) this.id = name;
-	if(!this.id) this.id = faau.nuid(8);
-	return this.id;
+    if(name) this.id = name;
+    if(!this.id) this.id = faau.nuid(8);
+    return this.id;
 }
 
 Element.prototype.move = function(obj,len=ANIMATION_LENGTH, anim="linear") {
@@ -375,12 +376,12 @@ Array.prototype.setStyle = function(obj,fn=null) {
 }
 
 Array.prototype.setData = function(txt,fn=null) {
-    this.each(function() {this.setText(txt,fn)});
+    this.each(function() {this.setData(txt,fn)});
     return this
 }
 
 Array.prototype.setText = function(obj,fn=null) {
-    this.each(function() {this.setData(obj,fn)});
+    this.each(function() {this.setText(obj,fn)});
     return this
 }
 
@@ -431,7 +432,7 @@ NodeList.prototype.not = function(el) {
 };
 
 NodeList.prototype.each = function(fn) {
-	if(fn) this.array().each(fn);
+    if(fn) this.array().each(fn);
     return this
 };
 
@@ -466,7 +467,7 @@ NodeList.prototype.setData = function(obj,fn=null) {
 }
 
 NodeList.prototype.setText = function(txt,fn=null) {
-    this.each(function() {this.setData(txt,fn)});
+    this.each(function() {this.setText(txt,fn)});
     return this
 }
 
@@ -513,7 +514,10 @@ HTMLFormElement.prototype.json = function() {
     let
     json = {};
     this.get("input, select, textarea").each(function(i) {
-        if(!this.has('-skip')) json[this.name] = (this.tagName.toUpperCase()=="TEXTAREA"&&this.has("-list") ? this.value.split('\n') : this.value);
+        if(!this.has('-skip')){
+            json[this.name] = (this.tagName.toUpperCase()=="TEXTAREA"&&this.has("-list") ? this.value.split('\n') : this.value);
+            if(PASSWD_AUTO_HASH&&this.getAttribute("type").toUpperCase()=="PASSWORD") json[this.name] = json[this.name].hash();
+        }
     })
     return json
 };
@@ -730,17 +734,17 @@ class THROTTLE {
 }
 
 class FAAU {
-	call(url, args=null, fn=false, head=null, method='POST', sync=false) {
+    call(url, args=null, fn=false, head=null, method='POST', sync=false) {
         let
         xhr = new XMLHttpRequest();
         args = args ? args : {};
         if(!sync&&fn) {
-	        xhr.onreadystatechange = function() {
-	            if (xhr.readyState == 4) {
-	               return fn.bind({ status: xhr.status, data: xhr.responseText.trim(), url:url, args:args })();
-	            };
-	        }
-	    }
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                   return fn.bind({ status: xhr.status, data: xhr.responseText.trim(), url:url, args:args })();
+                };
+            }
+        }
         xhr.open(method, url, !sync);
         // xhr.setRequestHeader("Content-Type", "plain/text");
         // xhr.setRequestHeader("Accept", 'application/json');
@@ -754,24 +758,24 @@ class FAAU {
     }
 
     load(url, args=null, element=null, fn=false, sync=false) {
-    	this.call(url, args, function(target=element) {
-    		let r;
+        this.call(url, args, function(target=element) {
+            let r;
             if(this.status==200) r = this.data.morph();
             else return DEBUG ? faau.error("error loading "+url) : null;
             if(!r.id) r.id = faau.nuid();
-    		let
-    		tmp = r.get("script");
-    		if(!target) target = faau.get('body')[0];
+            let
+            tmp = r.get("script");
+            if(!target) target = faau.get('body')[0];
             target.app(r);
-    		if(tmp.length) for(let i=0;i++<tmp.length;) { eval(tmp[i-1].textContent); }
-    		if(fn) fn.bind(r)();
+            if(tmp.length) for(let i=0;i++<tmp.length;) { eval(tmp[i-1].textContent); }
+            if(fn) fn.bind(r)();
             // else faau.get("#"+r.id).first().anime({opacity:1},600);
-    	}, sync);
+        }, sync);
     }
 
-	get(el,scop=null) { return scop ? scop.querySelectorAll(el) : this.nodes.querySelectorAll(el); }
+    get(el,scop=null) { return scop ? scop.querySelectorAll(el) : this.nodes.querySelectorAll(el); }
 
-	nuid(n=8) { let a = "FA"; n-=2; while(n-->0) { a+="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('')[parseInt((Math.random()*36)%36)]; } return a; }
+    nuid(n=8) { let a = "FA"; n-=2; while(n-->0) { a+="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('')[parseInt((Math.random()*36)%36)]; } return a; }
 
     notify(n, c=null) {
         let
@@ -877,7 +881,7 @@ class FAAU {
         $('body')[0].app(toast);
     }
 
-    apply(fn,obj=null) { return (fn ? fn.bind(this)(obj) : null) }
+    apply(fn,obj=null) { return (fn ? fn(obj) : null) }
 
     get(w=null,c=null) { this.nodearray = $(w,c); return this }
 
