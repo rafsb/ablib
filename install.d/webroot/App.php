@@ -10,6 +10,7 @@ class App {
 
 	static $datasources = [
         "default"  => []
+        , "dash"  => [ "database" => "sp_history_dashboard" ]
     ];
 
     public static function connections($datasource=DEFAULT_DB){
@@ -22,7 +23,7 @@ class App {
             if(!isset($tmp["encoding"])) $tmp["encoding"] = self::$encoding;
         }
         return $tmp;
-    }
+   }
 
 	public static  function config($field=null){
 		$_CONFIG = IO::jout("/etc/project.json");
@@ -34,5 +35,5 @@ class App {
 
 	public static function project_name(){ return App::config("project_name"); }
 
-	public static function init(){ (new Auth)->render(); }
+	public static function init(){ (new Home)->render(); }
 }
