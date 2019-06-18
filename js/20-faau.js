@@ -11,11 +11,11 @@ const
 RESPONSIVE_TRESHOLD = 1366
 , ANIMATION_LENGTH = 800
 , DEBUG = true
+, REVERSE_PROXY_CLIENT_URI = "https://cors-anywhere.herokuapp.com/"
 , SUM       = 0
 , MEDIAN    = 1
 , HARMONIC  = 2
-, REMOVE = true
-, REVERSE_PROXY_CLIENT_URI = "https://cors-anywhere.herokuapp.com/";
+;
 
 HTMLInputElement.prototype.up = function(name, path, fn=null, mini=false) {
     let
@@ -81,8 +81,6 @@ Element.prototype.anime = function(obj,len=ANIMATION_LENGTH,delay=0,fn=null,tran
     else this.dataset.animationFunction = "";
     return this
 }
-
-Element.prototype.do = function(ev){ this.dispatchEvent(ev) };
 
 Element.prototype.empty = function(a=null) {
     if(a){ if(typeof a == 'string') a = a.split(',') }
@@ -768,7 +766,6 @@ class FAAU {
     		if(tmp.length) for(let i=0;i++<tmp.length;) { eval(tmp[i-1].textContent); }
     		if(fn) fn.bind(r)();
             // else faau.get("#"+r.id).first().anime({opacity:1},600);
-            if(undefined!==bootstrap&&bootstrap.ready) bootstrap.ready(url.split("/").last().split(".").first())
     	}, sync);
     }
 
@@ -880,7 +877,7 @@ class FAAU {
         $('body')[0].app(toast);
     }
 
-    apply(fn,obj=null) { return (fn ? fn.bind(obj)() : null) }
+    apply(fn,obj=null) { return (fn ? fn.bind(this)(obj) : null) }
 
     get(w=null,c=null) { this.nodearray = $(w,c); return this }
 
