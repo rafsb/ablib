@@ -17,6 +17,7 @@ class Mysql {
         if(is_array($fields)&&sizeof($fields)) $this->fields_ = " ".implode(",",$fields)." ";
         else if(gettype($fields)=="string") $this->fields_ = $fields;
         else $this->fields_ = " * ";
+        $this->fields_ = $mysqli->real_escape_string($this->fields_)
         return $this;
     }
 
@@ -25,6 +26,7 @@ class Mysql {
         $this->operation_ = "UPDATE";
         if($table) $this->tables_ = ($this->database_ ? $this->database_."." : "") . $table;
         else $this->tables_ = " ERR{NO_TABLE} ";
+        $this->tables_ = $mysqli->real_escape_string($this->tables_)
         return $this;
     }
 
@@ -37,6 +39,7 @@ class Mysql {
         }
         else if(gettype($tables)=="string") $this->tables_ = ($this->database_ ? $this->database_."." : "") . $tables;
         else $this->tables_ = " ERR{NO_TABLE} ";
+        $this->table_ = $mysqli->real_escape_string($this->table_);
         return $this;
     }
 
@@ -45,19 +48,19 @@ class Mysql {
         if(sizeof($attributes)){
             $this->attributes_ = [];
             foreach($attributes as $k=>$v) $this->attributes_[] = $k."='".$v."'";
-            $this->attributes_ = implode(",", $this->attributes_);
+            $this->attributes_ = $mysqli->real_escape_string(implode(",", $this->attributes_));
         }
         else $this->attributes_ = " ERR{NO_ATTRIBUTES} ";
         return $this;
     }
 
     public function where(String $restrictions=""){
-        $this->restrictions_ = $restrictions;
+        $this->restrictions_ = $mysqli->real_escape_string($restrictions);
         return $this;
     }
 
     public function order(String $order=""){
-        $this->order_ = $order;
+        $this->order_ = $mysqli->real_escape_string($order);
         return $this;
     }
 
