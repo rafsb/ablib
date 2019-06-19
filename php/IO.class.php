@@ -54,7 +54,7 @@ class IO {
      *
      */
     public static function jout($path){ 
-        // echo "<pre>" . var_dump(self::read($path));
+        // echo "<pre>". $path; var_dump(self::read($path));
         return json_decode(self::read($path)); 
     }
 
@@ -78,6 +78,7 @@ class IO {
     }
 
     public static function read($f){ 
+        // echo "<pre>" . $f . PHP_EOL;
         if(substr($f,0,1)!=DS) $f = self::root() . $f;
         // echo $f;
         return $f&&is_file($f) ? file_get_contents($f) : "";
@@ -112,6 +113,7 @@ class IO {
      *
      */
     public static function scan($folder=null,$extension=null, $withfolders=true){
+        // echo "<pre>" . var_dump($folder); die;
         if(substr($folder,0,1)!=DS) $folder = self::root() . $folder;
         if($folder===null || !\is_dir($folder)) return [];
         $tmp = \scandir($folder);
@@ -139,6 +141,9 @@ class IO {
         if(\substr($path,0,1)!=DS) $path = self::root() . $path;
         $arr = [];
         $tmp = self::scan($path, null, true);
+
+        // echo "<pre>$path"; print_r($tmp);die;
+
         if(\sizeof($tmp)){
             foreach($tmp as $f){
                 if(\is_dir($path . DS . $f)) $arr[] = $f;

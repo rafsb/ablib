@@ -2,9 +2,22 @@ html{ scroll-behavior: smooth }
 body{ position: relative; text-align: inherit; animation-fill-mode: forwards; display:inline-block;}
 body *:not(script):not(style) { font-family: inherit; position: relative; transition: ease all .1s; display:inline-block; -moz-box-sizing: border-box;-webkit-box-sizing: border-box;box-sizing: border-box; }
 
-.-view 			{ height: 100vh; }
+.-view { height: 100vh; }
 
-@media only screen and (min-width: 1080px) {
+.-col-1 { flex-grow:  1; flex-basis: 8.3%;}
+.-col-2 { flex-grow:  2; flex-basis: 16.6%;}
+.-col-3 { flex-grow:  3; flex-basis: 24.9%;}
+.-col-4 { flex-grow:  4; flex-basis: 33.2%;}
+.-col-5 { flex-grow:  5; flex-basis: 41.5%;}
+.-col-6 { flex-grow:  6; flex-basis: 49.8%;}
+.-col-7 { flex-grow:  7; flex-basis: 58.1%;}
+.-col-8 { flex-grow:  8; flex-basis: 66.4%;}
+.-col-9 { flex-grow:  9; flex-basis: 74.7%;}
+.-col-10 { flex-grow: 10; flex-basis: 83.0%;}
+.-col-11 { flex-grow: 11; flex-basis: 91.3%;}
+.-col-12 { flex-grow: 12; flex-basis: 100%;}
+
+@media only screen and (min-width: 101px) {
 	.-wd-3quart 	{ width: 	  75%; }
 	.-wd-3quart-min { min-width:  75%; }
 	.-wd-3quart-max { max-width:  75%; }
@@ -20,19 +33,6 @@ body *:not(script):not(style) { font-family: inherit; position: relative; transi
 	.-wd-quart 		{ width: 	  25%; }
 	.-wd-quart-min  { min-width:  25%; }
 	.-wd-quart-max  { max-width:  25%; }
-
-	.-col-1 { flex-grow:  1; flex-basis: 8.3%;}
-	.-col-2 { flex-grow:  2; flex-basis: 16.6%;}
-	.-col-3 { flex-grow:  3; flex-basis: 24.9%;}
-	.-col-4 { flex-grow:  4; flex-basis: 33.2%;}
-	.-col-5 { flex-grow:  5; flex-basis: 41.5%;}
-	.-col-6 { flex-grow:  6; flex-basis: 49.8%;}
-	.-col-7 { flex-grow:  7; flex-basis: 58.1%;}
-	.-col-8 { flex-grow:  8; flex-basis: 66.4%;}
-	.-col-9 { flex-grow:  9; flex-basis: 74.7%;}
-	.-col-10 { flex-grow: 10; flex-basis: 83.0%;}
-	.-col-11 { flex-grow: 11; flex-basis: 91.3%;}
-	.-col-12 { flex-grow: 12; flex-basis: 100%;}
 
 	.-wrapper, .-blur, .-bar, .-ht-full, blur { height:  	 100%; }
 
@@ -56,7 +56,7 @@ body *:not(script):not(style) { font-family: inherit; position: relative; transi
 	.-desk-hide { display: none }
 }
 
-@media only screen and (max-width: 1079px) {
+@media only screen and (max-width: 100px) {
 	.-fixed:not(.-keep),
 	.-absolute:not(.-keep)	{ position: relative; }
 	.-wd-2third    , .-wd-3quart    , .-wd-half:not(.-keep) 	{ width: 	  100%; }
@@ -126,8 +126,10 @@ body *:not(script):not(style) { font-family: inherit; position: relative; transi
 .-bold { font-weight: bolder }
 
 /* SPECIALS */
-.-zero { top: 0; left: 0; margin:0;}
+.-zero, .-zero-top { top: 0; left: 0; margin:0;}
+.-zero-bottom { bottom: 0; left:0; margin: 0; }
 .-ball { border-radius: 50%; min-width: .25em; min-height: .25em; width:1.5em;height:1.5em;margin:.5em;float:left; vertical-align: middle; }
+.-circle { border-radius: 50%; overflow: hidden; }
 .-input:not([type='button']),select,textarea { font-family:inherit;transition:all .4s;background: transparent; border: none; border-bottom: 2px solid lightgray; padding:.5em; outline:none;}
 .-input:not([type='button'])::placeholder { opacity: .8; }
 .-input:not([type='button']):not(:placeholder-shown) { border-bottom: 2px solid dodgerblue }
