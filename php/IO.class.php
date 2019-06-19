@@ -209,7 +209,7 @@ class IO {
     }
 
     public function debug($anything=null){
-        if($anything!==null) Debug::show(); 
+        if(DEBUG||$anything===null) Debug::show(); 
         else print_r($anything);
     }
 }

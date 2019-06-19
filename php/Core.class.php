@@ -10,7 +10,7 @@ class Core {
 	public static function response($status,$data){
 		$data = ["status"=>$status,"data"=>$data];
 		Request::sess("DEBUG",array_merge(is_array(Request::sess("DEBUG"))?Request::sess("DEBUG"):[],$data));
-		//if(DEBUG) print_r(Request::sess("DEBUG"));
+		if(DEBUG) Debug::show();
 		return $data;
 	}
 	

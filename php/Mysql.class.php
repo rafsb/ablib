@@ -17,7 +17,7 @@ class Mysql {
         if(is_array($fields)&&sizeof($fields)) $this->fields_ = " ".implode(",",$fields)." ";
         else if(gettype($fields)=="string") $this->fields_ = $fields;
         else $this->fields_ = " * ";
-        $this->fields_ = $mysqli->real_escape_string($this->fields_)
+        $this->fields_ = $this->object_->real_escape_string($this->fields_);
         return $this;
     }
 
@@ -26,7 +26,7 @@ class Mysql {
         $this->operation_ = "UPDATE";
         if($table) $this->tables_ = ($this->database_ ? $this->database_."." : "") . $table;
         else $this->tables_ = " ERR{NO_TABLE} ";
-        $this->tables_ = $mysqli->real_escape_string($this->tables_)
+        $this->tables_ = $this->object_->real_escape_string($this->tables_);
         return $this;
     }
 
@@ -39,7 +39,7 @@ class Mysql {
         }
         else if(gettype($tables)=="string") $this->tables_ = ($this->database_ ? $this->database_."." : "") . $tables;
         else $this->tables_ = " ERR{NO_TABLE} ";
-        $this->table_ = $mysqli->real_escape_string($this->table_);
+        $this->table_ = $this->object_->real_escape_string($this->table_);
         return $this;
     }
 
@@ -48,19 +48,19 @@ class Mysql {
         if(sizeof($attributes)){
             $this->attributes_ = [];
             foreach($attributes as $k=>$v) $this->attributes_[] = $k."='".$v."'";
-            $this->attributes_ = $mysqli->real_escape_string(implode(",", $this->attributes_));
+            $this->attributes_ = $this->object_->real_escape_string(implode(",", $this->attributes_));
         }
         else $this->attributes_ = " ERR{NO_ATTRIBUTES} ";
         return $this;
     }
 
     public function where(String $restrictions=""){
-        $this->restrictions_ = $mysqli->real_escape_string($restrictions);
+        $this->restrictions_ = $this->object_->real_escape_string($restrictions);
         return $this;
     }
 
     public function order(String $order=""){
-        $this->order_ = $mysqli->real_escape_string($order);
+        $this->order_ = $this->object_->real_escape_string($order);
         return $this;
     }
 
@@ -76,25 +76,22 @@ class Mysql {
         return $this->count($table, $restrictions);
     }
 
-    public function query($response_type=__ARRAY__,String $query="") {
+    public function query($response_type=__ARRAY__) {
         $tmp = [];
         $data = [];
-        if($query)
-        {
-            $this->query_ = $query;
-            $tmp = $this->object_->query($this->query_);
-        }
-        else
-        {
-            $this->query_ = 
-                $this->operation_ 
-                . " " . ($this->operation_ == "SELECT" ? $this->fields_ : ($this->operation_ == "UPDATE" ? $this->tables_ : "CASE DELETE"))
-                . ($this->operation_ == "SELECT" ? " FROM " : ($this->operation_ == "UPDATE" ? " SET " : "CASE DELETE"))
-                . " " . ($this->operation_ == "SELECT" ?  $this->tables_ : ($this->operation_ == "UPDATE" ? $this->attributes_ : "CASE DELETE"))
-                . " " . ($this->restrictions_ ? "WHERE " . $this->restrictions_ : "")
-                . " " . ($this->operation_ == "SELECT" && $this->order_ ? "ORDER BY " . $this->order_ : "");
-            $tmp = $this->object_ ? $this->object_->query($this->query_) : null;
-        }
+        
+        $this->query_ = 
+            $this->operation_ 
+            . " " . ($this->operation_ == "SELECT" ? $this->fields_ : ($this->operation_ == "UPDATE" ? $this->tables_ : "CASE DELETE"))
+            . ($this->operation_ == "SELECT" ? " FROM " : ($this->operation_ == "UPDATE" ? " SET " : "CASE DELETE"))
+            . " " . ($this->operation_ == "SELECT" ?  $this->tables_ : ($this->operation_ == "UPDATE" ? $this->attributes_ : "CASE DELETE"))
+            . " " . ($this->restrictions_ ? "WHERE " . $this->restrictions_ : "")
+            . " " . ($this->operation_ == "SELECT" && $this->order_ ? "ORDER BY " . $this->order_ : "");
+        
+        // echo $this->query_;
+
+        $tmp = $this->object_ ? $this->object_->query($this->query_) : null;        
+
         if(gettype($tmp) == "object" && $tmp->num_rows){
             switch($response_type){
                 case(__ASSOC__)     : { $data = (array)$tmp->fetch_assoc(); }                                                      break;
@@ -114,9 +111,13 @@ class Mysql {
         $tmp = Convert::atoo(App::connections($datasource));
         if(!$tmp) return new Mysql();
         // echo "<pre>"; print_r($tmp); die;
-        $c = new \mysqli($tmp->host,$tmp->username,$tmp->passwd,$tmp->database);
-        $c->set_charset($tmp->encoding);
-        if($c->connect_error){ return Core::response(-1,"MYSQL CONNECTION ERROR"); }
+        $c = @(new \mysqli($tmp->host,$tmp->username,$tmp->passwd,$tmp->database));
+        if($c->connect_error){ 
+            Core::response(-1,"MYSQL CONNECTION ERROR"); 
+            if(DEBUG) print_r(Request::sess("DEBUG"));
+            die; 
+        };
+        @$c->set_charset($tmp->encoding);
         return new Mysql($c,$datasource);
     }
 
