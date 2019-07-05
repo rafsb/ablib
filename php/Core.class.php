@@ -1,5 +1,11 @@
 <?php
+namespace lib;
+
+use IO;
+use Request;
+
 class Core {
+	
 	/* sets or gets information under root/.conf/ folder, each parameter is stored into a separated file
 	 * $f = file
 	 * $v = value // used only for SET case

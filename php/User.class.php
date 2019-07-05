@@ -1,4 +1,11 @@
 <?php
+namespace lib;
+
+use \App;
+use Core;
+use Convert;
+use IO;
+
 class _User_traits
 {
     

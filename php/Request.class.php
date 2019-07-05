@@ -1,4 +1,9 @@
 <?php
+namespace lib;
+
+use Convert;
+use User;
+
 class Request {
     ## perform isertion into $_SESSION array, giving values to new fields
     ## on success case, it returns the given value, else 0 is the answer

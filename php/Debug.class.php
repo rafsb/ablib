@@ -1,4 +1,9 @@
 <?php
+namespace lib;
+
+use User;
+use Request;
+
 class Debug {
 	public static function show(){
 		echo "<br/><pre class='-left -content-left'>";

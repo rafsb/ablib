@@ -1,4 +1,9 @@
 <?php
+namespace lib;
+
+use Convert;
+use Request;
+
 class Mail {
 	public function send($conf=null,$data=null){
 		if(!$data) $data = Request::in();
@@ -62,7 +67,7 @@ class Mail {
 
 			// print_r($data);
 
-			if($stts&&$to&&$subject&&$msgbody&&$headers){ mail($to,$subject,$msgbody,$headers); echo 1; }
+			if($stts&&$to&&$subject&&$msgbody&&$headers){ \mail($to,$subject,$msgbody,$headers); echo 1; }
 			else echo 0;
 		}
 	}

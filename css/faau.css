@@ -138,7 +138,7 @@ body *:not(script):not(style) { font-family: inherit; position: relative; transi
 .-bt{ padding: .5em 2em; border-radius: 3px; border: none; opacity: .8; transition: all .2s; cursor: pointer; font-size: .75em}
 .-bt:hover { opacity: 1; box-shadow: 0 5px 10px rgba(0, 0, 0, .1)}
 .-ellipsis {overflow: hidden; text-overflow: ellipsis; white-space: nowrap}
-.-clamp{ display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;  text-overflow: ellipsis;  }
+.-clamp{ display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orientation: vertical;  text-overflow: ellipsis;  }
 .-spin{
 	animation: spin-kf 4s ease infinite;
 }

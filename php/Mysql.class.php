@@ -1,4 +1,8 @@
 <?php
+namespace lib;
+
+use Convert;
+use Core;
 
 class Mysql {
     

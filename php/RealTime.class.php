@@ -1,4 +1,7 @@
 <?php
+namespace lib;
+
+use IO;
 
 class RealTime extends IO {
     
@@ -8,7 +11,7 @@ class RealTime extends IO {
     private $object_;
 
     private function loadBucket(){
-        return self::jout($this->bucket_)
+        return self::jout($this->bucket_);
     }
 
     public static function connect(String $bucket=DEFAULT_COLLECTION)
@@ -25,6 +28,15 @@ class RealTime extends IO {
         if($reference)
         {   
             $tmp = $this->loadBucket();
+            if(gettype($tmp) == "object")
+            {
+                $obj = $tmp;
+                $reference = explode(DS,$reference);
+                foreach($reference as $ref)
+                {
+                    if(isset())
+                }
+            }
         }
     }
 

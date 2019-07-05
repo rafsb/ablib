@@ -1,4 +1,11 @@
 <?php
+namespace lib;
+
+use Core;
+use Debug;
+use IO;
+use Request;
+
 class Page {
 	protected $argv_ = [];
 
@@ -76,7 +83,10 @@ class Page {
 
 	protected function noVisual(){ $this->layout(false); $this->view(false); }
 
-	protected function result(){ return false; }
+	/*
+	 * @Overridable
+	 */
+	protected function result(){ return $this->result_; }
 
 	protected function allow_access($origin = false){
 		if($origin) $this->allow_access_ = $origin;
@@ -84,7 +94,6 @@ class Page {
 	}
 
 	public function render($argv = []){
-
 
 		$this->argv_ = $this->argv_ ? array_merge($this->argv_,(array)$argv) : (array)$argv;
 		

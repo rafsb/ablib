@@ -1,5 +1,8 @@
 <?php
-class Convert{
+namespace lib;
+
+class Convert {
+    
     // stdobject to array
     public static function otoa($o){
         $r = (array)$o;
