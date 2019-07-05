@@ -10,6 +10,9 @@ class Page {
 
 	protected $allow_access_ = false;
 
+	/*
+	 * @Overridable
+	 */
 	protected function before(){}
 
 	protected function args(){
@@ -70,6 +73,8 @@ class Page {
 		if($this->layout_) $tmp = IO::root() . "webroot" . DS . "views" . DS . "templates" . DS . "layout" . DS . strtolower($this->layout_=="@"?get_called_class():$this->layout_) . ".php";
 		return $this->layout_ ? (is_file($tmp) ? $tmp : Core::response(-1,"Layout file not found: $layout")) : false;
 	}
+
+	protected function noVisual(){ $this->layout(false); $this->view(false); }
 
 	protected function result(){ return false; }
 
