@@ -1,5 +1,5 @@
 <?php
-namespace lib;
+
 
 use Core;
 use Request;

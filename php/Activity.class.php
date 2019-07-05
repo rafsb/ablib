@@ -1,6 +1,4 @@
 <?php
-namespace lib;
-
 use Page;
 use Request;
 

@@ -1,11 +1,4 @@
 <?php
-namespace lib;
-
-use Core;
-use Debug;
-use IO;
-use Request;
-
 class Page {
 	protected $argv_ = [];
 

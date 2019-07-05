@@ -1,10 +1,4 @@
 <?php
-namespace lib;
-
-use Core;
-use Debug;
-use User;
-
 class IO {
 
     public static function root($path=null){ 

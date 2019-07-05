@@ -1,9 +1,5 @@
 <?php
-namespace lib;
-
-use IO;
-
-class RealTime extends IO {
+class RealTime {
     
     private static $rtpath_ = "var".DS."realtime";
     private $bucket_;
@@ -11,33 +7,41 @@ class RealTime extends IO {
     private $object_;
 
     private function loadBucket(){
-        return self::jout($this->bucket_);
+        return IO::jout($this->bucket_);
     }
 
-    public static function connect(String $bucket=DEFAULT_COLLECTION)
+    private function loadRef(String $reference=null)
+    {
+        $tmp = $this->loadBucket();
+        if($reference)
+        {   
+            $obj = $tmp;
+            $reference = explode(DS,$reference);
+            foreach($reference as $ref)
+            {
+                if($ref&&isset($obj->{$ref})) $obj = $obj->{$ref};
+                else Core::response(-1, "invalid reference $ref");
+            }
+            $this->reference_ = $obj;
+            return $obj;
+        }
+        else return $tmp;
+    }
+
+    public static function open(String $bucket=DEFAULT_COLLECTION)
     {
         return new RealTime($bucket);
     }
 
+    public static function ref(String $ref=null, String $bucket=DEFAULT_COLLECTION){
+        return RealTime::open($bucket)->loadRef($ref);
+    }
 
-    public function __construct(String $bucket=DEFAULT_COLLECTION, String $reference=null)
+    public function __construct(String $bucket=DEFAULT_COLLECTION)
     {
-        $root = self::root(self::rtpath_);
-        if(!is_file($root.DS.$bucket)) self::jin($root.DS.$bucket,[]);
-        $this->bucket_ = $bucket;
-        if($reference)
-        {   
-            $tmp = $this->loadBucket();
-            if(gettype($tmp) == "object")
-            {
-                $obj = $tmp;
-                $reference = explode(DS,$reference);
-                foreach($reference as $ref)
-                {
-                    if(isset())
-                }
-            }
-        }
+        $root = IO::root(self::$rtpath_);
+        if(!is_file($root.DS.$bucket)) IO::jin($root.DS.$bucket,[]);
+        $this->bucket_ = self::$rtpath_.DS.$bucket;
     }
 
 }
