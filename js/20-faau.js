@@ -914,7 +914,7 @@ class FAAU {
         if(!field) return false;
         if(!value) return window.localStorage.getItem(field);
         window.localStorage.setItem(field,value);
-        return true;
+        return this;
     }
 
     clip(str){

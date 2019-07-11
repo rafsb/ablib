@@ -1,4 +1,9 @@
 <?php
+
+
+use Core;
+use Request;
+
 class Image
 {
     /*

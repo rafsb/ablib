@@ -1,5 +1,6 @@
 <?php
-class Convert{
+class Convert {
+    
     // stdobject to array
     public static function otoa($o){
         $r = (array)$o;
