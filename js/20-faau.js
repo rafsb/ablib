@@ -146,6 +146,11 @@ Element.prototype.setAttr = function(o=null, fn = null) {
     return this;
 }
 
+Element.prototype.getAttr = function(at=null) {
+    if (at===null) return null;
+    return this.getAttribute(at);
+}
+
 Element.prototype.aft = function(obj=null) {
     if(obj) this.insertAdjacentElement("afterend",obj);
     return this
@@ -514,7 +519,7 @@ HTMLFormElement.prototype.json = function() {
     let
     json = {};
     this.get("input, select, textarea").each(function(i) {
-        if(!this.has('-skip')) json[this.name] = (this.tagName.toUpperCase()=="TEXTAREA"&&this.has("-list") ? this.value.split('\n') : this.value);
+        if(!this.has('-skip')&&this.getAttr("type").toLowerCase()!="submit") json[this.name] = (this.tagName.toUpperCase()=="TEXTAREA"&&this.has("-list") ? this.value.split('\n') : (this.has("-hash") ? this.value.hash() : this.value));
     })
     return json
 };

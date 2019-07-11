@@ -93,7 +93,7 @@ class User
     public static function level($n=0)
     {
         if(!User::logged()) return Core::response(-1, "No user logged");
-        if(App::driver()==DATABASE) return (int)Mysql::cell("Users","alvl")>=$n*1?1:0;
+        if(App::driver()==DATABASE) return (int)Mysql::cell("Users","access_level")>=$n*1?1:0;
         else return _User_traits::find("id",Request::sess("USER"))->level*1 >= $n ? 1 : 0;
     }
 

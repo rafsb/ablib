@@ -131,9 +131,10 @@ img 			{ vertical-align: middle }
 .-zero-bottom { bottom:0; left:0; margin:0; }
 .-ball { border-radius: 50%; min-width: .25em; min-height: .25em; width:1.5em;height:1.5em;margin:.5em;float:left; vertical-align: middle; }
 .-circle { border-radius: 50%; }
-.-input:not([type='button']),select,textarea { font-family:inherit;transition:all .4s;background: transparent; border: none; border-bottom: 2px solid lightgray; padding:.5em; outline:none;}
-.-input:not([type='button'])::placeholder { opacity: .8; }
-.-input:not([type='button']):not(:placeholder-shown) { border-bottom: 2px solid dodgerblue }
+.-input:not([type='button']):not([type='submit']),select,textarea { font-family:inherit;transition:all .4s;background: transparent; border: none; border-bottom: 2px solid lightgray; padding:.5em; outline:none;}
+.-input:not([type='button']):not([type='submit'])::placeholder { opacity: .8; }
+.-input:not([type='button']):not([type='submit']):not(:placeholder-shown) { border-bottom: 2px solid dodgerblue }
+[type='button'],[type='submit']{ cursor: pointer; }
 
 /* BOTOES */
 .-bt{ padding: .5em 2em; border-radius: 3px; border: none; opacity: .8; transition: all .2s; cursor: pointer; font-size: .75em}
