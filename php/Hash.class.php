@@ -41,8 +41,9 @@ class Hash{
 		, "haval256,5"
 	];
 	
-    public static function word($w=null,$h=null,$r=false){ 
-    	return \in_array($h,self::$valid_haxits) ? \hash($h?$h:App::$hash_algo,$w?$w:\uniqid(\rand()),$r) 
+    public static function word($w=null,$h=null,$r=false){
+    	$h = $h ? $h : App::$hash_algo;
+    	return \in_array($h,self::$valid_haxits) ? \hash($h,$w?$w:\uniqid(\rand()),$r) 
     	: "<pre>$h is not a recognized hash, try: <br/><br/>" . \implode("<br/>",self::$valid_haxits); 
     }
 

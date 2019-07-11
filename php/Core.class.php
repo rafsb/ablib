@@ -12,7 +12,7 @@ class Core {
 		$data = ["status"=>$status,"data"=>$data];
 		Request::sess("DEBUG",array_merge(is_array(Request::sess("DEBUG"))?Request::sess("DEBUG"):[],$data));
 		if(DEBUG) Debug::show();
-		return json_encode($data);
+		return $status;
 	}
 	
 	public static function bin($bin,$args=null){

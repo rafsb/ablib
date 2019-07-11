@@ -5,13 +5,22 @@ class _User_traits
     private static function read_all()
     {
         $shadow_file = "var" . DS . "users" . DS . "shadow.json";
-        if(!is_file(IO::root().DS.$shadow_file)) IO::jin($shadow_file,[
+        if(!is_file(IO::root().DS.$shadow_file)) IO::jin($shadow_file,[    
             [
-                "spume_rootuserid"
-                , "admin"
-                , "f10437341ee391ba992146453fc8fbbb226db4bacfe08503d04f89fe7404834b71f92178f0e5129ccf28f5dd185035f733278c2df825abf6da99bfb45aa66d0f"
-                , "src/img/user.svg"
-                , "9"
+                "rootuser"
+                ,"System Administratos"
+                ,"root"
+                ,"b004a78f85f05acdc1eed219f14ee3128f9c9288b4391cfc85eed24a6a1f44c6f75aece4fc6425c5ea39a6ef42daa39a4cfdc18f7476e322d3a582e0736151ad"
+                ,"src\\\/img\\\/user.svg"
+                ,"9"
+            ]
+            , [
+                "publuser"
+                ,"System Tester"
+                ,"public"
+                ,"ae66422aaeefe66a59cee8f28b8cbafb945b13e13f9a5bee7216401ead8c817a2844971fc0191a7e2d9486fd831b4349bd3b26b07366ecd2531d6a989e75947d"
+                ,"src\\\/img\\\/user.svg"
+                ,"0"
             ]
         ]);
         return IO::jout($shadow_file);
@@ -19,17 +28,24 @@ class _User_traits
 
     public static function find($field,$value)
     {
+        //echo $value; die;
+
         $user = null;
         $list =  self::read_all();
-        
+        // print_r($list);die;
+
         if(!$list) return Core::response(-1,"shadow file is empty");
 
-        $fields = ["id","name","pswd","cover","level"];
+        // echo $field; die;
+
+        $fields = ["id","name","user","pswd","cover","level"];
         $field = array_search($field,$fields);
+        // echo $list[0][$field]; die;
 
         if($field===false) return Core::response(-2, "field doesn't exists in context");
 
-        foreach($list as $us) if($us[$field] == $value) $user = Convert::atoo(["id"=>$us[0],"name"=>$us[1], "pswd"=>$us[2], "cover"=>$us[3], "level"=>$us[4]]);
+        // foreach($list as $us) echo "<pre>\n".$us[$field] ."\n". $value . "\n\n"; print_r($list); die;
+        foreach($list as $us) if($us[$field] == $value) $user = Convert::atoo(["id"=>$us[0], "name"=>$us[1], "user"=>$us[2], "pswd"=>$us[3], "cover"=>$us[4], "level"=>$us[5]]);
 
         // print_r($user); die;
 
@@ -48,15 +64,10 @@ class User
         // echo $user . $password; die;
 
         if(!$user||!$password){ Core::response(-1,"user or password missing"); return 0; }
-
-        if(APP::driver()==DATABASE) $tmp = Mysql::count("Users","user='$user' AND pswd='".hash("sha512",$password)."'") ? 1 : 0;
-        else {
-            $tmp = _User_traits::find("name",$user);
-            $tmp = isset($tmp->pswd)&&$tmp->pswd==hash(App::$hash_algo,$password) ? 1 : 0;
-            // echo "<pre>";
-            // echo hash("sha512",$password) . " \n\n " .  _User_traits::find("name",$user)->pswd;
-            // die;
-        }
+        $tmp = _User_traits::find("user",$user);
+        // print_r($tmp);die;
+        // echo "<pre>" . $password . "\n" . $tmp->pswd . "\n" . hash(App::$hash_algo,$password); die;
+        $tmp = isset($tmp->pswd)&&$tmp->pswd==hash(App::$hash_algo,$password) ? $tmp : false;
         return $tmp;
     }
 
@@ -81,7 +92,7 @@ class User
         @\session_write_close();
         @\setcookie(\session_name(),"",0,"/");
         @\session_regenerate_id(true);
-        @\header("Refresh:0");
+        // @\header("Refresh:0");
     }
 
     ## return the code of a logged user, in a casa there"s no logged one, it return 0
@@ -117,23 +128,26 @@ class User
         return json_encode($u);
     }
 
-    public function signin($name=null, $pswd=null)
+    public function signin($user=null, $pswd=null)
     {
-        if(!$name) $name=Request::in("user");
-        if(!$pswd) $pswd=Request::in("pswd");
+        $hash = Request::in("hash");
+        if($hash) $hash = json_decode(base64_decode($hash));
+        if(!$user&&$hash) $user=$hash->user;
+        if(!$pswd&&$hash) $pswd=$hash->pswd;
 
-        if(self::pswd_check($name,$pswd))
+        // echo $user." ".$pswd; die;
+        $user = self::pswd_check($user,$pswd);
+        // print_r($user);die;
+        if($user)
         {
-            $user = _User_traits::find("name",$name);
             if(isset($user->id)){
                 $user = $user->id;
                 Request::sess("USER",$user);
                 Request::cook("USER",$user);
-                Request::cook("ACTIVE",$user,time()+3600);
+                Request::cook("ACTIVE","true",time()+3600);
                 return 1;
-            } else return 0;
-            Debug::show();
+            } else return Core::response(-1, "no id found for user");
         }
-        return 0;
+        return Core::response(0, "incorrect credentials");;
     }
 }
