@@ -10,7 +10,7 @@ class Activity extends Page {
 	protected function before(){
 		$this->argv_ = Request::in();
 		$this->noVisual();
-		$this->result_ = "<h1>empty response</h1>";
+		$this->result_ = "@";
 	}
 
 }

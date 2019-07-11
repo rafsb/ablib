@@ -92,6 +92,7 @@ class IO {
 
         $tmp = explode(DS,$f);
         $tmp = implode(DS,array_slice($tmp,0,sizeof($tmp)-1));
+        
         if(!is_dir($tmp)) mkdir($tmp,0777,true);
         @chmod($tmp,0777);
         $tmp = ($mode == APPEND ? self::read($f) : "") . $content;
