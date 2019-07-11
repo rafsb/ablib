@@ -35,5 +35,5 @@ class App {
 
 	public static function project_name(){ return App::config("project_name"); }
 
-	public static function init(){ (new Home)->render(); }
+	public static function init(){ (new Splash)->render(); }
 }

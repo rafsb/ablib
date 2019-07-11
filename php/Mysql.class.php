@@ -1,5 +1,9 @@
 <?php
 
+
+use Convert;
+use Core;
+
 class Mysql {
     
     private $object_;

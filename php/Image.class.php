@@ -1,4 +1,9 @@
 <?php
+
+
+use Core;
+use Request;
+
 class Image
 {
     /*
@@ -181,7 +186,7 @@ class Image
     public static function upload(){
         $args = request::in();
         $img = new Image($args["name"],$args["path"],8388608,$args["minify"],false);
-        if($img->run()) echo $this->path.$this->newname; else echo $this->log0;
+        if($img->run()) echo $img->path.$img->newname; else echo $img->log0;
     }
 
     public function __construct($n=null,$p=null,$s=8388608,$m=false,$f=false)//name,path,size(max),minify?,force?

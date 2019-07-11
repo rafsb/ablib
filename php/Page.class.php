@@ -10,6 +10,9 @@ class Page {
 
 	protected $allow_access_ = false;
 
+	/*
+	 * @Overridable
+	 */
 	protected function before(){}
 
 	protected function args(){
@@ -71,7 +74,12 @@ class Page {
 		return $this->layout_ ? (is_file($tmp) ? $tmp : Core::response(-1,"Layout file not found: $layout")) : false;
 	}
 
-	protected function result(){ return false; }
+	protected function noVisual(){ $this->layout(false); $this->view(false); }
+
+	/*
+	 * @Overridable
+	 */
+	protected function result(){ return $this->result_; }
 
 	protected function allow_access($origin = false){
 		if($origin) $this->allow_access_ = $origin;
@@ -79,7 +87,6 @@ class Page {
 	}
 
 	public function render($argv = []){
-
 
 		$this->argv_ = $this->argv_ ? array_merge($this->argv_,(array)$argv) : (array)$argv;
 		

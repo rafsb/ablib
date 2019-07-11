@@ -1,27 +1,37 @@
 /* FONTS */
-@font-face { font-family: "Comfortaa-light";  src: url("../../src/fonts/Comfortaa/Light.ttf")  format("truetype"); }
-@font-face { font-family: "Comfortaa";src: url("../../src/fonts/Comfortaa/Regular.ttf")format("truetype"); }
-@font-face { font-family: "Comfortaa-bold";   src: url("../../src/fonts/Comfortaa/Bold.ttf")   format("truetype"); }
-.-confortaa-light  { font-family: 'Comfortaa-light', cursive; }
-.-confortaa		   { font-family: 'Comfortaa', cursive; }
-.-confortaa-bold   { font-family: 'Comfortaa-bold', cursive; }
+@font-face { font-family: "Comfortaa-light";  src: url("../src/fonts/Comfortaa/Light.ttf")  format("truetype"); }
+@font-face { font-family: "Comfortaa";src: url("../src/fonts/Comfortaa/Regular.ttf")format("truetype"); }
+@font-face { font-family: "Comfortaa-bold";   src: url("../src/fonts/Comfortaa/Bold.ttf")   format("truetype"); }
+.-comfortaa-light  { font-family: 'Comfortaa-light', cursive; }
+.-comfortaa		   { font-family: 'Comfortaa', cursive; }
+.-comfortaa-bold   { font-family: 'Comfortaa-bold', cursive; }
 
-@font-face { font-family: "OpenSans-light";  src: url("../../src/fonts/OpenSans/Light.ttf")  format("truetype"); }
-@font-face { font-family: "OpenSans";src: url("../../src/fonts/OpenSans/Regular.ttf")format("truetype"); }
-@font-face { font-family: "OpenSans-bold";   src: url("../../src/fonts/OpenSans/Bold.ttf")   format("truetype"); }
+@font-face { font-family: "OpenSans-light";  src: url("../src/fonts/OpenSans/Light.ttf")  format("truetype"); }
+@font-face { font-family: "OpenSans";src: url("../src/fonts/OpenSans/Regular.ttf")format("truetype"); }
+@font-face { font-family: "OpenSans-bold";   src: url("../src/fonts/OpenSans/Bold.ttf")   format("truetype"); }
 .-opensans-light  { font-family: 'OpenSans-light', cursive; }
 .-opensans{ font-family: 'OpenSans', cursive; }
 .-opensans-bold   { font-family: 'OpenSans-bold', cursive; }
 
-@font-face { font-family: "SourceSans-light";  src: url("../../src/fonts/SourceSans/Light.ttf")  format("truetype"); }
-@font-face { font-family: "SourceSans";src: url("../../src/fonts/SourceSans/Regular.ttf")format("truetype"); }
-@font-face { font-family: "SourceSans-bold";   src: url("../../src/fonts/SourceSans/Bold.ttf")   format("truetype"); }
+@font-face { font-family: "SourceSans-light";  src: url("../src/fonts/SourceSans/Light.ttf")  format("truetype"); }
+@font-face { font-family: "SourceSans";src: url("../src/fonts/SourceSans/Regular.ttf")format("truetype"); }
+@font-face { font-family: "SourceSans-bold";   src: url("../src/fonts/SourceSans/Bold.ttf")   format("truetype"); }
 .-sourcesans-light  { font-family: 'SourceSans-light', cursive; }
 .-sourcesans{ font-family: 'SourceSans', cursive; }
 .-sourcesans-bold   { font-family: 'SourceSans-bold', cursive; }
 
-@font-face { font-family: "Bubbler";          src: url("../../src/fonts/BubblerOne/Regular.ttf") format("truetype"); }
-.-bubblerone { font-family: 'Bubbler', cursive; }
+@font-face { font-family: "BubblerOne"; src: url("../src/fonts/BubblerOne/Regular.ttf") format("truetype"); }
+.-bubblerone { font-family: 'BubblerOne', cursive; }
 
-@font-face { font-family: "Roboto";          src: url("../../src/fonts/Roboto/Light.ttf")format("truetype"); }
-.-roboto { font-family: 'Roboto', cursive; }
+@font-face { font-family: "DancingScript";src: url("../src/fonts/DancingScript/Regular.ttf")format("truetype"); }
+@font-face { font-family: "DancingScript-bold";   src: url("../src/fonts/DancingScript/Bold.ttf")   format("truetype"); }
+.-dancingscript{ font-family: 'DancingScript', cursive; }
+.-dancingscript-bold { font-family: 'DancingScript-bold', cursive; }
+
+@font-face { font-family: "ShadowsIntoLight"; src: url("../src/fonts/ShadowsIntoLight/Regular.ttf") format("truetype"); }
+.-shadowsintolight { font-family: 'ShadowsIntoLight', cursive; }
+
+@font-face { font-family: "Caveat";src: url("../src/fonts/Caveat/Regular.ttf")format("truetype"); }
+@font-face { font-family: "Caveat-bold";   src: url("../src/fonts/Caveat/Bold.ttf")   format("truetype"); }
+.-caveat{ font-family: 'Caveat', cursive; }
+.-caveat-bold { font-family: 'Caveat-bold', cursive; }

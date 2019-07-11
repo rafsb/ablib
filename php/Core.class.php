@@ -1,5 +1,6 @@
 <?php
 class Core {
+	
 	/* sets or gets information under root/.conf/ folder, each parameter is stored into a separated file
 	 * $f = file
 	 * $v = value // used only for SET case
@@ -11,7 +12,7 @@ class Core {
 		$data = ["status"=>$status,"data"=>$data];
 		Request::sess("DEBUG",array_merge(is_array(Request::sess("DEBUG"))?Request::sess("DEBUG"):[],$data));
 		if(DEBUG) Debug::show();
-		return $data;
+		return json_encode($data);
 	}
 	
 	public static function bin($bin,$args=null){
