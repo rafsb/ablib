@@ -17,8 +17,8 @@ class Request {
     ## i.e: cook("user","abox"), is the same as $_SESSION["projectName_user"] = "abox"
     public static function cook($field,$value=null,$time=1000*60*60*30*365){
         //$time+=time();
-        if($value!==null) setcookie(User::logged()."-".$field,$value,$time,"/");
-        return (isset($_COOKIE[User::logged()."-".$field])?$_COOKIE[User::logged()."-".$field]:0);
+        if($value!==null) setcookie($field,$value,$time,"/");
+        return (isset($_COOKIE[$field])?$_COOKIE[$field]:0);
     }
 
     ## reads the $_POST array arguments into the page it"s included, but not all of them, only those inside "obj"

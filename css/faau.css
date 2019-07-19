@@ -116,6 +116,8 @@ img 			{ vertical-align: middle }
 .-pointer-and-spin
 , .-pointer     { transition: all .4s ease; cursor: pointer; transform-origin: center center;opacity: .5, pointer-events: all !important;filter: opacity(.8) }
 .-only-pointer  { transition: all .4s ease; cursor: pointer;pointer-events: all !important; filter:opacity(.8); }
+.-link 			{ cursor: pointer; }
+.-link:hover 	{ text-decoration: underline; font-weight: bolder; }
 .-stroke-pointer{ transition: all .4s ease; cursor: pointer;pointer-events: stroke !important }
 .-pointer:hover { transform: scale(1.2); filter: opacity(1); }
 .-only-pointer:hover { filter: opacity(1); }

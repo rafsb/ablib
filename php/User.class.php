@@ -8,7 +8,7 @@ class _User_traits
         if(!is_file(IO::root().DS.$shadow_file)) IO::jin($shadow_file,[    
             [
                 "rootuser"
-                ,"System Administratos"
+                ,"System Administrator"
                 ,"root"
                 ,"b004a78f85f05acdc1eed219f14ee3128f9c9288b4391cfc85eed24a6a1f44c6f75aece4fc6425c5ea39a6ef42daa39a4cfdc18f7476e322d3a582e0736151ad"
                 ,"src\\\/img\\\/user.svg"
@@ -110,7 +110,7 @@ class User
 
     public static function name()
     {        
-        if(!User::logged()) return Core::response(-1, "no user logged");
+        if(!User::logged()) return Core::response(0, "no user logged");
         return _User_traits::find("id",Request::sess("USER"))->name;
     }
 

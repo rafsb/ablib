@@ -4,6 +4,10 @@ app = {
 	, fw: faau
 	, body: document.getElementsByTagName("body")[0]
 	, get: function(e,w){ return faau.get(e,w||document).nodearray }
+    , declare: function(obj=null,mod=window){
+        if(!obj) return;
+        for(let i in obj){ mod[i] = obj[i] }
+    }
     , onDeviceReady: function(){ this.receivedEvent('deviceready') }
     , receivedEvent: function(id) {
         // var parentElement = document.getElementById(id);

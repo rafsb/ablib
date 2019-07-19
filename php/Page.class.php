@@ -62,6 +62,29 @@ class Page {
 		}else return Core::response(-1, "Template not found!");
 	}
 
+	protected function component($t, $args=[]){
+		$path = IO::root("webroot" . DS . "views" . DS . "components" . DS);
+		if(is_array($t)){
+			$tmp = "";
+			foreach($t as $v) $tmp .= $this->component($v,$args);
+			return $tmp;
+		}
+		if(is_file($path . $t . ".htm" )){
+			$tmp = IO::read($path . $t . ".htm");
+			// print_r($args) ; die;
+			if(sizeof($args)){
+				foreach($args as $k => $v){
+					// echo "<-- " . $k . " = " . $v . "-->";
+					$tmp = str_replace("@".$k, $v, $tmp);
+				}
+			}
+			// echo "<!--";
+			// var_dump($tmp);
+			// echo " -->";
+			return $tmp;
+		}else return Core::response(-1, "Template not found!");
+	}
+
 	protected function view($view = null){
 		if($view!==null) $this->view_ = $view;
 		if($this->view_) $tmp = IO::root() . "webroot" . DS . "views" . DS . strtolower($this->view_=="@"?get_called_class():$this->view_) . ".php";
