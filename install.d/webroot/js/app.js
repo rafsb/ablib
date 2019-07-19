@@ -1,9 +1,12 @@
-var
-app = {
+this.app = {
 	debug: false
 	, fw: faau
 	, body: document.getElementsByTagName("body")[0]
 	, get: function(e,w){ return faau.get(e,w||document).nodearray }
+    , declare: function(obj=null,scope=window){
+        if(!obj) return;
+        for(let i in obj){ scope[i] = obj[i] }
+    }
     , onDeviceReady: function(){ this.receivedEvent('deviceready') }
     , receivedEvent: function(id) {
         // var parentElement = document.getElementById(id);
