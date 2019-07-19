@@ -1,10 +1,2 @@
-#!/bin/bash -e
-
-HERE=$(pwd);
-INST="$HERE/install.d/";
-ROOT="$HERE/../";
-RLIB="$HERE/lib/";
-
-rsync -av $INST $ROOT;
-# mkdir -p $RLIB;
-# rsync -av $HERE $RLIB;
+#!/bin/bash
+cp -rv install.d/* ../;

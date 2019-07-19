@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 this.app = {
+=======
+var
+app = {
+>>>>>>> b3093434dc8a8918f35ac69e813964ec8ce944a5
 	debug: false
 	, fw: faau
 	, body: document.getElementsByTagName("body")[0]

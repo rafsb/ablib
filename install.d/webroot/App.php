@@ -2,16 +2,16 @@
 define("DEBUG", true);
 
 class App {
-    private static $host = "10.150.158.227";
-    private static $username = "spume";
-    private static $passwd = "spume3224$";
-    private static $database = "users";
+    private static $host = "127.0.0.1";
+    private static $username = "root";
+    private static $passwd = "";
+    private static $database = "test";
     private static $encoding = "utf8";
 
     public static $hash_algo = "sha512";
+
     public static $datasources = [
         "default"  => []
-        , "dash"  => [ "database" => "sp_history_dashboard" ]
     ];
 
     public static function connections($datasource=DEFAULT_DB){
@@ -36,5 +36,6 @@ class App {
 
 	public static function project_name(){ return App::config("project_name"); }
 
-	public static function init(){ if(User::logged()) (new Dash)->render(); else (new Login)->render(); }
+	public static function init(){ (new Splash)->render(); }
+
 }
