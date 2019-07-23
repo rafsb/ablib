@@ -219,6 +219,9 @@ String.prototype.hash = function() {
     return Math.abs(h).toString();
 };
 
+String.prototype.uri = function(){
+    return this.replace(/[^a-zA-Z0-9]/g,'_')
+}
 // returns a String encrypted, ex.: "rafael".hash()
 String.prototype.json = function() {
     let
@@ -364,6 +367,14 @@ Array.prototype.clone = function() {
 };
 
 Array.prototype.each = function(fn) { if(fn) { for(let i=0;i++<this.length;) fn.bind(this[i-1])(i-1); } return this }
+
+Array.prototype.dehydrate = function(fn=null){
+    if(!fn||!this.length) return this;
+    let
+    narr = [];
+    this.each(function(){ narr.push(fn.bind(this)()) });
+    return narr;
+};
 
 Array.prototype.calc = function(type=SUM){
     let
@@ -939,6 +950,16 @@ class FAAU {
         if(!value) return window.localStorage.getItem(field);
         window.localStorage.setItem(field,value);
         return true;
+    }
+
+    download(uri=null,name="default"){
+        let
+        link = document.createElement("a");
+        link.download = name;
+        link.href = uri;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     constructor(wrapper,context) {

@@ -16,6 +16,9 @@
 @font-face { font-family: "BubblerOne"; src: url("../../src/fonts/BubblerOne/Regular.ttf") format("truetype"); }
 .-bubblerone { font-family: 'BubblerOne', cursive; }
 
+@font-face { font-family: "Roboto-light"; src: url("../../src/fonts/Roboto/Light.ttf") format("truetype"); }
+.-roboto-light { font-family: 'Roboto-light', cursive; }
+
 @font-face { font-family: "DancingScript";src: url("../../src/fonts/DancingScript/Regular.ttf")format("truetype"); }
 @font-face { font-family: "DancingScript-bold";   src: url("../../src/fonts/DancingScript/Bold.ttf")   format("truetype"); }
 .-dancingscript{ font-family: 'DancingScript', cursive; }
