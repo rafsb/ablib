@@ -670,6 +670,7 @@ class Pool {
 }
 
 class Swipe {
+
     constructor(el,len=24) {
         this.len = len;
         this.x = null;
