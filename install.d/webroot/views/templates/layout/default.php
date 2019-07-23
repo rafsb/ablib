@@ -69,7 +69,7 @@ header('Content-Type: text/html; charset=UTF-8',true);?>
         <title><?=App::project_name()?></title>
 
     </head>
-    <body class='-row -zero -content-center -confortaa'>
+    <body class='-view -zero -content-center -opensans-light' style="background-image: linear-gradient(to right bottom, #323232, #323232, #626262)">
 
         <?php
         $load = $this->view() ? $this->view() : IO::root() . "/webroot/views/" . strtolower(get_called_class()) . ".php";
@@ -78,12 +78,6 @@ header('Content-Type: text/html; charset=UTF-8',true);?>
         else if(DEBUG) Debug::show();?>
         
     </body>
-    
-    <!-- The core Firebase JS SDK is always required and must be listed first -->
-    <!-- <script src="/__/firebase/6.1.1/firebase-app.js"></script> -->
-    <!-- TODO: Add SDKs for Firebase products that you want to use https://firebase.google.com/docs/web/setup#reserved-urls -->
-    <!-- Initialize Firebase -->
-    <!-- <script src="/__/firebase/init.js"></script> -->
 
     <script type="text/javascript">
         /* Firebase support */

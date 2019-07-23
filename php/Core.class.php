@@ -1,5 +1,6 @@
 <?php
 class Core {
+	
 	/* sets or gets information under root/.conf/ folder, each parameter is stored into a separated file
 	 * $f = file
 	 * $v = value // used only for SET case
@@ -10,8 +11,8 @@ class Core {
 	public static function response($status,$data){
 		$data = ["status"=>$status,"data"=>$data];
 		Request::sess("DEBUG",array_merge(is_array(Request::sess("DEBUG"))?Request::sess("DEBUG"):[],$data));
-		//if(DEBUG) print_r(Request::sess("DEBUG"));
-		return $data;
+		if(DEBUG) Debug::show();
+		return $status;
 	}
 	
 	public static function bin($bin,$args=null){

@@ -1,5 +1,5 @@
 <?php
-define("DEBUG", false);
+define("DEBUG", true);
 
 class App {
     private static $host = "127.0.0.1";
@@ -8,9 +8,10 @@ class App {
     private static $database = "test";
     private static $encoding = "utf8";
 
-	static $datasources = [
+    public static $hash_algo = "sha512";
+
+    public static $datasources = [
         "default"  => []
-        , "dash"  => [ "database" => "sp_history_dashboard" ]
     ];
 
     public static function connections($datasource=DEFAULT_DB){
@@ -23,7 +24,7 @@ class App {
             if(!isset($tmp["encoding"])) $tmp["encoding"] = self::$encoding;
         }
         return $tmp;
-   }
+    }
 
 	public static  function config($field=null){
 		$_CONFIG = IO::jout("/etc/project.json");
@@ -35,5 +36,6 @@ class App {
 
 	public static function project_name(){ return App::config("project_name"); }
 
-	public static function init(){ (new Home)->render(); }
+	public static function init(){ (new Splash)->render(); }
+
 }

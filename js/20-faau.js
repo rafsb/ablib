@@ -16,7 +16,8 @@ RESPONSIVE_TRESHOLD = 1366
 , SUM       = 0
 , MEDIAN    = 1
 , HARMONIC  = 2
-, REMOVE    = true;
+, REMOVE    = true
+;
 
 HTMLInputElement.prototype.up = function(name, path, fn=null, mini=false) {
     let
@@ -196,7 +197,8 @@ Element.prototype.index = function() {
 }
 
 Element.prototype.evalute = function() {
-    this.get("script").each((x)=>{ eval(x.textContent) })
+    this.get("script").each(function(){ eval(this.textContent) })
+    return this
 };
 
 HTMLInputElement.prototype.setValue = function(v="") {
@@ -238,6 +240,18 @@ String.prototype.morph = function() {
     x.innerHTML = this.replace(/\t+/g, "").trim();
     return x.firstChild;
 };
+
+String.prototype.prepare = function(obj=null){
+    if(!obj) return this;
+    let
+    str = this;
+    for(i in obj){
+        let
+        rgx = new RegExp("@"+i,"g");
+        str = str.replace(rgx,obj[i])
+    }
+    return str
+}
 
 Element.prototype.on = function(action,fn,passive=true) {
     this.addEventListener(action,fn, {passive:passive})
@@ -436,6 +450,10 @@ NodeList.prototype.each = function(fn) {
     return this
 };
 
+NodeList.prototype.appear = function(len=null) {
+    this.each(function() { this.appear(len) })
+};
+
 NodeList.prototype.desappear = function(len=null,rem=null) {
     this.each(function() { this.desappear(len,rem) })
 };
@@ -520,6 +538,14 @@ HTMLFormElement.prototype.json = function() {
         }
     })
     return json
+};
+
+HTMLFormElement.prototype.appear = function(len=null) {
+    this.each(function() { this.appear(len) })
+};
+
+HTMLFormElement.prototype.desappear = function(len=null,rem=null) {
+    this.each(function() { this.desappear(len,rem) })
 };
 
 Object.defineProperty(Object.prototype, "spy", {
@@ -633,7 +659,7 @@ class Pool {
 }
 
 class Swipe {
-    constructor(el,len=128) {
+    constructor(el,len=24) {
         this.len = len;
         this.x = null;
         this.y = null;
@@ -760,14 +786,14 @@ class FAAU {
     load(url, args=null, element=null, fn=false, sync=false) {
     	this.call(url, args, function(target=element) {
     		let r;
-            if(this.status==200) r = this.data.morph();
+            if(this.status==200) r = this.data.morph().evalute();
             else return DEBUG ? faau.error("error loading "+url) : null;
             if(!r.id) r.id = faau.nuid();
-    		let
-    		tmp = r.get("script");
+    		// let
+    		// tmp = r.get("script");
     		if(!target) target = faau.get('body')[0];
             target.app(r);
-    		if(tmp.length) for(let i=0;i++<tmp.length;) { eval(tmp[i-1].textContent); }
+    		// if(tmp.length) for(let i=0;i++<tmp.length;) { eval(tmp[i-1].textContent); }
     		if(fn) fn.bind(r)();
             // else faau.get("#"+r.id).first().anime({opacity:1},600);
     	}, sync);
@@ -775,7 +801,7 @@ class FAAU {
 
 	get(el,scop=null) { return scop ? scop.querySelectorAll(el) : this.nodes.querySelectorAll(el); }
 
-	nuid(n=8) { let a = "FA"; n-=2; while(n-->0) { a+="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('')[parseInt((Math.random()*36)%36)]; } return a; }
+	nuid(n=8) { let a = "FA"; n-=2; while(n-->0) { a+="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('')[parseInt((Math.random()*36)%36)] } return a }
 
     notify(n, c=null) {
         let
@@ -881,7 +907,7 @@ class FAAU {
         $('body')[0].app(toast);
     }
 
-    apply(fn,obj=null) { return (fn ? fn(obj) : null) }
+    apply(fn,obj=null) { return (fn ? fn.bind(this)(obj) : null) }
 
     get(w=null,c=null) { this.nodearray = $(w,c); return this }
 
