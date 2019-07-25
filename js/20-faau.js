@@ -348,8 +348,7 @@ Element.prototype.move = function(obj,len=ANIMATION_LENGTH, anim="linear") {
 }
 
 Element.prototype.appear = function(len = ANIMATION_LENGTH) {
-    this.setStyle({transition:"none",display:'inline', opacity:0});
-    this.anime({opacity:1},len);
+    this.setStyle({display:'inline-block', opacity:0}, function(){ this.anime({opacity:1},len) });
 }
 
 Element.prototype.desappear = function(len = ANIMATION_LENGTH, remove = false) {
@@ -372,7 +371,11 @@ Array.prototype.dehydrate = function(fn=null){
     if(!fn||!this.length) return this;
     let
     narr = [];
-    this.each(function(){ narr.push(fn.bind(this)()) });
+    this.each(function(){ 
+        let
+        x = fn.bind(this)();
+        if(x) narr.push(x) 
+    });
     return narr;
 };
 
