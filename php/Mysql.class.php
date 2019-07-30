@@ -1,6 +1,6 @@
 <?php
 class Mysql {
-    
+
     private $object_;
     private $database_;
     private $operation_;
@@ -78,18 +78,17 @@ class Mysql {
     public function query($response_type=__ARRAY__) {
         $tmp = [];
         $data = [];
-        
-        $this->query_ = 
-            $this->operation_ 
+        $this->query_ =
+            $this->operation_
             . " " . ($this->operation_ == "SELECT" ? $this->fields_ : ($this->operation_ == "UPDATE" ? $this->tables_ : "CASE DELETE"))
             . ($this->operation_ == "SELECT" ? " FROM " : ($this->operation_ == "UPDATE" ? " SET " : "CASE DELETE"))
             . " " . ($this->operation_ == "SELECT" ?  $this->tables_ : ($this->operation_ == "UPDATE" ? $this->attributes_ : "CASE DELETE"))
             . " " . ($this->restrictions_ ? "WHERE " . $this->restrictions_ : "")
             . " " . ($this->operation_ == "SELECT" && $this->order_ ? "ORDER BY " . $this->order_ : "");
-        
+
         // echo $this->query_;
 
-        $tmp = $this->object_ ? $this->object_->query($this->query_) : null;        
+        $tmp = $this->object_ ? $this->object_->query($this->query_) : null;
 
         if(gettype($tmp) == "object" && $tmp->num_rows){
             switch($response_type){
