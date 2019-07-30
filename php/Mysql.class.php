@@ -1,9 +1,4 @@
 <?php
-
-
-use Convert;
-use Core;
-
 class Mysql {
     
     private $object_;
@@ -43,7 +38,7 @@ class Mysql {
         }
         else if(gettype($tables)=="string") $this->tables_ = ($this->database_ ? $this->database_."." : "") . $tables;
         else $this->tables_ = " ERR{NO_TABLE} ";
-        $this->table_ = $this->object_->real_escape_string($this->table_);
+        $this->tables_ = $this->object_->real_escape_string($this->tables_);
         return $this;
     }
 
