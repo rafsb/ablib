@@ -16,7 +16,7 @@ class Mysql {
         if(is_array($fields)&&sizeof($fields)) $this->fields_ = " ".implode(",",$fields)." ";
         else if(gettype($fields)=="string") $this->fields_ = $fields;
         else $this->fields_ = " * ";
-        $this->fields_ = $this->object_->real_escape_string($this->fields_);
+        // $this->fields_ = $this->object_->real_escape_string($this->fields_);
         return $this;
     }
 
@@ -25,7 +25,7 @@ class Mysql {
         $this->operation_ = "UPDATE";
         if($table) $this->tables_ = ($this->database_ ? $this->database_."." : "") . $table;
         else $this->tables_ = " ERR{NO_TABLE} ";
-        $this->tables_ = $this->object_->real_escape_string($this->tables_);
+        // $this->tables_ = $this->object_->real_escape_string($this->tables_);
         return $this;
     }
 
@@ -38,7 +38,7 @@ class Mysql {
         }
         else if(gettype($tables)=="string") $this->tables_ = ($this->database_ ? $this->database_."." : "") . $tables;
         else $this->tables_ = " ERR{NO_TABLE} ";
-        $this->tables_ = $this->object_->real_escape_string($this->tables_);
+        // $this->tables_ = $this->object_->real_escape_string($this->tables_);
         return $this;
     }
 
@@ -47,19 +47,22 @@ class Mysql {
         if(sizeof($attributes)){
             $this->attributes_ = [];
             foreach($attributes as $k=>$v) $this->attributes_[] = $k."='".$v."'";
-            $this->attributes_ = $this->object_->real_escape_string(implode(",", $this->attributes_));
+            // $this->attributes_ = $this->object_->real_escape_string(implode(",", $this->attributes_));
+            $this->attributes_ = implode(",", $this->attributes_);
         }
         else $this->attributes_ = " ERR{NO_ATTRIBUTES} ";
         return $this;
     }
 
     public function where(String $restrictions=""){
-        $this->restrictions_ = $this->object_->real_escape_string($restrictions);
+        // $this->restrictions_ = $this->object_->real_escape_string($restrictions);
+        $this->restrictions_ = $restrictions;
         return $this;
     }
 
     public function order(String $order=""){
-        $this->order_ = $this->object_->real_escape_string($order);
+        // $this->order_ = $this->object_->real_escape_string($order);
+        $this->order_ = $order;
         return $this;
     }
 
@@ -88,7 +91,7 @@ class Mysql {
 
         // echo $this->query_;
 
-        $tmp = $this->object_ ? $this->object_->query($this->query_) : null;
+        $tmp = $this->object_ ? $this->object_->query(implode('{{ NO COMMENTS ALLOWED }}',explode('--',$this->query_))) : null;
 
         if(gettype($tmp) == "object" && $tmp->num_rows){
             switch($response_type){
@@ -99,7 +102,7 @@ class Mysql {
                 case(__MYSQLI_OBJ__): { $data = $tmp; }                                                                            break;
             }
         }
-        Core::response(100,$this->query_);
+        Core::response(mysqli_connect_errno(),$this->object_->error . $this->query_);
         return $data;
     }
 
