@@ -592,7 +592,6 @@ Object.defineProperty(Object.prototype, "unspy", {
 //  \___|_|\__,_|___/___/\___||___/
 //
 
-
 class Pool {
     add(x=null,v=null) {
         if(x) {
@@ -630,17 +629,21 @@ class Pool {
     }
 
     plus(t=0) { return this.at(this.moment +t) }
-    fire() {
+    fire(x=null) {
+        if(typeof x == "function"){
+            this.add(x,this.moment+1);
+            x=null
+        }
         let
-        pool = this;
+        pool=this;
         this.execution.each(function(i){ 
-            if(typeof this == 'function') setTimeout(this,pool.moment+1,pool.setup);
+            pool.timeserie[i] = setTimeout(this, pool.timeline[i], x, pool.setup);
         });
         return this
     }
     stop(i=null) {
         if(i!==null) { if(this.timeserie[i]) clearInterval(this.timeserie[i]) }
-        else this.timeserie.each((i,x)=>{ clearInterval(x) })
+        else this.timeserie.each(function(){ clearInterval(this) })
         return this
     }
     clear() {
@@ -671,7 +674,6 @@ class Pool {
         return this.add(x)
     }
 }
-
 class Swipe {
 
     constructor(el,len=24) {

@@ -1,7 +1,4 @@
 <?php
-use Page;
-use Request;
-
 class Activity extends Page {
 	
 	/*
