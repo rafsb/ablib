@@ -54,7 +54,7 @@ class _User_traits
 
 }
 
-class User
+class User extends Activity
 {
     /*
      * PRIVATE
@@ -149,6 +149,10 @@ class User
             } else return Core::response(-1, "no id found for user");
         }
         return Core::response(0, "incorrect credentials");;
+    }
+
+    public function dash(){
+        include IO::read($this->view("@"));
     }
     
 }
