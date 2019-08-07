@@ -1,4 +1,9 @@
 <?php
+define("PUBLIC", 0);
+define("STANDARD", 0);
+define("EDITOR", 2);
+define("MANAGER",3);
+define("ADMIN",  4);
 class _User_traits
 {
     
@@ -7,7 +12,7 @@ class _User_traits
         $shadow_file = "var" . DS . "users" . DS . "shadow.json";
         if(!is_file(IO::root().DS.$shadow_file)) IO::jin($shadow_file,[    
             [
-                "rootuser"
+                "root_user"
                 ,"System Administrator"
                 ,"root"
                 ,"b004a78f85f05acdc1eed219f14ee3128f9c9288b4391cfc85eed24a6a1f44c6f75aece4fc6425c5ea39a6ef42daa39a4cfdc18f7476e322d3a582e0736151ad"
@@ -15,7 +20,7 @@ class _User_traits
                 ,"9"
             ]
             , [
-                "publuser"
+                "public_user"
                 ,"System Tester"
                 ,"public"
                 ,"ae66422aaeefe66a59cee8f28b8cbafb945b13e13f9a5bee7216401ead8c817a2844971fc0191a7e2d9486fd831b4349bd3b26b07366ecd2531d6a989e75947d"
@@ -67,7 +72,8 @@ class User extends Activity
         $tmp = _User_traits::find("user",$user);
         // print_r($tmp);die;
         // echo "<pre>" . $password . "\n" . $tmp->pswd . "\n" . hash(App::$hash_algo,$password); die;
-        $tmp = isset($tmp->pswd)&&$tmp->pswd==hash(App::$hash_algo,$password) ? $tmp : false;
+        // echo $tmp->pswd ."\n\n\n". hash(App::config("hash_algorithm"),$password); die;
+        $tmp = isset($tmp->pswd)&&$tmp->pswd==hash(App::config("hash_algorithm"),$password) ? $tmp : false;
         return $tmp;
     }
 
@@ -103,8 +109,8 @@ class User extends Activity
 
     public static function level($n=0)
     {
-        if(!User::logged()) return Core::response(-1, "No user logged");
-        if(App::driver()==DATABASE) return (int)Mysql::cell("Users","access_level")>=$n*1?1:0;
+        if(!User::logged()) return Core::response(0, "no user logged");
+        if(App::driver()==DATABASE) return (int)Mysql::cell("Users","access_level")>=$n*1 ? 1 : 0;
         else return _User_traits::find("id",Request::sess("USER"))->level*1 >= $n ? 1 : 0;
     }
 
@@ -152,7 +158,7 @@ class User extends Activity
     }
 
     public function dash(){
-        include IO::read($this->view("@"));
+        include $this->view("@");
     }
     
 }
