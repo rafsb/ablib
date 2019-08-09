@@ -1,41 +1,50 @@
 <?php
-define("DEBUG", true);
+define("DEBUG",  false);
 
 class App {
-    private static $host = "127.0.0.1";
-    private static $username = "root";
-    private static $passwd = "";
-    private static $database = "test";
-    private static $encoding = "utf8";
+    private static $config = [
+        "devel"                     => "Spume DEV Team"
+        , "project_name"            => "SpumeMobileApi"
+        , "driver"                  => DISK
+        , "get_config_min_level"    => MANAGER
+        , "hash_algorithm"          => SHA512
+        , "database_credentials"    => [
+            "host"      => "127.0.0.1"
+            , "username"  => "root"
+            , "passwd"    => "root"
+            , "database"  => "test"
+            , "encoding"  => "utf8"
+        ]
+    ];
 
-    public static $hash_algo = "sha512";
-
-    public static $datasources = [
+    private static $datasources = [
+        
         "default"  => []
+        
     ];
 
     public static function connections($datasource=DEFAULT_DB){
         $tmp = isset(self::$datasources[$datasource]) ? self::$datasources[$datasource] : [];
-        if($tmp){
-            if(!isset($tmp["host"]))     $tmp["host"]     = self::$host;
-            if(!isset($tmp["username"])) $tmp["username"] = self::$username;
-            if(!isset($tmp["passwd"]))   $tmp["passwd"]   = self::$passwd;
-            if(!isset($tmp["database"])) $tmp["database"] = self::$database;
-            if(!isset($tmp["encoding"])) $tmp["encoding"] = self::$encoding;
-        }
+        if(!isset($tmp["host"]))     $tmp["host"]     = self::config["database_credentials"][$host];
+        if(!isset($tmp["username"])) $tmp["username"] = self::config["database_credentials"][$username];
+        if(!isset($tmp["passwd"]))   $tmp["passwd"]   = self::config["database_credentials"][$passwd];
+        if(!isset($tmp["database"])) $tmp["database"] = self::config["database_credentials"][$database];
+        if(!isset($tmp["encoding"])) $tmp["encoding"] = self::config["database_credentials"][$encoding];
         return $tmp;
     }
 
+    public function driver($drv=null){
+        return $drv ? ($drv==self::config("driver") ? true : false) : self::config("driver");
+    }
+    
 	public static  function config($field=null){
-		$_CONFIG = IO::jout("/etc/project.json");
-		if($field && isset($_CONFIG->{$field})) return $_CONFIG->{$field};
-		return $_CONFIG;
+		if($field && isset(self::$config[$field])) return self::$config[$field];
+		return User::level(self::$config["get_config_min_level"]) ? self::$config : null;
 	}
 
 	public static function devel(){ return App::config("developer"); }
 
 	public static function project_name(){ return App::config("project_name"); }
 
-	public static function init(){ (new Splash)->render(); }
-
+	public static function init(){ if(User::logged()) (new Dash)->render(); else (new Login)->render(); }
 }
