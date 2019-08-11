@@ -56,6 +56,11 @@ HTMLInputElement.prototype.up = function(name, path, fn=null, mini=false) {
     xhr.send(form);
 }
 
+HTMLInputElement.prototype.setValue = function(v="") {
+    this.value = v;
+    return this
+}
+
 Element.prototype.anime = function(obj,len=ANIMATION_LENGTH,delay=0,fn=null,trans=null) {
     len/=1000;
     trans = trans ? trans : "ease";
@@ -201,61 +206,6 @@ Element.prototype.evalute = function() {
     return this
 };
 
-HTMLInputElement.prototype.setValue = function(v="") {
-    this.value = v;
-    return this
-}
-
-// returns a String encrypted, ex.: "rafael".hash()
-String.prototype.hash = function() {
-    let
-    h = 0, c = "", i = 0, j = this.length;
-    if (!j) return h;
-    while (i++ < j) {
-        c = this.charCodeAt(i - 1);
-        h = ((h << 5) - h) + c;
-        h |= 0;
-    }
-    return Math.abs(h).toString();
-};
-
-String.prototype.uri = function(){
-    return this.replace(/[^a-zA-Z0-9]/g,'_')
-}
-// returns a String encrypted, ex.: "rafael".hash()
-String.prototype.json = function() {
-    let
-    result = null;
-    try{
-        result = JSON.parse(this);
-    } catch(e) {
-        // statements
-        console.log(e);
-    }
-    return result;
-};
-
-/*
-==> Transmute an ordinary string into an html elemnt */
-String.prototype.morph = function() {
-    let
-    x = document.createElement("div");
-    x.innerHTML = this.replace(/\t+/g, "").trim();
-    return x.firstChild;
-};
-
-String.prototype.prepare = function(obj=null){
-    if(!obj) return this;
-    let
-    str = this;
-    for(i in obj){
-        let
-        rgx = new RegExp("@"+i,"g");
-        str = str.replace(rgx,obj[i])
-    }
-    return str
-}
-
 Element.prototype.on = function(action,fn,passive=true) {
     this.addEventListener(action,fn, {passive:passive})
     return this
@@ -361,6 +311,57 @@ Element.prototype.at = function(i=0) {
     return this.nodearray.at(i)
 };
 
+
+// returns a String encrypted, ex.: "rafael".hash()
+String.prototype.hash = function() {
+    let
+    h = 0, c = "", i = 0, j = this.length;
+    if (!j) return h;
+    while (i++ < j) {
+        c = this.charCodeAt(i - 1);
+        h = ((h << 5) - h) + c;
+        h |= 0;
+    }
+    return Math.abs(h).toString();
+};
+
+String.prototype.uri = function(){
+    return this.replace(/[^a-zA-Z0-9]/g,'_')
+}
+// returns a String encrypted, ex.: "rafael".hash()
+String.prototype.json = function() {
+    let
+    result = null;
+    try{
+        result = JSON.parse(this);
+    } catch(e) {
+        // statements
+        console.log(e);
+    }
+    return result;
+};
+
+/*
+==> Transmute an ordinary string into an html elemnt */
+String.prototype.morph = function() {
+    let
+    x = document.createElement("div");
+    x.innerHTML = this.replace(/\t+/g, "").trim();
+    return x.firstChild;
+};
+
+String.prototype.prepare = function(obj=null){
+    if(!obj) return this;
+    let
+    str = this;
+    for(i in obj){
+        let
+        rgx = new RegExp("@"+i,"g");
+        str = str.replace(rgx,obj[i])
+    }
+    return str
+}
+
 Array.prototype.clone = function() {
     return this.slice(0);
 };
@@ -397,45 +398,6 @@ Array.prototype.last = function() { return this.length ? this[this.length-1] : n
 Array.prototype.first = function() { return this.length ? this[0] : null; }
 
 Array.prototype.at = function(n=0) { return this.length>=n ? this[n] : null; }
-
-Array.prototype.setStyle = function(obj,fn=null) {
-    this.each(function() {this.setStyle(obj,fn)});
-    return this
-}
-
-Array.prototype.setData = function(txt,fn=null) {
-    this.each(function() {this.setData(txt,fn)});
-    return this
-}
-
-Array.prototype.setText = function(obj,fn=null) {
-    this.each(function() {this.setText(obj,fn)});
-    return this
-}
-
-Array.prototype.addClass = function(cl=null) {
-    if(cl) this.each(function() {this.addClass(cl)});
-    return this
-}
-
-Array.prototype.remClass = function(cl=null) {
-    if(cl) this.each(function() {this.remClass(cl)});
-    return this
-}
-
-Array.prototype.toggleClass = function(cl=null) {
-    if(cl) this.each(function() {this.toggleClass(cl)});
-    return this
-}
-
-Array.prototype.remove = function() {
-    this.each(function() {this.parentElement.removeChild(x)});
-    return this
-}
-Array.prototype.setValue = function(v='') {
-    this.each(function(){this.value=v});
-    return this
-}
 
 Array.prototype.stringify = function() {
     return JSON.stringify(this);
@@ -584,6 +546,14 @@ Object.defineProperty(Object.prototype, "unspy", {
         this[prop] = val;
     }
 });
+
+hash = function(obj){
+    switch(typeof obj){
+        case "object" || "array" : return btoa(JSON.stringify(obj));    break;
+        case "string" : return btoa(obj);                               break;
+        default : return ""; break;
+    }
+}
 
 //       _
 //   ___| | __ _ ___ ___  ___  ___
@@ -1003,8 +973,7 @@ try{
 }catch(e) { console.log(e) }
 
 window.onmousemove = (e) => mouseAxis = { x: e.clientX, y: e.clientY }
-
-window.onresize = function() { ENV.w = window.innerWidth; ENV.h = window.innerHeight;  }
+window.onresize = function() { ENV.w = window.innerWidth; ENV.h = window.innerHeight; }
 
 var
 mouseAxis = { x:0, y:0 },

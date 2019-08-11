@@ -5,7 +5,7 @@ class _User_traits
     private static function read_all()
     {
         $shadow_file = "var" . DS . "users" . DS . "shadow.json";
-        if(!is_file(IO::root().DS.$shadow_file)) IO::jin($shadow_file,[    
+        if(!is_file(IO::root().DS.$shadow_file)) IO::jin($shadow_file, [
             [
                 "rootuser"
                 ,"System Administrator"
@@ -15,7 +15,7 @@ class _User_traits
                 ,"9"
             ]
             , [
-                "publuser"
+                "pubuser"
                 ,"System Tester"
                 ,"public"
                 ,"ae66422aaeefe66a59cee8f28b8cbafb945b13e13f9a5bee7216401ead8c817a2844971fc0191a7e2d9486fd831b4349bd3b26b07366ecd2531d6a989e75947d"
@@ -36,10 +36,7 @@ class _User_traits
 
         if(!$list) return Core::response(-1,"shadow file is empty");
 
-        // echo $field; die;
-
-        $fields = ["id","name","user","pswd","cover","level"];
-        $field = array_search($field,$fields);
+        $field = array_search($field,["id","name","user","pswd","cover","level"]);
         // echo $list[0][$field]; die;
 
         if($field===false) return Core::response(-2, "field doesn't exists in context");
@@ -81,9 +78,9 @@ class User
     public static function logoff()
     {
         if(!User::logged()) return;
-        request::sess("USER",false);
-        request::cook("USER",false);
-        request::cook("ACTIVE",false);
+        Request::sess("USER",false);
+        Request::cook("USER",false);
+        Request::cook("ACTIVE",false);
         @\setcookie("USER","",0,"/");
         @\setcookie("ACTIVE","",0,"/");
         @\session_start();
@@ -128,16 +125,15 @@ class User
         return json_encode($u);
     }
 
-    public function signin($user=null, $pswd=null)
+    public function signin($hash=null)
     {
-        $hash = Request::in("hash");
-        if($hash) $hash = json_decode(base64_decode($hash));
-        if(!$user&&$hash) $user=$hash->user;
-        if(!$pswd&&$hash) $pswd=$hash->pswd;
+        $hash = Convert::base($hash ? $hash : Request::in("hash"));
 
-        // echo $user." ".$pswd; die;
-        $user = self::pswd_check($user,$pswd);
-        // print_r($user);die;
+        if(!isset($hash->user)) return Core::response(-1, "no user given");        
+        if(!isset($hash->pswd)) return Core::response(-2, "no password given");
+
+        $user = self::pswd_check($hash->user, $hash->pswd);
+        
         if($user)
         {
             if(isset($user->id)){
@@ -146,7 +142,7 @@ class User
                 Request::cook("USER",$user);
                 Request::cook("ACTIVE","true",time()+3600);
                 return 1;
-            } else return Core::response(-1, "no id found for user");
+            } else return Core::response(-3, "no id found for user");
         }
         return Core::response(0, "incorrect credentials");;
     }
