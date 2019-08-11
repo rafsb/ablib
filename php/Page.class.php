@@ -93,7 +93,7 @@ class Page {
 
 	protected function layout($layout = null){
 		if($layout!==null) $this->layout_ = $layout;
-		if($this->layout_) $tmp = IO::root() . "webroot" . DS . "views" . DS . "templates" . DS . "layout" . DS . strtolower($this->layout_=="@"?get_called_class():$this->layout_) . ".php";
+		if($this->layout_) $tmp = IO::root() . "webroot" . DS . "views" . DS . "layouts" . DS . strtolower($this->layout_=="@"?get_called_class():$this->layout_) . ".php";
 		return $this->layout_ ? (is_file($tmp) ? $tmp : Core::response(-1,"Layout file not found: $layout")) : false;
 	}
 

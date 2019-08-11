@@ -773,16 +773,12 @@ class FAAU {
     load(url, args=null, element=null, fn=false, sync=false) {
     	this.call(url, args, function(target=element) {
     		let r;
-            if(this.status==200) r = this.data.morph().evalute();
+            if(this.status==200) r = this.data.morph();
             else return DEBUG ? faau.error("error loading "+url) : null;
             if(!r.id) r.id = faau.nuid();
-    		// let
-    		// tmp = r.get("script");
     		if(!target) target = faau.get('body')[0];
-            target.app(r);
-    		// if(tmp.length) for(let i=0;i++<tmp.length;) { eval(tmp[i-1].textContent); }
+            target.empty().app(r).evalute();
     		if(fn) fn.bind(r)();
-            // else faau.get("#"+r.id).first().anime({opacity:1},600);
     	}, sync);
     }
 

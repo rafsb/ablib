@@ -74,53 +74,55 @@ class Mysql {
         return sizeof($this->select()->from($table)->where($restrictions)->query(__ARRAY__));
     }
 
-    public function exists(String $table, String $restrictions){
-        return $this->count($table, $restrictions);
-    }
+    	public function exists(String $table, String $restrictions)
+	{
+        	return $this->count($table, $restrictions);
+	}
 
-    public function query($response_type=__ARRAY__) {
-        $tmp = [];
-        $data = [];
-        $this->query_ =
-            $this->operation_
-            . " " . ($this->operation_ == "SELECT" ? $this->fields_ : ($this->operation_ == "UPDATE" ? $this->tables_ : "CASE DELETE"))
-            . ($this->operation_ == "SELECT" ? " FROM " : ($this->operation_ == "UPDATE" ? " SET " : "CASE DELETE"))
-            . " " . ($this->operation_ == "SELECT" ?  $this->tables_ : ($this->operation_ == "UPDATE" ? $this->attributes_ : "CASE DELETE"))
-            . " " . ($this->restrictions_ ? "WHERE " . $this->restrictions_ : "")
-            . " " . ($this->operation_ == "SELECT" && $this->order_ ? "ORDER BY " . $this->order_ : "");
+    	public function query($response_type=__ARRAY__)
+    	{
+        	$tmp = [];
+        	$data = [];
+        	$this->query_ =
+            		$this->operation_
+            		. " " . ($this->operation_ == "SELECT" ? $this->fields_ : ($this->operation_ == "UPDATE" ? $this->tables_ : "CASE DELETE"))
+            		. ($this->operation_ == "SELECT" ? " FROM " : ($this->operation_ == "UPDATE" ? " SET " : "CASE DELETE"))
+            		. " " . ($this->operation_ == "SELECT" ?  $this->tables_ : ($this->operation_ == "UPDATE" ? $this->attributes_ : "CASE DELETE"))
+            		. " " . ($this->restrictions_ ? "WHERE " . $this->restrictions_ : "")
+            		. " " . ($this->operation_ == "SELECT" && $this->order_ ? "ORDER BY " . $this->order_ : "");
 
-        // echo $this->query_;
+        	$tmp = $this->object_ ? $this->object_->query(implode('{{ NO COMMENTS ALLOWED }}',explode('--',$this->query_))) : null;
 
-        $tmp = $this->object_ ? $this->object_->query(implode('{{ NO COMMENTS ALLOWED }}',explode('--',$this->query_))) : null;
+        	if(gettype($tmp) == "object" && $tmp->num_rows)
+		{
+            		switch($response_type){
+                		case(__ASSOC__)     : { $data = (array)$tmp->fetch_assoc(); }                                                      break;
+                		case(__ARRAY__)     : { $data = []; while($nt = $tmp->fetch_assoc()) $data[] = $nt; }                              break;
+                		case(__JSON__)      : { $data = []; while($nt = $tmp->fetch_assoc()) $data[] = $nt; $data = json_encode($data); }  break;
+                		case(__OBJECT__)    : { $data = Convert::atoo($tmp->fetch_assoc()); }                                              break;
+                		case(__MYSQLI_OBJ__): { $data = $tmp; }                                                                            break;
+            		}
+        	}
+        	// Core::response(mysqli_connect_errno(),$this->object_->error . $this->query_);
+        	return $data;
+    	}
 
-        if(gettype($tmp) == "object" && $tmp->num_rows){
-            switch($response_type){
-                case(__ASSOC__)     : { $data = (array)$tmp->fetch_assoc(); }                                                      break;
-                case(__ARRAY__)     : { $data = []; while($nt = $tmp->fetch_assoc()) $data[] = $nt; }                              break;
-                case(__JSON__)      : { $data = []; while($nt = $tmp->fetch_assoc()) $data[] = $nt; $data = json_encode($data); }  break;
-                case(__OBJECT__)    : { $data = Convert::atoo($tmp->fetch_assoc()); }                                              break;
-                case(__MYSQLI_OBJ__): { $data = $tmp; }                                                                            break;
-            }
-        }
-        Core::response(mysqli_connect_errno(),$this->object_->error . $this->query_);
-        return $data;
-    }
-
-    ## returns a mysqli->mysql valid, based on conn() conn, or 0 if the mysql failed
-    ## usage: $result = mysql()->query('SQL QUERY HERE')
-    public static function connect($datasource=DEFAULT_DB){
-        $tmp = Convert::atoo(App::connections($datasource));
-        if(!$tmp) return new Mysql();
-        // echo "<pre>"; print_r($tmp); die;
-        $c = @(new \mysqli($tmp->host,$tmp->username,$tmp->passwd,$tmp->database));
-        if($c->connect_error){ 
-            Core::response(-1,"MYSQL CONNECTION ERROR"); 
-            if(DEBUG) Debug::show();
-            die; 
-        };
-        @$c->set_charset($tmp->encoding);
-        return new Mysql($c,$datasource);
-    }
+    	## returns a mysqli->mysql valid, based on conn() conn, or 0 if the mysql failed
+    	## usage: $result = mysql()->query('SQL QUERY HERE')
+	public static function connect($datasource=DEFAULT_DB)
+	{
+        	$tmp = Convert::atoo(App::connections($datasource));
+        	if(!$tmp) return new Mysql();
+        	// echo "<pre>"; print_r($tmp); die;
+        	$c = @(new \mysqli($tmp->host,$tmp->username,$tmp->passwd,$tmp->database));
+		// echo "<pre>"; print_r($c); die;
+        	if($c->connect_error)
+		{
+            		return Core::response(-1,"MYSQL CONNECTION ERROR: " . $c->errno);
+        	};
+        	@$c->set_charset($tmp->encoding);
+        	return new Mysql($c,$datasource);
+    	}
 
     public function __construct(mysqli $obj=null, $datasource=null){
         if($datasource){

@@ -1,6 +1,5 @@
 <?php
 class Convert {
-    
     // stdobject to array
     public static function otoa($o){
         $r = (array)$o;
@@ -39,4 +38,5 @@ class Convert {
         if(is_string($input)) return self::json(base64_decode($input));
         return base64_encode(self::json($input));
     }
+
 }
