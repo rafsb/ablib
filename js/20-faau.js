@@ -391,8 +391,6 @@ Array.prototype.calc = function(type=SUM){
     return res;
 };
 
-Array.prototype.not = function(el) { if(this.indexOf(el)+1) { return (this.splice(0,this.indexOf(el))+","+this.splice(this.indexOf(el)+1)).split(",") } }
-
 Array.prototype.last = function() { return this.length ? this[this.length-1] : null; }
 
 Array.prototype.first = function() { return this.length ? this[0] : null; }
@@ -415,10 +413,26 @@ NodeList.prototype.empty = function() {
     return this.each(function(){ this.empty() })
 };
 
-NodeList.prototype.not = function(el) {
+NodeList.prototype.get = function(el) {
     let
-    arr = [];
-    return !this.each(function() { if(this!=el) arr.push(this) }) || arr
+    arr = this.array()
+    , final = [];
+    console.log(arr);
+    if(typeof el == "string") el = $(el);
+    if(el.length) el.each(function(){ if(arr.indexOf(this)+1) while(arr.indexOf(this)+1) final.push(arr[arr.indexOf(this)]); });
+    return final;
+};
+
+NodeList.prototype.not = function(el) { 
+    let
+    arr = this;
+    if(typeof el == "string") el = $(el);
+    if(el.length) el.each(function(){ if(arr.indexOf(this)+1) while(arr.indexOf(this)+1) arr.splice(arr.indexOf(this),1); });
+    return arr;
+}
+
+NodeList.prototype.not = function(el) {
+    return this.array().not(el);
 };
 
 NodeList.prototype.each = function(fn) {
