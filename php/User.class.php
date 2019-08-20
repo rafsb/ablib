@@ -4,13 +4,14 @@ define("STANDARD", 0);
 define("EDITOR", 2);
 define("MANAGER",3);
 define("ADMIN",  4);
+
 class _User_traits
 {
     
     private static function read_all()
     {
         $shadow_file = "var" . DS . "users" . DS . "shadow.json";
-        if(!is_file(IO::root().DS.$shadow_file)) IO::jin($shadow_file,[    
+        if(!is_file(IO::root().DS.$shadow_file)) IO::jin($shadow_file, [
             [
                 "root_user"
                 ,"System Administrator"
@@ -41,10 +42,7 @@ class _User_traits
 
         if(!$list) return Core::response(-1,"shadow file is empty");
 
-        // echo $field; die;
-
-        $fields = ["id","name","user","pswd","cover","level"];
-        $field = array_search($field,$fields);
+        $field = array_search($field,["id","name","user","pswd","cover","level"]);
         // echo $list[0][$field]; die;
 
         if($field===false) return Core::response(-2, "field doesn't exists in context");
@@ -65,14 +63,9 @@ class User extends Activity
      * PRIVATE
      */
     private static function pswd_check($user=null,$password=null)
-    {        
-        // echo $user . $password; die;
-
+    {
         if(!$user||!$password){ Core::response(-1,"user or password missing"); return 0; }
         $tmp = _User_traits::find("user",$user);
-        // print_r($tmp);die;
-        // echo "<pre>" . $password . "\n" . $tmp->pswd . "\n" . hash(App::$hash_algo,$password); die;
-        // echo $tmp->pswd ."\n\n\n". hash(App::config("hash_algorithm"),$password); die;
         $tmp = isset($tmp->pswd)&&$tmp->pswd==hash(App::config("hash_algorithm"),$password) ? $tmp : false;
         return $tmp;
     }
@@ -87,9 +80,9 @@ class User extends Activity
     public static function logoff()
     {
         if(!User::logged()) return;
-        request::sess("USER",false);
-        request::cook("USER",false);
-        request::cook("ACTIVE",false);
+        Request::sess("USER",false);
+        Request::cook("USER",false);
+        Request::cook("ACTIVE",false);
         @\setcookie("USER","",0,"/");
         @\setcookie("ACTIVE","",0,"/");
         @\session_start();
@@ -137,9 +130,12 @@ class User extends Activity
     public function signin($hash=null)
     {
         $hash = Convert::base($hash ? $hash : Request::in("hash"));
-        
-        $user = self::pswd_check($hash->user,$hash->pswd);
 
+        if(!isset($hash->user)) return Core::response(-1, "no user given");
+        if(!isset($hash->pswd)) return Core::response(-2, "no password given");
+
+        $user = self::pswd_check($hash->user, $hash->pswd);
+        
         if($user)
         {
             if(isset($user->id)){
@@ -148,7 +144,7 @@ class User extends Activity
                 Request::cook("USER",$user);
                 Request::cook("ACTIVE","true",time()+3600);
                 return 1;
-            } else return Core::response(-1, "no id found for user");
+            } else return Core::response(-3, "no id found for user");
         }
         return Core::response(0, "incorrect credentials");;
     }

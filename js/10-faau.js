@@ -9,7 +9,6 @@
 ****************************************************************************/
 
 const
-
 ANIMATION_LENGTH = 800
 , DEBUG = false
 // , REVERSE_PROXY_CLIENT_URI = "https://cors-anywhere.herokuapp.com/"
@@ -17,6 +16,9 @@ ANIMATION_LENGTH = 800
 , MEDIAN    = 1
 , HARMONIC  = 2
 ;
+
+var
+mouseAxis = { x:0, y:0 };
 
 Object.prototype.json = function(){ return JSON.stringify(this); };
 Array.prototype.json = function(){ return JSON.stringify(this); };
@@ -56,6 +58,11 @@ HTMLInputElement.prototype.up = function(name, path, fn=null, mini=false) {
     };
     xhr.open("POST", "image/upload");
     xhr.send(form);
+}
+
+HTMLInputElement.prototype.setValue = function(v="") {
+    this.value = v;
+    return this
 }
 
 Element.prototype.anime = function(obj,len=ANIMATION_LENGTH,delay=0,fn=null,trans=null) {
@@ -381,6 +388,57 @@ Element.prototype.at = function(i=0) {
     return this.nodearray.at(i)
 };
 
+
+// returns a String encrypted, ex.: "rafael".hash()
+String.prototype.hash = function() {
+    let
+    h = 0, c = "", i = 0, j = this.length;
+    if (!j) return h;
+    while (i++ < j) {
+        c = this.charCodeAt(i - 1);
+        h = ((h << 5) - h) + c;
+        h |= 0;
+    }
+    return Math.abs(h).toString();
+};
+
+String.prototype.uri = function(){
+    return this.replace(/[^a-zA-Z0-9]/g,'_')
+}
+// returns a String encrypted, ex.: "rafael".hash()
+String.prototype.json = function() {
+    let
+    result = null;
+    try{
+        result = JSON.parse(this);
+    } catch(e) {
+        // statements
+        console.log(e);
+    }
+    return result;
+};
+
+/*
+==> Transmute an ordinary string into an html elemnt */
+String.prototype.morph = function() {
+    let
+    x = document.createElement("div");
+    x.innerHTML = this.replace(/\t+/g, "").trim();
+    return x.firstChild;
+};
+
+String.prototype.prepare = function(obj=null){
+    if(!obj) return this;
+    let
+    str = this;
+    for(i in obj){
+        let
+        rgx = new RegExp("@"+i,"g");
+        str = str.replace(rgx,obj[i])
+    }
+    return str
+}
+
 Array.prototype.clone = function() {
     return this.slice(0);
 };
@@ -432,18 +490,26 @@ NodeList.prototype.empty = function() {
     return this.each(function(){ this.empty() })
 };
 
+NodeList.prototype.get = function(el) {
+    let
+    arr = this.array()
+    , final = [];
+    console.log(arr);
+    if(typeof el == "string") el = $(el);
+    if(el.length) el.each(function(){ if(arr.indexOf(this)+1) while(arr.indexOf(this)+1) final.push(arr[arr.indexOf(this)]); });
+    return final;
+};
+
 NodeList.prototype.not = function(el) { 
     let
-    res = [];
-    el = typeof el == "string" ? $(el) : $("#"+el.uid());
-    if(el.length){
-        for(let i=el.length;i--;){
-            for(let j=this.length;j--;){
-                if(this[j]!=el[i]) res.push(this[j]);
-            }
-        }
-    }
-    return res;
+    arr = this;
+    if(typeof el == "string") el = $(el);
+    if(el.length) el.each(function(){ if(arr.indexOf(this)+1) while(arr.indexOf(this)+1) arr.splice(arr.indexOf(this),1); });
+    return arr;
+}
+
+NodeList.prototype.not = function(el) {
+    return this.array().not(el);
 };
 
 NodeList.prototype.each = function(fn) {
@@ -568,6 +634,14 @@ Object.defineProperty(Object.prototype, "unspy", {
         this[prop] = val;
     }
 });
+
+hash = function(obj){
+    switch(typeof obj){
+        case "object" || "array" : return btoa(JSON.stringify(obj));    break;
+        case "string" : return btoa(obj);                               break;
+        default : return ""; break;
+    }
+}
 
 //       _
 //   ___| | __ _ ___ ___  ___  ___
@@ -766,7 +840,6 @@ class App {
     declare(obj){ Object.keys(obj).each(function(){ window[this+""] = obj[this+""] }); }
     initialize(){}
     constructor(){
-        this.mouseAxis      = { x:0, y:0 }
 	    this.allLikes       = 0
 	    this.allShares      = 0
 	    this.initial_pragma = 0
@@ -1121,4 +1194,5 @@ try{
         });
     }
 }catch(e) { console.log(e) }
+window.onmousemove = (e) => mouseAxis = { x: e.clientX, y: e.clientY }
 console.log('  __\n\ / _| __ _  __ _ _   _\n\| |_ / _` |/ _` | | | |\n\|  _| (_| | (_| | |_| |\n\|_|  \\__,_|\\__,_|\\__,_|');
