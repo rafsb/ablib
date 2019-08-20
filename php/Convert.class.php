@@ -34,9 +34,9 @@ class Convert {
         return json_decode($input);
     }
 
-    public static function base($input){
-        if(is_string($input)) return self::json(base64_decode($input));
-        else return base64_encode(self::json($input));
+    public static function base($input, $json=true){
+        if(is_string($input)) return $json ? self::json(base64_decode($input)) : base64_decode($input);
+        else return $json ? base64_encode(self::json($input)) : base64_decode($input);
     }
 
 }

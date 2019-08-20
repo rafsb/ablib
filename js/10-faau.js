@@ -1,23 +1,25 @@
 /**************************************************************************
-  	 ___                                             _
- 	/  _|_ __ __ _ _ __ ___   _____      _____  _ __| | __
-	| |_| '__/ _` | '_ ` _ \ / _ \ \ /\ / / _ \| '__| |/ /
-	|  _| | | (_| | | | | | |  __/\ V  V / (_) | |  |   <
-	|_| |_|  \__,_|_| |_| |_|\___| \_/\_/ \___/|_|  |_|\_\
+     ___                                             _
+    /  _|_ __ __ _ _ __ ___   _____      _____  _ __| | __
+    | |_| '__/ _` | '_ ` _ \ / _ \ \ /\ / / _ \| '__| |/ /
+    |  _| | | (_| | | | | | |  __/\ V  V / (_) | |  |   <
+    |_| |_|  \__,_|_| |_| |_|\___| \_/\_/ \___/|_|  |_|\_\
 
 
 ****************************************************************************/
+
 const
-RESPONSIVE_TRESHOLD = 1366
-, PASSWD_AUTO_HASH  = true
-, ANIMATION_LENGTH  = 400
-, DEBUG = true
-, REVERSE_PROXY_CLIENT_URI = "https://cors-anywhere.herokuapp.com/"
+
+ANIMATION_LENGTH = 800
+, DEBUG = false
+// , REVERSE_PROXY_CLIENT_URI = "https://cors-anywhere.herokuapp.com/"
 , SUM       = 0
 , MEDIAN    = 1
 , HARMONIC  = 2
-, REMOVE    = true
 ;
+
+Object.prototype.json = function(){ return JSON.stringify(this); };
+Array.prototype.json = function(){ return JSON.stringify(this); };
 
 HTMLInputElement.prototype.up = function(name, path, fn=null, mini=false) {
     let
@@ -25,7 +27,7 @@ HTMLInputElement.prototype.up = function(name, path, fn=null, mini=false) {
     , form = new FormData()
     , counter = 0;
 
-    name = name || faau.uid(13);
+    name = name || _.uid(13);
 
     form.append("picture", this.files[0]);
     form.append("name", name);
@@ -44,13 +46,13 @@ HTMLInputElement.prototype.up = function(name, path, fn=null, mini=false) {
                 clearInterval(timer);
             }
             if (counter++ >= ANIMATION_LENGTH) {
-                faau.notify("Ops! Imagem não pode ser carregada, chama o Berts!",["#ff0066","white"]);
+                _.notify("Ops! Imagem não pode ser carregada, chama o Berts!",["#ff0066","white"]);
                 clearInterval(timer);
             }
         }, ANIMATION_LENGTH/10);
     }
     xhr.upload.onerror = function() {
-        faau.notify("Ops! Não foi possível subir esta imagem... chama o berts...",["#ff0066","white"]);
+        _.notify("Ops! Não foi possível subir esta imagem... chama o berts...",["#ff0066","white"]);
     };
     xhr.open("POST", "image/upload");
     xhr.send(form);
@@ -80,7 +82,12 @@ Element.prototype.anime = function(obj,len=ANIMATION_LENGTH,delay=0,fn=null,tran
         }
     }
     if(fn!==null&&typeof fn=="function") this.dataset.animationFunction = setTimeout(fn.bind(this),len*1000+delay+1);
-    else this.dataset.animationFunction = "";
+    return this;
+}
+
+Element.prototype.stop = function() {
+    if(this.dataset.animationFunction) clearInterval(this.dataset.animationFunction);
+    this.dataset.animationFunction = "";
     return this
 }
 
@@ -135,6 +142,13 @@ Element.prototype.setData = function(o=null, fn = null) {
 
 Element.prototype.setText = function(t=null, fn = null) {
     if (t===null) return this;
+    this.textContent = t;
+    if(fn!==null&&typeof fn=="function") fn.bind(this)();
+    return this;
+}
+
+Element.prototype.setHTML = function(t=null, fn = null) {
+    if (t===null) return this;
     this.innerHTML = t;
     if(fn!==null&&typeof fn=="function") fn.bind(this)();
     return this;
@@ -142,7 +156,8 @@ Element.prototype.setText = function(t=null, fn = null) {
 
 Element.prototype.setAttr = function(o=null, fn = null) {
     if (o===null) return this;
-    for(let i in o) this.setAttribute(i,o[i]);
+    let el = this;
+    Object.keys(o).each(function(){ el.setAttribute(this+"",o[this+""]); }) ;
     if(fn!==null&&typeof fn=="function") fn.bind(this)();
     return this;
 }
@@ -219,9 +234,14 @@ String.prototype.hash = function() {
     return Math.abs(h).toString();
 };
 
-String.prototype.uri = function(){
-    return this.replace(/[^a-zA-Z0-9]/g,'_')
-}
+String.prototype.btoa = function(){
+    return btoa(this);
+};
+
+String.prototype.atob = function(){
+    return atob(this);
+};
+
 // returns a String encrypted, ex.: "rafael".hash()
 String.prototype.json = function() {
     let
@@ -304,8 +324,8 @@ Element.prototype.stopScroll = function() {
 }
 
 Element.prototype.get = function(el) {
-	if(el) return this.querySelectorAll(el);
-	else return this;
+    if(el) return this.querySelectorAll(el);
+    else return this;
 }
 
 
@@ -335,9 +355,9 @@ Element.prototype.toggleClass = function(c) {
 };
 
 Element.prototype.uid = function(name=null) {
-	if(name) this.id = name;
-	if(!this.id) this.id = faau.nuid(8);
-	return this.id;
+    if(name) this.id = name;
+    if(!this.id) this.id = _.nuid(8);
+    return this.id;
 }
 
 Element.prototype.move = function(obj,len=ANIMATION_LENGTH, anim="linear") {
@@ -348,11 +368,11 @@ Element.prototype.move = function(obj,len=ANIMATION_LENGTH, anim="linear") {
 }
 
 Element.prototype.appear = function(len = ANIMATION_LENGTH) {
-    this.setStyle({display:'inline-block', opacity:0}, function(){ this.anime({opacity:1},len) });
+    return this.setStyle({display:'inline-block'},function(){ this.anime({opacity:1},len,1); });
 }
 
 Element.prototype.desappear = function(len = ANIMATION_LENGTH, remove = false) {
-    this.anime({opacity:0},len,0,function() { if(remove) this.remove(); else this.style.display = "none" });
+    return this.anime({opacity:0},len,1,function() { if(remove) this.remove(); else this.setStyle({ display : "none" }); });
 }
 
 Element.prototype.remove = function() { this&&this.parent()&&this.parent().removeChild(this) }
@@ -367,13 +387,13 @@ Array.prototype.clone = function() {
 
 Array.prototype.each = function(fn) { if(fn) { for(let i=0;i++<this.length;) fn.bind(this[i-1])(i-1); } return this }
 
-Array.prototype.dehydrate = function(fn=null){
+Array.prototype.extract = function(fn=null){
     if(!fn||!this.length) return this;
     let
     narr = [];
-    this.each(function(){ 
+    this.each(function(i){ 
         let
-        x = fn.bind(this)();
+        x = fn.bind(this)(i);
         if(x) narr.push(x) 
     });
     return narr;
@@ -390,52 +410,11 @@ Array.prototype.calc = function(type=SUM){
     return res;
 };
 
-Array.prototype.not = function(el) { if(this.indexOf(el)+1) { return (this.splice(0,this.indexOf(el))+","+this.splice(this.indexOf(el)+1)).split(",") } }
-
 Array.prototype.last = function() { return this.length ? this[this.length-1] : null; }
 
 Array.prototype.first = function() { return this.length ? this[0] : null; }
 
 Array.prototype.at = function(n=0) { return this.length>=n ? this[n] : null; }
-
-Array.prototype.setStyle = function(obj,fn=null) {
-    this.each(function() {this.setStyle(obj,fn)});
-    return this
-}
-
-Array.prototype.setData = function(txt,fn=null) {
-    this.each(function() {this.setData(txt,fn)});
-    return this
-}
-
-Array.prototype.setText = function(obj,fn=null) {
-    this.each(function() {this.setText(obj,fn)});
-    return this
-}
-
-Array.prototype.addClass = function(cl=null) {
-    if(cl) this.each(function() {this.addClass(cl)});
-    return this
-}
-
-Array.prototype.remClass = function(cl=null) {
-    if(cl) this.each(function() {this.remClass(cl)});
-    return this
-}
-
-Array.prototype.toggleClass = function(cl=null) {
-    if(cl) this.each(function() {this.toggleClass(cl)});
-    return this
-}
-
-Array.prototype.remove = function() {
-    this.each(function() {this.parentElement.removeChild(x)});
-    return this
-}
-Array.prototype.setValue = function(v='') {
-    this.each(function(){this.value=v});
-    return this
-}
 
 Array.prototype.stringify = function() {
     return JSON.stringify(this);
@@ -453,14 +432,22 @@ NodeList.prototype.empty = function() {
     return this.each(function(){ this.empty() })
 };
 
-NodeList.prototype.not = function(el) {
+NodeList.prototype.not = function(el) { 
     let
-    arr = [];
-    return !this.each(function() { if(this!=el) arr.push(this) }) || arr
+    res = [];
+    el = typeof el == "string" ? $(el) : $("#"+el.uid());
+    if(el.length){
+        for(let i=el.length;i--;){
+            for(let j=this.length;j--;){
+                if(this[j]!=el[i]) res.push(this[j]);
+            }
+        }
+    }
+    return res;
 };
 
 NodeList.prototype.each = function(fn) {
-	if(fn) this.array().each(fn);
+    if(fn) this.array().each(fn);
     return this
 };
 
@@ -546,10 +533,7 @@ HTMLFormElement.prototype.json = function() {
     let
     json = {};
     this.get("input, select, textarea").each(function(i) {
-        if(!this.has('-skip')){
-            json[this.name] = (this.tagName.toUpperCase()=="TEXTAREA"&&this.has("-list") ? this.value.split('\n') : this.value);
-            if(PASSWD_AUTO_HASH&&this.getAttribute("type")&&this.getAttribute("type").toUpperCase()=="PASSWORD") json[this.name] = json[this.name].hash();
-        }
+        if(!this.has('-skip')) json[this.name] = (this.tagName.toUpperCase()=="TEXTAREA"&&this.has("-list") ? this.value.split('\n') : this.has('-hash') ? this.value.hash() : this.value);
     })
     return json
 };
@@ -591,6 +575,7 @@ Object.defineProperty(Object.prototype, "unspy", {
 // | (__| | (_| \__ \__ \  __/\__ \
 //  \___|_|\__,_|___/___/\___||___/
 //
+
 
 class Pool {
     add(x=null,v=null) {
@@ -674,18 +659,18 @@ class Pool {
         return this.add(x)
     }
 }
-class Swipe {
 
-    constructor(el,len=24) {
+class Swipe {
+    constructor(el,len=10) {
         this.len = len;
         this.x = null;
         this.y = null;
         this.e = typeof(el) === 'string' ? $(el).at() : el;
-
+        if(!this.e) return;
         this.e.on('touchstart', function(v) {
             this.x = v.touches[0].clientX;
             this.y = v.touches[0].clientY;
-        }.bind(this));
+        }.bind(this));        
     }
 
     left(fn) { this.__LEFT__ = new THROTTLE(fn,this.len); return this }
@@ -717,7 +702,7 @@ class Swipe {
     }
 
     fire() {
-        this.e.on('touchmove', function(v) { this.move(v) }.bind(this))
+        this.e&&this.e.on('touchmove', function(v) { this.move(v) }.bind(this));
     }
 }
 
@@ -776,18 +761,87 @@ class THROTTLE {
     }
 }
 
+class App {
+    get(e,w){ return faau.get(e,w||document).nodearray; }
+    declare(obj){ Object.keys(obj).each(function(){ window[this+""] = obj[this+""] }); }
+    initialize(){}
+    constructor(){
+        this.mouseAxis      = { x:0, y:0 }
+	    this.allLikes       = 0
+	    this.allShares      = 0
+	    this.initial_pragma = 0
+	    this.current        = 0
+	    this.last           = 0
+	    this.fw             = window._ || new FAAU() 
+	    this.body           = document.getElementById("app") || document.getElementsByTagName("body")[0]
+	    this.onPragmaChange = new Pool()
+    }
+};
+class Bootstrap {	
+    pace(){
+		let
+		count = 0;
+		for(var i in Object.keys(this.loaders)) count++;
+		return 100/count;
+	}
+	loadLength(){
+		let
+		count = 0;
+		for(var i in Object.keys(this.loaders)) if(this.loaders[i]) count++;
+		return count*this.pace();
+	}
+	check(scr){
+		return scr ? this.loaders[scr] : this.alreadyLoaded
+	}
+	ready(scr){
+		if(scr){
+			// set screen to true
+			this.loaders[scr] = true;
+
+			let
+			perc = this.loadLength();
+			// init only on 100%
+			if(perc>=99&&!this.alreadyLoaded){ 
+				this.onFinishLoading.fire(()=>{ return app ? app.pragma = app.initial_pragma : true; }, ANIMATION_LENGTH);
+				this.alreadyLoaded=true; 
+			}
+		}
+		return this.alreadyLoaded || false
+	}
+    constructor(){
+        this.alreadyLoaded = false;
+        this.loadComponents = new Pool();
+        this.onFinishLoading = new Pool();
+        this.loaders = {
+            continuing: false 
+        }
+    }
+};
+
 class FAAU {
-	call(url, args=null, fn=false, head=null, method='POST', sync=false) {
+    call(url, args=null, fn=false, head=null, method='POST', sync=false) {
+        // fetch(url,{ 
+        //     method: method
+        //     , headers: {
+        //         'Accept': 'application/json',
+        //         'Content-Type': 'plain/text'
+        //     }
+        //     , body: args ? JSON.stringify(args) : "{}" 
+        // }).then(function(x){ return x.text(); }).then(function(x){
+        //     let
+        //     o = { status: 200, data: x.trim(), url:url, args:args };
+        //     return fn ? fn.bind(o)() : o;
+        // })
         let
         xhr = new XMLHttpRequest();
         args = args ? args : {};
         if(!sync&&fn) {
-	        xhr.onreadystatechange = function() {
-	            if (xhr.readyState == 4) {
-	               return fn.bind({ status: xhr.status, data: xhr.responseText.trim(), url:url, args:args })();
-	            };
-	        }
-	    }
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                   return fn.bind({ status: xhr.status, data: xhr.responseText.trim(), url:url, args:args })();
+                };
+            }
+        }
         xhr.open(method, url, !sync);
         // xhr.setRequestHeader("Content-Type", "plain/text");
         // xhr.setRequestHeader("Accept", 'application/json');
@@ -801,27 +855,31 @@ class FAAU {
     }
 
     load(url, args=null, element=null, fn=false, sync=false) {
-    	this.call(url, args, function(target=element) {
-    		let r;
-            if(this.status==200) r = this.data.morph();
-            else return DEBUG ? faau.error("error loading "+url) : null;
-            if(!r.id) r.id = faau.nuid();
-    		if(!target) target = faau.get('body')[0];
-            target.empty().app(r).evalute();
-    		if(fn) fn.bind(r)();
-    	}, sync);
+        this.call(url, args, function(target=element) {
+            let r;
+            if(this.status==200) r = this.data.prepare(_.colors()).morph();
+            else return DEBUG ? _.error("error loading "+url) : null;
+            if(!r.id) r.id = _.nuid();
+            // let
+            // tmp = r.get("script");
+            if(!target) target = _.get('body')[0];
+            target.app(r);
+            r.evalute();
+            // if(tmp.length) for(let i=0;i++<tmp.length;) { eval(tmp[i-1].textContent); }
+            if(fn) fn.bind(r)();
+            // else _.get("#"+r.id).first().anime({opacity:1},600);
+        }, sync);
     }
 
-	get(el,scop=null) { return scop ? scop.querySelectorAll(el) : this.nodes.querySelectorAll(el); }
+    get(el,scop=null) { return scop ? scop.querySelectorAll(el) : this.nodes.querySelectorAll(el); }
 
-	nuid(n=8) { let a = "FA"; n-=2; while(n-->0) { a+="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('')[parseInt((Math.random()*36)%36)] } return a }
+    nuid(n=8) { let a = "FA"; n-=2; while(n-->0) { a+="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('')[parseInt((Math.random()*36)%36)] } return a }
 
     notify(n, c=null) {
         let
         toast = document.createElement("toast");
         toast.setStyle({
             fontSize: "1rem",
-            fontFamily: 'OpenSans',
             background: c&&c[0] ? c[0] : "rgba(255,255,255,.8)",
             color: c&&c[1] ? c[1] : "black",
             boxShadow:"0 0 8px gray",
@@ -830,7 +888,7 @@ class FAAU {
             opacity:0,
             position:"fixed"
         }).innerHTML = n ? n : "Hello <b>World</b>!!!";
-        if(window.innerWidth>RESPONSIVE_TRESHOLD) {
+        if(!this.isMobile()) {
             toast.setStyle({
                 top:0,
                 left:"80vw",
@@ -843,7 +901,7 @@ class FAAU {
                 opacity:0,
                 top:".5rem",
                 left:".5rem",
-                width:"calc(100% - 4rem)",
+                width:"calc(100% - 1rem)",
                 padding:"1.5rem",
             });
         }
@@ -854,7 +912,7 @@ class FAAU {
         };
         document.getElementsByTagName('body')[0].appendChild(toast);
         let
-        notfys = faau.get("toast");
+        notfys = _.get("toast");
 
         notfys.each(function(i) { this.anime({ translateY: ( ( toast.offsetHeight + 8 ) * i + 16) + "px", opacity: 1 }, ANIMATION_LENGTH/4) });
 
@@ -885,17 +943,17 @@ class FAAU {
     }
 
     error(message=null) {
-        faau.notify(message || "Ops! Something went wrong...", ["#7F2B2A","whitesmoke"])
+        _.notify(message || "Ops! Something went wrong...", ["#7F2B2A","whitesmoke"])
     }
     success(message=null) {
-        faau.notify(message || "Hooray! Success!", ["#3CB371","whitesmoke"])
+        _.notify(message || "Hooray! Success!", ["#3CB371","whitesmoke"])
     }
 
     hintify(n, o={},delall=true,keep=false,special=false,evenSpecial=false) {
         if(delall) $(".--hintifyied"+(evenSpecial?", .--hintifyied-sp":"")).each(function() {this.remove()});
 
         let
-        toast = faau.new("toast");
+        toast = _.new("toast");
         n = (typeof n == 'string' ? n.morph() : n);
         o.display = 'inline-block';
         o.transform = 'scale(1.05)';
@@ -930,9 +988,9 @@ class FAAU {
 
     at(n=0) { return this.nodearray.at(n) }
 
-    first() {return this.nodearray.first()}
+    first() {return this.nodearray.first() }
 
-    last() {return this.nodearray.last()}
+    last() {return this.nodearray.last() }
 
     empty(except=null) { this.nodearray.each(function() {this.empty(except)})}
 
@@ -943,30 +1001,71 @@ class FAAU {
         return this;
     }
 
-    new(node='div') {
-        return document.createElement(node)
+    new(node='div', cls="auto-created", style={display:"inline-block"}, fn) {
+        return document.createElement(node).addClass(cls).setStyle(style,fn);
     }
 
     storage(field=null,value=null){
         if(!field) return false;
         if(!value) return window.localStorage.getItem(field);
         window.localStorage.setItem(field,value);
-        return true;
+        return window.localStorage;
     }
 
-    download(uri=null,name="default"){
-        let
-        link = document.createElement("a");
-        link.download = name;
-        link.href = uri;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    isMobile(){
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
     }
+
+    colors(pallete="default"){
+        return pallete&&this.color_pallete[pallete] ? this.color_pallete[pallete] : this.color_pallete;
+    }
+
+
+    hashit(o){ if(typeof o == "object" || typeof o == "array") o = JSON.stringify(o); return { hash: btoa(o) } }
+
+    makeServerHashToken(o){ return this.hashit(o).hash; }
 
     constructor(wrapper,context) {
         this.nodes = document;
         this.nodearray = [];
+        this.color_pallete = {
+            light : {
+                /*** SYSTEM***/
+                CLR_BACKGROUND : "#FFFFFF"
+                , CLR_FOREGROUND : "#F2F2F2"
+                , CLR_FONT : "#181818"
+                , CLR_FONTBLURED:"#646464"
+                , CLR_SPAN :"#DC2431"
+                , CLR_DISABLED: "#7E8C8D"
+                , CLR_SHADE1:"rgba(0,0,0,.16)"
+                , CLR_SHADE2:"rgba(0,0,0,.32)"
+                , CLR_SHADE3:"rgba(0,0,0,.64)"
+                , CLR_BRIGHT1:"rgba(255,255,255,.16)"
+                , CLR_BRIGHT2:"rgba(255,255,255,.32)"
+                , CLR_BRIGHT3:"rgba(255,255,255,.64)"
+                /*** PALLETE ***/
+                , CLR_WET_ASPHALT:"#34495E"
+                , CLR_MIDNIGHT_BLUE:"#2D3E50"
+                , CLR_CONCRETE:"#95A5A5"
+                , CLR_ASBESTOS:"#7E8C8D"
+                , CLR_AMETHYST:"#9C56B8"
+                , CLR_WISTERIA:"#8F44AD"
+                , CLR_CLOUDS:"#ECF0F1"
+                , CLR_SILVER:"#BDC3C8"
+                , CLR_PETER_RIVER:"#2C97DD"
+                , CLR_BELIZE_HOLE:"#2A80B9"
+                , CLR_ALIZARIN:"#E84C3D"
+                , CLR_POMEGRANATE:"#C0382B"
+                , CLR_EMERALD:"#53D78B"
+                , CLR_NEPHIRITIS:"#27AE61"
+                , CLR_CARROT:"#E67D21"
+                , CLR_PUMPKIN: "#D35313"
+                , CLR_TURQUOISE:"#00BE9C"
+                , CLR_GREEN_SEA:"#169F85"
+                , CLR_SUNFLOWER:"#F2C60F"
+                , CLR_ORANGE: "#F39C19"
+            }
+        };
         if(wrapper) {
             let 
             el = (context ? (typeof context == 'string' ? document.querySelectorAll(context)[0] : context) : document);
@@ -974,13 +1073,38 @@ class FAAU {
         }
     }
 }
-
-var
-faau = new FAAU(),
-$ = function(wrapper=null,context=document) {
-    return (new FAAU(wrapper,context)).nodearray;
+window._ = new FAAU()
+window.$ = function(wrapper=null,context=document) { return (new FAAU(wrapper,context)).nodearray; };
+window.bootstrap = new Bootstrap();
+window.app = new App();
+app.spy("pragma",function(x){
+    app.last = app.current;
+    app.current = x;
+    if(bootstrap&&!bootstrap.ready()) return setTimeout((x)=>{ app.pragma = x }, ANIMATION_LENGTH, x);
+    this.onPragmaChange.fire(x);
+});
+window.tileClickEffectSelector = function(cls=null){
+    if(!cls) return;
+    $(cls).on("click",function(e){
+        if(this.classList.contains("-skip")) return;
+        let
+        size = Math.max(this.offsetWidth, this.offsetHeight);
+        this.app(_.new("span","-absolute",{
+            background      : _.colors().CLR_DARK1
+            , display       : "inline-block"
+            , borderRadius  : "50%"
+            , width         : size+"px"
+            , height        : size+"px"
+            , transform     : "scale(0)"
+            , opacity       : 0
+            , top           : (e.offsetY - size/2)+"px"
+            , left          : (e.offsetX - size/2)+"px"
+        }, function(){
+            this.anime({scale:2,opacity:.5},ANIMATION_LENGTH/2,null,function(){ this.remove(); },"ease-in");
+        }));
+    });
 };
-
+window.onmousemove = (e) => mouseAxis = { x: e.clientX, y: e.clientY }
 try{
     if(SVG) {
         SVG.extend(SVG.Text, {
@@ -997,15 +1121,4 @@ try{
         });
     }
 }catch(e) { console.log(e) }
-
-window.onmousemove = (e) => mouseAxis = { x: e.clientX, y: e.clientY }
-
-window.onresize = function() { ENV.w = window.innerWidth; ENV.h = window.innerHeight;  }
-
-var
-mouseAxis = { x:0, y:0 },
-initPool = new Pool();
-
-window.ENV = { w:window.innerWidth, h:window.innerHeight, pages: {}, history:[], templates:{}};
-
 console.log('  __\n\ / _| __ _  __ _ _   _\n\| |_ / _` |/ _` | | | |\n\|  _| (_| | (_| | |_| |\n\|_|  \\__,_|\\__,_|\\__,_|');

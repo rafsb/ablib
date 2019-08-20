@@ -134,16 +134,12 @@ class User extends Activity
         return json_encode($u);
     }
 
-    public function signin($user=null, $pswd=null)
+    public function signin($hash=null)
     {
-        $hash = Request::in("hash");
-        if($hash) $hash = json_decode(base64_decode($hash));
-        if(!$user&&$hash) $user=$hash->user;
-        if(!$pswd&&$hash) $pswd=$hash->pswd;
+        $hash = Convert::base($hash ? $hash : Request::in("hash"));
+        
+        $user = self::pswd_check($hash->user,$hash->pswd);
 
-        // echo $user." ".$pswd; die;
-        $user = self::pswd_check($user,$pswd);
-        // print_r($user);die;
         if($user)
         {
             if(isset($user->id)){
