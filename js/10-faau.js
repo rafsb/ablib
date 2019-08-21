@@ -7,21 +7,29 @@
 
 
 ****************************************************************************/
-
 const
 ANIMATION_LENGTH = 800
 , DEBUG = false
 // , REVERSE_PROXY_CLIENT_URI = "https://cors-anywhere.herokuapp.com/"
-, SUM       = 0
-, MEDIAN    = 1
-, HARMONIC  = 2
+, SUM               = 0
+, MEDIAN            = 1
+, HARMONIC          = 2
+, PASSWD_AUTO_HASH  = true;
 ;
-
 var
 mouseAxis = { x:0, y:0 };
 
-Object.prototype.json = function(){ return JSON.stringify(this); };
-Array.prototype.json = function(){ return JSON.stringify(this); };
+HTMLFormElement.prototype.json = function(){
+    let
+    tmp = {};
+    this.get("input, textarea, select, .-value").each(o=>{
+        if(!o.has("-skip")&&o.name){            
+            tmp[o.name] = (o.tagName.toUpperCase()=="TEXTAREA"&&o.has("-list") ? o.value.split('\n') : o.value);
+            if(PASSWD_AUTO_HASH&&o.getAttribute("type")&&o.getAttribute("type").toUpperCase()=="PASSWORD") tmp[o.name] = tmp[o.name].hash();
+        }
+    });
+    return tmp;
+};
 
 HTMLInputElement.prototype.up = function(name, path, fn=null, mini=false) {
     let
@@ -223,10 +231,109 @@ Element.prototype.evalute = function() {
     return this
 };
 
-HTMLInputElement.prototype.setValue = function(v="") {
-    this.value = v;
+Element.prototype.on = function(action,fn,passive=true) {
+    this.addEventListener(action,fn, {passive:passive})
     return this
+};
+
+Element.prototype.parent = function(pace=1) {
+    let
+    tmp = this;
+    while(pace--) tmp = tmp.parentElement;
+    return tmp;
 }
+
+Element.prototype.inPage = function() {
+    let
+    page = {
+        top: this.parentElement.scrollTop,
+        bottom: this.parentElement.scrollTop + window.innerHeight,
+        height: window.innerHeight
+    },
+    element = {
+        top: this.offsetTop,
+        bottom: this.offsetTop + this.offsetHeight
+    };
+    return (element.top <= page.bottom + 1 && element.bottom >= page.top - 1) ? {
+        offset: element.top - page.top,
+        where: 1 - (element.top - page.top) / page.height
+    } : false;
+};
+
+/*
+==> Make a container element with overflow-y's scrollable scrolls to a given 'el' element */
+Element.prototype.scrollTo = function(el,fn=null) {
+    if (!el) return -1;
+    let
+    length = 0;
+    do {
+        length += el.offsetTop;
+        el = el.parentElement;
+    } while (el.uid() != this.uid());
+    this.scroll({top:length,behavior:"smooth"});
+    fn&&fn();
+};
+
+Element.prototype.stopScroll = function() {
+    this.scroll({top:this.scrollTop+1});
+}
+
+Element.prototype.get = function(el) {
+    if(el) return [].slice.call(this.querySelectorAll(el));
+    else return this;
+}
+
+Element.prototype.remClass = function(c) {
+    if (this.classList.contains(c)) {
+        this.classList.remove(c);
+    }
+    return this;
+};
+
+Element.prototype.addClass = function(c) {
+    let
+    tmp = c.split(/\s+/g), i=tmp.length;
+    while(i--) this.classList.add(tmp[i]);
+    return this;
+};
+
+Element.prototype.toggleClass = function(c) {
+    let
+    tmp = c.split(/\s+/g), i=tmp.length;
+    while(i--) {
+      if (tmp[i]) {
+        if(!this.classList.contains(tmp[i]))
+          this.classList.add(tmp[i]); else this.classList.remove(tmp[i]);
+        }
+      } return this;
+};
+
+Element.prototype.uid = function(name=null) {
+    if(name) this.id = name;
+    if(!this.id) this.id = _.nuid(8);
+    return this.id;
+}
+
+Element.prototype.move = function(obj,len=ANIMATION_LENGTH, anim="linear") {
+    len /= 1000;
+    this.style.transition = "all "+len+"s "+anim;
+    if(obj.top!==undefined)this.style.transform = "translateY("+(this.offsetTop-obj.top)+")";
+    if(obj.left!==undefined)this.style.transform = "translateY("+(this.offsetLeft-obj.left)+")";
+}
+
+Element.prototype.appear = function(len = ANIMATION_LENGTH) {
+    return this.setStyle({display:'inline-block'},function(){ this.anime({opacity:1},len,1); });
+}
+
+Element.prototype.desappear = function(len = ANIMATION_LENGTH, remove = false) {
+    return this.anime({opacity:0},len,1,function() { if(remove) this.remove(); else this.setStyle({ display : "none" }); });
+}
+
+Element.prototype.remove = function() { this&&this.parent()&&this.parent().removeChild(this) }
+
+Element.prototype.at = function(i=0) {
+    return this.nodearray.at(i)
+};
 
 // returns a String encrypted, ex.: "rafael".hash()
 String.prototype.hash = function() {
@@ -283,124 +390,6 @@ String.prototype.prepare = function(obj=null){
     return str
 }
 
-Element.prototype.on = function(action,fn,passive=true) {
-    this.addEventListener(action,fn, {passive:passive})
-    return this
-};
-
-Element.prototype.parent = function(pace=1) {
-    let
-    tmp = this;
-    while(pace--) tmp = tmp.parentElement;
-    return tmp;
-}
-
-Element.prototype.inPage = function() {
-    let
-    page = {
-        top: this.parentElement.scrollTop,
-        bottom: this.parentElement.scrollTop + window.innerHeight,
-        height: window.innerHeight
-    },
-    element = {
-        top: this.offsetTop,
-        bottom: this.offsetTop + this.offsetHeight
-    };
-    return (element.top <= page.bottom + 1 && element.bottom >= page.top - 1) ? {
-        offset: element.top - page.top,
-        where: 1 - (element.top - page.top) / page.height
-    } : false;
-};
-
-/*
-==> Make a container element with overflow-y's scrollable scrolls to a given 'el' element */
-Element.prototype.scrollTo = function(el,fn=null) {
-    if (!el) return -1;
-    let
-    length = 0;
-    do {
-        length += el.offsetTop;
-        el = el.parentElement;
-    } while (el.uid() != this.uid());
-    this.scroll({top:length,behavior:"smooth"});
-    fn&&fn();
-};
-
-Element.prototype.stopScroll = function() {
-    this.scroll({top:this.scrollTop+1});
-}
-
-Element.prototype.get = function(el) {
-    if(el) return this.querySelectorAll(el);
-    else return this;
-}
-
-
-Element.prototype.remClass = function(c) {
-    if (this.classList.contains(c)) {
-        this.classList.remove(c);
-    }
-    return this;
-};
-
-Element.prototype.addClass = function(c) {
-    let
-    tmp = c.split(/\s+/g), i=tmp.length;
-    while(i--) this.classList.add(tmp[i]);
-    return this;
-};
-
-Element.prototype.toggleClass = function(c) {
-    let
-    tmp = c.split(/\s+/g), i=tmp.length;
-    while(i--) {
-      if (tmp[i]) {
-        if(!this.classList.contains(tmp[i]))
-          this.classList.add(tmp[i]); else this.classList.remove(tmp[i]);
-        }
-      } return this;
-};
-
-Element.prototype.uid = function(name=null) {
-    if(name) this.id = name;
-    if(!this.id) this.id = _.nuid(8);
-    return this.id;
-}
-
-Element.prototype.move = function(obj,len=ANIMATION_LENGTH, anim="linear") {
-    len /= 1000;
-    this.style.transition = "all "+len+"s "+anim;
-    if(obj.top!==undefined)this.style.transform = "translateY("+(this.offsetTop-obj.top)+")";
-    if(obj.left!==undefined)this.style.transform = "translateY("+(this.offsetLeft-obj.left)+")";
-}
-
-Element.prototype.appear = function(len = ANIMATION_LENGTH) {
-    return this.setStyle({display:'inline-block'},function(){ this.anime({opacity:1},len,1); });
-}
-
-Element.prototype.desappear = function(len = ANIMATION_LENGTH, remove = false) {
-    return this.anime({opacity:0},len,1,function() { if(remove) this.remove(); else this.setStyle({ display : "none" }); });
-}
-
-Element.prototype.remove = function() { this&&this.parent()&&this.parent().removeChild(this) }
-
-Element.prototype.at = function(i=0) {
-    return this.nodearray.at(i)
-};
-
-
-// returns a String encrypted, ex.: "rafael".hash()
-String.prototype.hash = function() {
-    let
-    h = 0, c = "", i = 0, j = this.length;
-    if (!j) return h;
-    while (i++ < j) {
-        c = this.charCodeAt(i - 1);
-        h = ((h << 5) - h) + c;
-        h |= 0;
-    }
-    return Math.abs(h).toString();
-};
 
 String.prototype.uri = function(){
     return this.replace(/[^a-zA-Z0-9]/g,'_')
@@ -418,40 +407,27 @@ String.prototype.json = function() {
     return result;
 };
 
-/*
-==> Transmute an ordinary string into an html elemnt */
-String.prototype.morph = function() {
-    let
-    x = document.createElement("div");
-    x.innerHTML = this.replace(/\t+/g, "").trim();
-    return x.firstChild;
+Object.prototype.json = function(){ return JSON.stringify(this); };
+
+Object.prototype.stringify = function() {
+    return JSON.stringify(this);
 };
 
-String.prototype.prepare = function(obj=null){
-    if(!obj) return this;
-    let
-    str = this;
-    for(i in obj){
-        let
-        rgx = new RegExp("@"+i,"g");
-        str = str.replace(rgx,obj[i])
-    }
-    return str
-}
+Array.prototype.json = function(){ return JSON.stringify(this); };
 
 Array.prototype.clone = function() {
     return this.slice(0);
 };
 
-Array.prototype.each = function(fn) { if(fn) { for(let i=0;i++<this.length;) fn.bind(this[i-1])(i-1); } return this }
+Array.prototype.each = function(fn) { if(fn) { for(let i=0;i++<this.length;) fn.bind(this[i-1])(this[i-1],i-1); } return this; }
 
 Array.prototype.extract = function(fn=null){
     if(!fn||!this.length) return this;
     let
     narr = [];
-    this.each(function(i){ 
+    this.each(function(o,i){ 
         let
-        x = fn.bind(this)(i);
+        x = fn.bind(this)(this,i);
         if(x) narr.push(x) 
     });
     return narr;
@@ -478,138 +454,66 @@ Array.prototype.stringify = function() {
     return JSON.stringify(this);
 };
 
-Object.prototype.stringify = function() {
-    return JSON.stringify(this);
-};
-
-NodeList.prototype.array = function() {
-    return [].slice.call(this)
-};
-
-NodeList.prototype.empty = function() {
-    return this.each(function(){ this.empty() })
-};
-
-NodeList.prototype.get = function(el) {
-    let
-    arr = this.array()
-    , final = [];
-    console.log(arr);
-    if(typeof el == "string") el = $(el);
-    if(el.length) el.each(function(){ if(arr.indexOf(this)+1) while(arr.indexOf(this)+1) final.push(arr[arr.indexOf(this)]); });
-    return final;
-};
-
-NodeList.prototype.not = function(el) { 
+Array.prototype.not = function(el) { 
     let
     arr = this;
-    if(typeof el == "string") el = $(el);
-    if(el.length) el.each(function(){ if(arr.indexOf(this)+1) while(arr.indexOf(this)+1) arr.splice(arr.indexOf(this),1); });
+    while(arr.indexOf(el)+1) arr.splice(arr.indexOf(el),1);
     return arr;
 }
 
-NodeList.prototype.not = function(el) {
-    return this.array().not(el);
-};
 
-NodeList.prototype.each = function(fn) {
-    if(fn) this.array().each(fn);
-    return this
-};
-
-NodeList.prototype.appear = function(len=null) {
-    this.each(function() { this.appear(len) })
-};
-
-NodeList.prototype.desappear = function(len=null,rem=null) {
-    this.each(function() { this.desappear(len,rem) })
-};
-
-NodeList.prototype.on = function(act=null,fn=null) {
-    if(act&&fn)this.each(function(){ this.on(act,fn) });
-    return this
-};
-
-NodeList.prototype.first = function() { return this.length&&this[0] }
-
-NodeList.prototype.last = function() { return this.length&&this[this.length-1] }
-
-NodeList.prototype.at = function(n=0) { return (this.length>=n)&&this[n] }
-
-NodeList.prototype.anime = function(obj,len=ANIMATION_LENGTH,delay=0,fn=null,trans=null) {
+Array.prototype.anime = function(obj,len=ANIMATION_LENGTH,delay=0,fn=null,trans=null) {
     this.each(function() {this.anime(obj,len,delay,fn,trans)});
     return this
 }
 
-NodeList.prototype.setStyle = function(obj,fn=null) {
+Array.prototype.setStyle = function(obj,fn=null) {
     this.each(function() {this.setStyle(obj,fn)});
     return this
 }
 
-NodeList.prototype.setData = function(obj,fn=null) {
+Array.prototype.setData = function(obj,fn=null) {
     this.each(function() {this.setData(obj,fn)});
     return this
 }
 
-NodeList.prototype.setText = function(txt,fn=null) {
+Array.prototype.setText = function(txt,fn=null) {
     this.each(function() {this.setText(txt,fn)});
     return this
 }
 
-NodeList.prototype.addClass = function(cl=null) {
+Array.prototype.addClass = function(cl=null) {
     if(cl) this.each(function() {this.addClass(cl)});
     return this
 }
 
-NodeList.prototype.remClass = function(cl=null) {
+Array.prototype.remClass = function(cl=null) {
     if(cl) this.each(function() {this.remClass(cl)});
     return this
 }
 
-NodeList.prototype.toggleClass = function(cl=null) {
+Array.prototype.toggleClass = function(cl=null) {
     if(cl) this.each(function() {this.toggleClass(cl)});
     return this
 }
 
-NodeList.prototype.remove = function() {
+Array.prototype.remove = function() {
     this.each(function() {this.remove()});
     return this
 }
 
-NodeList.prototype.setValue = function(v='') {
+Array.prototype.setValue = function(v='') {
     this.each(function() {this.value = v});
     return this
 }
 
-HTMLCollection.prototype.each = function(fn) {
-    if(fn) this.array().each(fn);
+Array.prototype.on = function(act=null,fn=null) {
+    if(act&&fn) this.each(function(){ this.on(act,fn) });
     return this
-}
-
-HTMLCollection.prototype.array = function() {
-    return [].slice.call(this)
 };
 
-HTMLCollection.prototype.setValue = function(v='') {
-    this.each(function() {this.value = v});
-    return this
-}
-
-HTMLFormElement.prototype.json = function() {
-    let
-    json = {};
-    this.get("input, select, textarea").each(function(i) {
-        if(!this.has('-skip')) json[this.name] = (this.tagName.toUpperCase()=="TEXTAREA"&&this.has("-list") ? this.value.split('\n') : this.has('-hash') ? this.value.hash() : this.value);
-    })
-    return json
-};
-
-HTMLFormElement.prototype.appear = function(len=null) {
-    this.each(function() { this.appear(len) })
-};
-
-HTMLFormElement.prototype.desappear = function(len=null,rem=null) {
-    this.each(function() { this.desappear(len,rem) })
+NodeList.prototype.array = function() {
+    return [].slice.call(this);
 };
 
 Object.defineProperty(Object.prototype, "spy", {
@@ -635,7 +539,7 @@ Object.defineProperty(Object.prototype, "unspy", {
     }
 });
 
-hash = function(obj){
+base_hash = function(obj){
     switch(typeof obj){
         case "object" || "array" : return btoa(JSON.stringify(obj));    break;
         case "string" : return btoa(obj);                               break;
@@ -840,8 +744,6 @@ class App {
     declare(obj){ Object.keys(obj).each(function(){ window[this+""] = obj[this+""] }); }
     initialize(){}
     constructor(){
-	    this.allLikes       = 0
-	    this.allShares      = 0
 	    this.initial_pragma = 0
 	    this.current        = 0
 	    this.last           = 0
@@ -1142,7 +1044,7 @@ class FAAU {
         if(wrapper) {
             let 
             el = (context ? (typeof context == 'string' ? document.querySelectorAll(context)[0] : context) : document);
-            this.nodearray = el ? el.querySelectorAll(wrapper) : [];
+            this.nodearray = el ? [].slice.call(el.querySelectorAll(wrapper)) : [];
         }
     }
 }
