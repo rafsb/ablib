@@ -118,6 +118,16 @@ bind(Element.prototype,{
         this.get("*").each(function() {if(!(a.indexOf(this.tagName)+1)) this.remove()});
         return this
     }
+    , setData: function(o=null, fn=null){
+        if(!o) return this;
+        let
+        args = Object.keys(o);
+        for(let i=0;i++<=args.length;){
+            this.dataset[args[i-1]] = o[args[i-1]];
+        }
+        if(fn) return fn.bind(this)(this);
+        return this;
+    }
     , setStyle: function(o=null, fn = null) {
         if (o===null) return this;
         this.style.transition = "none";
