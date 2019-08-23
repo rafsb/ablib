@@ -6,7 +6,7 @@ class Hash{
 		, "md5"
 		, "sha1"
 		, "sha256"
-		, "sha384"
+		, "sha384"1
 		, "sha512"
 		, "ripemd128"
 		, "ripemd160"

@@ -612,7 +612,7 @@ class Swipe {
  * times decreasing performance affecting user's experience
  *
  */
-class THROTTLE {
+class Throttle {
     /*
      * @constructor
      *
@@ -676,7 +676,6 @@ class Bootstrap {
         var 
         i=0;
 		for(;++i<Object.keys(this.loaders).length;);
-        //console.log(Object.keys(this.loaders),i);
 		return 100/i;
 	}
 	loadLength(){
@@ -691,21 +690,17 @@ class Bootstrap {
 		return scr ? this.loaders[scr] : this.alreadyLoaded
 	}
 	ready(scr){
-		if(scr){
-			// set screen to true
-			this.loaders[scr] = true;
-        }
+		if(scr) this.loaders[scr] = true;
 
 		let
 		perc = this.loadLength();
-
-		// init only on 100%
+		
 		if(perc>=99&&!this.alreadyLoaded){ 
 			this.onFinishLoading.fire(()=>{ return app ? app.pragma = app.initial_pragma : true; }, ANIMATION_LENGTH);
 			this.alreadyLoaded=true; 
 		}
 
-		return this.alreadyLoaded || false
+		return this.alreadyLoaded || false;
 	}
     constructor(){
         this.alreadyLoaded = false;
@@ -718,18 +713,6 @@ class Bootstrap {
 };
 class FAAU {
     call(url, args=null, fn=false, head=null, method='POST', sync=false) {
-        // fetch(url,{ 
-        //     method: method
-        //     , headers: {
-        //         'Accept': 'application/json',
-        //         'Content-Type': 'plain/text'
-        //     }
-        //     , body: args ? JSON.stringify(args) : "{}" 
-        // }).then(function(x){ return x.text(); }).then(function(x){
-        //     let
-        //     o = { status: 200, data: x.trim(), url:url, args:args };
-        //     return fn ? fn.bind(o)() : o;
-        // })
         let
         xhr = new XMLHttpRequest();
         args = args ? args : {};
@@ -809,11 +792,10 @@ class FAAU {
             this.dataset.delay = setTimeout(function(t) { t.desappear(ANIMATION_LENGTH/2,true); }, ANIMATION_LENGTH, this);
         };
         document.getElementsByTagName('body')[0].appendChild(toast);
+        
         let
         notfys = _.get("toast");
-
         notfys.each(function(i) { this.anime({ translateY: ( ( toast.offsetHeight + 8 ) * i + 16) + "px", opacity: 1 }, ANIMATION_LENGTH/4) });
-
         toast.dataset.delay = setTimeout(function() { toast.desappear(ANIMATION_LENGTH/2,true); }, ANIMATION_LENGTH*5);
     }
 
@@ -1011,21 +993,19 @@ app.spy("pragma",function(x){
     if(bootstrap&&!bootstrap.ready()) return setTimeout((x)=>{ app.pragma = x }, ANIMATION_LENGTH, x);
     this.onPragmaChange.fire(x);
 });
-try{
-    if(SVG) {
-        SVG.extend(SVG.Text, {
-            path: function(d) {
-                let
-                track, path  = new SVG.TextPath;
-                if (d instanceof SVG.Path) track = d;
-                else track = this.doc().defs().path(d);
-                while (this.node.hasChildNodes()) path.node.appendChild(this.node.firstChild);
-                this.node.appendChild(path.node);
-                path.attr('href', '#' + track, SVG.xlink);
-                return this
-            }
-        });
-    }
-}catch(e) { console.log(e) }
-window.onmousemove = (e) => mouseAxis = { x: e.clientX, y: e.clientY }
+if(undefined!==SVG){
+    SVG.extend(SVG.Text, {
+        path: function(d){
+            let
+            track, path  = new SVG.TextPath;
+            if (d instanceof SVG.Path) track = d;
+            else track = this.doc().defs().path(d);
+            while (this.node.hasChildNodes()) path.node.appendChild(this.node.firstChild);
+            this.node.appendChild(path.node);
+            path.attr('href', '#' + track, SVG.xlink);
+            return this;
+        }
+    });
+}
+window.onmousemove = e => mouseAxis = { x: e.clientX, y: e.clientY }
 console.log('  __\n\ / _| __ _  __ _ _   _\n\| |_ / _` |/ _` | | | |\n\|  _| (_| | (_| | |_| |\n\|_|  \\__,_|\\__,_|\\__,_|');
