@@ -474,8 +474,51 @@ Array.prototype.first = function() { return this.length ? this[0] : null; }
 
 Array.prototype.at = function(n=0) { return this.length>=n ? this[n] : null; }
 
+Array.prototype.not = function(el) { 
+    let
+    arr = this;
+    if(arr.indexOf(el)+1) while(arr.indexOf(el)+1) arr.splice(arr.indexOf(el),1);
+    return arr;
+}
+
 Array.prototype.stringify = function() {
     return JSON.stringify(this);
+};
+
+Array.prototype.addClass = function(cl=null) {
+    if(cl) this.each(function() {this.addClass(cl)});
+    return this
+}
+
+Array.prototype.remClass = function(cl=null) {
+    if(cl) this.each(function() {this.remClass(cl)});
+    return this
+}
+
+Array.prototype.empty = function() {
+    return this.each(function(){ this.empty() })
+};
+
+Array.prototype.get = function(el) {
+    let
+    arr = this
+    , final = [];
+    if(typeof el == "string") el = $(el);
+    if(el.length) el.each(function(){ if(arr.indexOf(this)+1) while(arr.indexOf(this)+1) final.push(arr[arr.indexOf(this)]); });
+    return final;
+};
+
+Array.prototype.appear = function(len=null) {
+    this.each(function() { this.appear(len) })
+};
+
+Array.prototype.desappear = function(len=null,rem=null) {
+    this.each(function() { this.desappear(len,rem) })
+};
+
+Array.prototype.on = function(act=null,fn=null) {
+    if(act&&fn) this.each(function(){ this.on(act,fn) });
+    return this
 };
 
 Object.prototype.stringify = function() {
@@ -494,22 +537,13 @@ NodeList.prototype.get = function(el) {
     let
     arr = this.array()
     , final = [];
-    console.log(arr);
     if(typeof el == "string") el = $(el);
     if(el.length) el.each(function(){ if(arr.indexOf(this)+1) while(arr.indexOf(this)+1) final.push(arr[arr.indexOf(this)]); });
     return final;
 };
 
-NodeList.prototype.not = function(el) { 
-    let
-    arr = this;
-    if(typeof el == "string") el = $(el);
-    if(el.length) el.each(function(){ if(arr.indexOf(this)+1) while(arr.indexOf(this)+1) arr.splice(arr.indexOf(this),1); });
-    return arr;
-}
-
 NodeList.prototype.not = function(el) {
-    return this.array().not(el);
+    return this.array().not(typeof el == "string" ? $(el) : el);
 };
 
 NodeList.prototype.each = function(fn) {
@@ -635,7 +669,7 @@ Object.defineProperty(Object.prototype, "unspy", {
     }
 });
 
-hash = function(obj){
+window.hash = function(obj){
     switch(typeof obj){
         case "object" || "array" : return btoa(JSON.stringify(obj));    break;
         case "string" : return btoa(obj);                               break;
