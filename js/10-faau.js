@@ -795,7 +795,7 @@ class FAAU {
         }
         app.body.append(document.createElement("div").addClass("-fixed -view -zero --default-loading"));
 
-        app.fw.load("src/img/loading.svg",null,$(".--default-loading")[0],function(){
+         app.load("src/img/loading.svg",null,$(".--default-loading")[0],function(){
             let
             circle = $(".--default-loading .--loading-circle")[0];
             if(!circle) return;
