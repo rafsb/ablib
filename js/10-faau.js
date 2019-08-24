@@ -727,7 +727,7 @@ class FAAU {
     load(url, args=null, element=null, fn=false, sync=false) {
         this.call(url, args, function(target=element) {
             let r;
-            if(this.status==200) r = this.data.prepare(_.colors()).morph();
+            if(this.status==200) r = this.data.prepare(app.colors()).morph();
             else return DEBUG ? app.error("error loading "+url) : null;
             if(!r.id) r.id = app.nuid();
             // let
@@ -964,7 +964,7 @@ bind(window, {
             if(this.classList.contains("-skip")) return;
             let
             size = Math.max(this.offsetWidth, this.offsetHeight);
-            this.append(_.new("span","-absolute",{
+            this.append(app.new("span","-absolute",{
                 background      : app.colors().CLR_DARK1
                 , display       : "inline-block"
                 , borderRadius  : "50%"
