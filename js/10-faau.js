@@ -25,6 +25,11 @@ bind = (e,o)=>{
 NodeList.prototype.array = function() {
     return [].slice.call(this);
 };
+
+HTMLCollection.prototype.array = function() {
+    return [].slice.call(this);
+};
+
 bind(HTMLFormElement.prototype,{
     json: function(){
         let
@@ -118,7 +123,7 @@ bind(Element.prototype,{
         this.get("*").each(function() {if(!(a.indexOf(this.tagName)+1)) this.remove()});
         return this
     }
-    , setData: function(o=null, fn=null){
+    , data: function(o=null, fn=null){
         if(!o) return this;
         let
         args = Object.keys(o);
@@ -128,7 +133,7 @@ bind(Element.prototype,{
         if(fn) return fn.bind(this)(this);
         return this;
     }
-    , setStyle: function(o=null, fn = null) {
+    , css: function(o=null, fn = null) {
         if (o===null) return this;
         this.style.transition = "none";
         this.style.transitionDuration = 0;
@@ -297,10 +302,10 @@ bind(Element.prototype,{
         if(obj.left!==undefined)this.style.transform = "translateY("+(this.offsetLeft-obj.left)+")";
     }
     , appear: function(len = ANIMATION_LENGTH) {
-        return this.setStyle({display:'inline-block'},function(){ this.anime({opacity:1},len,1); });
+        return this.css({display:'inline-block'},function(){ this.anime({opacity:1},len,1); });
     }
     , desappear: function(len = ANIMATION_LENGTH, remove = false) {
-        return this.anime({opacity:0},len,1,function() { if(remove) this.remove(); else this.setStyle({ display : "none" }); });
+        return this.anime({opacity:0},len,1,function() { if(remove) this.remove(); else this.css({ display : "none" }); });
     }
     , remove: function() { this&&this.parent()&&this.parent().removeChild(this) }
     , at: function(i=0) {
@@ -393,6 +398,9 @@ bind(Array.prototype, {
     , last: function() { return this.length ? this[this.length-1] : null; }
     , first: function() { return this.length ? this[0] : null; }
     , at: function(n=0) { return this.length>=n ? this[n] : null; }
+    , empty: function(){
+        this.each(el=>el.empty());
+    }
     , stringify: function() {
         return JSON.stringify(this);
     }
@@ -406,16 +414,16 @@ bind(Array.prototype, {
         this.each(function() {this.anime(obj,len,delay,fn,trans)});
         return this
     }
-    , setStyle: function(obj,fn=null) {
-        this.each(function() {this.setStyle(obj,fn)});
+    , css: function(obj,fn=null) {
+        this.each(function() {this.css(obj,fn)});
         return this
     }
-    , setData: function(obj,fn=null) {
-        this.each(function() {this.setData(obj,fn)});
+    , data: function(obj,fn=null) {
+        this.each(function() {this.data(obj,fn)});
         return this
     }
-    , setText: function(txt,fn=null) {
-        this.each(function() {this.setText(txt,fn)});
+    , text: function(txt,fn=null) {
+        this.each(function() {this.text(txt,fn)});
         return this
     }
     , addClass: function(cl=null) {
@@ -443,10 +451,10 @@ bind(Array.prototype, {
         return this
     }
     , appear: function(len = ANIMATION_LENGTH) {
-        return this.each(function(){ this.setStyle({display:'block'},function(){ this.anime({opacity:1},len,1); }); });
+        return this.each(function(){ this.css({display:'block'},function(){ this.anime({opacity:1},len,1); }); });
     }
     , desappear: function(len = ANIMATION_LENGTH, remove = false){
-        return this.each(function(){ this.anime({opacity:0},len,1,function() { if(remove) this.remove(); else this.setStyle({ display : "none" }); }); });
+        return this.each(function(){ this.anime({opacity:0},len,1,function() { if(remove) this.remove(); else this.css({ display : "none" }); }); });
     }
 });
 Object.defineProperty(Object.prototype, "spy", {
@@ -748,7 +756,7 @@ class FAAU {
     notify(n, c=null) {
         let
         toast = document.createElement("toast");
-        toast.setStyle({
+        toast.css({
             fontSize: "1rem",
             background: c&&c[0] ? c[0] : "rgba(255,255,255,.8)",
             color: c&&c[1] ? c[1] : "black",
@@ -759,7 +767,7 @@ class FAAU {
             position:"fixed"
         }).innerHTML = n ? n : "Hello <b>World</b>!!!";
         if(!this.isMobile()) {
-            toast.setStyle({
+            toast.css({
                 top:0,
                 left:"80vw",
                 width:"calc(20vw - 4rem)",
@@ -767,7 +775,7 @@ class FAAU {
                 borderRadius:".5rem",
             });
         }else{
-            toast.setStyle({
+            toast.css({
                 opacity:0,
                 top:".5rem",
                 left:".5rem",
@@ -793,18 +801,18 @@ class FAAU {
             $(".--default-loading").each(function(){ clearInterval(this.dataset.animation); this.remove() });
             return;
         }
-        app.body.append(document.createElement("div").addClass("-fixed -view -zero --default-loading"));
+        app.body().append(document.createElement("div").addClass("-fixed -view -zero --default-loading"));
 
          app.load("src/img/loading.svg",null,$(".--default-loading")[0],function(){
             let
             circle = $(".--default-loading .--loading-circle")[0];
             if(!circle) return;
-            circle.setStyle({transformOrigin:"top left", scale:window.innerWidth/1920,"stroke-dasharray":circle.getTotalLength()+","+circle.getTotalLength()+","+circle.getTotalLength()});
+            circle.css({transformOrigin:"top left", scale:window.innerWidth/1920,"stroke-dasharray":circle.getTotalLength()+","+circle.getTotalLength()+","+circle.getTotalLength()});
             $(".--default-loading")[0].dataset.animation = setInterval(()=>{
                 let
                 circle = $(".--default-loading .--loading-circle")[0];
                 if(circle){ 
-                    circle.setStyle({"stroke-dashoffset":0});
+                    circle.css({"stroke-dashoffset":0});
                     circle.anime({"stroke-dashoffset":circle.getTotalLength()*4},2200,0,null,"ease-in-out")
                 }
             },2201)
@@ -837,7 +845,7 @@ class FAAU {
         o.color =  o.color ?  o.color : "white";
         o.position = "absolute";
         o.fontSize = o.fontSize ? o.fontSize : "1rem";
-        toast.setStyle(o).addClass("--hintifyied"+(special?"-sp":"")).appendChild(n ? n : ("<b>···</b>!!!").morph());
+        toast.css(o).addClass("--hintifyied"+(special?"-sp":"")).appendChild(n ? n : ("<b>···</b>!!!").morph());
 
         if(toast.get(".--close").length) toast.get(".--close").at().on("click",function() { $(".--hintifyied"+(special?", .--hintifyied-sp":"")).remove() });
         else toast.on("click",function() { this.remove() });
@@ -851,27 +859,8 @@ class FAAU {
 
     get(w=null,c=null) { this.nodearray = $(w,c); return this }
 
-    get length() { return this.nodearray.length }
-
-    each(fn=null) {this.nodearray.each(fn);return this }
-
-    at(n=0) { return this.nodearray.at(n) }
-
-    first() {return this.nodearray.first() }
-
-    last() {return this.nodearray.last() }
-
-    empty(except=null) { this.nodearray.each(function() {this.empty(except)})}
-
-    remove() { this.nodearray.each(function() {this.remove()})}
-
-    anime(obj,len=ANIMATION_LENGTH,delay=0,fn=null,trans=null) {
-        this.nodearray.each(function() {this.anime(obj,len,delay,fn,trans)})
-        return this;
-    }
-
     new(node='div', cls="auto-created", style={display:"inline-block"}, fn) {
-        return document.createElement(node).addClass(cls).setStyle(style,fn);
+        return document.createElement(node).addClass(cls).css(style,fn);
     }
 
     storage(field=null,value=null){
@@ -897,7 +886,7 @@ class FAAU {
         this.initial_pragma = 0
         this.current        = 0
         this.last           = 0
-        this.body           = document.getElementById("app") || document.getElementsByTagName("body")[0]
+        this.body           = function(){ return document.getElementById("app") || document.getElementsByTagName("body")[0]; }
         this.onPragmaChange = new Pool()
         this.nodes = document;
         this.nodearray = [];
