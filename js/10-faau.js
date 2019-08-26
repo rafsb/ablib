@@ -696,6 +696,7 @@ class Bootstrap {
 
 		return this.alreadyLoaded || false;
 	}
+    populate(arr=[]){ arr.each(el=>{ this.loaders[el] = false }) }
     constructor(){
         this.alreadyLoaded = false;
         this.loadComponents = new Pool();
@@ -716,7 +717,9 @@ class FAAU {
         if(!sync&&fn) {
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4) {
-                   return fn.bind({ status: xhr.status, data: xhr.responseText.trim(), url:url, args:args })();
+                    let
+                    o = { status: xhr.status, data: xhr.responseText.trim(), url:url, args:args };
+                   return fn.bind(o)(o);
                 };
             }
         }
@@ -728,7 +731,7 @@ class FAAU {
         if(sync) {
             let
             o = { status: xhr.status, data: xhr.responseText.trim(), url:url, args:args };
-            return (fn ? fn.bind(o)() : o);
+            return (fn ? fn.bind(o)(o) : o);
         }
     }
 
@@ -899,13 +902,19 @@ class FAAU {
                 , CLR_FONTBLURED:"#646464"
                 , CLR_SPAN :"#DC2431"
                 , CLR_DISABLED: "#7E8C8D"
-                , CLR_SHADE1:"rgba(0,0,0,.16)"
-                , CLR_SHADE2:"rgba(0,0,0,.32)"
-                , CLR_SHADE3:"rgba(0,0,0,.64)"
-                , CLR_BRIGHT1:"rgba(255,255,255,.16)"
-                , CLR_BRIGHT2:"rgba(255,255,255,.32)"
-                , CLR_BRIGHT3:"rgba(255,255,255,.64)"
+                , CLR_DARK1:"rgba(0,0,0,.16)"
+                , CLR_DARK2:"rgba(0,0,0,.32)"
+                , CLR_DARK3:"rgba(0,0,0,.64)"
+                , CLR_DARK4:"rgba(0,0,0,.80)"
+                , CLR_DARK5:"rgba(0,0,0,.96)"
+                , CLR_LIGHT1:"rgba(255,255,255,.16)"
+                , CLR_LIGHT2:"rgba(255,255,255,.32)"
+                , CLR_LIGHT3:"rgba(255,255,255,.64)"
+                , CLR_LIGHT4:"rgba(255,255,255,.80)"
+                , CLR_LIGHT5:"rgba(255,255,255,.96)"
                 /*** PALLETE ***/
+                , CLR_WHITE:"#ffffff"
+                , CLR_BLACK:"#000000"
                 , CLR_WET_ASPHALT:"#34495E"
                 , CLR_MIDNIGHT_BLUE:"#2D3E50"
                 , CLR_CONCRETE:"#95A5A5"
