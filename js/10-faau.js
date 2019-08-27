@@ -109,7 +109,7 @@ bind(Element.prototype,{
                 default : this.style[i] = obj[i]; break;
             }
         }
-        if(fn!==null&&typeof fn=="function") this.dataset.animationFunction = setTimeout(fn.bind(this),len*1000+delay+1);
+        if(fn!==null&&typeof fn=="function") this.dataset.animationFunction = setTimeout(fn.bind(this),len*1000+delay+1,this);
         return this;
     }
     , stop: function() {
@@ -164,6 +164,10 @@ bind(Element.prototype,{
         if(tx) this.innerHTML = tx;
         else return this.innerHTML;
         return this
+    }
+    , then: function(fn){
+        if(fn) return fn.bind(this)(this);
+        return this;
     }
     , data: function(o=null, fn=null) {
         if (o===null) return this.dataset;
@@ -400,6 +404,9 @@ bind(Array.prototype, {
     , at: function(n=0) { return this.length>=n ? this[n] : null; }
     , empty: function(){
         this.each(el=>el.empty());
+    }
+    , then: function(fn){
+        return this.each(el=>el.then(fn));
     }
     , stringify: function() {
         return JSON.stringify(this);
@@ -709,7 +716,7 @@ class Bootstrap {
 class FAAU {
     get(e,w){ return faau.get(e,w||document).nodearray; }
     declare(obj){ Object.keys(obj).each(function(){ window[this+""] = obj[this+""] }); }
-    initialize(){}
+    initialize(){bootstrap&&bootstrap.loadComponents.fire();}
     call(url, args=null, fn=false, head=null, method='POST', sync=false) {
         let
         xhr = new XMLHttpRequest();
@@ -862,8 +869,8 @@ class FAAU {
 
     get(w=null,c=null) { this.nodearray = $(w,c); return this }
 
-    new(node='div', cls="auto-created", style={display:"inline-block"}, fn) {
-        return document.createElement(node).addClass(cls).css(style,fn);
+    new(node='div', cls=null, style={display:"inline-block"}, fn) {
+        return document.createElement(node || "div").addClass(cls || "auto-created").css(style||{display:"inline-block"},fn);
     }
 
     storage(field=null,value=null){
@@ -881,16 +888,24 @@ class FAAU {
         return pallete&&this.color_pallete[pallete] ? this.color_pallete[pallete] : this.color_pallete;
     }
 
+    require(url=null, args={}, fn=null){
+        if(!url) return;
+        this.call("webroot/js/components/"+url+".js",args,res=>{
+            if(res.status==200) eval(res.data.prepare(app.colors()));
+        });
+    }
+
     hashit(o){ if(typeof o == "object" || typeof o == "array") o = JSON.stringify(o); return { hash: btoa(o) } }
 
     makeServerHashToken(o){ return this.hashit(o).hash; }
 
     constructor(wrapper,context) {
-        this.initial_pragma = 0
-        this.current        = 0
-        this.last           = 0
-        this.body           = function(){ return document.getElementById("app") || document.getElementsByTagName("body")[0]; }
-        this.onPragmaChange = new Pool()
+        this.components = {};
+        this.initial_pragma = 0;
+        this.current        = 0;
+        this.last           = 0;
+        this.body           = function(){ return document.getElementById("app") || document.getElementsByTagName("body")[0]; };
+        this.onPragmaChange = new Pool();
         this.nodes = document;
         this.nodearray = [];
         this.color_pallete = {
