@@ -6,7 +6,7 @@ class Page {
 
 	protected $result_ = null;
 
-	protected $layout_ = "default";
+	protected $layout_ = LAYOUTS_DEFAULT; // also LAYOUTS_THIN
 
 	protected $allow_access_ = false;
 
@@ -62,6 +62,23 @@ class Page {
 		}else return Core::response(-1, "Template not found!");
 	}
 
+	protected function template($t, $args=[]){
+		if(is_file(IO::root() . "webroot" . DS . "views" . DS . "templates" .  DS . $t . ".htm" )){
+			$tmp = IO::read("/webroot" . DS . "views" . DS . "templates" . DS . $t . ".htm");
+			// print_r($tmp);
+			if(sizeof($args)){
+				foreach($args as $k => $v){
+					// echo $tmp;
+					$tmp = str_replace("@".$k, $v, $tmp);
+				}
+			}
+			// echo "<!--";
+			// var_dump($tmp);
+			// echo " -->";
+			return $tmp;
+		}else return Core::response(-1, "Template not found!");
+	}
+
 	protected function component($t, $args=[]){
 		$path = IO::root("webroot" . DS . "views" . DS . "components" . DS);
 		if(is_array($t)){
@@ -93,7 +110,7 @@ class Page {
 
 	protected function layout($layout = null){
 		if($layout!==null) $this->layout_ = $layout;
-		if($this->layout_) $tmp = IO::root() . "webroot" . DS . "views" . DS . "templates" . DS . "layout" . DS . strtolower($this->layout_=="@"?get_called_class():$this->layout_) . ".php";
+		if($this->layout_) $tmp = IO::root() . "webroot" . DS . "views" . DS . "layouts" . DS . strtolower($this->layout_=="@"?get_called_class():$this->layout_) . ".php";
 		return $this->layout_ ? (is_file($tmp) ? $tmp : Core::response(-1,"Layout file not found: $layout")) : false;
 	}
 

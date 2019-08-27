@@ -1,7 +1,7 @@
 <?php
 class Debug {
 	public static function show(){
-		echo "<br/><pre class='-left -content-left'>";
+		// echo "<br/><pre class='-left -content-left'>";
 		echo PHP_EOL;
 		echo PHP_EOL;
 		print_r(Request::sess("DEBUG"));

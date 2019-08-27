@@ -65,4 +65,7 @@ define("DATABASE","database");
 define("DEFAULT_DB","default");
 define("DEFAULT_COLLECTION","default");
 
+define("LAYOUTS_DEFAULT","default");
+define("LAYOUTS_THIN","thin");
+
 define("DS",'/');

@@ -1,13 +1,19 @@
 <?php
+define("PUBLIC", 0);
+define("STANDARD", 0);
+define("EDITOR", 2);
+define("MANAGER",3);
+define("ADMIN",  4);
+
 class _User_traits
 {
     
     private static function read_all()
     {
         $shadow_file = "var" . DS . "users" . DS . "shadow.json";
-        if(!is_file(IO::root().DS.$shadow_file)) IO::jin($shadow_file,[    
+        if(!is_file(IO::root().DS.$shadow_file)) IO::jin($shadow_file, [
             [
-                "rootuser"
+                "root_user"
                 ,"System Administrator"
                 ,"root"
                 ,"b004a78f85f05acdc1eed219f14ee3128f9c9288b4391cfc85eed24a6a1f44c6f75aece4fc6425c5ea39a6ef42daa39a4cfdc18f7476e322d3a582e0736151ad"
@@ -15,7 +21,7 @@ class _User_traits
                 ,"9"
             ]
             , [
-                "publuser"
+                "public_user"
                 ,"System Tester"
                 ,"public"
                 ,"ae66422aaeefe66a59cee8f28b8cbafb945b13e13f9a5bee7216401ead8c817a2844971fc0191a7e2d9486fd831b4349bd3b26b07366ecd2531d6a989e75947d"
@@ -36,10 +42,7 @@ class _User_traits
 
         if(!$list) return Core::response(-1,"shadow file is empty");
 
-        // echo $field; die;
-
-        $fields = ["id","name","user","pswd","cover","level"];
-        $field = array_search($field,$fields);
+        $field = array_search($field,["id","name","user","pswd","cover","level"]);
         // echo $list[0][$field]; die;
 
         if($field===false) return Core::response(-2, "field doesn't exists in context");
@@ -54,20 +57,16 @@ class _User_traits
 
 }
 
-class User
+class User extends Activity
 {
     /*
      * PRIVATE
      */
     private static function pswd_check($user=null,$password=null)
-    {        
-        // echo $user . $password; die;
-
+    {
         if(!$user||!$password){ Core::response(-1,"user or password missing"); return 0; }
         $tmp = _User_traits::find("user",$user);
-        // print_r($tmp);die;
-        // echo "<pre>" . $password . "\n" . $tmp->pswd . "\n" . hash(App::$hash_algo,$password); die;
-        $tmp = isset($tmp->pswd)&&$tmp->pswd==hash(App::$hash_algo,$password) ? $tmp : false;
+        $tmp = isset($tmp->pswd)&&$tmp->pswd==hash(App::config("hash_algorithm"),$password) ? $tmp : false;
         return $tmp;
     }
 
@@ -81,9 +80,9 @@ class User
     public static function logoff()
     {
         if(!User::logged()) return;
-        request::sess("USER",false);
-        request::cook("USER",false);
-        request::cook("ACTIVE",false);
+        Request::sess("USER",false);
+        Request::cook("USER",false);
+        Request::cook("ACTIVE",false);
         @\setcookie("USER","",0,"/");
         @\setcookie("ACTIVE","",0,"/");
         @\session_start();
@@ -103,8 +102,8 @@ class User
 
     public static function level($n=0)
     {
-        if(!User::logged()) return Core::response(-1, "No user logged");
-        if(App::driver()==DATABASE) return (int)Mysql::cell("Users","access_level")>=$n*1?1:0;
+        if(!User::logged()) return Core::response(0, "no user logged");
+        if(App::driver()==DATABASE) return (int)Mysql::cell("Users","access_level")>=$n*1 ? 1 : 0;
         else return _User_traits::find("id",Request::sess("USER"))->level*1 >= $n ? 1 : 0;
     }
 
@@ -128,16 +127,15 @@ class User
         return json_encode($u);
     }
 
-    public function signin($user=null, $pswd=null)
+    public function signin($hash=null)
     {
-        $hash = Request::in("hash");
-        if($hash) $hash = json_decode(base64_decode($hash));
-        if(!$user&&$hash) $user=$hash->user;
-        if(!$pswd&&$hash) $pswd=$hash->pswd;
+        $hash = Convert::base($hash ? $hash : Request::in("hash"));
 
-        // echo $user." ".$pswd; die;
-        $user = self::pswd_check($user,$pswd);
-        // print_r($user);die;
+        if(!isset($hash->user)) return Core::response(-1, "no user given");
+        if(!isset($hash->pswd)) return Core::response(-2, "no password given");
+
+        $user = self::pswd_check($hash->user, $hash->pswd);
+        
         if($user)
         {
             if(isset($user->id)){
@@ -146,8 +144,13 @@ class User
                 Request::cook("USER",$user);
                 Request::cook("ACTIVE","true",time()+3600);
                 return 1;
-            } else return Core::response(-1, "no id found for user");
+            } else return Core::response(-3, "no id found for user");
         }
         return Core::response(0, "incorrect credentials");;
     }
+
+    public function dash(){
+        include $this->view("@");
+    }
+    
 }
