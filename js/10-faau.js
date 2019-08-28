@@ -152,8 +152,8 @@ bind(Element.prototype,{
                 default : this.style[i] = o[i]; break;
             }
         }
-        if(fn!==null&&typeof fn=="function") setTimeout(fn.bind(this),16);
-        return this
+        if(fn!==null&&typeof fn=="function") setTimeout(fn.bind(this),4,this);
+        return this;
     }
     , text: function(tx=null) {
         if(tx) this.textContent = tx;
@@ -182,20 +182,24 @@ bind(Element.prototype,{
         if(fn!==null&&typeof fn=="function") fn.bind(this)();
         return this;
     }
-    , after: function(obj=null) {
+    , after: function(obj=null, fn=null) {
         if(obj) this.insertAdjacentElement("afterend",obj);
+        if(fn) return fn.bind(this)(this);
         return this
     }
-    , before: function(obj=null) {
+    , before: function(obj=null, fn=null) {
         if(obj) this.insertAdjacentElement("beforebegin",obj);
+        if(fn) return fn.bind(this)(this);
         return this
     }
-    , append: function(obj=null) {
+    , append: function(obj=null, fn=null) {
         if(obj) this.insertAdjacentElement("beforeend",obj);
+        if(fn) return fn.bind(this)(this);
         return this;
     }
-    , prepend: function(obj=null) {
+    , prepend: function(obj=null, fn=null) {
         if(obj) this.insertAdjacentElement("afterbegin",obj);
+        if(fn) return fn.bind(this)(this);
         return this
     }
     , has: function(cls=null) {
@@ -306,10 +310,10 @@ bind(Element.prototype,{
         if(obj.left!==undefined)this.style.transform = "translateY("+(this.offsetLeft-obj.left)+")";
     }
     , appear: function(len = ANIMATION_LENGTH) {
-        return this.css({display:'inline-block'},function(){ this.anime({opacity:1},len,1); });
+        return this.css({display:'inline-block'},function(){ this.anime({filter:"opacity(1)"},len,1); });
     }
     , desappear: function(len = ANIMATION_LENGTH, remove = false) {
-        return this.anime({opacity:0},len,1,function() { if(remove) this.remove(); else this.css({ display : "none" }); });
+        return this.anime({filter:"opacity(0)"},len,1,function() { if(remove) this.remove(); else this.css({ display : "none" }); });
     }
     , remove: function() { this&&this.parent()&&this.parent().removeChild(this) }
     , at: function(i=0) {
@@ -422,8 +426,8 @@ bind(Array.prototype, {
         return this
     }
     , css: function(obj,fn=null) {
-        this.each(function() {this.css(obj,fn)});
-        return this
+        this.each(function(){ this.css(obj,fn); });
+        return this;
     }
     , data: function(obj,fn=null) {
         this.each(function() {this.data(obj,fn)});
@@ -462,6 +466,18 @@ bind(Array.prototype, {
     }
     , desappear: function(len = ANIMATION_LENGTH, remove = false){
         return this.each(function(){ this.anime({opacity:0},len,1,function() { if(remove) this.remove(); else this.css({ display : "none" }); }); });
+    }
+    , append: function(el,fn=null){
+        return this.each(function(){ this.append(el,fn); });
+    }
+    , prepend: function(el,fn=null){
+        return this.each(function(){ this.prepend(el,fn); });
+    }
+    , after: function(el,fn=null){
+        return this.each(function(){ this.after(el,fn); });
+    }
+    , before: function(el,fn=null){
+        return this.each(function(){ this.before(el,fn); });
     }
 });
 Object.defineProperty(Object.prototype, "spy", {
@@ -869,7 +885,7 @@ class FAAU {
 
     get(w=null,c=null) { this.nodearray = $(w,c); return this }
 
-    new(node='div', cls=null, style={display:"inline-block"}, fn) {
+    new(node='div', cls=null, style={display:"inline-block"}, fn=null) {
         return document.createElement(node || "div").addClass(cls || "auto-created").css(style||{display:"inline-block"},fn);
     }
 
@@ -904,6 +920,7 @@ class FAAU {
         this.initial_pragma = 0;
         this.current        = 0;
         this.last           = 0;
+        this.clickEffectSelector = ".-tile";
         this.body           = function(){ return document.getElementById("app") || document.getElementsByTagName("body")[0]; };
         this.onPragmaChange = new Pool();
         this.nodes = document;
@@ -964,6 +981,7 @@ bind(window, {
     , $: function(wrapper=null, context=document) { return [].slice.call((new FAAU(wrapper,context)).nodearray); }
     , bootstrap: new Bootstrap()
     , app: (new FAAU())
+    , com: function(){ return window.app.components; }
     , base_hash: function(obj){
         switch(typeof obj){
             case "object" || "array" : return btoa(JSON.stringify(obj));    break;
@@ -977,8 +995,8 @@ bind(window, {
             if(this.classList.contains("-skip")) return;
             let
             size = Math.max(this.offsetWidth, this.offsetHeight);
-            this.append(app.new("span","-absolute",{
-                background      : app.colors().CLR_DARK1
+            this.append(app.new("span","-fixed",{
+                background      : app.colors().CLR_SILVER
                 , display       : "inline-block"
                 , borderRadius  : "50%"
                 , width         : size+"px"
@@ -988,7 +1006,7 @@ bind(window, {
                 , top           : (e.offsetY - size/2)+"px"
                 , left          : (e.offsetX - size/2)+"px"
             }, function(){
-                this.anime({scale:2,opacity:.5},ANIMATION_LENGTH/2,null,function(){ this.remove(); },"ease-in");
+                this.anime({scale:2,opacity:.5},ANIMATION_LENGTH/2,1,function(){ this.remove(); },"ease-in");
             }));
         });
     }

@@ -112,16 +112,17 @@ img 			{ vertical-align: middle }
 
 /* BEHAVIORS */
 .-scrolls       {  overflow-x: hidden; overflow-y:  scroll; }
-.-no-scrolls    { overflow: hidden }
+.-tile, .-no-scrolls    { overflow: hidden }
+.-tile:not(.-keep) * { pointer-events: none !important; }
 .-pointer-and-spin
-, .-pointer     { transition: all .4s ease; cursor: pointer; transform-origin: center center;opacity: .5, pointer-events: all !important;filter: opacity(.8) }
-.-only-pointer  { transition: all .4s ease; cursor: pointer;pointer-events: all !important; filter:opacity(.8); }
+, .-pointer     { transition: all .4s ease; cursor: pointer; transform-origin: center center; pointer-events: all !important;filter: opacity(.8) }
+.-only-pointer,.-pointer-and-spin  { cursor: pointer; pointer-events: all !important; filter:opacity(.8); }
 .-link 			{ cursor: pointer; }
 .-link:hover 	{ text-decoration: underline; font-weight: bolder; }
 .-stroke-pointer{ transition: all .4s ease; cursor: pointer;pointer-events: stroke !important }
-.-pointer:hover { transform: scale(1.2); filter: opacity(1); }
+.-pointer:hover { transform: scale(1.05); filter: opacity(1); }
 .-only-pointer:hover { filter: opacity(1); }
-.-pointer-and-spin:hover { transform:  scale(1.2); opacity: .8; transform: rotate(180deg);pointer-events: all !important }
+.-pointer-and-spin:hover { transform: rotate(180deg); }
 .-cursor { cursor:  pointer;pointer-events: all !important }
 .-avoid-pointer { pointer-events: none !important }
 .-light { font-weight: lighter }
