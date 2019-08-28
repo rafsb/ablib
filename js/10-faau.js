@@ -14,6 +14,7 @@ ANIMATION_LENGTH = 800
 , SUM               = 0
 , MEDIAN            = 1
 , HARMONIC          = 2
+, AVERAGE           = 3
 , PASSWD_AUTO_HASH  = true;
 ;
 var
@@ -398,8 +399,12 @@ bind(Array.prototype, {
         res = 0;
         switch (type){
             case (SUM): this.each(function(){ res+=this*1 }); break;
-            case (MEDIAN): this.each(function(){ res+=this*1 }); res = res/this.length; break;
+            case (AVERAGE): this.each(function(){ res+=this*1 }); res = res/this.length; break;
             case (HARMONIC): this.each(function(){ res+=1/this*1 }); res = this.length/res; break;
+            case (MEDIAN):
+                res = this.dehydrate(function(){ if(this*1) return this*1 }).sort((a, b)=>a-b);
+                res = (this.length % 2 ? this[Math.floor(this.length/2)] : (this[this.length/2-1] + this[this.length/2]) / 2) || "0";
+            break;
         }
         return res;
     }
