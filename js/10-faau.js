@@ -738,46 +738,24 @@ class FAAU {
     get(e,w){ return faau.get(e,w||document).nodearray; }
     declare(obj){ Object.keys(obj).each(function(){ window[this+""] = obj[this+""] }); }
     initialize(){bootstrap&&bootstrap.loadComponents.fire();}
-    call(url, args=null, fn=false, head=null, method='POST', sync=false) {
-        let
-        xhr = new XMLHttpRequest();
-        args = args ? args : {};
-        if(!sync&&fn) {
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4) {
-                    let
-                    o = { status: xhr.status, data: xhr.responseText.trim(), url:url, args:args };
-                   return fn.bind(o)(o);
-                };
-            }
-        }
-        xhr.open(method, url, !sync);
-        // xhr.setRequestHeader("Content-Type", "plain/text");
-        // xhr.setRequestHeader("Accept", 'application/json');
-        if(head) for(let i in head){ xhr.setRequestHeader(i,head[i]); };
-        xhr.send(JSON.stringify(args));
-        if(sync) {
-            let
-            o = { status: xhr.status, data: xhr.responseText.trim(), url:url, args:args };
-            return (fn ? fn.bind(o)(o) : o);
-        }
+    call(url, args=null, fn=false, method="POST", head={"FA-Custom":"@rafsb", "Content-Type":"text/plain"}) {
+        fetch(url,{method:"POST", body: args ? args.stringify() : ""}).then(r=>r=r.text()).then(r=>{
+            if(fn) fn.bind({ data: r.trim(), url:url, args:args })();
+        });
     }
 
     load(url, args=null, element=null, fn=false, sync=false) {
-        this.call(url, args, function(target=element) {
-            let r;
-            if(this.status==200) r = this.data.prepare(app.colors()).morph();
-            else return DEBUG ? app.error("error loading "+url) : null;
-            if(!r.id) r.id = app.nuid();
-            // let
-            // tmp = r.get("script");
-            if(!target) target = app.get('body')[0];
-            target.append(r);
+        this.call(url, args, function(){
+            if(!this.data) return;
+            let 
+            r = this.data.prepare(_.colors()).morph();
+            if(!r) return;
+            if(!r.id) r.id = _.nuid();
+            if(!element) element = _.get('body')[0];
+            element.app(r);
             r.evalute();
-            // if(tmp.length) for(let i=0;i++<tmp.length;) { eval(tmp[i-1].textContent); }
-            if(fn) fn.bind(r)();
-            // else app.get("#"+r.id).first().anime({opacity:1},600);
-        }, sync);
+            if(fn) fn.bind(r)(r);
+        });
     }
 
     get(el,scop=document) { return [].slice.call(scop ? scop.querySelectorAll(el) : this.nodes.querySelectorAll(el)); }
