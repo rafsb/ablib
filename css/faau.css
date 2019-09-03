@@ -119,7 +119,7 @@ img 			{ vertical-align: middle }
 .-link 			{ cursor: pointer; }
 .-link:hover 	{ text-decoration: underline; font-weight: bolder; }
 .-stroke-pointer{ transition: all .4s ease; cursor: pointer;pointer-events: stroke !important }
-.-pointer:hover { transform: scale(1.2); filter: opacity(1); }
+.-pointer:hover { transform: scale(1.05); filter: opacity(1); }
 .-only-pointer:hover { filter: opacity(1); }
 .-pointer-and-spin:hover { transform:  scale(1.2); opacity: .8; transform: rotate(180deg);pointer-events: all !important }
 .-cursor { cursor:  pointer;pointer-events: all !important }

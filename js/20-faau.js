@@ -177,14 +177,19 @@ Element.prototype.has = function(cls=null) {
     return false
 }
 
-Element.prototype.dataSort = function(data=null,dir="asc") {
+Element.prototype.dataSort = function(data=null,dir="asc")
+{
     let
-    me = this,
-    all = [].slice.call(this.children);
-    if(all.length) {
-        for(let i=all.length;i--;) {
-            for(let j=0;j<i;j++) {
-                if((dir=="asc"&&(all[j].dataset[data]>all[j+1].dataset[data]))||(dir=="desc"&&(all[j].dataset[data]<all[j+1].dataset[data]))) {
+    me = this
+    , all = [].slice.call(this.children);
+    if(all.length)
+    {
+        for(let i=all.length;i--;)
+        {
+            for(let j=0;j++<i;j)
+            {
+                if((dir=="asc"&&(all[j].dataset[data]>all[j+1].dataset[data]))||(dir=="desc"&&(all[j].dataset[data]<all[j+1].dataset[data])))
+                {
                     let
                     tmp = all[j];
                     all[j] = all[j+1];
@@ -192,21 +197,24 @@ Element.prototype.dataSort = function(data=null,dir="asc") {
                 }
             }
         }
-        all.each(function() { me.app(this) })
+        all.each(function(){ me.app(this) })
     }
     return this
 };
 
-Element.prototype.index = function() {
+Element.prototype.index = function()
+{
     return [].slice.call(this.parent().children).indexOf(this)-1;
 }
 
-Element.prototype.evalute = function() {
+Element.prototype.evalute = function()
+{
     this.get("script").each(function(){ eval(this.textContent) })
     return this
 };
 
-Element.prototype.on = function(action,fn,passive=true) {
+Element.prototype.on = function(action,fn,passive=true)
+{
     this.addEventListener(action,fn, {passive:passive})
     return this
 };
