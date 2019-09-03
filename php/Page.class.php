@@ -6,7 +6,7 @@ class Page {
 
 	protected $result_ = null;
 
-	protected $layout_ = "default";
+	protected $layout_ = LAYOUTS_DEFAULT; // also LAYOUTS_THIN
 
 	protected $allow_access_ = false;
 
@@ -58,6 +58,23 @@ class Page {
 			echo "<!--";
 			var_dump($tmp);
 			echo " -->";
+			return $tmp;
+		}else return Core::response(-1, "Template not found!");
+	}
+
+	protected function template($t, $args=[]){
+		if(is_file(IO::root() . "webroot" . DS . "views" . DS . "templates" .  DS . $t . ".htm" )){
+			$tmp = IO::read("/webroot" . DS . "views" . DS . "templates" . DS . $t . ".htm");
+			// print_r($tmp);
+			if(sizeof($args)){
+				foreach($args as $k => $v){
+					// echo $tmp;
+					$tmp = str_replace("@".$k, $v, $tmp);
+				}
+			}
+			// echo "<!--";
+			// var_dump($tmp);
+			// echo " -->";
 			return $tmp;
 		}else return Core::response(-1, "Template not found!");
 	}

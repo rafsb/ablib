@@ -7,7 +7,7 @@ body *:not(script):not(style) { font-family: inherit; position: relative; transi
 .-flex > *      { flex-grow:  1; }
 .-col-1,.-col-2,.-col-3,.-col-4,.-col-5,.-col-6,.-col-7,.-col-8,.-col-9,.-col-10,.-col-11,.-col-12 { float: left}
 
-@media only screen and (min-width: 1080px) {
+@media only screen and (min-width: 800px) {
 	.-wd-3quart 	{ width: 	  75%; }
 	.-wd-3quart-min { min-width:  75%; }
 	.-wd-3quart-max { max-width:  75%; }
@@ -59,7 +59,7 @@ body *:not(script):not(style) { font-family: inherit; position: relative; transi
 	.-desk-hide { display: none }
 }
 
-@media only screen and (max-width: 1079px) {
+@media only screen and (max-width: 799px) {
 	.-fixed:not(.-keep),
 	.-absolute:not(.-keep)	{ position: relative; }
 	.-wd-2third    , .-wd-3quart    , .-wd-half:not(.-keep) 	{ width: 	  100%; }
@@ -105,23 +105,24 @@ img 			{ vertical-align: middle }
 .-blur,blur,.-wrapper{ width:100%; top: 0; left: 0; padding: 0; overflow: hidden }
 .-wrapper       { position:relative }
 .-wide-bg       { background-position: center center; background-repeat: no-repeat; background-size: cover; background-attachment: fixed;}
-.-blur, blur    { position: absolute; background:inherit;filter: blur(12px); transform: scale(1.2); transform-origin: center center; top:0; left:0;}
+.-blur, blur    { position: absolute; background:inherit;filter: blur(.5em); transform: scale(1.2); transform-origin: center center; top:0; left:0;}
 .-row,.-wd-full { width:     100%; }
 .-wd-full-min   { min-width: 100%; }
 .-wd-full-max   { max-width: 100%; }
 
 /* BEHAVIORS */
 .-scrolls       {  overflow-x: hidden; overflow-y:  scroll; }
-.-no-scrolls    { overflow: hidden }
+.-tile, .-no-scrolls    { overflow: hidden }
+.-tile:not(.-keep) * { pointer-events: none !important; }
 .-pointer-and-spin
-, .-pointer     { transition: all .4s ease; cursor: pointer; transform-origin: center center;opacity: .5, pointer-events: all !important;filter: opacity(.8) }
-.-only-pointer  { transition: all .4s ease; cursor: pointer;pointer-events: all !important; filter:opacity(.8); }
+, .-pointer     { transition: all .4s ease; cursor: pointer; transform-origin: center center; pointer-events: all !important;filter: opacity(.8) }
+.-only-pointer,.-pointer-and-spin  { cursor: pointer; pointer-events: all !important; filter:opacity(.8); }
 .-link 			{ cursor: pointer; }
 .-link:hover 	{ text-decoration: underline; font-weight: bolder; }
 .-stroke-pointer{ transition: all .4s ease; cursor: pointer;pointer-events: stroke !important }
 .-pointer:hover { transform: scale(1.05); filter: opacity(1); }
 .-only-pointer:hover { filter: opacity(1); }
-.-pointer-and-spin:hover { transform:  scale(1.2); opacity: .8; transform: rotate(180deg);pointer-events: all !important }
+.-pointer-and-spin:hover { transform: rotate(180deg); }
 .-cursor { cursor:  pointer;pointer-events: all !important }
 .-avoid-pointer { pointer-events: none !important }
 .-light { font-weight: lighter }

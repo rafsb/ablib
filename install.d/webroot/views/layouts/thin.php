@@ -51,25 +51,11 @@ header('Content-Type: text/html; charset=UTF-8',true);?>
         <!-- Custom Tags -->
         <meta name='description' content=''/>
         <meta name='author' content='<?=App::devel()?>'/>
-
-        <!-- Scripts -->
-        <?php
-        IO::js(SCAN,APP);
-        IO::js(SCAN,CLIENT);?>
-
-        <!-- Firebase support -->
-        <!-- <script src="https://www.gstatic.com/firebasejs/6.1.1/firebase-app.js"></script> -->
-		<!-- <script src="https://www.gstatic.com/firebasejs/6.1.1/firebase-database.js"></script> -->
-
-        <!-- Stylesheets -->
-        <?php
-        IO::css(SCAN,APP);
-        IO::css(SCAN,CLIENT);?>
-
+        
         <title><?=App::project_name()?></title>
 
     </head>
-    <body class='-view -zero -content-center -opensans-light' style="background-image: linear-gradient(to right bottom, #323232, #323232, #626262)">
+    <body>
 
         <?php
         $load = $this->view() ? $this->view() : IO::root() . "/webroot/views/" . strtolower(get_called_class()) . ".php";
@@ -78,23 +64,4 @@ header('Content-Type: text/html; charset=UTF-8',true);?>
         else if(DEBUG) Debug::show();?>
         
     </body>
-
-    <script type="text/javascript">
-        /* Firebase support */
-        // var // Your web app's Firebase configuration
-		// firebaseConfig = {
-		//    apiKey: "AIzaSyDGCBaCOuAuyp0QH5aC8fIK0gz5htVj-6M",
-		//    authDomain: "rafsb-apps.firebaseapp.com",
-		//    databaseURL: "https://rafsb-apps.firebaseio.com",
-		//    projectId: "rafsb-apps",
-		//    storageBucket: "rafsb-apps.appspot.com",
-		//    messagingSenderId: "279336801488",
-		//    appId: "1:279336801488:web:e2cf1dd155bcb42d"
-		// };
-        (function(){
-            // Firebase support
-            // firebase.initializeApp(firebaseConfig);
-            app&&app.initialize()
-        })();
-    </script>
 </html>

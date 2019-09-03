@@ -130,6 +130,7 @@ class User extends Activity
     public function signin($hash=null)
     {
         $hash = Convert::base($hash ? $hash : Request::in("hash"));
+
         if(!isset($hash->user)) return Core::response(-1, "no user given");
         if(!isset($hash->pswd)) return Core::response(-2, "no password given");
 

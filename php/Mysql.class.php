@@ -117,8 +117,8 @@ class Mysql {
         	$c = @(new \mysqli($tmp->host,$tmp->username,$tmp->passwd,$tmp->database));
 		// echo "<pre>"; print_r($c); die;
         	if($c->connect_error)
-		{
-            		return Core::response(-1,"MYSQL CONNECTION ERROR: " . $c->errno);
+		    {
+            	return Core::response(-1,"MYSQL CONNECTION ERROR: " . $c->errno);
         	};
         	@$c->set_charset($tmp->encoding);
         	return new Mysql($c,$datasource);
