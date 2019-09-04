@@ -40,4 +40,8 @@ class Convert {
         else return $json ? base64_encode(self::json($input)) : base64_decode($input);
     }
 
+    public static function xml2json($xml){
+        return json_decode(json_encode(simplexml_load_string($xml)), true);
+    }
+
 }
