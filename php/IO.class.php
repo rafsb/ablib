@@ -124,7 +124,7 @@ class IO {
         if($tmp){
             foreach($tmp as $t){
                 if(!($t=="." || $t=="..")){
-                    if($extension!==null){ 
+                    if($extension){ 
                         if(substr($t,strlen($extension)*-1)==$extension) $result[] = $t; 
                     }
                     else if($withfolders||!is_dir($folder.DS.$t)) $result[] = $t;

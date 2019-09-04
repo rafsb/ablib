@@ -41,7 +41,7 @@ class Convert {
     }
 
     public static function xml2json($xml){
-        return json_decode(json_encode(simplexml_load_string($xml)), true);
+        return json_decode(json_encode(simplexml_load_string($xml)));
     }
 
 }

@@ -1,5 +1,5 @@
 <?php
-class Page {
+class Page extends IO {
 	protected $argv_ = [];
 
 	protected $view_ = "@";
