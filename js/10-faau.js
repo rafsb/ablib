@@ -5,16 +5,14 @@
     |  _| | | (_| | | | | | |  __/\ V  V / (_) | |  |   <
     |_| |_|  \__,_|_| |_| |_|\___| \_/\_/ \___/|_|  |_|\_\
 
-
 ****************************************************************************/
 const
 ANIMATION_LENGTH = 800
 , DEBUG = false
-// , REVERSE_PROXY_CLIENT_URI = "https://cors-anywhere.herokuapp.com/"
+, REVERSE_PROXY_CLIENT_URI = "https://cors-anywhere.herokuapp.com/"
 , SUM               = 0
 , MEDIAN            = 1
 , HARMONIC          = 2
-, AVERAGE           = 3
 , PASSWD_AUTO_HASH  = true;
 ;
 var
@@ -26,11 +24,9 @@ bind = (e,o)=>{
 NodeList.prototype.array = function() {
     return [].slice.call(this);
 };
-
 HTMLCollection.prototype.array = function() {
     return [].slice.call(this);
 };
-
 bind(HTMLFormElement.prototype,{
     json: function(){
         let
@@ -68,13 +64,13 @@ bind(HTMLFormElement.prototype,{
                     clearInterval(timer);
                 }
                 if (counter++ >= ANIMATION_LENGTH) {
-                    app.notify("Ops! Imagem não pode ser carregada, chama o Berts!",["#ff0066","white"]);
+                    app.notify("Ops! Imagem n茫o pode ser carregada, chama o Berts!",["#ff0066","white"]);
                     clearInterval(timer);
                 }
             }, ANIMATION_LENGTH/10);
         }
         xhr.upload.onerror = function() {
-            app.notify("Ops! Não foi possível subir esta imagem... chama o berts...",["#ff0066","white"]);
+            app.notify("Ops! N茫o foi poss铆vel subir esta imagem... chama o berts...",["#ff0066","white"]);
         };
         xhr.open("POST", "image/upload");
         xhr.send(form);
@@ -94,20 +90,20 @@ bind(Element.prototype,{
         this.style.transitionDelay = (delay?delay/1000:0).toFixed(2)+"s";
         for(let i in obj) {
             switch(i) {
-                case "skew"   : this.style.transform = 'skew('+obj[i]+','+obj[i]+')'; break;
-                case "skewX"  : this.style.transform = 'skewX('+obj[i]+')'; break;
-                case "skewY"  : this.style.transform = 'skewY('+obj[i]+')'; break;
-                case "scale"  : this.style.transform = 'scale('+obj[i]+')'; break;
-                case "scaleX" : this.style.transform = 'scaleX('+obj[i]+')'; break;
-                case "scaleY" : this.style.transform = 'scaleY('+obj[i]+')'; break;
+                case "skew"       : this.style.transform = 'skew('+obj[i]+','+obj[i]+')';      break;
+                case "skewX"      : this.style.transform = 'skewX('+obj[i]+')';                break;
+                case "skewY"      : this.style.transform = 'skewY('+obj[i]+')';                break;
+                case "scale"      : this.style.transform = 'scale('+obj[i]+')';                break;
+                case "scaleX"     : this.style.transform = 'scaleX('+obj[i]+')';               break;
+                case "scaleY"     : this.style.transform = 'scaleY('+obj[i]+')';               break;
                 case "translate"  : this.style.transform = 'translate('+obj[i]+','+obj[i]+')'; break;
-                case "translateX" : this.style.transform = 'translateX('+obj[i]+')'; break;
-                case "translateY" : this.style.transform = 'translateY('+obj[i]+')'; break;
-                case "rotate"     : this.style.transform = 'rotate('+obj[i]+')'; break;
+                case "translateX" : this.style.transform = 'translateX('+obj[i]+')';           break;
+                case "translateY" : this.style.transform = 'translateY('+obj[i]+')';           break;
+                case "rotate"     : this.style.transform = 'rotate('+obj[i]+')';               break;
                 // case "opacity"    : this.style.filter = 'opacity('+obj[i]+')'; break;
-                case "grayscale"  : this.style.filter = 'grayscale('+obj[i]+')'; break;
-                case "invert"     : this.style.filter = 'invert('+obj[i]+')'; break;
-                default : this.style[i] = obj[i]; break;
+                case "grayscale"  : this.style.filter    = 'grayscale('+obj[i]+')';            break;
+                case "invert"     : this.style.filter    = 'invert('+obj[i]+')';               break;
+                default           : this.style[i]        = obj[i];                             break;
             }
         }
         if(fn!==null&&typeof fn=="function") this.dataset.animationFunction = setTimeout(fn.bind(this),len*1000+delay+1,this);
@@ -124,7 +120,13 @@ bind(Element.prototype,{
         this.get("*").each(function() {if(!(a.indexOf(this.tagName)+1)) this.remove()});
         return this
     }
-    , data: function(o=null, fn=null){
+    , setText: function(t=null, fn=null){
+        if(!t) return this;
+        this.textContent = t;
+        if(fn) return fn.bind(this)(this);
+        return this;
+    },
+     setData: function(o=null, fn=null){
         if(!o) return this;
         let
         args = Object.keys(o);
@@ -134,27 +136,27 @@ bind(Element.prototype,{
         if(fn) return fn.bind(this)(this);
         return this;
     }
-    , css: function(o=null, fn = null) {
+    , setStyle: function(o=null, fn = null) {
         if (o===null) return this;
         this.style.transition = "none";
         this.style.transitionDuration = 0;
         for(let i in o) {
             switch(i) {
-                case "skew"  : this.style.transform = 'skew('+o[i]+','+o[i]+')'; break;
-                case "skewX" : this.style.transform = 'skewX('+o[i]+')'; break;
-                case "skewY" : this.style.transform = 'skewY('+o[i]+')'; break;
-                case "scale" : this.style.transform = 'scale('+o[i]+')'; break;
-                case "scaleX" : this.style.transform = 'scaleX('+o[i]+')'; break;
-                case "scaleY" : this.style.transform = 'scaleY('+o[i]+')'; break;
-                case "translate" : this.style.transform = 'translate('+o[i]+','+o[i]+')'; break;
-                case "translateX" : this.style.transform = 'translateX('+o[i]+')'; break;
-                case "translateY" : this.style.transform = 'translateY('+o[i]+')'; break;
-                case "rotate" : this.style.transform = 'rotate('+o[i]+')'; break;
-                default : this.style[i] = o[i]; break;
+                case "skew"         : this.style.transform = 'skew('+o[i]+','+o[i]+')';      break;
+                case "skewX"        : this.style.transform = 'skewX('+o[i]+')';              break;
+                case "skewY"        : this.style.transform = 'skewY('+o[i]+')';              break;
+                case "scale"        : this.style.transform = 'scale('+o[i]+')';              break;
+                case "scaleX"       : this.style.transform = 'scaleX('+o[i]+')';             break;
+                case "scaleY"       : this.style.transform = 'scaleY('+o[i]+')';             break;
+                case "translate"    : this.style.transform = 'translate('+o[i]+','+o[i]+')'; break;
+                case "translateX"   : this.style.transform = 'translateX('+o[i]+')';         break;
+                case "translateY"   : this.style.transform = 'translateY('+o[i]+')';         break;
+                case "rotate"       : this.style.transform = 'rotate('+o[i]+')';             break;
+                default             : this.style[i]        = o[i];                           break;
             }
         }
-        if(fn!==null&&typeof fn=="function") setTimeout(fn.bind(this),4,this);
-        return this;
+        if(fn!==null&&typeof fn=="function") setTimeout(fn.bind(this),16, this);
+        return this
     }
     , text: function(tx=null) {
         if(tx) this.textContent = tx;
@@ -165,10 +167,6 @@ bind(Element.prototype,{
         if(tx) this.innerHTML = tx;
         else return this.innerHTML;
         return this
-    }
-    , then: function(fn){
-        if(fn) return fn.bind(this)(this);
-        return this;
     }
     , data: function(o=null, fn=null) {
         if (o===null) return this.dataset;
@@ -183,25 +181,33 @@ bind(Element.prototype,{
         if(fn!==null&&typeof fn=="function") fn.bind(this)();
         return this;
     }
-    , after: function(obj=null, fn=null) {
-        if(obj) this.insertAdjacentElement("afterend",obj);
-        if(fn) return fn.bind(this)(this);
-        return this
-    }
-    , before: function(obj=null, fn=null) {
-        if(obj) this.insertAdjacentElement("beforebegin",obj);
-        if(fn) return fn.bind(this)(this);
-        return this
-    }
-    , append: function(obj=null, fn=null) {
-        if(obj) this.insertAdjacentElement("beforeend",obj);
-        if(fn) return fn.bind(this)(this);
+    , after: function(obj=null) {
+        let
+        el=this;
+        if(Array.isArray(obj)) obj.each(o=>el.after(o));
+        else if(obj) el.insertAdjacentElement("afterend",obj);
         return this;
     }
-    , prepend: function(obj=null, fn=null) {
-        if(obj) this.insertAdjacentElement("afterbegin",obj);
-        if(fn) return fn.bind(this)(this);
-        return this
+    , before: function(obj=null) {
+        let
+        el=this;
+        if(Array.isArray(obj)) obj.each(o=>el.before(o));
+        else if(obj) el.insertAdjacentElement("beforebegin",obj);
+        return this;
+    }
+    , append: function(obj=null) {
+        let
+        el=this;
+        if(Array.isArray(obj)) obj.each(o=>el.append(o));
+        else if(obj) el.insertAdjacentElement("beforeend",obj);
+        return this;
+    }
+    , prepend: function(obj=null) {
+        let
+        el=this;
+        if(Array.isArray(obj)) obj.each(o=>el.prepend(o));
+        else if(obj) el.insertAdjacentElement("afterbegin",obj);
+        return this;
     }
     , has: function(cls=null) {
         if(cls) return this.classList.contains(cls);
@@ -230,7 +236,7 @@ bind(Element.prototype,{
         return [].slice.call(this.parent().children).indexOf(this)-1;
     }
     , evalute: function() {
-        this.get("script").each(function(){ eval(this.textContent) })
+        this.get("script").each(function(){ eval(this.textContent)&&this.remove() })
         return this
     }
     , on: function(action,fn,passive=true) {
@@ -286,7 +292,7 @@ bind(Element.prototype,{
     , addClass: function(c) {
         let
         tmp = c.split(/\s+/g), i=tmp.length;
-        while(i--) this.classList.add(tmp[i]);
+        if(c.length) while(i--) this.classList.add(tmp[i]);
         return this;
     }
     , toggleClass: function(c) {
@@ -311,10 +317,10 @@ bind(Element.prototype,{
         if(obj.left!==undefined)this.style.transform = "translateY("+(this.offsetLeft-obj.left)+")";
     }
     , appear: function(len = ANIMATION_LENGTH) {
-        return this.css({display:'inline-block'},function(){ this.anime({filter:"opacity(1)"},len,1); });
+        return this.setStyle({display:'inline-block'},function(){ this.anime({opacity:1},len,1); });
     }
     , desappear: function(len = ANIMATION_LENGTH, remove = false) {
-        return this.anime({filter:"opacity(0)"},len,1,function() { if(remove) this.remove(); else this.css({ display : "none" }); });
+        return this.anime({opacity:0},len,1,function() { if(remove) this.remove(); else this.setStyle({ display : "none" }); });
     }
     , remove: function() { this&&this.parent()&&this.parent().removeChild(this) }
     , at: function(i=0) {
@@ -354,7 +360,7 @@ bind(String.prototype,{
         let
         x = document.createElement("div");
         x.innerHTML = this.replace(/\t+/g, "").trim();
-        return x.firstChild;
+        return x.firstChild.tagName.toLowerCase()=="template" ? x.firstChild.content.children.array() : x.children.array();
     }
     , prepare: function(obj=null){
         if(!obj) return this;
@@ -399,24 +405,14 @@ bind(Array.prototype, {
         res = 0;
         switch (type){
             case (SUM): this.each(function(){ res+=this*1 }); break;
-            case (AVERAGE): this.each(function(){ res+=this*1 }); res = res/this.length; break;
+            case (MEDIAN): this.each(function(){ res+=this*1 }); res = res/this.length; break;
             case (HARMONIC): this.each(function(){ res+=1/this*1 }); res = this.length/res; break;
-            case (MEDIAN):
-                res = this.dehydrate(function(){ if(this*1) return this*1 }).sort((a, b)=>a-b);
-                res = (this.length % 2 ? this[Math.floor(this.length/2)] : (this[this.length/2-1] + this[this.length/2]) / 2) || "0";
-            break;
         }
         return res;
     }
     , last: function() { return this.length ? this[this.length-1] : null; }
     , first: function() { return this.length ? this[0] : null; }
     , at: function(n=0) { return this.length>=n ? this[n] : null; }
-    , empty: function(){
-        this.each(el=>el.empty());
-    }
-    , then: function(fn){
-        return this.each(el=>el.then(fn));
-    }
     , stringify: function() {
         return JSON.stringify(this);
     }
@@ -430,16 +426,16 @@ bind(Array.prototype, {
         this.each(function() {this.anime(obj,len,delay,fn,trans)});
         return this
     }
-    , css: function(obj,fn=null) {
-        this.each(function(){ this.css(obj,fn); });
-        return this;
-    }
-    , data: function(obj,fn=null) {
-        this.each(function() {this.data(obj,fn)});
+    , setStyle: function(obj,fn=null) {
+        this.each(function() {this.setStyle(obj,fn)});
         return this
     }
-    , text: function(txt,fn=null) {
-        this.each(function() {this.text(txt,fn)});
+    , setData: function(obj,fn=null) {
+        this.each(function() {this.setData(obj,fn)});
+        return this
+    }
+    , setText: function(txt,fn=null) {
+        this.each(function() {this.setText(txt,fn)});
         return this
     }
     , addClass: function(cl=null) {
@@ -466,25 +462,20 @@ bind(Array.prototype, {
         if(act&&fn) this.each(function(){ this.on(act,fn) });
         return this
     }
+    , evalute: function(){
+        this.each(me=>{ 
+            if(me.tagName.toLowerCase()=="script") eval(me.textContent); 
+            else me.get("script").evalute()
+        })
+    }
     , appear: function(len = ANIMATION_LENGTH) {
-        return this.each(function(){ this.css({display:'block'},function(){ this.anime({opacity:1},len,1); }); });
+        return this.each(function(){ this.setStyle({display:'block'},function(){ this.anime({opacity:1},len,1); }); });
     }
     , desappear: function(len = ANIMATION_LENGTH, remove = false){
-        return this.each(function(){ this.anime({opacity:0},len,1,function() { if(remove) this.remove(); else this.css({ display : "none" }); }); });
-    }
-    , append: function(el,fn=null){
-        return this.each(function(){ this.append(el,fn); });
-    }
-    , prepend: function(el,fn=null){
-        return this.each(function(){ this.prepend(el,fn); });
-    }
-    , after: function(el,fn=null){
-        return this.each(function(){ this.after(el,fn); });
-    }
-    , before: function(el,fn=null){
-        return this.each(function(){ this.before(el,fn); });
+        return this.each(function(){ this.anime({opacity:0},len,1,function() { if(remove) this.remove(); else this.setStyle({ display : "none" }); }); });
     }
 });
+
 Object.defineProperty(Object.prototype, "spy", {
     value: function (p,fn) {
         let
@@ -559,7 +550,7 @@ class Pool {
         this.execution.each(function(i){ 
             pool.timeserie[i] = setTimeout(this, pool.timeline[i], x, pool.setup);
         });
-        return this
+        return this;
     }
     stop(i=null) {
         if(i!==null) { if(this.timeserie[i]) clearInterval(this.timeserie[i]) }
@@ -607,13 +598,13 @@ class Swipe {
         }.bind(this));        
     }
 
-    left(fn) { this.__LEFT__ = new THROTTLE(fn,this.len); return this }
+    left(fn) { this.__LEFT__ = new Throttle(fn,this.len); return this }
 
-    right(fn) { this.__RIGHT__ = new THROTTLE(fn,this.len); return this }
+    right(fn) { this.__RIGHT__ = new Throttle(fn,this.len); return this }
 
-    up(fn) { this.__UP__ = new THROTTLE(fn,this.len); return this }
+    up(fn) { this.__UP__ = new Throttle(fn,this.len); return this }
 
-    down(fn) { this.__DOWN__ = new THROTTLE(fn,this.len); return this }
+    down(fn) { this.__DOWN__ = new Throttle(fn,this.len); return this }
 
     move(v) {
         if(!this.x || !this.y) return;
@@ -693,38 +684,40 @@ class Throttle {
         }
     }
 };
-class Bootstrap {	
+class Bootstrap {   
     pace(){
         var 
         i=0;
-		for(;++i<Object.keys(this.loaders).length;);
-		return 100/i;
-	}
-	loadLength(){
+        for(;++i<Object.keys(this.loaders).length;);
+        return 100/i;
+    }
+    loadLength(){
         var
         i=0
         , count=0
         , loaders = Object.keys(this.loaders);
-		for(;i++<=loaders.length;) if(this.loaders[loaders[i-1]]) count++;
-		return count*this.pace();
-	}
-	check(scr){
-		return scr ? this.loaders[scr] : this.alreadyLoaded
-	}
-	ready(scr){
-		if(scr) this.loaders[scr] = true;
+        for(;i++<=loaders.length;) if(this.loaders[loaders[i-1]]) count++;
+        return count*this.pace();
+    }
+    check(scr){
+        return scr ? this.loaders[scr] : this.alreadyLoaded
+    }
+    ready(scr){
+        if(scr) this.loaders[scr] = true;
 
-		let
-		perc = this.loadLength();
-		
-		if(perc>=99&&!this.alreadyLoaded){ 
-			this.onFinishLoading.fire(()=>{ return app ? app.pragma = app.initial_pragma : true; }, ANIMATION_LENGTH);
-			this.alreadyLoaded=true; 
-		}
+        let
+        perc = this.loadLength()
+        , bootprogress = $(".--boot-progress");
+        
+        if(bootprogress.length) bootprogress.anime({width:(perc)+"%"})
 
-		return this.alreadyLoaded || false;
-	}
-    populate(arr=[]){ arr.each(el=>{ this.loaders[el] = false }) }
+        if(perc>=99&&!this.alreadyLoaded){ 
+            this.onFinishLoading.fire(()=>{ return app ? app.pragma = app.initial_pragma : true; }, ANIMATION_LENGTH);
+            this.alreadyLoaded=true; 
+        }
+
+        return this.alreadyLoaded || false;
+    }
     constructor(){
         this.alreadyLoaded = false;
         this.loadComponents = new Pool();
@@ -734,27 +727,69 @@ class Bootstrap {
         }
     }
 };
+class CallResponse {
+    constructor(url=location.href, args={}, method="POST", header={}, data=null){
+        this.url = url;
+        this.args=args;
+        this.method=method;
+        this.headers=header;
+        this.data=data;
+        this.status = this.data ? true : false;
+    }
+}
 class FAAU {
     get(e,w){ return faau.get(e,w||document).nodearray; }
     declare(obj){ Object.keys(obj).each(function(){ window[this+""] = obj[this+""] }); }
-    initialize(){bootstrap&&bootstrap.loadComponents.fire();}
-    call(url, args=null, fn=false, method="POST", head={"FA-Custom":"@rafsb", "Content-Type":"text/plain"}) {
-        fetch(url,{method:"POST", body: args ? args.stringify() : ""}).then(r=>r=r.text()).then(r=>{
-            if(fn) fn.bind({ data: r.trim(), url:url, args:args })();
+    initialize(){ bootstrap&&bootstrap.loadComponents.fire(); }
+    async call(url, args=null, method='POST', head=null) {
+        if(!head) head = {};
+        head["Content-Type"] = head["Content-Type"] || "text/plain"
+        head["FA-Custom"] = "@rafsb"
+        return fetch(url, {
+            method: method
+            , body: args ? args.stringify() : null
+            , headers : head
+            , credentials: "include"
+        }).then(r=>r=r.text()).then(r=>{
+            return new CallResponse(url, args, method, head, r.trim());
         });
     }
 
-    load(url, args=null, element=null, fn=false, sync=false) {
-        this.call(url, args, function(){
-            if(!this.data) return;
-            let 
-            r = this.data.prepare(_.colors()).morph();
-            if(!r) return;
-            if(!r.id) r.id = _.nuid();
-            if(!element) element = _.get('body')[0];
-            element.app(r);
-            r.evalute();
-            if(fn) fn.bind(r)(r);
+    async xhr_call(url, args=null, method="POST", fn=null, head=null){
+        let
+        o = new Promise(function(accepted,rejected){
+            let
+            o = new CallResponse(url, args, method)
+            , xhr = new XMLHttpRequest();
+            args = args ? args : {};
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                    o.status = xhr.status;
+                    o.data = xhr.responseText.trim();
+                   if(fn) fn.bind(o)(o);
+                   return accepted(o);
+                };
+            }
+            head = head ? head : {};
+
+            xhr.open(method,url);
+            head["Content-Type"] = head["Content-Type"] || "text/plain"
+            head["FA-Custom"] = "@rafsb"
+            o.headers = head;
+            // Object.keys(head).each(h=>xhr.setRequestHeader(h,head[h]));
+            xhr.send(args.json());
+
+        });
+        return o;
+    }
+
+    async load(url, args=null, target=null) {
+        return this.call(url, args).then( r => {
+            if(!r.status) return app.error("error loading "+url);
+            r = r.data.prepare(app.colors()).morph();
+            if(!target) target = app.get('body')[0];
+            target.append(r);
+            return r.evalute();
         });
     }
 
@@ -765,7 +800,7 @@ class FAAU {
     notify(n, c=null) {
         let
         toast = document.createElement("toast");
-        toast.css({
+        toast.setStyle({
             fontSize: "1rem",
             background: c&&c[0] ? c[0] : "rgba(255,255,255,.8)",
             color: c&&c[1] ? c[1] : "black",
@@ -776,7 +811,7 @@ class FAAU {
             position:"fixed"
         }).innerHTML = n ? n : "Hello <b>World</b>!!!";
         if(!this.isMobile()) {
-            toast.css({
+            toast.setStyle({
                 top:0,
                 left:"80vw",
                 width:"calc(20vw - 4rem)",
@@ -784,7 +819,7 @@ class FAAU {
                 borderRadius:".5rem",
             });
         }else{
-            toast.css({
+            toast.setStyle({
                 opacity:0,
                 top:".5rem",
                 left:".5rem",
@@ -810,18 +845,18 @@ class FAAU {
             $(".--default-loading").each(function(){ clearInterval(this.dataset.animation); this.remove() });
             return;
         }
-        app.body().append(document.createElement("div").addClass("-fixed -view -zero --default-loading"));
+        app.body.append(document.createElement("div").addClass("-fixed -view -zero --default-loading"));
 
          app.load("src/img/loading.svg",null,$(".--default-loading")[0],function(){
             let
             circle = $(".--default-loading .--loading-circle")[0];
             if(!circle) return;
-            circle.css({transformOrigin:"top left", scale:window.innerWidth/1920,"stroke-dasharray":circle.getTotalLength()+","+circle.getTotalLength()+","+circle.getTotalLength()});
+            circle.setStyle({transformOrigin:"top left", scale:window.innerWidth/1920,"stroke-dasharray":circle.getTotalLength()+","+circle.getTotalLength()+","+circle.getTotalLength()});
             $(".--default-loading")[0].dataset.animation = setInterval(()=>{
                 let
                 circle = $(".--default-loading .--loading-circle")[0];
                 if(circle){ 
-                    circle.css({"stroke-dashoffset":0});
+                    circle.setStyle({"stroke-dashoffset":0});
                     circle.anime({"stroke-dashoffset":circle.getTotalLength()*4},2200,0,null,"ease-in-out")
                 }
             },2201)
@@ -854,7 +889,7 @@ class FAAU {
         o.color =  o.color ?  o.color : "white";
         o.position = "absolute";
         o.fontSize = o.fontSize ? o.fontSize : "1rem";
-        toast.css(o).addClass("--hintifyied"+(special?"-sp":"")).appendChild(n ? n : ("<b>···</b>!!!").morph());
+        toast.setStyle(o).addClass("--hintifyied"+(special?"-sp":"")).appendChild(n ? n : ("<b>路路路</b>!!!").morph());
 
         if(toast.get(".--close").length) toast.get(".--close").at().on("click",function() { $(".--hintifyied"+(special?", .--hintifyied-sp":"")).remove() });
         else toast.on("click",function() { this.remove() });
@@ -866,10 +901,29 @@ class FAAU {
 
     apply(fn,obj=null) { return (fn ? fn.bind(this)(obj) : null) }
 
-    get(w=null,c=null) { this.nodearray = $(w,c); return this }
+    get(w=null,c=null) { return $(w,c); }
 
-    new(node='div', cls=null, style={display:"inline-block"}, fn=null) {
-        return document.createElement(node || "div").addClass(cls || "auto-created").css(style||{display:"inline-block"},fn);
+    //get length() { return this.nodearray.length }
+
+    each(fn=null) {this.nodearray.each(fn);return this }
+
+    at(n=0) { return this.nodearray.at(n) }
+
+    first() {return this.nodearray.first() }
+
+    last() {return this.nodearray.last() }
+
+    empty(except=null) { this.nodearray.each(function() {this.empty(except)})}
+
+    remove() { this.nodearray.each(function() {this.remove()})}
+
+    anime(obj,len=ANIMATION_LENGTH,delay=0,fn=null,trans=null) {
+        this.nodearray.each(function() {this.anime(obj,len,delay,fn,trans)})
+        return this;
+    }
+
+    new(node='div', cls="auto-created", style={display:"inline-block"}, fn) {
+        return document.createElement(node).addClass(cls).setStyle(style,fn);
     }
 
     storage(field=null,value=null){
@@ -887,49 +941,34 @@ class FAAU {
         return pallete&&this.color_pallete[pallete] ? this.color_pallete[pallete] : this.color_pallete;
     }
 
-    require(url=null, args={}, fn=null){
-        if(!url) return;
-        this.call("webroot/js/components/"+url+".js",args,res=>{
-            if(res.status==200) eval(res.data.prepare(app.colors()));
-        });
-    }
-
     hashit(o){ if(typeof o == "object" || typeof o == "array") o = JSON.stringify(o); return { hash: btoa(o) } }
 
     makeServerHashToken(o){ return this.hashit(o).hash; }
 
     constructor(wrapper,context) {
-        this.components = {};
-        this.initial_pragma = 0;
-        this.current        = 0;
-        this.last           = 0;
-        this.clickEffectSelector = ".-tile";
-        this.body           = function(){ return document.getElementById("app") || document.getElementsByTagName("body")[0]; };
-        this.onPragmaChange = new Pool();
+        this.initial_pragma = 0
+        this.current        = 0
+        this.last           = 0
+        this.body           = document.getElementById("app") || document.getElementsByTagName("body")[0]
+        this.onPragmaChange = new Pool()
         this.nodes = document;
         this.nodearray = [];
         this.color_pallete = {
             light : {
                 /*** SYSTEM***/
                 CLR_BACKGROUND : "#FFFFFF"
-                , CLR_FOREGROUND : "#F2F2F2"
-                , CLR_FONT : "#181818"
-                , CLR_FONTBLURED:"#646464"
-                , CLR_SPAN :"#DC2431"
-                , CLR_DISABLED: "#7E8C8D"
+                , CLR_FOREGROUND : "#ECF1F2"
+                , CLR_FONT : "#2C3D4F"
+                , CLR_FONTBLURED:"#7E8C8D"
+                , CLR_SPAN :"#2980B9"
+                , CLR_DISABLED: "#BDC3C8"
                 , CLR_DARK1:"rgba(0,0,0,.16)"
                 , CLR_DARK2:"rgba(0,0,0,.32)"
                 , CLR_DARK3:"rgba(0,0,0,.64)"
-                , CLR_DARK4:"rgba(0,0,0,.80)"
-                , CLR_DARK5:"rgba(0,0,0,.96)"
                 , CLR_LIGHT1:"rgba(255,255,255,.16)"
                 , CLR_LIGHT2:"rgba(255,255,255,.32)"
                 , CLR_LIGHT3:"rgba(255,255,255,.64)"
-                , CLR_LIGHT4:"rgba(255,255,255,.80)"
-                , CLR_LIGHT5:"rgba(255,255,255,.96)"
                 /*** PALLETE ***/
-                , CLR_WHITE:"#ffffff"
-                , CLR_BLACK:"#000000"
                 , CLR_WET_ASPHALT:"#34495E"
                 , CLR_MIDNIGHT_BLUE:"#2D3E50"
                 , CLR_CONCRETE:"#95A5A5"
@@ -964,7 +1003,6 @@ bind(window, {
     , $: function(wrapper=null, context=document) { return [].slice.call((new FAAU(wrapper,context)).nodearray); }
     , bootstrap: new Bootstrap()
     , app: (new FAAU())
-    , com: function(){ return window.app.components; }
     , base_hash: function(obj){
         switch(typeof obj){
             case "object" || "array" : return btoa(JSON.stringify(obj));    break;
@@ -978,8 +1016,8 @@ bind(window, {
             if(this.classList.contains("-skip")) return;
             let
             size = Math.max(this.offsetWidth, this.offsetHeight);
-            this.append(app.new("span","-fixed",{
-                background      : app.colors().CLR_SILVER
+            this.append(app.new("span","-absolute",{
+                background      : app.colors().CLR_DARK1
                 , display       : "inline-block"
                 , borderRadius  : "50%"
                 , width         : size+"px"
@@ -989,9 +1027,9 @@ bind(window, {
                 , top           : (e.offsetY - size/2)+"px"
                 , left          : (e.offsetX - size/2)+"px"
             }, function(){
-                this.anime({scale:2,opacity:.5},ANIMATION_LENGTH/2,1,function(){ this.remove(); },"ease-in");
+                this.anime({scale:2,opacity:.5},ANIMATION_LENGTH/2,null,function(){ this.remove(); },"ease-in");
             }));
-        });
+        }).remClass(cls);
     }
 });
 app.spy("pragma",function(x){

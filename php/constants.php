@@ -68,4 +68,5 @@ define("DEFAULT_COLLECTION","default");
 define("LAYOUTS_DEFAULT","default");
 define("LAYOUTS_THIN","thin");
 
-define("DS",'/');
+define("DS","/");
+define("NL","\n");
