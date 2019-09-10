@@ -171,18 +171,18 @@ class IO {
         return \is_dir($p) ? 0 : 1;
     }
 
-    public static function mkf($dir,$perm=0775){
+    public static function mkd($dir,$perm=0775){
         if(substr($dir,0,1)!=DS) $dir = self::root() . $dir;
         umask(002);
         if(!is_dir($dir)) mkdir($dir,$perm,true);
-        chmod($dir,$perm);
+        @chmod($dir,$perm);
         return is_dir($dir) ? 1 : 0;
     }
 
     public static function tmp($dir){
         if(substr($dir,0,1)!=DS) $dir = self::root() . $dir;
         if(is_dir($dir)) self::rmf($dir);
-        self::mkf($dir,0777);
+        self::mkd($dir,0777);
         return is_dir($dir) ? 1 : 0;
     }
     /* signature: rem_file('var/config.json');
@@ -190,18 +190,18 @@ class IO {
      * $p = path to the file to be removed from server
      *
      */
-    public function rm($p=null){ if($p===null) return; if(substr($p,0,1)!=DS) $p = self::root() . $p; return \unlink($p); }
+    public function rm($p=null){ if($p===null) return; if(substr($p,0,1)!=DS) $p = self::root() . $p; return is_dir($p) ? Core::response(0,"could not remove a folder...") : @unlink($p); }
 
     public function cpr($f,$t) {
         if(substr($f,0,1)!=DS) $f = self::root() . $f;
         $dir = opendir($f); 
         if(!is_dir($t)) mkdir($t,0775,true);
-        chmod($t,0775);
+        @chmod($t,0775);
         while($file = readdir($dir)){ 
             if($file!='.'&&$file!='..'){ 
                 if(is_dir($f.'/'.$file)) self::cpr($f.'/'.$file, $t.'/'.$file); 
                 else copy($f.'/'.$file, $t.'/'.$file);
-                chmod($t.'/'.$file,0775);
+                @chmod($t.'/'.$file,0775);
             }
         }
         closedir($dir);
