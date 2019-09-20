@@ -92,7 +92,6 @@ class IO {
 
         $tmp = explode(DS,$f);
         $tmp = implode(DS,array_slice($tmp,0,sizeof($tmp)-1));
-        
         if(!is_dir($tmp)) mkdir($tmp,0777,true);
         @chmod($tmp,0777);
         $tmp = ($mode == APPEND ? self::read($f) : "") . $content;
@@ -103,7 +102,7 @@ class IO {
     }
 
     public static function log($content){
-        self::write(self::root("logs" . DS . User::logged() . "-default.log"));
+        self::write("var/logs" . DS . (User::logged() ? User::logged() : "default" ) . ".log", $content, APPEND);
     }
 
     /* signature: get_files('img/',"png");

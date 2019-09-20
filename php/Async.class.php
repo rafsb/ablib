@@ -5,23 +5,22 @@ class Async extends Activity
 	{
 		if(!empty($arr))
 		{
-			foreach($arr as $k => $v)
+			$status = null;
+			foreach($arr as $v)
 			{
 				if(function_exists("pcntl_fork"))
 				{
-					$pid = pcntl_fork();
-					if ($pid == -1) {
-					     die('could not fork');
-					} else if ($pid) {
-					     pcntl_wait($status);
-					} else {
-					    $fn(Convert::atoo(["key"=>$k, "value"=>$v, "pid"=>$pid]));
-					    break; 
-					}	
+					// die("exists");
+					switch($pid = pcntl_fork())
+					{
+						case -1: die('could not fork'); 		break;
+						case  0: $fn($v); 						break; 
+						// default: pcntl_waitpid($pid, $status); 	break;
+					}
 				}
 				else
 				{
-					$fn(Convert::atoo(["key"=>$k, "value"=>$v]));
+					$fn($v);
 				}
 			}
 		}
