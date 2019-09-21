@@ -31,7 +31,7 @@ class Core {
 		if(DEBUG)
 		{
 			Request::sess("DEBUG",array_merge(is_array(Request::sess("DEBUG"))?Request::sess("DEBUG"):[],$data));
-			IO::log(json_encode($data) . PHP_EOL, JSON_PRETTY_PRINT);
+			IO::log($status . " => " . $data["data"]);
 		}
 		return $status;
 	}
