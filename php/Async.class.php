@@ -3,37 +3,26 @@ class Async extends Activity
 {
 	public static function each(Array $arr, Closure $fn)
 	{
-		$break = 10;
 		if(!empty($arr))
 		{
-			foreach($arr as $k => $v)
+			$status = null;
+			foreach($arr as $v)
 			{
-				if($break-->0)
+				if(function_exists("pcntl_fork"))
 				{
-					$pid = pcntl_fork();
-					// if(!$pid)
-					// {
-						$fn(Convert::atoo(["key"=>$k, "value"=>$v, "pid"=>$pid]));
-						break;
-					// }
-					// else if($pid == -1)
-					// {
-					// 	Core::response(0, "errors found...");
-					// 	exit();
-					// }
-					// else
-					// {
-					// 	pcntl_wait($status);
-					// 	Core::response($status,"process finished with no errors...");
-					// 	Debug::show();
-					// }
+					// die("exists");
+					switch($pid = pcntl_fork())
+					{
+						case -1: die('could not fork'); 		break;
+						case  0: $fn($v); 						break; 
+						// default: pcntl_waitpid($pid, $status); 	break;
+					}
+				}
+				else
+				{
+					$fn($v);
 				}
 			}
-		// if(!empty($arr)) parallel\run(function($o) use ($fn){
-		// 	require_once __DIR__ . DIRECTORY_SEPARATOR . "constants.php";
-		// 	require_once __DIR__ . DIRECTORY_SEPARATOR . "autoload.php";
-		// 	$fn($o);
-		// }, $arr);
 		}
 	}
 }

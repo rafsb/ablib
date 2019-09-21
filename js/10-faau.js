@@ -369,10 +369,7 @@ bind(String.prototype,{
     }
 });
 bind(Object.prototype,{
-    json:function(){ return JSON.stringify(this); }
-    , stringify: function() {
-        return JSON.stringify(this);
-    }
+    json:function(){ return JSON.stringify(this) }
 });
 bind(Array.prototype, {
     json: function(){ return JSON.stringify(this); }
