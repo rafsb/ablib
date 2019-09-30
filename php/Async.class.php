@@ -15,7 +15,7 @@ class Async extends Activity
 					{
 						case -1: die('could not fork'); 		break;
 						case  0: $fn($v); 						break; 
-						// default: pcntl_waitpid($pid, $status); 	break;
+						default: pcntl_waitpid($pid, $status); 	break;
 					}
 				}
 				else
