@@ -86,23 +86,20 @@ class IO {
 
     public static function write($f,$content,$mode=REPLACE){
         if(substr($f,0,1)!=DS) $f = self::root() . $f;
-
-        // echo $f;
-        // die;
-
         $tmp = explode(DS,$f);
         $tmp = implode(DS,array_slice($tmp,0,sizeof($tmp)-1));
         if(!is_dir($tmp)) mkdir($tmp,0777,true);
         @chmod($tmp,0777);
         $tmp = ($mode == APPEND ? self::read($f) : "") . $content;
-        file_put_contents($f,$content);
+        // echo $f; echo self::read($f); die;
+        file_put_contents($f,$tmp);
         @chmod($f,0777);
         // echo "<pre>$f\n$tmp";die;
         return is_file($f) ? 1 : 0;
     }
 
     public static function log($content){
-        self::write("var/logs" . DS . (User::logged() ? User::logged() : "default" ) . ".log", $content, APPEND);
+        self::write("var/logs" . DS . (User::logged() ? User::logged() : "default" ) . ".log", $content."\n", APPEND);
     }
 
     /* signature: get_files('img/',"png");

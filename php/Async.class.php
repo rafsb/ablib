@@ -5,18 +5,18 @@ class Async extends Activity
 	{
 		if(!empty($arr))
 		{
-			$status = null;
 			foreach($arr as $v)
 			{
 				if(function_exists("pcntl_fork"))
 				{
-					// die("exists");
+					$status = null;
 					switch($pid = pcntl_fork())
 					{
 						case -1: die('could not fork'); 		break;
 						case  0: $fn($v); 						break; 
 						default: pcntl_waitpid($pid, $status); 	break;
 					}
+					return $status;
 				}
 				else
 				{
