@@ -13,8 +13,10 @@ class Fetch extends Activity
 		{
 			curl_setopt($c, CURLOPT_POST, 1);
 			curl_setopt($c, CURLOPT_POSTFIELDS, Convert::atoh($fields));
+			curl_setopt($c, CURLOPT_CUSTOMREQUEST, "POST");
 		}
 		curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($c, CURLOPT_FOLLOWLOCATION, true);
 		$ret = curl_exec($c);
 		curl_close ($c);
 		return Core::response($ret, "fetch call with curl pass");
