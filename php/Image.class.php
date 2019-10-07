@@ -1,9 +1,4 @@
 <?php
-
-
-use Core;
-use Request;
-
 class Image
 {
     /*
@@ -186,6 +181,7 @@ class Image
     public static function upload(){
         $args = request::in();
         $img = new Image($args["name"],$args["path"],8388608,$args["minify"],false);
+        print_r($img);die;
         if($img->run()) echo $img->path.$img->newname; else echo $img->log0;
     }
 
@@ -198,7 +194,8 @@ class Image
         $this->mini = (bool)$m;
         $this->forc = (bool)$f;
         $this->stts = true;
-        if(strpos($this->file["type"],"/")){
+        if(strpos($this->file["type"],"/"))
+        {
             $this->extn = explode("/",$this->file["type"]);
             $this->extn = $this->extn[sizeof($this->extn)-1];
         }

@@ -26,7 +26,7 @@ class Core {
 
 	];
 
-	public static function response($status,$data){
+	public static function response($status,$data=""){
 		$data = ["status"=>$status,"data"=>$data];
 		if(DEBUG)
 		{

@@ -7,8 +7,20 @@ define("ADMIN",  4);
 
 class _User_traits
 {
+    public static function list(){
+        
+        $return = [];
+        $list =  self::read_all();
+        if(!$list) return Core::response(-1,"shadow file is empty");
+        foreach($list as $us) $return[] = Convert::atoo(["id"=>$us[0], "name"=>$us[1], "user"=>$us[2], "cover"=>$us[4]]);
+
+        // print_r($user); die;
+
+        return sizeof($return) ? $return : Core::response(0,"no user found");
+
+    }
     
-    private static function read_all()
+    protected static function read_all()
     {
         $shadow_file = "var" . DS . "users" . DS . "shadow.json";
         if(!is_file(IO::root().DS.$shadow_file)) IO::jin($shadow_file, [
@@ -100,7 +112,7 @@ class User extends Activity
         return Request::sess("USER") ? true : false;
     }
 
-    public static function level($n=0)
+    public static function allow($n=0)
     {
         if(!User::logged()) return Core::response(0, "no user logged");
         if(App::driver()==DATABASE) return (int)Mysql::cell("Users","access_level")>=$n*1 ? 1 : 0;
@@ -147,6 +159,19 @@ class User extends Activity
             } else return Core::response(-3, "no id found for user");
         }
         return Core::response(0, "incorrect credentials");;
+    }
+
+    public static function each(Closure $fn){
+        foreach (_User_traits::list() as $us) $fn($us);
+    }
+
+    public function info($id=null){
+        if(!$id) $id = Request::in("id");
+        if(!$id) return Core::response(-1,"no ID given");
+
+        $user = _User_traits::find("id",$id);
+
+        return $user && self::allow($user->level) ? Convert::json($user) : Core::response(0,"not allowed");
     }
 
     public function dash(){

@@ -39,6 +39,15 @@ bind(HTMLFormElement.prototype,{
         });
         return tmp;
     }
+    , stringify: function(){
+        return JSON.stringify(this.json())
+    }
+});
+bind(HTMLInputElement.prototype, {
+    val: function(v=null) {
+        if(v!==null) this.value = v;
+        return this.value
+    }
     , up: function(name, path, fn=null, mini=false) {
         let
         ctnr = this.uid()
@@ -57,29 +66,24 @@ bind(HTMLFormElement.prototype,{
         //     $(".--progress").anime({width:(d.loaded/d.total*100)+"%"});
         // }
         if(fn) xhr.upload.onload = function() {
-            let
-            timer = setInterval(function() {
-                if (xhr.responseText) {
-                    eval(fn)(JSON.parse(xhr.responseText));
-                    clearInterval(timer);
-                }
-                if (counter++ >= ANIMATION_LENGTH) {
-                    app.notify("Ops! Imagem n茫o pode ser carregada, chama o Berts!",["#ff0066","white"]);
-                    clearInterval(timer);
-                }
-            }, ANIMATION_LENGTH/10);
+            // let
+            // timer = setInterval(function() {
+            //     if (xhr.responseText) {
+            //         eval(fn)(JSON.parse(xhr.responseText));
+            //         clearInterval(timer);
+            //     }
+            //     if (counter++ >= ANIMATION_LENGTH) {
+            //         app.notify("Ops! Imagem n茫o pode ser carregada, chama o Berts!",["#ff0066","white"]);
+            //         clearInterval(timer);
+            //     }
+            // }, ANIMATION_LENGTH/10);
+            console.log(xhr.responseText)
         }
         xhr.upload.onerror = function() {
             app.notify("Ops! N茫o foi poss铆vel subir esta imagem... chama o berts...",["#ff0066","white"]);
         };
         xhr.open("POST", "image/upload");
         xhr.send(form);
-    }
-});
-bind(HTMLInputElement.prototype, {
-    val: function(v=null) {
-        if(v!==null) this.value = v;
-        return this.value
     }
 });
 bind(Element.prototype,{
@@ -166,31 +170,31 @@ bind(Element.prototype,{
         if(fn!==null&&typeof fn=="function") fn.bind(this)(this);
         return this;
     }
-    , after: function(obj=null) {
+    , aft: function(obj=null) {
         let
         el=this;
-        if(Array.isArray(obj)) obj.each(o=>el.after(o));
+        if(Array.isArray(obj)) obj.each(o=>el.aft(o));
         else if(obj) el.insertAdjacentElement("afterend",obj);
         return this;
     }
-    , before: function(obj=null) {
+    , bef: function(obj=null) {
         let
         el=this;
-        if(Array.isArray(obj)) obj.each(o=>el.before(o));
+        if(Array.isArray(obj)) obj.each(o=>el.bef(o));
         else if(obj) el.insertAdjacentElement("beforebegin",obj);
         return this;
     }
-    , append: function(obj=null) {
+    , app: function(obj=null) {
         let
         el=this;
-        if(Array.isArray(obj)) obj.each(o=>el.append(o));
+        if(Array.isArray(obj)) obj.each(o=>el.app(o));
         else if(obj) el.insertAdjacentElement("beforeend",obj);
         return this;
     }
-    , prepend: function(obj=null) {
+    , pre: function(obj=null) {
         let
         el=this;
-        if(Array.isArray(obj)) obj.each(o=>el.prepend(o));
+        if(Array.isArray(obj)) obj.each(o=>el.pre(o));
         else if(obj) el.insertAdjacentElement("afterbegin",obj);
         return this;
     }
@@ -304,8 +308,8 @@ bind(Element.prototype,{
     , appear: function(len = ANIMATION_LENGTH, fn=null) {
         return this.css({display:'inline-block'}, x=>x.anime({opacity:1}, fn, len))
     }
-    , desappear: function(len = ANIMATION_LENGTH, remove = false) {
-        return this.anime({opacity:0}, x=>{ if(remove) x.remove(); else x.css({display:"none"}) }, len);
+    , desappear: function(len = ANIMATION_LENGTH, remove = false, fn=null) {
+        return this.anime({opacity:0}, x=>{ if(remove) x.remove(); else x.css({display:"none"}); if(fn) fn(remove ? null : this); }, len);
     }
     , remove: function() { this&&this.parent()&&this.parent().removeChild(this) }
 });
@@ -370,6 +374,7 @@ bind(String.prototype,{
 });
 bind(Object.prototype,{
     json:function(){ return JSON.stringify(this) }
+
 });
 bind(Array.prototype, {
     json: function(){ return JSON.stringify(this); }
@@ -399,9 +404,6 @@ bind(Array.prototype, {
     , last: function() { return this.length ? this[this.length-1] : null; }
     , first: function() { return this.length ? this[0] : null; }
     , at: function(n=0) { return this.length>=n ? this[n] : null; }
-    , stringify: function() {
-        return JSON.stringify(this);
-    }
     , not: function(el) { 
         let
         arr = this;
@@ -457,8 +459,12 @@ bind(Array.prototype, {
     , appear: function(len = ANIMATION_LENGTH) {
         return this.each(x=>x.css({display:'block'},x=>x.anime({opacity:1}, null, len, 1)))
     }
-    , desappear: function(len = ANIMATION_LENGTH, remove = false){
-        return this.each(x=>x.anime({opacity:0}, x=>{ if(remove) x.remove(); else x.css({ display : "none" }) }, len, 1))
+    , desappear: function(len = ANIMATION_LENGTH, remove = false, fn=null){
+        return this.each(x=>x.desappear(len,remove,fn))
+    }
+    , val: function(v=null){
+        if(v) this.each(x=>{ if(x.tagName.toLowerCase()=="input") x.value = v })
+        return this.extract(x=>{ return x.tagName.toLowerCase()=="input" ? x.value || " " : null})
     }
 });
 
@@ -729,16 +735,16 @@ class FAAU {
     initialize(){ bootstrap&&bootstrap.loadComponents.fire() }
     async call(url, args=null, method='POST', head=null) {
         if(!head) head = {};
-        head["Content-Type"] = head["Content-Type"] || "text/plain"
-        head["FA-Custom"] = "@rafsb"
-        return fetch(url, {
+        head["Content-Type"] = head["Content-Type"] || "text/plain";
+        head["FA-Custom"] = "@rafsb";
+        return (fetch(url, {
             method: method
-            , body: args ? args.stringify() : null
+            , body: args ? args.json() : null
             , headers : head
             , credentials: "include"
         }).then(r=>r=r.text()).then(r=>{
             return new CallResponse(url, args, method, head, r.trim());
-        });
+        }));
     }
 
     async xhr_call(url, args=null, method="POST", fn=null, head=null){
@@ -774,7 +780,7 @@ class FAAU {
             if(!r.status) return app.error("error loading "+url);
             r = r.data.prepare(app.colors()).morph();
             if(!target) target = app.get('body')[0];
-            target.append(r);
+            target.app(r);
             return r.evalute();
         });
     }
@@ -786,23 +792,19 @@ class FAAU {
     notify(n, c=null) {
         let
         toast = document.createElement("toast");
-        toast.css({
-            fontSize: "1rem",
-            background: c&&c[0] ? c[0] : "rgba(255,255,255,.8)",
-            color: c&&c[1] ? c[1] : "black",
-            boxShadow:"0 0 8px gray",
-            zIndex:200000,
-            display:'block',
-            opacity:0,
-            position:"fixed"
+        toast.addClass("-fixed  -content-left").css({
+            background: c&&c[0] ? c[0] : "rgba(255,255,255,.8)"
+            , color: c&&c[1] ? c[1] : "black"
+            , boxShadow:"0 0 .5em rgba(0,0,0,.5)"
+            , display:'block'
+            , opacity:0
         }).innerHTML = n ? n : "Hello <b>World</b>!!!";
         if(!this.isMobile()) {
             toast.css({
                 top:0,
                 left:"80vw",
-                width:"calc(20vw - 4rem)",
-                padding:".5rem",
-                borderRadius:".5rem",
+                width:"calc(20vw - 1em)",
+                padding:".5rem"
             });
         }else{
             toast.css({
@@ -816,9 +818,10 @@ class FAAU {
         toast.onclick = function() { clearTimeout(this.dataset.delay);this.desappear(ANIMATION_LENGTH/2,true); };
         toast.onmouseenter = function() { clearTimeout(this.dataset.delay); };
         toast.onmouseleave = function() {
-            this.dataset.delay = setTimeout(function(t) { t.desappear(ANIMATION_LENGTH/2,true); }, ANIMATION_LENGTH, this);
+            this.dataset.delay = setTimeout(t=>{ t.desappear(ANIMATION_LENGTH/2,true); }, ANIMATION_LENGTH, this);
         };
         document.getElementsByTagName('body')[0].appendChild(toast);
+        tileClickEffectSelector("toast");
         
         let
         notfys = app.get("toast");
@@ -831,7 +834,7 @@ class FAAU {
             $(".--default-loading").each(x=>{ clearInterval(x.dataset.animation); x.remove() });
             return
         }
-        app.body.append(document.createElement("div").addClass("-fixed -view -zero --default-loading"));
+        app.body.app(document.createElement("div").addClass("-fixed -view -zero --default-loading"));
 
          app.load("src/img/loading.svg",null,$(".--default-loading")[0],function(){
             let
@@ -860,7 +863,7 @@ class FAAU {
         if(delall) $(".--hintifyied"+(evenSpecial?", .--hintifyied-sp":"")).each(x=>x.remove());
 
         let
-        toast = app.new("toast");
+        toast = _("toast");
         n = (typeof n == 'string' ? n.morph() : n);
         o.display = 'inline-block';
         o.transform = 'scale(1.05)';
@@ -875,14 +878,15 @@ class FAAU {
         o.color =  o.color ?  o.color : "white";
         o.position = "absolute";
         o.fontSize = o.fontSize ? o.fontSize : "1rem";
-        toast.css(o).addClass("--hintifyied"+(special?"-sp":"")).appendChild(n ? n : ("<b>路路路</b>!!!").morph());
+        toast.css(o).addClass("--hintifyied"+(special?"-sp":"")).app(n ? n : ("<b>路路路</b>!!!").morph());
 
         if(toast.get(".--close").length) toast.get(".--close").at().on("click",function() { $(".--hintifyied"+(special?", .--hintifyied-sp":"")).remove() });
-        else toast.on("click",function() { this.remove() });
+        else toast.on("click",function(){ this.remove() });
+        
         if(!keep) toast.on("mouseleave",function() {$(".--hintifyied"+(special?", .--hintifyied-sp":"")).remove() });
 
         toast.anime({scale:1,opacity:1});
-        $('body')[0].append(toast);
+        $('body')[0].app(toast);
     }
 
     apply(fn,obj=null) { return (fn ? fn.bind(this)(obj) : null) }
@@ -1003,7 +1007,7 @@ bind(window, {
             if(this.classList.contains("-skip")) return;
             let
             size = Math.max(this.offsetWidth, this.offsetHeight);
-            this.append(_("span","-absolute",{
+            this.app(_("span","-absolute",{
                 background      : app.colors().CLR_DARK1
                 , display       : "inline-block"
                 , borderRadius  : "50%"
