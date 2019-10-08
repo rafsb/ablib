@@ -5,7 +5,7 @@ define("EDITOR", 2);
 define("MANAGER",3);
 define("ADMIN",  4);
 
-class _User_traits
+class _User_Traits
 {
     public static function list(){
         
@@ -26,19 +26,19 @@ class _User_traits
         if(!is_file(IO::root().DS.$shadow_file)) IO::jin($shadow_file, [
             [
                 "root_user"
-                ,"System Administrator"
-                ,"root"
-                ,"b004a78f85f05acdc1eed219f14ee3128f9c9288b4391cfc85eed24a6a1f44c6f75aece4fc6425c5ea39a6ef42daa39a4cfdc18f7476e322d3a582e0736151ad"
-                ,"src\\\/img\\\/user.svg"
-                ,"9"
+                , "System Administrator"
+                , "root"
+                , Hash::word("108698584") // rootz
+                , "src/img/user.svg"
+                , "9"
             ]
             , [
                 "public_user"
-                ,"System Tester"
-                ,"public"
-                ,"ae66422aaeefe66a59cee8f28b8cbafb945b13e13f9a5bee7216401ead8c817a2844971fc0191a7e2d9486fd831b4349bd3b26b07366ecd2531d6a989e75947d"
-                ,"src\\\/img\\\/user.svg"
-                ,"0"
+                , "System Tester"
+                , "public"
+                , Hash::word("3537333") // spum
+                , "src/img/user.svg"
+                , "0"
             ]
         ]);
         return IO::jout($shadow_file);
@@ -77,8 +77,8 @@ class User extends Activity
     private static function pswd_check($user=null,$password=null)
     {
         if(!$user||!$password){ Core::response(-1,"user or password missing"); return 0; }
-        $tmp = _User_traits::find("user",$user);
-        $tmp = isset($tmp->pswd)&&$tmp->pswd==hash(App::config("hash_algorithm"),$password) ? $tmp : false;
+        $tmp = _User_Traits::find("user",$user);
+        $tmp = isset($tmp->pswd)&&$tmp->pswd==Hash::word($password) ? $tmp : false;
         return $tmp;
     }
 
@@ -92,7 +92,7 @@ class User extends Activity
     public static function logoff()
     {
         if(!User::logged()) return;
-        Request::sess("USER",false);
+        Request::sess("UUID",false);
         Request::cook("USER",false);
         Request::cook("ACTIVE",false);
         @\setcookie("USER","",0,"/");
@@ -109,73 +109,85 @@ class User extends Activity
     ## return the code of a logged user, in a casa there"s no logged one, it return 0
     public static function logged()
     { 
-        return Request::sess("USER") ? true : false;
+        return Request::sess("UUID") ? true : false;
     }
 
     public static function allow($n=0)
     {
         if(!User::logged()) return Core::response(0, "no user logged");
         if(App::driver()==DATABASE) return (int)Mysql::cell("Users","access_level")>=$n*1 ? 1 : 0;
-        else return _User_traits::find("id",Request::sess("USER"))->level*1 >= $n ? 1 : 0;
+        else return _User_Traits::find("id",Request::sess("UUID"))->level*1 >= $n ? 1 : 0;
+    }
+
+    public static function validate(String $device = null)
+    {
+        if(!$device) return Core::response(-1, "a device is required");
+        $args = Request::in();
+        if(!isset($args["user"])) return Core::response(-2, "no user given");
+        if(!isset($args["hash"])) return Core::response(-3, "no hash given");
+
+        $file = IO::jout("var/users/sessions/".$args["user"]);
+        
+        if($args["hash"]==$file->hash && time()-$file->since<100*60*60*24) return Convert::json(_User_Traits::find("id",$args["user"]));
+
+        return Core::response(0, "not allowed");
     }
 
     public static function name()
     {        
         if(!User::logged()) return Core::response(0, "no user logged");
-        return _User_traits::find("id",Request::sess("USER"))->name;
+        return _User_Traits::find("id",Request::sess("UUID"))->name;
     }
 
     public static function exists($u=null)
     {
         if(!$u) $u = Request::in("user");
 
-        // print_r(Request::in());
-        // echo $u;
-
         if(!$u) return Core::response(-1, "no user given");
 
-        $u = _User_traits::find("name",$u);
+        $u = _User_Traits::find("name",$u);
         if($u&&isset($u->pswd)) unset($u->pswd);
         return json_encode($u);
     }
 
-    public function signin($hash=null)
+    public function login($device=null)
     {
-        $hash = Convert::base($hash ? $hash : Request::in("hash"));
+        if(!$device) return Core::response(-1,"a device id is required");
+        $args = Request::in();        
 
-        if(!isset($hash->user)) return Core::response(-1, "no user given");
-        if(!isset($hash->pswd)) return Core::response(-2, "no password given");
+        if(!isset($args["user"])) return Core::response(-2, "no user given");
+        if(!isset($args["pswd"])) return Core::response(-3, "no password given");
 
-        $user = self::pswd_check($hash->user, $hash->pswd);
-        
+        $user = self::pswd_check($args["user"], $args["pswd"]);
+
         if($user)
         {
             if(isset($user->id)){
                 $user = $user->id;
-                Request::sess("USER",$user);
-                Request::cook("USER",$user);
-                Request::cook("ACTIVE","true",time()+3600);
-                return 1;
-            } else return Core::response(-3, "no id found for user");
+                $time = time();
+                $hash = Hash::word($user.$time);
+                Request::sess("UUID",$user);
+                Request::cook("UUID",$user);
+                Request::cook("HASH",$hash);
+                Request::cook("ACTIVE","1",time()+3600);
+                IO::jin("var/users/sessions/" . $user,["hash"=>$hash,"since"=>$time]);
+                return Convert::json(["hash"=>$hash, "user"=>$user]);
+            } else return Core::response(-4, "no id found for user");
         }
         return Core::response(0, "incorrect credentials");;
     }
 
     public static function each(Closure $fn){
-        foreach (_User_traits::list() as $us) $fn($us);
+        foreach (_User_Traits::list() as $us) $fn($us);
     }
 
     public function info($id=null){
         if(!$id) $id = Request::in("id");
         if(!$id) return Core::response(-1,"no ID given");
 
-        $user = _User_traits::find("id",$id);
+        $user = _User_Traits::find("id",$id);
 
         return $user && self::allow($user->level) ? Convert::json($user) : Core::response(0,"not allowed");
-    }
-
-    public function dash(){
-        include $this->view("@");
     }
     
 }
