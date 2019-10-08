@@ -118,10 +118,8 @@ bind(Element.prototype,{
         this.dataset.animationFunction = "";
         return this
     }
-    , empty: function(a=null) {
-        if(a){ if(typeof a == 'string') a = a.split(',') }
-        else a = [];
-        this.get("*").each(x=>{if(!(a.indexOf(x.tagName)+1)) x.remove()});
+    , empty: function() {
+        this.html("");
         return this
     }
     , css: function(o=null, fn = null) {
@@ -859,34 +857,29 @@ class FAAU {
         app.notify(message || "Hooray! Success!", ["#3CB371","whitesmoke"])
     }
 
-    hintify(n, o={},delall=true,keep=false,special=false,evenSpecial=false) {
+    hintify(n=null, o={},delall=true,keep=false,special=false,evenSpecial=false) {
+
         if(delall) $(".--hintifyied"+(evenSpecial?", .--hintifyied-sp":"")).each(x=>x.remove());
 
-        let
-        toast = _("toast");
-        n = (typeof n == 'string' ? n.morph() : n);
-        o.display = 'inline-block';
         o.transform = 'scale(1.05)';
         o.opacity = 0;
-        o.zIndex = 200000;
-        o.top = o.top||o.top==0 ? o.top : (mouseAxis.y+24)+"px";
-        o.left = o.left||o.left==0 ? o.left : (mouseAxis.x+24)+"px";
-        o.padding = o.padding||o.padding==0 ? o.padding : ".5rem";
-        o.borderRadius = o.borderRadius ? o.borderRadius : "3px";
-        o.boxShadow =  o.boxShadow ? o.boxShadow :  "0 0 8px gray";
-        o.background =  o.background ? o.background : "rgba(40,40,40,.92)";
+        o.top = o.top||o.top==0 ? o.top : (mouseAxis.y)+"px";
+        o.left = o.left||o.left==0 ? o.left : (mouseAxis.x)+"px";
+        o.padding = o.padding||o.padding==0 ? o.padding : ".5em";
+        o.borderRadius = o.borderRadius ? o.borderRadius : ".25em";
+        o.boxShadow =  o.boxShadow ? o.boxShadow :  "0 0 .5em "+app.colors().CLR_DARK1;
+        o.background =  o.background ? o.background : app.colors().CLR_DARK4;
         o.color =  o.color ?  o.color : "white";
-        o.position = "absolute";
-        o.fontSize = o.fontSize ? o.fontSize : "1rem";
-        toast.css(o).addClass("--hintifyied"+(special?"-sp":"")).app(n ? n : ("<b>路路路</b>!!!").morph());
+        o.fontSize = o.fontSize ? o.fontSize : "1em";
 
-        if(toast.get(".--close").length) toast.get(".--close").at().on("click",function() { $(".--hintifyied"+(special?", .--hintifyied-sp":"")).remove() });
-        else toast.on("click",function(){ this.remove() });
+        let
+        toast = _("toast","-block -absolute --hintifyied"+(special?"-sp":""),o).html(n||"<b>路路路</b>!!!");
+        if(toast.get(".--close").length) toast.get(".--close").at().on("click",function(){ this.desappear(ANIMATION_LENGTH, true) })
+        else toast.on("click",function(){ this.desappear(ANIMATION_LENGTH, true) });
         
-        if(!keep) toast.on("mouseleave",function() {$(".--hintifyied"+(special?", .--hintifyied-sp":"")).remove() });
+        if(!keep) toast.on("mouseleave",function(){ $(".--hintifyied"+(special?", .--hintifyied-sp":"")).desappear(ANIMATION_LENGTH, true) });
 
-        toast.anime({scale:1,opacity:1});
-        $('body')[0].app(toast);
+        $('body')[0].app(toast).get("toast").anime({scale:1,opacity:1});
     }
 
     apply(fn,obj=null) { return (fn ? fn.bind(this)(obj) : null) }
@@ -952,12 +945,14 @@ class FAAU {
                 , CLR_FONTBLURED:"#7E8C8D"
                 , CLR_SPAN :"#2980B9"
                 , CLR_DISABLED: "#BDC3C8"
-                , CLR_DARK1:"rgba(0,0,0,.16)"
-                , CLR_DARK2:"rgba(0,0,0,.32)"
-                , CLR_DARK3:"rgba(0,0,0,.64)"
-                , CLR_LIGHT1:"rgba(255,255,255,.16)"
-                , CLR_LIGHT2:"rgba(255,255,255,.32)"
-                , CLR_LIGHT3:"rgba(255,255,255,.64)"
+                , CLR_DARK1:"rgba(0,0,0,.8)"
+                , CLR_DARK2:"rgba(0,0,0,.16)"
+                , CLR_DARK3:"rgba(0,0,0,.32)"
+                , CLR_DARK4:"rgba(0,0,0,.64)"
+                , CLR_LIGHT1:"rgba(255,255,255,.8)"
+                , CLR_LIGHT2:"rgba(255,255,255,.16)"
+                , CLR_LIGHT3:"rgba(255,255,255,.32)"
+                , CLR_LIGHT4:"rgba(255,255,255,.64)"
                 /*** PALLETE ***/
                 , CLR_WET_ASPHALT:"#34495E"
                 , CLR_MIDNIGHT_BLUE:"#2D3E50"
