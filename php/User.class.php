@@ -190,4 +190,8 @@ class User extends Activity
         return $user && self::allow($user->level) ? Convert::json($user) : Core::response(0,"not allowed");
     }
     
+    public function render(){
+        $this->layout("thin");
+        return "rendering is fine";
+    }   
 }

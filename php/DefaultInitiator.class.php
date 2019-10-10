@@ -18,7 +18,7 @@ class DefaultInitiator extends IO
 
 	public function __construct($argv=[], $argc=0)
 	{
-		$argv = array_merge($argv,Request::in());
+		$argv = is_array(Request::in()) ? array_merge($argv,Request::in()) : $argv;
 		$this->argv = $argv;
 		$this->argc = sizeof($argv);
 	}

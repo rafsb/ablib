@@ -738,10 +738,11 @@ class FAAU {
             method: method
             , body: args ? args.json() : null
             , headers : head
+            , mode: "no-cors"
             // , credentials: "include"
         }).then(r=>r=r.text()).then(r=>{
             return new CallResponse(url, args, method, head, r.trim());
-        }));
+        }).catch(err=>{ app.error(err.msg) }));
     }
 
     async xhr_call(url, args=null, method="POST", fn=null, head=null){
