@@ -119,17 +119,10 @@ class User extends Activity
         else return _User_Traits::find("id",Request::sess("UUID"))->level*1 >= $n ? 1 : 0;
     }
 
-    public static function validate(String $device = null)
+    public static function validate(String $user, String $device, String $hash)
     {
-        if(!$device) return Core::response(-1, "a device is required");
-        $args = Request::in();
-        if(!isset($args["user"])) return Core::response(-2, "no user given");
-        if(!isset($args["hash"])) return Core::response(-3, "no hash given");
-
-        $file = IO::jout("var/users/sessions/".$args["user"]);
-        
-        if($args["hash"]==$file->hash && time()-$file->since<100*60*60*24) return Convert::json(_User_Traits::find("id",$args["user"]));
-
+        $file = IO::jout("var/users/sessions/".$user);
+        if($hash==$file->hash && time()-$file->since<100*60*60*24) return Convert::json(_User_Traits::find("id",$user));
         return Core::response(0, "not allowed");
     }
 
@@ -170,7 +163,8 @@ class User extends Activity
                 Request::cook("UUID",$user);
                 Request::cook("HASH",$hash);
                 Request::cook("ACTIVE","1",time()+3600);
-                IO::jin("var/users/sessions/" . $user,["hash"=>$hash,"since"=>$time]);
+                IO::jin("var/users/sessions/" . $user,["hash"=>$hash,"since"=>$time,"device"=>$device]);
+                // echo '1'; die;
                 return Convert::json(["hash"=>$hash, "user"=>$user]);
             } else return Core::response(-4, "no id found for user");
         }
@@ -188,6 +182,16 @@ class User extends Activity
         $user = _User_Traits::find("id",$id);
 
         return $user && self::allow($user->level) ? Convert::json($user) : Core::response(0,"not allowed");
+    }
+
+    public function list($user,$device=null){
+        $args = Request::in();
+        $hash = $args["hash"];
+        if(!$hash) return Core::response(-1,"no hash found");
+        if(!$device) return Core::response(-1,"no device found");
+        $allow = self::validate($user, $device, $hash);
+        if(!$allow) return Core::response(0, "not allowed");
+        return Convert::json(_User_Traits::list());
     }
     
     public function render(){

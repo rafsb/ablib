@@ -145,7 +145,7 @@ bind(Element.prototype,{
         return this
     }
     , text: function(t=null, fn=null){
-        if(!t) return this;
+        if(!t) return this.textContent;
         this.textContent = t;
         if(fn) return fn.bind(this)(this);
         return this;
@@ -236,6 +236,16 @@ bind(Element.prototype,{
         while(pace--) tmp = tmp.parentElement;
         return tmp;
     }
+    , upFind(tx=null){
+        if(tx){
+            let
+            x = this;
+            while (x.parentElement.tagName.toLowerCase() != "body" && !(x.parentElement.tagName.toLowerCase()==tx || x.parentElement.has(tx))) x = x.parentElement;
+            
+            return x.parentElement
+        }
+        return this.parentElement
+    }
     , inPage: function() {
         let
         page = {
@@ -277,9 +287,11 @@ bind(Element.prototype,{
         return this;
     }
     , addClass: function(c) {
-        let
-        tmp = c.split(/\s+/g), i=tmp.length;
-        if(c.length) while(i--) this.classList.add(tmp[i]);
+        if(c){
+            let
+            tmp = c.split(/\s+/g), i=tmp.length;
+            if(c.length) while(i--) this.classList.add(tmp[i]);
+        }
         return this;
     }
     , toggleClass: function(c) {
@@ -730,22 +742,22 @@ class FAAU {
     get(e,w){ return faau.get(e,w||document).nodearray; }
     declare(obj){ Object.keys(obj).each(x=>window[x]=obj[x]) }
     initialize(){ bootstrap&&bootstrap.loadComponents.fire() }
-    async call(url, args=null, method='POST', head=null) {
+    async fetch(url, args=null, method='POST', head=null) {
         if(!head) head = {};
-        head["Content-Type"] = head["Content-Type"] || "text/plain";
-        // head["FA-Custom"] = "@rafsb";
+        head["Content-Type"] = head["Content-Type"] || "text/plain"
+        head["FA-Custom"] = "@rafsb"
         return (fetch(url, {
             method: method
             , body: args ? args.json() : null
             , headers : head
             , mode: "no-cors"
             // , credentials: "include"
-        }).then(r=>r=r.text()).then(r=>{
+        }).then(r=>{ return r.text()}).then(r=>{
             return new CallResponse(url, args, method, head, r.trim());
-        }).catch(err=>{ app.error(err.msg) }));
+        }));
     }
 
-    async xhr_call(url, args=null, method="POST", fn=null, head=null){
+    async call(url, args=null, method="POST", head=null){
         let
         o = new Promise(function(accepted,rejected){
             let
@@ -756,7 +768,7 @@ class FAAU {
                 if (xhr.readyState == 4) {
                     o.status = xhr.status;
                     o.data = xhr.responseText.trim();
-                   if(fn) fn.bind(o)(o);
+                //    if(fn) fn.bind(o)(o);
                    return accepted(o);
                 };
             }
@@ -797,11 +809,12 @@ class FAAU {
 
     notify(n, c=null) {
         let
-        toast = document.createElement("toast");
+        toast = document.createElement("toast")
+        , clr = app.colors();
         toast.addClass("-fixed  -content-left").css({
-            background: c&&c[0] ? c[0] : "rgba(255,255,255,.8)"
-            , color: c&&c[1] ? c[1] : "black"
-            , boxShadow:"0 0 .5em rgba(0,0,0,.5)"
+            background: c&&c[0] ? c[0] : clr.LIGHT3
+            , color: c&&c[1] ? c[1] : clr.WET_ASPHALT
+            , boxShadow:"0 0 .5em "+clr.DARK2
             , display:'block'
             , opacity:0
         }).innerHTML = n ? n : "Hello <b>World</b>!!!";
@@ -869,25 +882,50 @@ class FAAU {
 
         if(delall) $(".--hintifyied"+(evenSpecial?", .--hintifyied-sp":"")).each(x=>x.remove());
 
-        o.transform = 'scale(1.05)';
-        o.opacity = 0;
         o.top = o.top||o.top==0 ? o.top : (mouseAxis.y)+"px";
         o.left = o.left||o.left==0 ? o.left : (mouseAxis.x)+"px";
         o.padding = o.padding||o.padding==0 ? o.padding : ".5em";
         o.borderRadius = o.borderRadius ? o.borderRadius : ".25em";
-        o.boxShadow =  o.boxShadow ? o.boxShadow :  "0 0 .5em "+app.colors().CLR_DARK1;
-        o.background =  o.background ? o.background : app.colors().CLR_DARK4;
-        o.color =  o.color ?  o.color : "white";
+        o.boxShadow =  o.boxShadow ? o.boxShadow :  "0 0 .5em "+app.colors().DARK1;
+        o.background =  o.background ? o.background : this.colors().DARK4;
+        o.color =  o.color ?  o.color : this.colors().CLOUDS;
         o.fontSize = o.fontSize ? o.fontSize : "1em";
 
         let
-        toast = _("toast","-block -absolute --hintifyied"+(special?"-sp":""),o).html(n||"<b>路路路</b>!!!");
-        if(toast.get(".--close").length) toast.get(".--close").at().on("click",function(){ this.desappear(ANIMATION_LENGTH, true) })
+        toast = _("toast","-block -absolute --hintifyied"+(special?"-sp":""),o).css({opacity:0}).app(n||"<b>路路路!!!</b>".morph());
+        if(toast.get(".--close").length) toast.get(".--close").at().on("click",function(){ this.upFind("toast").desappear(ANIMATION_LENGTH, true) })
         else toast.on("click",function(){ this.desappear(ANIMATION_LENGTH, true) });
         
         if(!keep) toast.on("mouseleave",function(){ $(".--hintifyied"+(special?", .--hintifyied-sp":"")).desappear(ANIMATION_LENGTH, true) });
 
-        $('body')[0].app(toast).get("toast").anime({scale:1,opacity:1});
+        $('body')[0].app(toast.appear());
+    }
+
+    window(n=null, html=null, css={}){
+        let
+        head = _("header","-row -left -content-center -zero",{background:app.colors().DARK3,padding:".25em", color:app.colors().CLOUDS}).text(n || "¬¬").app(
+            _("div","-absolute -zero-tr -pointer --close -tile",{padding:".25em", fontWeight:"bolder"}).app(
+                 _("img",null,{height:"1em",marginRight:".25em", filter:"invert(1)"}).attr({src:"src/img/icons/cross.svg"})
+            )
+        )
+        , wrapper = _("div", "-wrapper -zero -no-scrolls",{background:"inherit",boxShadow:"0 0 1em "+app.colors().DARK2})
+            .app(_("blur"))
+            .app(head);
+
+        if(html) wrapper.app(html);
+        
+        css["top"]        = css["top"]        || "4.5em";
+        css["left"]       = css["left"]       || "2em";
+        css["width"]      = css["width"]      || "calc(100vw - 4em)";
+        css["height"]     = css["height"]     || "calc(100vh - 10em)";
+        css["padding"]    = css["padding"]    || "none";
+        css["background"] = css["background"] || "inherit";
+        css["color"]      = css["color"]      || app.colors().WET_ASPHALT;
+
+        this.hintify(wrapper,css,true,true,true, true);
+
+        tileClickEffectSelector(".-tile")
+
     }
 
     apply(fn,obj=null) { return (fn ? fn.bind(this)(obj) : null) }
@@ -969,41 +1007,41 @@ class FAAU {
         this.color_pallete = {
             light : {
                 /*** SYSTEM***/
-                CLR_BACKGROUND : "#FFFFFF"
-                , CLR_FOREGROUND : "#ECF1F2"
-                , CLR_FONT : "#2C3D4F"
-                , CLR_FONTBLURED:"#7E8C8D"
-                , CLR_SPAN :"#2980B9"
-                , CLR_DISABLED: "#BDC3C8"
-                , CLR_DARK1:"rgba(0,0,0,.8)"
-                , CLR_DARK2:"rgba(0,0,0,.16)"
-                , CLR_DARK3:"rgba(0,0,0,.32)"
-                , CLR_DARK4:"rgba(0,0,0,.64)"
-                , CLR_LIGHT1:"rgba(255,255,255,.8)"
-                , CLR_LIGHT2:"rgba(255,255,255,.16)"
-                , CLR_LIGHT3:"rgba(255,255,255,.32)"
-                , CLR_LIGHT4:"rgba(255,255,255,.64)"
+                BACKGROUND : "#FFFFFF"
+                , FOREGROUND : "#ECF1F2"
+                , FONT : "#2C3D4F"
+                , FONTBLURED:"#7E8C8D"
+                , SPAN :"#2980B9"
+                , DISABLED: "#BDC3C8"
+                , DARK1:"rgba(0,0,0,.8)"
+                , DARK2:"rgba(0,0,0,.16)"
+                , DARK3:"rgba(0,0,0,.32)"
+                , DARK4:"rgba(0,0,0,.64)"
+                , LIGHT1:"rgba(255,255,255,.8)"
+                , LIGHT2:"rgba(255,255,255,.16)"
+                , LIGHT3:"rgba(255,255,255,.32)"
+                , LIGHT4:"rgba(255,255,255,.64)"
                 /*** PALLETE ***/
-                , CLR_WET_ASPHALT:"#34495E"
-                , CLR_MIDNIGHT_BLUE:"#2D3E50"
-                , CLR_CONCRETE:"#95A5A5"
-                , CLR_ASBESTOS:"#7E8C8D"
-                , CLR_AMETHYST:"#9C56B8"
-                , CLR_WISTERIA:"#8F44AD"
-                , CLR_CLOUDS:"#ECF0F1"
-                , CLR_SILVER:"#BDC3C8"
-                , CLR_PETER_RIVER:"#2C97DD"
-                , CLR_BELIZE_HOLE:"#2A80B9"
-                , CLR_ALIZARIN:"#E84C3D"
-                , CLR_POMEGRANATE:"#C0382B"
-                , CLR_EMERALD:"#53D78B"
-                , CLR_NEPHIRITIS:"#27AE61"
-                , CLR_CARROT:"#E67D21"
-                , CLR_PUMPKIN: "#D35313"
-                , CLR_TURQUOISE:"#00BE9C"
-                , CLR_GREEN_SEA:"#169F85"
-                , CLR_SUNFLOWER:"#F2C60F"
-                , CLR_ORANGE: "#F39C19"
+                , WET_ASPHALT:"#34495E"
+                , MIDNIGHT_BLUE:"#2D3E50"
+                , CONCRETE:"#95A5A5"
+                , ASBESTOS:"#7E8C8D"
+                , AMETHYST:"#9C56B8"
+                , WISTERIA:"#8F44AD"
+                , CLOUDS:"#ECF0F1"
+                , SILVER:"#BDC3C8"
+                , PETER_RIVER:"#2C97DD"
+                , BELIZE_HOLE:"#2A80B9"
+                , ALIZARIN:"#E84C3D"
+                , POMEGRANATE:"#C0382B"
+                , EMERALD:"#53D78B"
+                , NEPHIRITIS:"#27AE61"
+                , CARROT:"#E67D21"
+                , PUMPKIN: "#D35313"
+                , TURQUOISE:"#00BE9C"
+                , GREEN_SEA:"#169F85"
+                , SUNFLOWER:"#F2C60F"
+                , ORANGE: "#F39C19"
             }
         };
         if(wrapper) {
@@ -1028,22 +1066,28 @@ bind(window, {
     }
     , tileClickEffectSelector: function(cls=null){
         if(!cls) return;
-        $(cls).on("click",function(e){
-            if(this.classList.contains("-skip")) return;
-            let
-            size = Math.max(this.offsetWidth, this.offsetHeight);
-            this.app(_("span","-absolute",{
-                background      : app.colors().CLR_DARK1
-                , display       : "inline-block"
-                , borderRadius  : "50%"
-                , width         : size+"px"
-                , height        : size+"px"
-                , transform     : "scale(0)"
-                , opacity       : .5
-                , top           : (e.offsetY - size/2)+"px"
-                , left          : (e.offsetX - size/2)+"px"
-            }, x=>x.anime({scale:2},x=>x.desappear(ANIMATION_LENGTH/4,true),ANIMATION_LENGTH/2)))
-        }).remClass(cls)
+        $(cls).each(x=>{
+            if(!x.has("--effect-selector-attached")){
+
+                x.on("click",function(e){
+                    if(this.classList.contains("-skip")) return;
+                    let
+                    size = Math.max(this.offsetWidth, this.offsetHeight);
+                    this.app(_("span","-absolute",{
+                        background      : app.colors().DARK1
+                        , display       : "inline-block"
+                        , borderRadius  : "50%"
+                        , width         : size+"px"
+                        , height        : size+"px"
+                        , transform     : "scale(0)"
+                        , opacity       : .5
+                        , top           : (e.offsetY - size/2)+"px"
+                        , left          : (e.offsetX - size/2)+"px"
+                    }, x=>x.anime({scale:2},x=>x.desappear(ANIMATION_LENGTH/4,true),ANIMATION_LENGTH/2)))
+                }).addClass("--effect-selector-attached")
+
+            }
+        })
     }
 });
 app.spy("pragma",function(x){

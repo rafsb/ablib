@@ -6,6 +6,7 @@ class Request {
 
     public static function sess($f,$v=null){
         // print_r($_SESSION);
+        if(!$f) return $_SESSION;
         if($v!==null) $_SESSION[$f] = $v;
         return (isset($_SESSION[$f]) ? $_SESSION[$f] : false);
     }
@@ -15,10 +16,18 @@ class Request {
     ## perform isertion into $_COOKIE array, giving values to new fields
     ## on success case, it returns the given value, else 0 is the answer
     ## i.e: cook("user","abox"), is the same as $_SESSION["projectName_user"] = "abox"
-    public static function cook($field,$value=null,$time=1000*60*60*30*365){
+    public static function cook($field=null,$value=null,$time=1000*60*60*30*365){
         //$time+=time();
+        if(!$field) return $_COOKIE;
         if($value!==null) setcookie($field,$value,$time,"/");
         return (isset($_COOKIE[$field])?$_COOKIE[$field]:0);
+    }
+
+    public static function ucook($field=null){
+        //$time+=time();
+        if(!$field) return $_COOKIE;
+        setcookie($field,0,-1,"/");
+        return $_COOKIE;
     }
 
     ## reads the $_POST array arguments into the page it"s included, but not all of them, only those inside "obj"
