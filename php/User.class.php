@@ -119,10 +119,20 @@ class User extends Activity
         else return _User_Traits::find("id",Request::sess("UUID"))->level*1 >= $n ? 1 : 0;
     }
 
-    public static function validate(String $user, String $device, String $hash)
+    public static function validate(String $user=null, String $device=null, String $hash=null)
     {
+        $args = Request::in();
+        
+        $user = $user ? $user : $args["user"];
+        if(!$user) return Core::response(-1,"no user found");
+        $hash = $hash ? $hash : $args["hash"];
+        if(!$hash) return Core::response(-2,"no hash found");
+        $device = $device ? $device : $args["device"];
+        if(!$device) return Core::response(-3,"no device found");
+ 
         $file = IO::jout("var/users/sessions/".$user);
-        if($hash==$file->hash && time()-$file->since<100*60*60*24) return Convert::json(_User_Traits::find("id",$user));
+        if($hash==$file->hash && $device==$file->device && time()-$file->since<100*60*60*24) 
+            return Convert::json(_User_Traits::find("id",$user));
         return Core::response(0, "not allowed");
     }
 
@@ -184,18 +194,19 @@ class User extends Activity
         return $user && self::allow($user->level) ? Convert::json($user) : Core::response(0,"not allowed");
     }
 
-    public function list($user,$device=null){
+    public function list(){
+
         $args = Request::in();
-        $hash = $args["hash"];
-        if(!$hash) return Core::response(-1,"no hash found");
-        if(!$device) return Core::response(-1,"no device found");
-        $allow = self::validate($user, $device, $hash);
+    
+        if(!isset($args["user"])) return Core::response(-1,"no user found");
+        if(!isset($args["hash"])) return Core::response(-2,"no hash found");
+        if(!isset($args["device"])) return Core::response(-3,"no device found");
+ 
+        $allow = self::validate($args["user"], $args["device"], $args["hash"]);
+        
         if(!$allow) return Core::response(0, "not allowed");
+        
         return Convert::json(_User_Traits::list());
     }
-    
-    public function render(){
-        $this->layout("thin");
-        return "rendering is fine";
-    }   
+      
 }

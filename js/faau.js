@@ -16,10 +16,11 @@ ANIMATION_LENGTH = 800
 , PASSWD_AUTO_HASH  = true;
 ;
 var
-bind = (e,o)=>{
+bind = function(e,o){
     let
     a = Object.keys(o);
-    for(let i=a.length;i--;) e[a[a.length-i-1]]=o[a[a.length-i-1]]
+    for(let i=a.length;i--;) e[a[a.length-i-1]]=o[a[a.length-i-1]];
+    return e
 };
 NodeList.prototype.array = function() {
     return [].slice.call(this);
@@ -84,6 +85,44 @@ bind(HTMLInputElement.prototype, {
         };
         xhr.open("POST", "image/upload");
         xhr.send(form);
+
+        const formData = new FormData();
+        // const fileField = document.querySelector('input[type="file"]');
+
+        // formData.append('username', 'abc123');
+        // formData.append('avatar', fileField.files[0]);
+
+        // try {
+        // const response = await fetch('https://example.com/profile/avatar', {
+        //     method: 'PUT',
+        //     body: formData
+        // });
+        // const result = await response.json();
+        // console.log('Success:', JSON.stringify(result));
+        // } catch (error) {
+        // console.error('Error:', error);
+        // }
+
+
+
+        // const formData = new FormData();
+        // const photos = document.querySelector('input[type="file"][multiple]');
+
+        // formData.append('title', 'My Vegas Vacation');
+        // for (let i = 0; i < photos.files.length; i++) {
+        // formData.append('photos', photos.files[i]);
+        // }
+
+        // try {
+        // const response = await fetch('https://example.com/posts', {
+        //     method: 'POST',
+        //     body: formData
+        // });
+        // const result = await response.json();
+        // console.log('Success:', JSON.stringify(result));
+        // } catch (error) {
+        // console.error('Error:', error);
+        // }
     }
 });
 bind(Element.prototype,{
@@ -743,22 +782,26 @@ class FAAU {
     declare(obj){ Object.keys(obj).each(x=>window[x]=obj[x]) }
     initialize(){ bootstrap&&bootstrap.loadComponents.fire() }
     async fetch(url, args=null, method='POST', head=null) {
-        if(!head) head = {};
-        head["Content-Type"] = head["Content-Type"] || "text/plain"
-        head["FA-Custom"] = "@rafsb"
-        return (fetch(url, {
+        if(!head) head = new Headers();
+        head["Content-Type"] = head["Content-Type"] || "application/json";
+        //head["FA-Custom"] = "@rafsb"
+        const 
+        req = await fetch(url, {
             method: method
             , body: args ? args.json() : null
             , headers : head
             , mode: "no-cors"
-            // , credentials: "include"
-        }).then(r=>{ return r.text()}).then(r=>{
-            return new CallResponse(url, args, method, head, r.trim());
-        }));
+            , credentials: "omit"
+            , cache: "no-cache"
+            , redirect: "follow"
+            , referrer: "no-referrer"
+        })
+        , ans = await req.text();
+        return new CallResponse(url, args, method, head, ans.trim());
     }
 
     async call(url, args=null, method="POST", head=null){
-        let
+        const
         o = new Promise(function(accepted,rejected){
             let
             o = new CallResponse(url, args, method)
@@ -768,13 +811,11 @@ class FAAU {
                 if (xhr.readyState == 4) {
                     o.status = xhr.status;
                     o.data = xhr.responseText.trim();
-                //    if(fn) fn.bind(o)(o);
                    return accepted(o);
                 };
             }
-            head = head ? head : {};
-
-            xhr.open(method,url);
+            head = head ? head : new Headers();
+            xhr.open(method,url);   
             head["Content-Type"] = head["Content-Type"] || "text/plain"
             head["FA-Custom"] = "@rafsb"
             o.headers = head;
@@ -805,7 +846,7 @@ class FAAU {
 
     get(el,scop=document) { return [].slice.call(scop ? scop.querySelectorAll(el) : this.nodes.querySelectorAll(el)); }
 
-    nuid(n=8) { let a = "FA"; n-=2; while(n-->0) { a+="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('')[parseInt((Math.random()*36)%36)] } return a }
+    nuid(n=8) { let a = "F"; n--; while(n-->0) { a+="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('')[parseInt((Math.random()*36)%36)] } return a }
 
     notify(n, c=null) {
         let
@@ -903,7 +944,7 @@ class FAAU {
 
     window(n=null, html=null, css={}){
         let
-        head = _("header","-row -left -content-center -zero",{background:app.colors().DARK3,padding:".25em", color:app.colors().CLOUDS}).text(n || "¬¬").app(
+        head = _("header","-row -left -content-left -zero",{background:app.colors().DARK3,padding:".25em", color:app.colors().CLOUDS}).text(n || "¬¬").app(
             _("div","-absolute -zero-tr -pointer --close -tile",{padding:".25em", fontWeight:"bolder"}).app(
                  _("img",null,{height:"1em",marginRight:".25em", filter:"invert(1)"}).attr({src:"src/img/icons/cross.svg"})
             )
