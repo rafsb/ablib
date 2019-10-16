@@ -791,7 +791,8 @@ class FAAU {
             , body: args ? args.json() : null
             , headers : head
             , mode: "no-cors"
-            , credentials: "omit"
+            , credentials: "include"
+            // , credentials: "omit"
             , cache: "no-cache"
             , redirect: "follow"
             , referrer: "no-referrer"
