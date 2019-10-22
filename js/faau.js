@@ -15,13 +15,13 @@ const
     , HARMONIC = 2
     , PASSWD_AUTO_HASH = true;
 ;
-
-window.bind = function (e, o) {
-    let
-        a = Object.keys(o);
-    for (let i = a.length; i--;) e[a[a.length - i - 1]] = o[a[a.length - i - 1]];
-    return e
-};
+var
+    bind = function (e, o) {
+        let
+            a = Object.keys(o);
+        for (let i = a.length; i--;) e[a[a.length - i - 1]] = o[a[a.length - i - 1]];
+        return e
+    };
 NodeList.prototype.array = function () {
     return [].slice.call(this);
 };
@@ -158,7 +158,8 @@ bind(Element.prototype, {
         return this
     }
     , empty: function () {
-        return this.html("")
+        this.html("");
+        return this
     }
     , css: function (o = null, fn = null) {
         if (o === null) return this;
@@ -182,14 +183,15 @@ bind(Element.prototype, {
         if (fn !== null && typeof fn == "function") setTimeout(fn.bind(this), 16, this);
         return this
     }
-    , text: function (t = null) {
+    , text: function (t = null, fn = null) {
         if (!t) return this.textContent;
         this.textContent = t;
+        if (fn) return fn.bind(this)(this);
         return this;
     }
     , html: function (tx = null) {
-        if (tx === null) return this.innerHTML
-        else this.innerHTML = tx;
+        if (tx) this.innerHTML = tx;
+        else return this.innerHTML;
         return this
     }
     , data: function (o = null, fn = null) {
@@ -200,7 +202,6 @@ bind(Element.prototype, {
     }
     , attr: function (o = null, fn = null) {
         if (o === null) return null;
-        if (typeof o == "string") return this.getAttribute(o);
         let el = this;
         Object.keys(o).each(x => el.setAttribute(x, o[x]));
         if (fn !== null && typeof fn == "function") fn.bind(this)(this);
@@ -426,6 +427,28 @@ bind(Object.prototype, {
 bind(Array.prototype, {
     json: function () { return JSON.stringify(this); }
     , clone: function () { return this.slice(0) }
+    , each: function (fn) { if (fn) { for (let i = 0; i++ < this.length;) fn.bind(this[i - 1])(this[i - 1], i - 1); } return this }
+    , extract: function (fn = null) {
+        if (!fn || !this.length) return this;
+        let
+            narr = [];
+        this.each(function (o, i) {
+            let
+                x = fn.bind(this)(this, i);
+            if (x) narr.push(x)
+        })
+        return narr
+    }
+    , calc: function (type = SUM) {
+        let
+            res = 0;
+        switch (type) {
+            case (SUM): this.each(x => res += x); break;
+            case (AVERAGE): this.each(x => res += x); res = res / this.length; break;
+            case (HARMONIC): this.each(x => res += 1 / x); res = this.length / res; break;
+        }
+        return res;
+    }
     , last: function () { return this.length ? this[this.length - 1] : null; }
     , first: function () { return this.length ? this[0] : null; }
     , at: function (n = 0) { return this.length >= n ? this[n] : null; }
@@ -434,6 +457,14 @@ bind(Array.prototype, {
             arr = this;
         while (arr.indexOf(el) + 1) arr.splice(arr.indexOf(el), 1);
         return arr;
+    }
+    , anime: function (obj, fn = null, len = ANIMATION_LENGTH, delay = 0, trans = null) {
+        this.each(x => x.anime(obj, fn, len, delay, trans));
+        return this
+    }
+    , css: function (obj, fn = null) {
+        this.each(x => x.css(obj, fn));
+        return this
     }
     , data: function (obj, fn = null) {
         this.each(x => x.data(obj, fn));
@@ -467,56 +498,21 @@ bind(Array.prototype, {
         if (act && fn) this.each(x => x.on(act, fn));
         return this
     }
-    , val: function (v = null) {
-        if (v) this.each(x => { if (x.tagName.toLowerCase() == "input") x.value = v })
-        return this.extract(x => { return x.tagName.toLowerCase() == "input" ? x.value || " " : null })
-    }
-    , css: function (obj, fn = null) {
-        this.each(x => x.css(obj, fn));
-        return this
-    }
-    , calc: function (type = SUM) {
-        let
-            res = 0;
-        switch (type) {
-            case (SUM): this.each(x => res += x); break;
-            case (AVERAGE): this.each(x => res += x); res = res / this.length; break;
-            case (HARMONIC): this.each(x => res += 1 / x); res = this.length / res; break;
-        }
-        return res;
-    }
-    , evalute: async function () {
+    , evalute: function () {
         this.each(me => {
             if (me.tagName.toLowerCase() == "script") eval(me.textContent);
             else me.get("script").evalute()
         })
     }
-    , appear: async function (len = ANIMATION_LENGTH) {
-        return this.each(x => x.css({ display: 'block' }).then(x => x.anime({ opacity: 1 }, len, 1)))
+    , appear: function (len = ANIMATION_LENGTH) {
+        return this.each(x => x.css({ display: 'block' }, x => x.anime({ opacity: 1 }, null, len, 1)))
     }
-    , desappear: async function (len = ANIMATION_LENGTH, remove = false, fn = null) {
+    , desappear: function (len = ANIMATION_LENGTH, remove = false, fn = null) {
         return this.each(x => x.desappear(len, remove, fn))
     }
-    , anime: async function (obj, len = ANIMATION_LENGTH, delay = 0, trans = null) {
-        this.each(x => x.anime(obj, len, delay, trans).then(x => fn(x)));
-        return this
-    }
-    , each: async function (fn) {
-        if (fn) {
-            for (let i = 0; i++ < this.length;) fn(this[i - 1], i - 1);
-        }
-        return this
-    }
-    , extract: async function (fn = null) {
-        if (!fn || !this.length) return this;
-        let
-            narr = [];
-        this.each(function (o, i) {
-            let
-                x = fn.bind(this)(this, i);
-            if (x) narr.push(x)
-        })
-        return narr
+    , val: function (v = null) {
+        if (v) this.each(x => { if (x.tagName.toLowerCase() == "input") x.value = v })
+        return this.extract(x => { return x.tagName.toLowerCase() == "input" ? x.value || " " : null })
     }
 });
 
@@ -987,6 +983,8 @@ class FAAU {
 
     last() { return this.nodearray.last() }
 
+    empty(except = null) { this.nodearray.each(x => x.empty(except)) }
+
     remove() { this.nodearray.each(x => x.remove()) }
 
     anime(obj, fn = null, len = ANIMATION_LENGTH, delay = 0, trans = null) {
@@ -1002,7 +1000,7 @@ class FAAU {
         if (!field) return false;
         if (value === null) return window.localStorage.getItem(field);
         window.localStorage.setItem(field, value);
-        return window.localStorage;
+        return window.localStorage.getItem(field);
     }
 
     cook(field = null, value = null, days = 356) {
@@ -1099,7 +1097,7 @@ bind(window, {
     , $: function (wrapper = null, context = document) { return [].slice.call((new FAAU(wrapper, context)).nodearray); }
     , _: function (node = 'div', cls = "auto-created", style = { display: "inline-block" }, fn) { return app.new(node, cls, style, fn) }
     , bootstrap: new Bootstrap()
-    , app: new FAAU()
+    , app: (new FAAU())
     , base_hash: function (obj) {
         switch (typeof obj) {
             case "object" || "array": return btoa(JSON.stringify(obj)); break;
