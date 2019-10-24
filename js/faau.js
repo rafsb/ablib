@@ -183,15 +183,14 @@ bind(Element.prototype,{
         if(fn!==null&&typeof fn=="function") setTimeout(fn.bind(this),16, this);
         return this
     }
-    , text: function(t=null, fn=null){
-        if(!t) return this.textContent;
+    , text: function(t=null){
+        if(t===null) return this.textContent;
         this.textContent = t;
-        if(fn) return fn.bind(this)(this);
         return this;
     }
-    , html: function(tx=null) {
-        if(tx) this.innerHTML = tx;
-        else return this.innerHTML;
+    , html: function(h=null) {
+        if (h === null) return this.innerHTML;
+        this.innerHTML = h;
         return this
     }
     , data: function(o=null, fn=null) {
@@ -490,29 +489,21 @@ bind(Array.prototype, {
         this.each(x=>x.remove());
         return this
     }
-    , setValue: function(v='') {
-        this.each(x=>x.value = v);
-        return this
-    }
-    , on: function(act=null,fn=null) {
-        if(act&&fn) this.each(x=>x.on(act,fn));
-        return this
-    }
-    , evalute: function(){
-        this.each(me=>{ 
-            if(me.tagName.toLowerCase()=="script") eval(me.textContent); 
+    , evalute: function () {
+        this.each(me => {
+            if (me.tagName.toLowerCase() == "script") eval(me.textContent);
             else me.get("script").evalute()
         })
     }
-    , appear: function(len = ANIMATION_LENGTH) {
-        return this.each(x=>x.css({display:'block'},x=>x.anime({opacity:1}, null, len, 1)))
+    , appear: function (len = ANIMATION_LENGTH) {
+        return this.each(x => x.css({ display: 'block' }, x => x.anime({ opacity: 1 }, null, len, 1)))
     }
-    , desappear: function(len = ANIMATION_LENGTH, remove = false, fn=null){
-        return this.each(x=>x.desappear(len,remove,fn))
+    , desappear: function (len = ANIMATION_LENGTH, remove = false, fn = null) {
+        return this.each(x => x.desappear(len, remove, fn))
     }
-    , val: function(v=null){
-        if(v) this.each(x=>{ if(x.tagName.toLowerCase()=="input") x.value = v })
-        return this.extract(x=>{ return x.tagName.toLowerCase()=="input" ? x.value || " " : null})
+    , val: function (v = null) {
+        if (v) this.each(x => { if (x.tagName.toLowerCase() == "input") x.value = v })
+        return this.extract(x => { return x.tagName.toLowerCase() == "input" ? x.value || " " : null })
     }
 });
 
