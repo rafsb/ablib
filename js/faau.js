@@ -13,7 +13,7 @@ ANIMATION_LENGTH = 800
 , SUM               = 0
 , AVERAGE           = 1
 , HARMONIC          = 2
-, PASSWD_AUTO_HASH  = true;
+, PASSWD_AUTO_HASH  = false;
 ;
 var
 bind = function(e,o){
@@ -791,8 +791,7 @@ class FAAU {
             , body: args ? args.json() : null
             , headers : head
             , mode: "no-cors"
-            , credentials: "include"
-            // , credentials: "omit"
+            , credentials: "omit"
             , cache: "no-cache"
             , redirect: "follow"
             , referrer: "no-referrer"
@@ -847,7 +846,7 @@ class FAAU {
 
     get(el,scop=document) { return [].slice.call(scop ? scop.querySelectorAll(el) : this.nodes.querySelectorAll(el)); }
 
-    nuid(n=8) { let a = "F"; n--; while(n-->0) { a+="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('')[parseInt((Math.random()*36)%36)] } return a }
+    nuid(n=8) { let a = ""; while(n-->0) { a+="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('')[parseInt((Math.random()*36)%36)] } return a }
 
     notify(n, c=null) {
         let
@@ -865,15 +864,15 @@ class FAAU {
                 top:0,
                 left:"80vw",
                 width:"calc(20vw - 1em)",
-                padding:".5rem"
+                padding:".5em"
             });
         }else{
             toast.css({
                 opacity:0,
-                top:".5rem",
-                left:".5rem",
-                width:"calc(100% - 1rem)",
-                padding:"1.5rem",
+                top:0,
+                left:0,
+                width:"100vw",
+                padding:"1em",
             });
         }
         toast.onclick = function() { clearTimeout(this.dataset.delay);this.desappear(ANIMATION_LENGTH/2,true); };
@@ -1001,7 +1000,7 @@ class FAAU {
         if(!field) return false;
         if(value===null) return window.localStorage.getItem(field);
         window.localStorage.setItem(field,value);
-        return window.localStorage;
+        return window.localStorage.getItem(field);
     }
 
     cook(field=null, value=null, days=356){
@@ -1052,14 +1051,15 @@ class FAAU {
                 BACKGROUND : "#FFFFFF"
                 , FOREGROUND : "#ECF1F2"
                 , FONT : "#2C3D4F"
+                , FONTINVERTED: "#F2F2F2"
                 , FONTBLURED:"#7E8C8D"
                 , SPAN :"#2980B9"
                 , DISABLED: "#BDC3C8"
-                , DARK1:"rgba(0,0,0,.8)"
+                , DARK1:"rgba(0,0,0,.08)"
                 , DARK2:"rgba(0,0,0,.16)"
                 , DARK3:"rgba(0,0,0,.32)"
                 , DARK4:"rgba(0,0,0,.64)"
-                , LIGHT1:"rgba(255,255,255,.8)"
+                , LIGHT1:"rgba(255,255,255,.08)"
                 , LIGHT2:"rgba(255,255,255,.16)"
                 , LIGHT3:"rgba(255,255,255,.32)"
                 , LIGHT4:"rgba(255,255,255,.64)"
@@ -1116,7 +1116,7 @@ bind(window, {
                     let
                     size = Math.max(this.offsetWidth, this.offsetHeight);
                     this.app(_("span","-absolute",{
-                        background      : app.colors().DARK1
+                        background      : app.colors().DARK2
                         , display       : "inline-block"
                         , borderRadius  : "50%"
                         , width         : size+"px"
