@@ -6,8 +6,8 @@ header('Content-type: text/plain; charset=utf-8');
 
 session_start();
 
-require "lib" . DIRECTORY_SEPARATOR . "php" . DIRECTORY_SEPARATOR . "autoload.php";
 require "lib" . DIRECTORY_SEPARATOR . "php" . DIRECTORY_SEPARATOR . "constants.php";
+require "lib" . DS . "php" . DS . "autoload.php";
 
 require "webroot" . DS . "App.php";
 

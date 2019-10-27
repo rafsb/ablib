@@ -6,13 +6,13 @@ class Async extends Activity
 		// print_r($arr); die;
 		if(!empty($arr))
 		{
-			foreach($arr as $v)
+			foreach($arr as $k=>$v)
 			{
 				if(function_exists("pcntl_fork"))
 				{
 					if(DEBUG)
 					{
-						echo "$v queued..." . PHP_EOL;
+						echo "$k queued... ";
 					}
 
 					$status = null;
@@ -20,18 +20,18 @@ class Async extends Activity
 					switch($pid)
 					{
 						case -1: die('could not fork'); break;
-						case  0: $fn($v); 				break; 
+						case  0: $fn($v,$k); 				break; 
 						default: pcntl_wait($status); 	break;
 					}
 
 					if(DEBUG)
 					{
-						echo "$v finished..." . PHP_EOL;
+						echo "finished..." . PHP_EOL;
 					}
 				}
 				else
 				{
-					$fn($v);
+					$fn($v,$k);
 				}
 			}
 		}

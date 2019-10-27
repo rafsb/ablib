@@ -71,3 +71,6 @@ define("LAYOUTS_THIN","thin");
 define("DS","/");
 define("NL","\n");
 define("NULL",null);
+
+define("POST","POST");
+define("GET","GET");
