@@ -13,7 +13,7 @@ ANIMATION_LENGTH = 800
 , SUM               = 0
 , AVERAGE           = 1
 , HARMONIC          = 2
-, PASSWD_AUTO_HASH  = false;
+, PASSWD_AUTO_HASH  = true;
 ;
 var
 bind = function(e,o){
@@ -264,6 +264,9 @@ bind(Element.prototype,{
     , evalute: function() {
         this.get("script").each(x=>{ eval(x.textContent)&&x.remove() })
         return this
+    }
+    , double(){
+        return this.cloneNode(true);
     }
     , on: function(action,fn,passive=true) {
         this.addEventListener(action,fn, {passive:passive})
@@ -781,7 +784,7 @@ class FAAU {
     get(e,w){ return faau.get(e,w||document).nodearray; }
     declare(obj){ Object.keys(obj).each(x=>window[x]=obj[x]) }
     initialize(){ bootstrap&&bootstrap.loadComponents.fire() }
-    async fetch(url, args=null, method='POST', head=null) {
+    async call(url, args=null, method='GET', head=null) {
         if(!head) head = new Headers();
         head["Content-Type"] = head["Content-Type"] || "application/json";
         //head["FA-Custom"] = "@rafsb"
@@ -800,7 +803,7 @@ class FAAU {
         return new CallResponse(url, args, method, head, ans.trim());
     }
 
-    async call(url, args=null, method="POST", head=null){
+    async xhr(url, args=null, method="GET", head=null){
         const
         o = new Promise(function(accepted,rejected){
             let
@@ -846,7 +849,7 @@ class FAAU {
 
     get(el,scop=document) { return [].slice.call(scop ? scop.querySelectorAll(el) : this.nodes.querySelectorAll(el)); }
 
-    nuid(n=8) { let a = ""; while(n-->0) { a+="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('')[parseInt((Math.random()*36)%36)] } return a }
+    nuid(n=8) { let a = "F"; n--; while(n-->0) { a+="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('')[parseInt((Math.random()*36)%36)] } return a }
 
     notify(n, c=null) {
         let
@@ -864,15 +867,15 @@ class FAAU {
                 top:0,
                 left:"80vw",
                 width:"calc(20vw - 1em)",
-                padding:".5em"
+                padding:".5rem"
             });
         }else{
             toast.css({
                 opacity:0,
-                top:0,
-                left:0,
-                width:"100vw",
-                padding:"1em",
+                top:".5rem",
+                left:".5rem",
+                width:"calc(100% - 1rem)",
+                padding:"1.5rem",
             });
         }
         toast.onclick = function() { clearTimeout(this.dataset.delay);this.desappear(ANIMATION_LENGTH/2,true); };
@@ -1000,7 +1003,7 @@ class FAAU {
         if(!field) return false;
         if(value===null) return window.localStorage.getItem(field);
         window.localStorage.setItem(field,value);
-        return window.localStorage.getItem(field);
+        return window.localStorage;
     }
 
     cook(field=null, value=null, days=356){
@@ -1029,8 +1032,8 @@ class FAAU {
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
     }
 
-    colors(pallete="light"){
-        return pallete&&this.color_pallete[pallete] ? this.color_pallete[pallete] : this.color_pallete;
+    colors(color=null){
+        return color&&this.color_pallete[color] ? this.color_pallete[color] : this.color_pallete;
     }
 
     hashit(o){ if(typeof o == "object" || typeof o == "array") o = JSON.stringify(o); return { hash: btoa(o) } }
@@ -1046,45 +1049,40 @@ class FAAU {
         this.nodes = document;
         this.nodearray = [];
         this.color_pallete = {
-            light : {
-                /*** SYSTEM***/
-                BACKGROUND : "#FFFFFF"
-                , FOREGROUND : "#ECF1F2"
-                , FONT : "#2C3D4F"
-                , FONTINVERTED: "#F2F2F2"
-                , FONTBLURED:"#7E8C8D"
-                , SPAN :"#2980B9"
-                , DISABLED: "#BDC3C8"
-                , DARK1:"rgba(0,0,0,.08)"
-                , DARK2:"rgba(0,0,0,.16)"
-                , DARK3:"rgba(0,0,0,.32)"
-                , DARK4:"rgba(0,0,0,.64)"
-                , LIGHT1:"rgba(255,255,255,.08)"
-                , LIGHT2:"rgba(255,255,255,.16)"
-                , LIGHT3:"rgba(255,255,255,.32)"
-                , LIGHT4:"rgba(255,255,255,.64)"
-                /*** PALLETE ***/
-                , WET_ASPHALT:"#34495E"
-                , MIDNIGHT_BLUE:"#2D3E50"
-                , CONCRETE:"#95A5A5"
-                , ASBESTOS:"#7E8C8D"
-                , AMETHYST:"#9C56B8"
-                , WISTERIA:"#8F44AD"
-                , CLOUDS:"#ECF0F1"
-                , SILVER:"#BDC3C8"
-                , PETER_RIVER:"#2C97DD"
-                , BELIZE_HOLE:"#2A80B9"
-                , ALIZARIN:"#E84C3D"
-                , POMEGRANATE:"#C0382B"
-                , EMERALD:"#53D78B"
-                , NEPHIRITIS:"#27AE61"
-                , CARROT:"#E67D21"
-                , PUMPKIN: "#D35313"
-                , TURQUOISE:"#00BE9C"
-                , GREEN_SEA:"#169F85"
-                , SUNFLOWER:"#F2C60F"
-                , ORANGE: "#F39C19"
-            }
+            /*** SYSTEM***/
+            BACKGROUND : "#FFFFFF"
+            , FOREGROUND : "#ECF1F2"
+            , FONT : "#2C3D4F"
+            , FONTBLURED:"#7E8C8D"
+            , SPAN :"#2980B9"
+            , DISABLED: "#BDC3C8"
+            , DARK1:"rgba(0,0,0,.16)"
+            , DARK2:"rgba(0,0,0,.32)"
+            , DARK3:"rgba(0,0,0,.64)"
+            , LIGHT1:"rgba(255,255,255,.16)"
+            , LIGHT2:"rgba(255,255,255,.32)"
+            , LIGHT3:"rgba(255,255,255,.64)"
+            /*** PALLETE ***/
+            , WET_ASPHALT:"#34495E"
+            , MIDNIGHT_BLUE:"#2D3E50"
+            , CONCRETE:"#95A5A5"
+            , ASBESTOS:"#7E8C8D"
+            , AMETHYST:"#9C56B8"
+            , WISTERIA:"#8F44AD"
+            , CLOUDS:"#ECF0F1"
+            , SILVER:"#BDC3C8"
+            , PETER_RIVER:"#2C97DD"
+            , BELIZE_HOLE:"#2A80B9"
+            , ALIZARIN:"#E84C3D"
+            , POMEGRANATE:"#C0382B"
+            , EMERALD:"#53D78B"
+            , NEPHIRITIS:"#27AE61"
+            , CARROT:"#E67D21"
+            , PUMPKIN: "#D35313"
+            , TURQUOISE:"#00BE9C"
+            , GREEN_SEA:"#169F85"
+            , SUNFLOWER:"#F2C60F"
+            , ORANGE: "#F39C19"
         };
         if(wrapper) {
             let 
@@ -1116,7 +1114,7 @@ bind(window, {
                     let
                     size = Math.max(this.offsetWidth, this.offsetHeight);
                     this.app(_("span","-absolute",{
-                        background      : app.colors().DARK2
+                        background      : app.colors().DARK1
                         , display       : "inline-block"
                         , borderRadius  : "50%"
                         , width         : size+"px"
