@@ -1,5 +1,5 @@
 <?php
-session_start();
+@session_start();
 
 require "php" . DIRECTORY_SEPARATOR . "constants.php";
 require "php" . DS . "autoload.php";

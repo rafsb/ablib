@@ -16,6 +16,15 @@ define("OUT",false);
 define("SCAN",'{*}');
 define("NOSCAN",false);
 
+
+/* 
+ * TEXT TYPES
+ */
+define("LEFT", true);
+define("RIGHT",false);
+define("REVERSE",true);
+define("CUT",true);
+define("WHERE",true);
 /*
  * HANDLER MODES
  */

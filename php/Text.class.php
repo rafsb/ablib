@@ -1,142 +1,124 @@
 <?php
-define("LEFT", true);
-define("RIGHT",false);
-define("REVERSE",true);
-define("CUT",true);
-define("WHERE",true);
-
-
-class Vector {
-    public static function each(Array $arr, Clousure $fn) {
-        foreach($arr as $k=>$v) {
-            $fn($v, $k);
-        }
-    }
-}
-
-
-class Text{
-    
-    private $text = "";
-
-    private $results = [];
-
-    private static $sufix = [
-        "ada", "ez", "eza", "ança", "ismo", "ância", "mento", "ção", "são", "dão", "tude", "ença", "ura"
-        , "ário", "ária", "eiro", "eira", "ista", "or", "nte", "aria", "ário", "eiro", "il", "or", "tério"
-        , "tório", "aço", "ada", "agem", "al", "ame", "ario", "aria", "edo", "eria", "io", "ume", "ite"
-        , "oma", "ato", "eto", "ito", "ina", "ol", "ite", "ito", "ema", "io", "ismo"
-        , "r", "er", "eres", "l", "is", "eis", "ils", "ção", "ções", "ar", "ando", "andado", "andada"
-        , "ada", "ado", "adas", "ados", "s"
-    ];
-
-    private static $prepositions = [
-        "a", "o", "ante", "após", "até", "com", "contra", "de", "desde", "em", "entre", "para", "por", "perante", "sem", "sob", "sobre"
-        , "trás", "afora", "como", "conforme", "consoante", "durante", "exceto", "feito", "fora", "mediante", "menos", "salvo", "segundo", "senão"
-        , "tirante", "visto", "aquele", "àquele" , "do", "uma" , "duma", "isto" , "disto", "as" , "nas", "um" , "num"
-        , "essa" , "nessa", "pelo", "as" , "pelas", "ao", "os" , "aos", "onde", "aonde"
-    ];
-
-    private static $accented = [
-        'Š'=>'S', 'š'=>'s', 'Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A', 'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E'
-        , 'Ê'=>'E', 'Ë'=>'E', 'Ì'=>'I', 'Í'=>'I', 'Î'=>'I', 'Ï'=>'I', 'Ñ'=>'N', 'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'O', 'Ø'=>'O', 'Ù'=>'U'
-        , 'Ú'=>'U', 'Û'=>'U', 'Ü'=>'U', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'Ss', 'à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'a', 'å'=>'a', 'æ'=>'a', 'ç'=>'c'
-        , 'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o'
-        , 'ö'=>'o', 'ø'=>'o', 'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y'
-    ];
+class Text {
 
     public static function sparse(String $tx, $offset=10, $dir=LEFT) {
         while(strlen($tx) < $offset) $tx = $dir ? $tx . " " : " " . $tx;
         return substr($tx, 0, $offset);
     }
 
-    public static function word_body(String $arg) {
-        foreach(self::$sufix as $sf) {
-            if(substr($arg, strlen($arg) - strlen($sf), strlen($arg)) == $sf) {
-                return substr($arg, 0, strlen($arg) - strlen($sf));
-            }
-        }       
-        return $arg;
+    public static function flex(String $text) {
+        if(!Request::sess("CL_WORD_SUFIX")) Request::sess("CL_WORD_SUFIX", IO::jout("etc/text.d/sufix.json"));
+        $sufix = Request::sess("CL_WORD_SUFIX");
+
+        // print_r($sufix); die;
+
+        // foreach ($sufix as &$f) $f = '/' . preg_quote($f, '/') . '\b/';
+
+        // print_r($sufix); die;
+
+        // return preg_replace($sufix, '', $text);
+
+        $final = [];
+
+        if(strpos($text," ")!==false) $text = explode(" ", $text);
+        else $text = [$text];
+
+        foreach($text as $word){
+            foreach($sufix as $sf) {
+                if(substr($word, strlen($word) - strlen($sf), strlen($word)) == $sf) {
+                    $final[] = substr($word, 0, strlen($word) - strlen($sf));
+                    break;
+                }
+            }       
+        }
+        
+        return implode(" ", $final);
     }
 
-    public static function remove_accented($text){
-        return strtr($text, self::$accented);
+    public static function raccent(String $text){
+        if(!Request::sess("CL_WORD_ACCENT")) Request::sess("CL_WORD_ACCENT", IO::jout("etc/text.d/accent.json"));
+        $accent = Convert::otoa(Request::sess("CL_WORD_ACCENT"));
+        // foreach($accent as &$acc) $acc = Convert::otoa($acc); 
+        // print_r($accent); die;
+        return strtr($text, $accent);
     }
 
-    public static function calc(String $text, $iniset=1) {
-        $initial = [];
+    public static function rprep(String $text) {
+        if(!Request::sess("CL_WORD_PREPOSITION")) Request::sess("CL_WORD_PREPOSITION", IO::jout("etc/text.d/preposition.json"));
+        $prep = Request::sess("CL_WORD_PREPOSITION");
+        foreach ($prep as &$p) $p = '/\b' . preg_quote($p, '/') . '\b/';
+        return preg_replace($prep, '', $text);
+    }
+
+    public static function normalize(String $text, $rem_prepositions = false){
+        $text = self::flex($text);
+        $text = self::raccent($text);
+        // print_r($text); die;
+        if($rem_prepositions) $text = self::rprep($text);
+        return $text;
+    }
+
+    public static function rank(String $text, $iniset=1) {
+        
+        $text = self::raccent($text, true);
+        $initial = preg_split("/[\s,.\n\r\[\]\(\)\{\}0-9\/\'\"\`\':;\-\^\“_=\*]+/", $text, NULL, PREG_SPLIT_NO_EMPTY/PREG_SPLIT_OFFSET_CAPTURE);        
         $final   = [];
-        $text = self::remove_accented($text);
-        $arr = preg_split("/[\s,.\n\r\[\]\(\)\{\}0-9\/\'\"\`\':;\-\^\“_=\*]+/", strtolower($text), NULL, PREG_SPLIT_NO_EMPTY/PREG_SPLIT_OFFSET_CAPTURE);
 
-        foreach($arr as $offset=>$word) {
-            $tmp = self::word_body($word);
-            if(strlen($tmp)>=$iniset && !in_array($tmp, self::$prepositions)) {
-                if(!isset($initial[$tmp])) $initial[$tmp] = [ "founds" => [] ];
-                if(!isset($initial[$tmp]["founds"][$word])) $initial[$tmp]["founds"][$word] = [];
-                $initial[$tmp]["founds"][$word][] = $offset;
+        // echo $iniset;print_r($initial); die;
+
+        foreach($initial as $offset=>$word) {
+            $tword = self::flex(strtolower($word));
+            if(strlen($word)>=$iniset) {
+                if(!isset($final[$tword])) $final[$tword] = [ "founds" => [] ];
+                if(!isset($final[$tword]["founds"][$initial[$offset]])) $final[$tword]["founds"][$initial[$offset]] = [];
+                $final[$tword]["founds"][$initial[$offset]][] = $offset;
             }
         }
 
-        // print_r($initial);
-        
-        foreach ($initial as $word => $content) {
+        foreach ($final as $word => $content) {
             $num = 0;
             foreach($content["founds"] as $found) {
                 foreach($found as $offsets) $num += is_array($offsets) ? sizeof($offsets) : 1;
             }
-            $initial[$word]["sum"] = $num;
+            $final[$word]["sum"] = $num;
         }
-        $sorted = array_map(function($arr) { return $arr["sum"]; }, $initial);
-        
+        $sorted = array_map(function($arr) { return $arr["sum"]; }, $final);
         arsort($sorted);
-
-        // print_r($sorted);
-
-        foreach($sorted as $word=>$offset) $final[] = json_decode(json_encode(["name"=>$word]+$initial[$word]));
-
-        // print_r($final);
-
-        return $final;
-    }
-
-    public function results(){
-        return $this->results;
-    }
-
-    public function print($rev=false, $whr = false, $cut=false){
         
-        $arr = $rev ? array_reverse($this->results, true) : $this->results;
+        $result  = [];
+        foreach($sorted as $word=>$offset) if($word&&$offset) $result[] = json_decode(json_encode(["name"=>$word]+$final[$word]));
 
-        foreach($arr as $id=>$obj)
-        {
+        return $result;
+    }
+
+    public static function frank(String $text, $iniset=1){
+        $text = IO::read($text);
+        return self::rank($text, $iniset);
+    }
+
+    public static function print(String $text, $iniset=1, $reverse=false, $where = false, $cut=false) {
+
+        $text = self::rank($text, $iniset);
+        $text = $reverse ? array_reverse($text, true) : $text;
+
+        // print_r($text); die;
+        
+        foreach($text as $id=>$obj){
             $print = self::sparse($id+1 . "º", 6) . " -> " . self::sparse($obj->name, 24, RIGHT) . self::sparse($obj->sum, 4, RIGHT) . "x ";
-            if($whr){
+            if($where){
                 $print .= "| ";
                 foreach((array)$obj->founds as $word=>$pos) $print .= $word . "(" . sizeof($pos) . ") ";
             }
             echo ($cut ? self::sparse($print . "...", 164) : $print) . PHP_EOL;
         }
 
-        return $this;
     }
 
-    public static function load(String $tx, $iniset=1){
-        return (new Text($tx, [ "iniset" => $iniset ]));
+    public static function fprint(String $text, $iniset=1, $reverse=false, $where = false, $cut=false){
+        $text = IO::read($text);
+        self::print($text, $iniset, $reverse, $where, $cut);
     }
 
-    private function generate_results($tx, $iniset=1){
-        if(is_file($tx)) $this->text = file_get_contents($tx);
-        $this->results = $this->calc($this->text, $iniset);
-        return $this;
-    }
-
-    public function __construct(String $tx, Array $cfg = []){
-        if($tx) $this->generate_results($tx, isset($cfg["iniset"]) ? $cfg["iniset"] : 1);
-    }
 };
 
-$text = Text::load("tmp/sonegacao.txt", 4)->print(REVERSE, WHERE, CUT);
-// $text = Text::load("tmp/sonegacao.txt", 4)->print(REVERSE, WHERE);
-// $text = Text::load("tmp/sonegacao.txt", 4)->print(REVERSE);
-// $text = Text::load("tmp/sonegacao.txt", 4)->print();
+// $text = Text::fprint("tmp/sonegacao.txt", 4, REVERSE, WHERE, CUT);
