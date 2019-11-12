@@ -1,15 +1,15 @@
 <?php
 session_start();
 
-require "lib" . DIRECTORY_SEPARATOR . "php" . DIRECTORY_SEPARATOR . "constants.php";
-require "lib" . DS . "php" . DS . "autoload.php";
+require "php" . DIRECTORY_SEPARATOR . "constants.php";
+require "php" . DS . "autoload.php";
 
-require "webroot" . DS . "App.php";
+require dirname(__DIR__) . DS . "webroot" . DS . "App.php";
 
 if(!User::logged() && Request::cook("USER") && Request::cook("ACTIVE")) Request::sess("USER",Request::cook("USER"));
-if(Request::get('_'))
+if(sizeof($_SERVER['argv']))
 {   
-    $args = explode('/',Request::get('_'));
+    $args = $_SERVER['argv'];
     $class_name  = ucfirst($args[1]);
     $method_name = isset($args[2]) && $args[2] ? $args[2] : "render";
     
@@ -21,6 +21,3 @@ if(Request::get('_'))
     }
 
 }else \App::init();
-
-flush();
-ob_flush();
