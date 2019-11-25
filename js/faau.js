@@ -13,7 +13,7 @@ ANIMATION_LENGTH = 800
 , SUM               = 0
 , AVERAGE           = 1
 , HARMONIC          = 2
-, PASSWD_AUTO_HASH  = true;
+, PASSWD_AUTO_HASH  = false;
 ;
 var
 bind = function(e,o){
@@ -67,17 +67,6 @@ bind(HTMLInputElement.prototype, {
         //     $(".--progress").anime({width:(d.loaded/d.total*100)+"%"});
         // }
         if(fn) xhr.upload.onload = function() {
-            // let
-            // timer = setInterval(function() {
-            //     if (xhr.responseText) {
-            //         eval(fn)(JSON.parse(xhr.responseText));
-            //         clearInterval(timer);
-            //     }
-            //     if (counter++ >= ANIMATION_LENGTH) {
-            //         app.notify("Ops! Imagem n茫o pode ser carregada, chama o Berts!",["#ff0066","white"]);
-            //         clearInterval(timer);
-            //     }
-            // }, ANIMATION_LENGTH/10);
             console.log(xhr.responseText)
         }
         xhr.upload.onerror = function() {
@@ -151,6 +140,9 @@ bind(Element.prototype,{
         }
         if(fn!==null&&typeof fn=="function") this.dataset.animationFunction = setTimeout(fn.bind(this),len*1000+delay+1,this);
         return this;
+    }
+    , mimic: function(){
+        return this.cloneNode(true)
     }
     , stop: function() {
         if(this.dataset.animationFunction) clearInterval(this.dataset.animationFunction);
@@ -265,9 +257,6 @@ bind(Element.prototype,{
         this.get("script").each(x=>{ eval(x.textContent)&&x.remove() })
         return this
     }
-    , double(){
-        return this.cloneNode(true);
-    }
     , on: function(action,fn,passive=true) {
         this.addEventListener(action,fn, {passive:passive})
         return this
@@ -331,7 +320,8 @@ bind(Element.prototype,{
     , addClass: function(c) {
         if(c){
             let
-            tmp = c.split(/\s+/g), i=tmp.length;
+            tmp = c.trim().split(/\s+/g)
+            , i=tmp.length;
             if(c.length) while(i--) this.classList.add(tmp[i]);
         }
         return this;
@@ -363,7 +353,7 @@ bind(Element.prototype,{
     , desappear: function(len = ANIMATION_LENGTH, remove = false, fn=null) {
         return this.anime({opacity:0}, x=>{ if(remove) x.remove(); else x.css({display:"none"}); if(fn) fn(remove ? null : this); }, len);
     }
-    , remove: function() { this&&this.parent()&&this.parent().removeChild(this) }
+    , remove: function() { if(this&&this.parent()) this.parent().removeChild(this) }
 });
 bind(String.prototype,{
     hash: function() {
@@ -784,7 +774,7 @@ class FAAU {
     get(e,w){ return faau.get(e,w||document).nodearray; }
     declare(obj){ Object.keys(obj).each(x=>window[x]=obj[x]) }
     initialize(){ bootstrap&&bootstrap.loadComponents.fire() }
-    async call(url, args=null, method='GET', head=null) {
+    async fetch(url, args=null, method='GET', head=null) {
         if(!head) head = new Headers();
         head["Content-Type"] = head["Content-Type"] || "application/json";
         //head["FA-Custom"] = "@rafsb"
@@ -803,7 +793,7 @@ class FAAU {
         return new CallResponse(url, args, method, head, ans.trim());
     }
 
-    async xhr(url, args=null, method="GET", head=null){
+    async call(url, args=null, method="GET", head=null){
         const
         o = new Promise(function(accepted,rejected){
             let
@@ -829,6 +819,10 @@ class FAAU {
         return o;
     }
 
+    async post(url, args, head=null){
+        return this.call(url, args, "POST", head)
+    }
+
     async load(url, args=null, target=null) {
         return this.call(url, args).then( r => {
             if(!r.status) return app.error("error loading "+url);
@@ -849,7 +843,30 @@ class FAAU {
 
     get(el,scop=document) { return [].slice.call(scop ? scop.querySelectorAll(el) : this.nodes.querySelectorAll(el)); }
 
-    nuid(n=8) { let a = "F"; n--; while(n-->0) { a+="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('')[parseInt((Math.random()*36)%36)] } return a }
+    nuid(n=8) { let a = ""; while(n-->0) { a+="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('')[parseInt((Math.random()*36)%36)] } return a }
+
+    loading(show = true) {
+        if (!show) {
+            $(".--default-loading").each(x => { clearInterval(x.dataset.animation); x.remove() });
+            return
+        }
+        app.body.app(document.createElement("div").addClass("-fixed -view -zero --default-loading"));
+
+        app.load("src/img/loading.svg", null, $(".--default-loading")[0], function () {
+            let
+                circle = $(".--default-loading .--loading-circle")[0];
+            if (!circle) return;
+            circle.css({ transformOrigin: "top left", scale: window.innerWidth / 1920, "stroke-dasharray": circle.getTotalLength() + "," + circle.getTotalLength() + "," + circle.getTotalLength() });
+            $(".--default-loading")[0].dataset.animation = setInterval(() => {
+                let
+                    circle = $(".--default-loading .--loading-circle")[0];
+                if (circle) {
+                    circle.css({ "stroke-dashoffset": 0 });
+                    circle.anime({ "stroke-dashoffset": circle.getTotalLength() * 4 }, null, ANIMATION_LENGTH * 4)
+                }
+            }, 2201)
+        })
+    }
 
     notify(n, c=null) {
         let
@@ -859,6 +876,8 @@ class FAAU {
             background: c&&c[0] ? c[0] : clr.LIGHT3
             , color: c&&c[1] ? c[1] : clr.WET_ASPHALT
             , boxShadow:"0 0 .5em "+clr.DARK2
+            , borderRadius: ".25em"
+            , padding:"1em"
             , display:'block'
             , opacity:0
         }).innerHTML = n ? n : "Hello <b>World</b>!!!";
@@ -867,15 +886,12 @@ class FAAU {
                 top:0,
                 left:"80vw",
                 width:"calc(20vw - 1em)",
-                padding:".5rem"
             });
         }else{
             toast.css({
-                opacity:0,
-                top:".5rem",
-                left:".5rem",
-                width:"calc(100% - 1rem)",
-                padding:"1.5rem",
+                top:0,
+                left:0,
+                width:"100vw"
             });
         }
         toast.onclick = function() { clearTimeout(this.dataset.delay);this.desappear(ANIMATION_LENGTH/2,true); };
@@ -892,37 +908,20 @@ class FAAU {
         toast.dataset.delay = setTimeout(function() { toast.desappear(ANIMATION_LENGTH/2,true); }, ANIMATION_LENGTH*5);
     }
 
-    loading(show=true){
-        if(!show){
-            $(".--default-loading").each(x=>{ clearInterval(x.dataset.animation); x.remove() });
-            return
-        }
-        app.body.app(document.createElement("div").addClass("-fixed -view -zero --default-loading"));
-
-         app.load("src/img/loading.svg",null,$(".--default-loading")[0],function(){
-            let
-            circle = $(".--default-loading .--loading-circle")[0];
-            if(!circle) return;
-            circle.css({transformOrigin:"top left", scale:window.innerWidth/1920,"stroke-dasharray":circle.getTotalLength()+","+circle.getTotalLength()+","+circle.getTotalLength()});
-            $(".--default-loading")[0].dataset.animation = setInterval(()=>{
-                let
-                circle = $(".--default-loading .--loading-circle")[0];
-                if(circle){ 
-                    circle.css({"stroke-dashoffset":0});
-                    circle.anime({"stroke-dashoffset":circle.getTotalLength()*4},null,ANIMATION_LENGTH*4)
-                }
-            },2201)
-        })
-    }
-
     error(message=null) {
-        app.notify(message || "Ops! Something went wrong...", ["#7F2B2A","whitesmoke"])
+        app.notify(message || "Ops! Something went wrong...", [this.color_pallete.POMEGRANATE,this.color_pallete.CLOUDS])
     }
     success(message=null) {
-        app.notify(message || "Hooray! Success!", ["#3CB371","whitesmoke"])
+        app.notify(message || "Hooray! Success!", [this.color_pallete.NEPHIRITIS, this.color_pallete.CLOUDS])
+    }
+    advise(message = null) {
+        app.notify(message || "Ops! take attention...", [this.color_pallete.ORANGE, this.color_pallete.CLOUDS])
+    }
+    working(message = null) {
+        app.notify(message || "Hooray! Success!", [this.color_pallete.MIDNIGHT_BLUE, this.color_pallete.CLOUDS])
     }
 
-    hintify(n=null, o={},delall=true,keep=false,special=false,evenSpecial=false) {
+    hintify(n=null, o={}, delall=true, keep=false, special=false, evenSpecial=false) {
 
         if(delall) $(".--hintifyied"+(evenSpecial?", .--hintifyied-sp":"")).each(x=>x.remove());
 
@@ -999,11 +998,23 @@ class FAAU {
         return document.createElement(node).addClass(cls).css(style,fn);
     }
 
+    svg(x=0, y=0){
+        return _("svg","--auto-created-svg").css({
+            width: x + "px"
+            , height: y + "px"
+        }).attr({
+            focusable: false
+            , role: "img" 
+            , xmlns: "http://www.w3.org/2000/svg" 
+            , viewBox: "0 0 " + x + " " + y
+        })
+    }
+
     storage(field=null,value=null){
         if(!field) return false;
         if(value===null) return window.localStorage.getItem(field);
         window.localStorage.setItem(field,value);
-        return window.localStorage;
+        return window.localStorage.getItem(field);
     }
 
     cook(field=null, value=null, days=356){
@@ -1032,19 +1043,18 @@ class FAAU {
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
     }
 
-    colors(color=null){
-        return color&&this.color_pallete[color] ? this.color_pallete[color] : this.color_pallete;
+    colors(pallete="light"){
+        return pallete&&this.color_pallete[pallete] ? this.color_pallete[pallete] : this.color_pallete;
     }
 
     hashit(o){ if(typeof o == "object" || typeof o == "array") o = JSON.stringify(o); return { hash: btoa(o) } }
 
     makeServerHashToken(o){ return this.hashit(o).hash; }
 
-    constructor(wrapper,context) {
+    constructor() {
         this.initial_pragma = 0
         this.current        = 0
         this.last           = 0
-        this.body           = document.getElementById("app") || document.getElementsByTagName("body")[0]
         this.onPragmaChange = new Pool()
         this.nodes = document;
         this.nodearray = [];
@@ -1053,16 +1063,21 @@ class FAAU {
             BACKGROUND : "#FFFFFF"
             , FOREGROUND : "#ECF1F2"
             , FONT : "#2C3D4F"
+            , FONTINVERTED: "#F2F2F2"
             , FONTBLURED:"#7E8C8D"
             , SPAN :"#2980B9"
             , DISABLED: "#BDC3C8"
-            , DARK1:"rgba(0,0,0,.16)"
-            , DARK2:"rgba(0,0,0,.32)"
-            , DARK3:"rgba(0,0,0,.64)"
-            , LIGHT1:"rgba(255,255,255,.16)"
-            , LIGHT2:"rgba(255,255,255,.32)"
-            , LIGHT3:"rgba(255,255,255,.64)"
+            , DARK1:"rgba(0,0,0,.08)"
+            , DARK2:"rgba(0,0,0,.16)"
+            , DARK3:"rgba(0,0,0,.32)"
+            , DARK4:"rgba(0,0,0,.64)"
+            , LIGHT1:"rgba(255,255,255,.08)"
+            , LIGHT2:"rgba(255,255,255,.16)"
+            , LIGHT3:"rgba(255,255,255,.32)"
+            , LIGHT4:"rgba(255,255,255,.64)"
             /*** PALLETE ***/
+            , WHITE: "#FFFFFF"
+            , BLACK: "#000000"
             , WET_ASPHALT:"#34495E"
             , MIDNIGHT_BLUE:"#2D3E50"
             , CONCRETE:"#95A5A5"
@@ -1083,18 +1098,13 @@ class FAAU {
             , GREEN_SEA:"#169F85"
             , SUNFLOWER:"#F2C60F"
             , ORANGE: "#F39C19"
-        };
-        if(wrapper) {
-            let 
-            el = (context ? (typeof context == 'string' ? document.querySelectorAll(context)[0] : context) : document);
-            this.nodearray = el ? [].slice.call(el.querySelectorAll(wrapper)) : [];
         }
     }
 };
 bind(window, {
     mouseAxis: { x:0, y:0 }
-    , $: function(wrapper=null, context=document) { return [].slice.call((new FAAU(wrapper,context)).nodearray); }
-    , _:function(node='div', cls="auto-created", style={display:"inline-block"}, fn){ return app.new(node,cls,style,fn) }
+    , $: function(wrapper=null, context=document){ return [].slice.call(context.querySelectorAll(wrapper)) }
+    , _:function(node='div', cls="faau", style={ display: "inline-block" }, fn){ return app.new(node,cls,style,fn) }
     , bootstrap: new Bootstrap()
     , app: (new FAAU())
     , base_hash: function(obj){
@@ -1114,7 +1124,7 @@ bind(window, {
                     let
                     size = Math.max(this.offsetWidth, this.offsetHeight);
                     this.app(_("span","-absolute",{
-                        background      : app.colors().DARK1
+                        background      : app.colors().DARK2
                         , display       : "inline-block"
                         , borderRadius  : "50%"
                         , width         : size+"px"
