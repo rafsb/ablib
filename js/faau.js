@@ -149,6 +149,9 @@ bind(Element.prototype,{
     , mimic: function(){
         return this.cloneNode(true)
     }
+    , mimic: function(){
+        return this.cloneNode(true)
+    }
     , stop: function() {
         if(this.dataset.animationFunction) clearInterval(this.dataset.animationFunction);
         this.dataset.animationFunction = "";
@@ -792,7 +795,7 @@ class CallResponse {
 class FAAU {
     get(e,w){ return faau.get(e,w||document).nodearray; }
     declare(obj){ Object.keys(obj).each(x=>window[x]=obj[x]) }
-    initialize(){ this.initPool.fire() }
+    initialize(){ bootstrap&&bootstrap.loadComponents.fire() }
     async fetch(url, args=null, method='GET', head=null) {
         if(!head) head = new Headers();
         head["Content-Type"] = head["Content-Type"] || "application/json";
@@ -1076,7 +1079,6 @@ class FAAU {
         this.initial_pragma = 0
         this.current        = 0
         this.last           = 0
-        this.initPool        = new Pool()
         this.onPragmaChange = new Pool()
         this.nodes = document
         this.nodearray = []
