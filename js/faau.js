@@ -149,9 +149,6 @@ bind(Element.prototype,{
     , mimic: function(){
         return this.cloneNode(true)
     }
-    , mimic: function(){
-        return this.cloneNode(true)
-    }
     , stop: function() {
         if(this.dataset.animationFunction) clearInterval(this.dataset.animationFunction);
         this.dataset.animationFunction = "";
@@ -465,6 +462,14 @@ bind(Array.prototype, {
     }
     , anime: function(obj,len=ANIMATION_LENGTH,delay=0,trans=null) {
         this.each(x=>x.anime(obj,len,delay,trans));
+        return this
+    }
+    , stop: function(){
+        this.each(x => x.stop())
+        return this
+    }
+    , raise: function() {
+        this.each(x => x.raise());
         return this
     }
     , css: function(obj,fn=null) {
@@ -795,7 +800,7 @@ class CallResponse {
 class FAAU {
     get(e,w){ return faau.get(e,w||document).nodearray; }
     declare(obj){ Object.keys(obj).each(x=>window[x]=obj[x]) }
-    initialize(){ bootstrap&&bootstrap.loadComponents.fire() }
+    initialize(){ this.initPool.fire() }
     async fetch(url, args=null, method='GET', head=null) {
         if(!head) head = new Headers();
         head["Content-Type"] = head["Content-Type"] || "application/json";
@@ -962,12 +967,20 @@ class FAAU {
         o.color =  o.color ?  o.color : this.colors().CLOUDS;
         o.fontSize = o.fontSize ? o.fontSize : "1em";
 
+        if(typeof n == "string") n = ("<f>"+n+"</f>").morph()
+
         let
         toast = _("toast","-block -absolute --hintifyied"+(special?"-sp":""),o).css({opacity:0}).app(n||"<b>路路路!!!</b>".morph());
         if(toast.get(".--close").length) toast.get(".--close").at().on("click",function(){ this.upFind("toast").desappear(ANIMATION_LENGTH, true) })
         else toast.on("click",function(){ this.desappear(ANIMATION_LENGTH, true) });
         
-        if(!keep) toast.on("mouseleave",function(){ $(".--hintifyied"+(special?", .--hintifyied-sp":"")).desappear(ANIMATION_LENGTH, true) });
+        if(!keep){
+            toast.on("mouseleave",function(){ 
+                $(".--hintifyied"+(special?", .--hintifyied-sp":"")).stop().desappear(ANIMATION_LENGTH, true) 
+            }).on("mouseenter", function(){
+                this.stop()
+            }).dataset.animationFunction = setTimeout(toast => toast.desappear(ANIMATION_LENGTH, true), ANIMATION_LENGTH*4, toast)
+        }
 
         $('body')[0].app(toast.appear());
     }
@@ -1079,6 +1092,7 @@ class FAAU {
         this.initial_pragma = 0
         this.current        = 0
         this.last           = 0
+        this.initPool        = new Pool()
         this.onPragmaChange = new Pool()
         this.nodes = document
         this.nodearray = []
