@@ -883,7 +883,7 @@ class FAAU {
             $(".--default-loading").each(x => { clearInterval(x.dataset.animation); x.remove() });
             return
         }
-        $(target || "body")[0].app(app.new("div","-fixed -view -zero --default-loading", { background:app.colors("DARK4") }));
+        $(target || "body")[0].app(app.new("div","-fixed -view -zero --default-loading").css({ boxShadow:"none" }));
 
         // app.load("src/img/loading.svg", null, $(".--default-loading")[0], function () {
         //     let
@@ -899,6 +899,7 @@ class FAAU {
         //         }
         //     }, 2201)
         // })
+        
     }
 
     notify(n, c=null) {
@@ -942,16 +943,16 @@ class FAAU {
     }
 
     error(message=null) {
-        app.notify(message || "Ops! Something went wrong...", [this.color_pallete.ALIZARIN,this.color_pallete.CLOUDS])
+        app.notify(message || "Ops! Something went wrong...", [this.color_pallete.ALIZARIN,this.color_pallete.FONT])
     }
     success(message=null) {
-        app.notify(message || "Hooray! Success!", [this.color_pallete.NEPHIRITIS, this.color_pallete.CLOUDS])
+        app.notify(message || "Hooray! Success!", [this.color_pallete.NEPHIRITIS, this.color_pallete.FONT])
     }
     advise(message = null) {
-        app.notify(message || "Ops! take attention...", [this.color_pallete.ORANGE, this.color_pallete.CLOUDS])
+        app.notify(message || "Ops! take attention...", [this.color_pallete.ORANGE, this.color_pallete.FONT])
     }
     working(message = null) {
-        app.notify(message || "Hooray! Success!", [this.color_pallete.MIDNIGHT_BLUE, this.color_pallete.CLOUDS])
+        app.notify(message || "Hooray! Success!", [this.color_pallete.MIDNIGHT_BLUE, this.color_pallete.FONT])
     }
 
     hintify(n=null, o={}, delall=true, keep=false, special=false, evenSpecial=false) {
@@ -964,7 +965,7 @@ class FAAU {
         o.borderRadius = o.borderRadius ? o.borderRadius : ".25em";
         o.boxShadow =  o.boxShadow ? o.boxShadow :  "0 0 .5em "+app.colors().DARK1;
         o.background =  o.background ? o.background : this.colors().DARK4;
-        o.color =  o.color ?  o.color : this.colors().CLOUDS;
+        o.color =  o.color ?  o.color : this.colors("FONT");
         o.fontSize = o.fontSize ? o.fontSize : "1em";
 
         if(typeof n == "string") n = ("<f>"+n+"</f>").morph()
@@ -987,7 +988,7 @@ class FAAU {
 
     window(n=null, html=null, css={}){
         let
-        head = _("header","-row -left -content-left -zero",{background:app.colors().DARK3,padding:".25em", color:app.colors().CLOUDS}).text(n || "¬¬").app(
+        head = _("header","-row -left -content-left -zero",{background:app.colors().DARK3,padding:".25em", color:app.colors("FONT")}).text(n || "¬¬").app(
             _("div","-absolute -zero-tr -pointer --close -tile",{padding:".25em", fontWeight:"bolder"}).app(
                  _("img",null,{height:"1em",marginRight:".25em", filter:"invert(1)"}).attr({src:"src/img/icons/cross.svg"})
             )
@@ -1136,6 +1137,7 @@ class FAAU {
             , GREEN_SEA:"#169F85"
             , SUNFLOWER:"#F2C60F"
             , ORANGE: "#F39C19"
+            , BURRO_QNDO_FOJE: "#8C887B"
         }
     }
 };
@@ -1156,22 +1158,22 @@ bind(window, {
         if(!cls) return;
         $(cls).each(x=>{
             if(!x.has("--effect-selector-attached")){
-
-                x.on("click",function(e){
+                x.addClass("-no-scrolls").on("click",function(e){
                     if(this.classList.contains("-skip")) return;
                     let
-                    size = Math.max(this.offsetWidth, this.offsetHeight);
+                    bounds = this.getBoundingClientRect()
+                    , size = Math.max(bounds.width, bounds.height);
                     this.app(_("span","-absolute",{
                         background      : "inherit"
                         , display       : "inline-block"
                         , borderRadius  : "50%"
                         , width         : size+"px"
                         , height        : size+"px"
-                        , transform     : "scale(0)"
-                        , opacity       : .5
-                        , top           : (e.offsetY - size/2)+"px"
-                        , left          : (e.offsetX - size/2)+"px"
-                        , filter        : "invert(.5)"
+                        , scale         : 0
+                        , opacity       : .4
+                        , top           : (mouseAxis.y - bounds.height/2)+"px"
+                        , left          : (mouseAxis.x - bounds.left - bounds.width/2)+"px"
+                        , filter        : "invert(.2)"
                     }, x=>x.anime({scale:2},ANIMATION_LENGTH/2).then(x=>x.desappear(ANIMATION_LENGTH/4,true))))
                 }).addClass("--effect-selector-attached")
 
