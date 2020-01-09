@@ -957,7 +957,7 @@ class FAAU {
 
     hintify(n=null, o={}, delall=true, keep=false, special=false, evenSpecial=false) {
 
-        if(delall) $(".--hintifyied"+(evenSpecial?", .--hintifyied-sp":"")).each(x=>x.remove());
+        if(delall) $(".--hintifyied"+(evenSpecial?", .--hintifyied-sp":"")).each(x=>x.desappear(ANIMATION_LENGTH, true));
 
         o.top = o.top||o.top==0 ? o.top : (mouseAxis.y)+"px";
         o.left = o.left||o.left==0 ? o.left : (mouseAxis.x)+"px";
