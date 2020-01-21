@@ -16,6 +16,15 @@ define("OUT",false);
 define("SCAN",'{*}');
 define("NOSCAN",false);
 
+
+/* 
+ * TEXT TYPES
+ */
+define("LEFT", true);
+define("RIGHT",false);
+define("REVERSE",true);
+define("CUT",true);
+define("WHERE",true);
 /*
  * HANDLER MODES
  */
@@ -71,3 +80,6 @@ define("LAYOUTS_THIN","thin");
 define("DS","/");
 define("NL","\n");
 define("NULL",null);
+
+define("POST","POST");
+define("GET","GET");

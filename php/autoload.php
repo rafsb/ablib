@@ -15,7 +15,7 @@ spl_autoload_register(function($class)
     	$cls = implode("/", array_merge($namespaces,$tmp));
     	$path = dirname( dirname( __DIR__ ) ) . DS . "modules" . DS . $cls . ".php";
 
-	if(is_file($path)) include_once $path;
+	    if(is_file($path)) include_once $path;
     	else
     	{
         	// seek on user's classes folder
@@ -30,3 +30,4 @@ spl_autoload_register(function($class)
         	}
     	}
 });
+

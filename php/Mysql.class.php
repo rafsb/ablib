@@ -1,5 +1,5 @@
 <?php
-class Mysql {
+class Mysql extends Activity {
 
     private $object_;
     private $database_;

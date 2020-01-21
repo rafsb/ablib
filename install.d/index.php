@@ -4,12 +4,13 @@ header("Access-Control-Allow-Origin: *");
 // header('Content-type: application/json; charset=utf-8');
 header('Content-type: text/plain; charset=utf-8');
 
-session_start();
+@session_start();
 
-require "lib" . DIRECTORY_SEPARATOR . "php" . DIRECTORY_SEPARATOR . "autoload.php";
 require "lib" . DIRECTORY_SEPARATOR . "php" . DIRECTORY_SEPARATOR . "constants.php";
-
+require "lib" . DS . "php" . DS . "autoload.php";
 require "webroot" . DS . "App.php";
+
+// print_r(Request::get()); die;
 
 if(!User::logged() && Request::cook("USER") && Request::cook("ACTIVE")) Request::sess("USER",Request::cook("USER"));
 if(Request::get('_'))
@@ -18,10 +19,13 @@ if(Request::get('_'))
     $class_name  = ucfirst($args[1]);
     $method_name = isset($args[2]) && $args[2] ? $args[2] : "render";
     
-    try{
+    try
+    {
         $class_instance = new $class_name($args,sizeof($args));
-        echo $class_instance->$method_name();
-    }catch (Exception $e){
+        echo $class_instance->$method_name(...array_slice($args,3));
+    }
+    catch (Exception $e)
+    {
         IO::debug($e);
     }
 
