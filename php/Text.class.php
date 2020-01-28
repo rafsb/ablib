@@ -61,7 +61,7 @@ class Text {
     public static function rank(String $text, $iniset=1) {
         
         $text = self::raccent($text, true);
-        $initial = preg_split("/[\s,.\n\r\[\]\(\)\{\}0-9\/\'\"\`\':;\-\^\“_=\*]+/", $text, NULL, PREG_SPLIT_NO_EMPTY/PREG_SPLIT_OFFSET_CAPTURE);
+        $initial = preg_split("/[\s,.\n\r\[\]\(\)\{\}0-9\/\'\"\`\':;\-\^\“_=\*]+/", $text, NULL, PREG_SPLIT_NO_EMPTY/PREG_SPLIT_OFFSET_CAPTURE);        
         $final   = [];
 
         // echo $iniset;print_r($initial); die;
