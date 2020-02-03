@@ -999,6 +999,15 @@ class FAAU {
         return document.createElement(node).addClass(cls).css(style,fn);
     }
 
+    args(field=null){
+        let
+        args = {}
+        , parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (nil, k, v) {
+            args[k] = v;
+        });
+        return field===null?args:(args[field]?args[field]:null);
+    }
+
     storage(field=null,value=null){
         if(!field) return false;
         if(value===null) return window.localStorage.getItem(field);
