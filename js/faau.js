@@ -653,6 +653,114 @@ class Pool {
         return this.add(x)
     }
 };
+
+class __BaseElement__ {
+
+    emptyElement(){
+        this.node = _();
+        app.error("needs to be overwritten... =}")
+    }
+
+    icon(path){ 
+        let
+        node = this.node.get(".--icon");
+        if(!node.length) return null;
+        node = node[0];
+        if(path) node.attr({ src: path })
+        return node
+    }
+    invertIcon(){ this.icon().toggleClass("-inverted") }
+
+    title(text){
+
+        console.log(text, typeof text, this.node);
+        let
+        node = this.node.get(".--title");
+        if(!node.length) return null;
+        node = node[0];
+        if(text) typeof text == "string" ? node.html(text) : node.app(text);
+        return node
+    }
+
+    content(text){
+        let
+        node = this.node.get(".--content");
+        if(!node.length) return null;
+        node = node[0];
+        if(text) typeof text == "string" ? node.html(text) : node.app(text);
+        return node
+    }
+
+    tags(text){
+        let
+        node = this.node.get(".--tags");
+        if(!node.length) return null;
+        node = node[0];
+        if(text) typeof text == "string" ? node.html(text) : node.app(text);
+        return node
+    }
+
+    custom(obj){
+        if(obj){
+            if(obj.css) this.node.css(obj.css);
+            if(obj.class) this.node.addClass(obj.class);
+        }
+        return this
+    }
+
+    export(){ return this.node.mimic() }
+
+    constructor(obj){
+        this.emptyElement();
+        if(obj){
+            if(obj.title) this.title(obj.title);
+            if(obj.icon) this.icon(obj.icon);
+            if(obj.content) this.content(obj.content);
+            if(obj.tags) this.tags(obj.tags);
+            if(obj.class) this.node.toggleClass(obj.class);
+            if(obj.css) this.node.css(obj.css);
+        }
+        
+    }
+}
+
+class Tile  extends __BaseElement__ {
+    emptyElement() {
+        this.node = _("div", "-row -tile -no-scrolls", {
+            borderRadius: ".25em"
+            , boxShadow: "0 0 .5em rgba(0,0,0,.32)"
+            , background: "#f0f0f0"
+            , marginBottom: ".25em"
+            , padding:".25em"
+        }).app(
+            _("header", "-row -keep", { borderBottom: "1px solid rgba(0,0,0,.32)", paddingBottom: ".25em" }).app(
+                _("img", "-left -keep --icon", { width: "2.5em", height: "2.5em", padding: ".5em", scale: .8, opacity: .8 })
+            ).app(
+                _("b", "-left -content-left -ellipsis --title", { width: "calc(100% - 3em)", padding: ".75em 0", opacity: .8 })
+            )
+        ).app(
+            _("section", "--content -row -content-left", { padding: ".25em 0" })
+        ).app(
+            _("footer", "-row --tags", { borderTop: "1px solid rgba(0,0,0,.32)" })
+        )
+        return this.node
+    }
+};
+
+class Row  extends __BaseElement__ {
+    emptyElement() {
+        this.node = _("div", "-row -tile", {
+            borderRadius: ".25em"
+            , background: "#00000032"
+        }).app(
+            _("img", "-left -keep --icon", { width: "2em", height: "2em", scale: .8, opacity: .8 })
+        ).app(
+            _("div", "-left -content-left -ellipsis --content", { width: "calc(100% - 2.5em)", padding: ".5em 0" })
+        )
+        return this.node
+    }
+};
+
 class Swipe {
     constructor(el,len=10) {
         this.len = len;
@@ -1153,7 +1261,7 @@ class FAAU {
             , PUMPKIN: "#D35313"
             , TURQUOISE:"#00BE9C"
             , GREEN_SEA:"#169F85"
-            , SUNFLOWER:"#F2C60F"
+            , SUN_FLOWER:"#F2C60F"
             , ORANGE: "#F39C19"
             , BURRO_QNDO_FOJE: "#8C887B"
         }
@@ -1165,13 +1273,6 @@ bind(window, {
     , _:function(node='div', cls="faau", style={ display: "inline-block" }, fn){ return app.new(node,cls,style,fn) }
     , bootloader: new Bootloader()
     , app: (new FAAU())
-    , base_hash: function(obj){
-        switch(typeof obj){
-            case "object" || "array" : return btoa(JSON.stringify(obj));    break;
-            case "string" : return btoa(obj);                               break;
-            default : return ""; break;
-        }
-    }
     , tileClickEffectSelector: function(cls=null){
         if(!cls) return;
         $(cls).each(x=>{
