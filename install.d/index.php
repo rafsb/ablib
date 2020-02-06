@@ -21,7 +21,7 @@ if(Request::get('_'))
     
     try
     {
-        $class_instance = new $class_name($args,sizeof($args));
+        $class_instance = new $class_name();
         echo $class_instance->$method_name(...array_slice($args,3));
     }
     catch (Exception $e)

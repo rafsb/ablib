@@ -61,7 +61,7 @@ header('Content-Type: text/html; charset=UTF-8',true);?>
         IO::css(SCAN,CLIENT);?>
         <title><?=App::project_name()?></title>
     </head>
-    <body class='-view -zero -content-center -opensans-light'>
+    <body id="app" class='-view -zero -content-center -opensans-light'>
 
         <?php
         $load = $this->view() ? $this->view() : IO::root() . "/webroot/views/" . strtolower(get_called_class()) . ".php";
@@ -71,6 +71,9 @@ header('Content-Type: text/html; charset=UTF-8',true);?>
 
     </body>
     <script type="text/javascript">
-        (function(){ app&&app.initialize(); })();
+        (function(){ 
+            app.hash = app.storage("HASH") || app.storage("HASH", <?= LOGIN_REQUIRED ? (User::logged() ? "'" . Request::sess("UUID") ."'" : "") : "app.nuid(12)" ?>);
+            app.initialize();
+        })();
     </script>
 </html>
