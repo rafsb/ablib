@@ -2,7 +2,7 @@
 header("Access-Control-Allow-Origin: *");
 // header('Content-type: text/html; charset=utf-8');
 // header('Content-type: application/json; charset=utf-8');
-header('Content-type: text/plain; charset=utf-8');
+// header('Content-type: text/plain; charset=utf-8');
 
 @session_start();
 
@@ -10,20 +10,20 @@ require "lib" . DIRECTORY_SEPARATOR . "php" . DIRECTORY_SEPARATOR . "constants.p
 require "lib" . DS . "php" . DS . "autoload.php";
 require "webroot" . DS . "App.php";
 
-// print_r(Request::get()); die;
-
 if(!User::logged() && Request::cook("USER") && Request::cook("ACTIVE")) Request::sess("USER",Request::cook("USER"));
-if(Request::get('_'))
+
+$args = Request::in("_");
+if($args)
 {   
-    $args = explode('/',Request::get('_'));
-    $class_name  = ucfirst($args[1]);
-    $method_name = isset($args[2]) && $args[2] ? $args[2] : "render";
+    $args = explode('/',$args);
+    $class_name  = ucfirst($args[0]);
+    $method_name = isset($args[1]) && $args[1] ? $args[1] : "render";
     
     try
     {
-        $class_instance = new $class_name();
+       $class_instance = new $class_name();
         echo $class_instance->$method_name(...array_slice($args,3));
-    }
+   }
     catch (Exception $e)
     {
         IO::debug($e);
@@ -32,4 +32,4 @@ if(Request::get('_'))
 }else \App::init();
 
 flush();
-ob_flush();
+

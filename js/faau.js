@@ -38,7 +38,7 @@ bind(HTMLFormElement.prototype,{
         tmp = {};
         this.get("input, textarea, select, .-value").each(o=>{
             if(!o.has("-skip")&&o.name){
-                tmp[o.name] = (o.tagName.toUpperCase()=="TEXTAREA"&&o.has("-list") ? o.value.split('\n') : o.value);
+                tmp[o.name] = (o.tagName.toUpperCase()=="TEXTAREA"&&o.has("-list") ? o.value.trim().split('\n').clear() : o.value);
                 if(PASSWD_AUTO_HASH&&o.getAttribute("type")&&o.getAttribute("type").toUpperCase()=="PASSWORD") tmp[o.name] = tmp[o.name].hash();
             }
         });
@@ -277,7 +277,6 @@ bind(Element.prototype,{
             let
             x = this;
             while (x.parentElement.tagName.toLowerCase() != "body" && !(x.parentElement.tagName.toLowerCase()==tx || x.parentElement.has(tx))) x = x.parentElement;
-            
             return x.parentElement
         }
         return this.parentElement
@@ -511,6 +510,15 @@ bind(Array.prototype, {
     , on: function(act=null,fn=null) {
         if(act&&fn) this.each(x=>x.on(act,fn));
         return this
+    }
+    , empty: function(){
+        this.each(x => x.empty())
+        return this
+    }
+    , clear: function(){
+        return this.extract(function(){
+            return this && this != "" ? (this instanceof String ? this+"" : (this instanceof Number ? this*1 : this)) : null
+         })
     }
     , evalute: function(){
         this.each(me=>{ 
@@ -907,13 +915,14 @@ class FAAU {
         toast = document.createElement("toast")
         , clr = app.colors();
         toast.addClass("-fixed -tile -content-left --notification").css({
-            background: c&&c[0] ? c[0] : clr.LIGHT3
-            , color: c&&c[1] ? c[1] : clr.WET_ASPHALT
+            background: c&&c[0] ? c[0] : clr.CLOUDS
+            , color: c&&c[1] ? c[1] : clr.BACKGROUND
             , boxShadow:"0 0 .5em "+clr.DARK2
             , borderRadius: ".25em"
             , padding:"1em"
             , display:'block'
             , opacity:0
+            , zIndex: 2000
         }).innerHTML = n ? n : "Hello <b>World</b>!!!";
         if(!this.isMobile()) {
             toast.css({
@@ -980,10 +989,10 @@ class FAAU {
                 $(".--hintifyied"+(special?", .--hintifyied-sp":"")).stop().desappear(ANIMATION_LENGTH, true) 
             }).on("mouseenter", function(){
                 this.stop()
-            }).dataset.animationFunction = setTimeout(toast => toast.desappear(ANIMATION_LENGTH, true), ANIMATION_LENGTH*4, toast)
+            }).dataset.animationFunction = setTimeout(toast => toast.desappear(ANIMATION_LENGTH, true), ANIMATION_LENGTH*8, toast)
         }
 
-        $('body')[0].app(toast.appear());
+        $('body')[0].app(toast.css({ zIndex: 1000 }).appear());
     }
 
     window(n=null, html=null, css={}){
@@ -1016,6 +1025,15 @@ class FAAU {
     apply(fn,obj=null) { return (fn ? fn(obj) : null) }
 
     get(w=null,c=null) { return $(w,c); }
+
+    args(field=null){
+        let
+        args = {}
+        , parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (nil, k, v) {
+            args[k] = v;
+        });
+        return field===null?args:(args[field]?args[field]:null);
+    }
 
     new(node='div', cls="auto-created", style={display:"inline-block"}, fn) {
         return document.createElement(node).addClass(cls).css(style,fn);
