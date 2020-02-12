@@ -21,7 +21,6 @@ if($args)
     
     try
     {
-        // echo $class_name . "->" . $method_name . "(" . implode(",", array_slice($args,2))  . ")"; die;
         $class_instance = new $class_name();
         echo $class_instance->$method_name(...array_slice($args,2));
     }
@@ -33,3 +32,4 @@ if($args)
 }else \App::init();
 
 flush();
+
