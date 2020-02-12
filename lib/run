@@ -1,0 +1,22 @@
+<?php
+@session_start();
+
+require "php" . DIRECTORY_SEPARATOR . "constants.php";
+require "php" . DS . "autoload.php";
+
+require dirname(__DIR__) . DS . "webroot" . DS . "App.php";
+
+if(sizeof($_SERVER['argv']))
+{   
+    $args = $_SERVER['argv'];
+    $class_name  = ucfirst($args[1]);
+    $method_name = isset($args[2]) && $args[2] ? $args[2] : "render";
+    
+    try{
+        $class_instance = new $class_name();
+        echo $class_instance->$method_name(...array_slice($args,2));
+    }catch (Exception $e){
+        IO::debug($e);
+    }
+
+}else \App::init();

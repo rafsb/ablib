@@ -1,2 +1,3 @@
 #!/bin/bash
-cp -rv install.d/* ../;
+cp -rv ./* ../;
+rm ../install
