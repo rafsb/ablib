@@ -1,3 +1,2 @@
 #!/bin/bash
-cp -rv ./* ../;
-rm ../install
+rsync -av src/ ../;
