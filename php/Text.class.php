@@ -6,17 +6,8 @@ class Text {
         return substr($tx, 0, $offset);
     }
 
-    public static function flex(String $text) {
-        if(!Request::sess("CL_WORD_SUFIX")) Request::sess("CL_WORD_SUFIX", IO::jout("etc/text.d/sufix.json"));
-        $sufix = Request::sess("CL_WORD_SUFIX");
-
-        // print_r($sufix); die;
-
-        // foreach ($sufix as &$f) $f = '/' . preg_quote($f, '/') . '\b/';
-
-        // print_r($sufix); die;
-
-        // return preg_replace($sufix, '', $text);
+    public static function flex(String $text, String $doc="etc/text.d/sufix.json") {
+        $sufix = IO::jout($doc);
 
         $final = [];
 
@@ -35,17 +26,13 @@ class Text {
         return implode(" ", $final);
     }
 
-    public static function raccent(String $text){
-        if(!Request::sess("CL_WORD_ACCENT")) Request::sess("CL_WORD_ACCENT", IO::jout("etc/text.d/accent.json"));
-        $accent = Convert::otoa(Request::sess("CL_WORD_ACCENT"));
-        // foreach($accent as &$acc) $acc = Convert::otoa($acc); 
-        // print_r($accent); die;
+    public static function raccent(String $text, String $doc="etc/text.d/accent.json"){
+        $accent = IO::jout($doc);
         return strtr($text, $accent);
     }
 
-    public static function rprep(String $text) {
-        if(!Request::sess("CL_WORD_PREPOSITION")) Request::sess("CL_WORD_PREPOSITION", IO::jout("etc/text.d/preposition.json"));
-        $prep = Request::sess("CL_WORD_PREPOSITION");
+    public static function rprep(String $text, String $doc = "etc/text.d/preposition.json") {
+        $prep = IO::jout($doc);
         foreach ($prep as &$p) $p = '/\b' . preg_quote($p, '/') . '\b/';
         return preg_replace($prep, '', $text);
     }
@@ -60,7 +47,7 @@ class Text {
 
     public static function rank(String $text, $iniset=1) {
         
-        $text = self::raccent($text, true);
+        $text = self::raccent($text);
         $initial = preg_split("/[\s,.\n\r\[\]\(\)\{\}0-9\/\'\"\`\':;\-\^\“_=\*]+/", $text, NULL, PREG_SPLIT_NO_EMPTY/PREG_SPLIT_OFFSET_CAPTURE);        
         $final   = [];
 
