@@ -718,16 +718,27 @@ class Tile extends __BaseElement__ {
             , boxShadow: "0 0 .5em rgba(0,0,0,.64)"
             , background: "#f0f0f0"
             , marginBottom: ".5em"
+<<<<<<< HEAD
         }).app(
             _("header", "-row -keep", { padding: ".25em", background:app.colors("DARK4") }).app(
                 _("img", "-left -keep -circle --close --icon", { width: "2em", height: "2em", opacity: .8, transform:"scale(.8)" })
+=======
+            , padding:".5em"
+        }).app(
+            _("header", "-row -keep", { borderBottom: "1px solid darkgray", paddingBottom: "calc(.5em - 2px)" }).app(
+                _("img", "-left -keep --close --icon", { width: "2em", height: "2em", scale: .6, opacity: .8 })
+>>>>>>> ef184d0fb9a2c3f6d3f8742cb590a6954ed67317
             ).app(
                 _("b", "-left -content-left -ellipsis --title", { width: "calc(100% - 3em)", padding: ".5em .25em", opacity: .8 })
             )
         ).app(
             _("section", "--content -keep -row -content-left", { padding: ".5em 0" })
         ).app(
+<<<<<<< HEAD
             _("footer", "-row -keep --tags")
+=======
+            _("footer", "-row -keep --tags", { borderTop: "1px solid darkgray" })
+>>>>>>> ef184d0fb9a2c3f6d3f8742cb590a6954ed67317
         )
         return this.node
     }
@@ -1076,8 +1087,13 @@ class FAAU {
 
         o = o || {};
         o.top = o.top || o.top == 0 ? o.top : (maxis.y)+"px";
+<<<<<<< HEAD
         o.left   = o.left||o.left==0 ? o.left : (maxis.x)+"px";
         o.padding   = o.padding||o.padding==0 ? o.padding : ".5em";
+=======
+        o.left = o.left||o.left==0 ? o.left : (maxis.x)+"px";
+        o.padding = o.padding||o.padding==0 ? o.padding : ".5em";
+>>>>>>> ef184d0fb9a2c3f6d3f8742cb590a6954ed67317
         o.borderRadius = o.borderRadius ? o.borderRadius : ".25em";
         o.boxShadow   =  o.boxShadow ? o.boxShadow :  "0 0 .5em "+app.colors().DARK1;
         o.background =  o.background ? o.background : this.colors().DARK4;
@@ -1226,11 +1242,16 @@ class FAAU {
         this.last           = 0
         this.initPool       = new Pool()
         this.onPragmaChange = new Pool()
+<<<<<<< HEAD
         this.mousePool      = new Pool()
         this.mouseFire      = new Throttle(maxis => this.mousePool.fire(maxis), 200)   
         this.data = {}
         this.tips = {}
         this.components = {}
+=======
+        this.mouseFire      = new Throttle()   
+        this.nodes = document
+>>>>>>> ef184d0fb9a2c3f6d3f8742cb590a6954ed67317
         this.nodearray = []
         this.prism = {
             ALIZARIN:"#E84C3D"
@@ -1319,6 +1340,7 @@ bind(window, {
     }
     , tooltips: function(){
         $(".--tooltip").each(ttip => {
+<<<<<<< HEAD
             ttip.raise().on("mouseenter", function () { 
                 $("tooltip.--tooltip-element")[0].html("<b>" + ( this.dataset.tip || "hooray" ) + "</b>").raise().stop().css({display:"block"}, me => me.anime({
                     transform: "matrix(1,0,0,1,0,0)"
@@ -1327,6 +1349,12 @@ bind(window, {
             });
             ttip.on("mouseleave", function () { $("tooltip.--tooltip-element")[0].html("").css({ display: "none", transform:"matrix(.9,0,.2,.9,12,12)" }) });
         }).remClass("--tooltip")
+=======
+            ttip.on("mouseenter", function () { $("tooltip.--tooltip-element")[0].html(ttip.dataset.tip).appear() });
+            ttip.on("mouseleave", function () { $("tooltip.--tooltip-element")[0].html("ttip.dataset.tip").css({ display: "none" }) });
+            ttip.remClass("--tooltip")
+        })
+>>>>>>> ef184d0fb9a2c3f6d3f8742cb590a6954ed67317
     }
 });
 app.spy("pragma",function(x){

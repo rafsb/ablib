@@ -6,7 +6,6 @@ require "php" . DS . "autoload.php";
 
 require dirname(__DIR__) . DS . "webroot" . DS . "App.php";
 
-if(!User::logged() && Request::cook("USER") && Request::cook("ACTIVE")) Request::sess("USER",Request::cook("USER"));
 if(sizeof($_SERVER['argv']))
 {   
     $args = $_SERVER['argv'];
@@ -14,8 +13,8 @@ if(sizeof($_SERVER['argv']))
     $method_name = isset($args[2]) && $args[2] ? $args[2] : "render";
     
     try{
-        $class_instance = new $class_name($args,sizeof($args));
-        echo $class_instance->$method_name();
+        $class_instance = new $class_name();
+        echo $class_instance->$method_name(...array_slice($args,2));
     }catch (Exception $e){
         IO::debug($e);
     }
