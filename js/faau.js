@@ -13,8 +13,14 @@ ANIMATION_LENGTH = 400
 , SUM               = 0
 , AVERAGE           = 1
 , HARMONIC          = 2
+, TREND             = 3
+, PROGRESS          = 4
+, POLINOMIAL        = 5
+, MAX               = 6
+, MIN               = 7
 , PASSWD_AUTO_HASH  = false;
 ;
+
 var
 bind = function(e,o){
     let
@@ -22,6 +28,15 @@ bind = function(e,o){
     for(let i=a.length;i--;) e[a[a.length-i-1]]=o[a[a.length-i-1]];
     return e
 };
+bind(Date.prototype, {
+    plus: function(n) {
+        let
+        date = new Date(this.valueOf());
+        date.setDate(date.getDate() + n);
+        return date
+    }
+});
+
 bind(NodeList.prototype, {
     array: function() {
         return [].slice.call(this);
@@ -78,42 +93,6 @@ bind(HTMLInputElement.prototype, {
         xhr.send(form);
 
         const formData = new FormData();
-        // const fileField = document.querySelector('input[type="file"]');
-
-        // formData.append('username', 'abc123');
-        // formData.append('avatar', fileField.files[0]);
-
-        // try {
-        // const response = await fetch('https://example.com/profile/avatar', {
-        //     method: 'PUT',
-        //     body: formData
-        // });
-        // const result = await response.json();
-        // console.log('Success:', JSON.stringify(result));
-        // } catch (error) {
-        // console.error('Error:', error);
-        // }
-
-
-
-        // const formData = new FormData();
-        // const photos = document.querySelector('input[type="file"][multiple]');
-
-        // formData.append('title', 'My Vegas Vacation');
-        // for (let i = 0; i < photos.files.length; i++) {
-        // formData.append('photos', photos.files[i]);
-        // }
-
-        // try {
-        // const response = await fetch('https://example.com/posts', {
-        //     method: 'POST',
-        //     body: formData
-        // });
-        // const result = await response.json();
-        // console.log('Success:', JSON.stringify(result));
-        // } catch (error) {
-        // console.error('Error:', error);
-        // }
     }
 });
 bind(Element.prototype,{
@@ -125,24 +104,7 @@ bind(Element.prototype,{
             trans = trans ? trans : "ease";
             el.style.transition = "all " + len.toFixed(2) + "s "+trans;
             el.style.transitionDelay = (delay?delay/1000:0).toFixed(2)+"s";
-            for(let i in obj) {
-                switch(i) {
-                    case "skew"       : el.style.transform = 'skew('+obj[i]+','+obj[i]+')';      break;
-                    case "skewX"      : el.style.transform = 'skewX('+obj[i]+')';                break;
-                    case "skewY"      : el.style.transform = 'skewY('+obj[i]+')';                break;
-                    case "scale"      : el.style.transform = 'scale('+obj[i]+')';                break;
-                    case "scaleX"     : el.style.transform = 'scaleX('+obj[i]+')';               break;
-                    case "scaleY"     : el.style.transform = 'scaleY('+obj[i]+')';               break;
-                    case "translate"  : el.style.transform = 'translate('+obj[i]+','+obj[i]+')'; break;
-                    case "translateX" : el.style.transform = 'translateX('+obj[i]+')';           break;
-                    case "translateY" : el.style.transform = 'translateY('+obj[i]+')';           break;
-                    case "rotate"     : el.style.transform = 'rotate('+obj[i]+')';               break;
-                    // case "opacity"    : el.style.filter = 'opacity('+obj[i]+')'; break;
-                    case "grayscale"  : el.style.filter    = 'grayscale('+obj[i]+')';            break;
-                    case "invert"     : el.style.filter    = 'invert('+obj[i]+')';               break;
-                    default           : el.style[i]        = obj[i];                             break;
-                }
-            }
+            for(let i in obj) el.style[i] = obj[i];
             setTimeout(function(el){ return ok(el) },len*1000+delay+1, el)
         })
     }
@@ -162,21 +124,7 @@ bind(Element.prototype,{
         if (o===null) return this;
         this.style.transition = "none";
         this.style.transitionDuration = 0;
-        for(let i in o) {
-            switch(i) {
-                case "skew"         : this.style.transform = 'skew('+o[i]+','+o[i]+')';      break;
-                case "skewX"        : this.style.transform = 'skewX('+o[i]+')';              break;
-                case "skewY"        : this.style.transform = 'skewY('+o[i]+')';              break;
-                case "scale"        : this.style.transform = 'scale('+o[i]+')';              break;
-                case "scaleX"       : this.style.transform = 'scaleX('+o[i]+')';             break;
-                case "scaleY"       : this.style.transform = 'scaleY('+o[i]+')';             break;
-                case "translate"    : this.style.transform = 'translate('+o[i]+','+o[i]+')'; break;
-                case "translateX"   : this.style.transform = 'translateX('+o[i]+')';         break;
-                case "translateY"   : this.style.transform = 'translateY('+o[i]+')';         break;
-                case "rotate"       : this.style.transform = 'rotate('+o[i]+')';             break;
-                default             : this.style[i]        = o[i];                           break;
-            }
-        }
+        for(let i in o) this.style[i] = o[i];
         if(fn!==null&&typeof fn=="function") setTimeout(fn.bind(this),16, this);
         return this
     }
@@ -204,55 +152,26 @@ bind(Element.prototype,{
         if(fn!==null&&typeof fn=="function") fn.bind(this)(this);
         return this;
     }
-    , aft: function(obj=null) {
-        let
-        el=this;
-        if(Array.isArray(obj)) obj.each(o=>el.aft(o));
-        else if(obj) el.insertAdjacentElement("afterend",obj);
-        return this;
-    }
-    , bef: function(obj=null) {
-        let
-        el=this;
-        if(Array.isArray(obj)) obj.each(o=>el.bef(o));
-        else if(obj) el.insertAdjacentElement("beforebegin",obj);
-        return this;
-    }
-    , app: function(obj=null) {
+    , _put_where_: function(obj=null,w="beforeend"){
         let
         el=this;
         if(Array.isArray(obj)) obj.each(o=>el.app(o));
         else if(obj) el.insertAdjacentElement("beforeend",obj);
         return this;
     }
-    , pre: function(obj=null) {
-        let
-        el=this;
-        if(Array.isArray(obj)) obj.each(o=>el.pre(o));
-        else if(obj) el.insertAdjacentElement("afterbegin",obj);
-        return this;
-    }
+    , aft: function(obj=null) { return this._put_where_(obj,"afterend")     }
+    , bef: function(obj=null) { return this._put_where_(obj,"beforebegin")  }
+    , app: function(obj=null) { return this._put_where_(obj,"beforeend")    }
+    , pre: function(obj=null) { return this._put_where_(obj,"afterbegin")   }
     , has: function(cls=null) {
         if(cls) return this.classList.contains(cls);
         return false
     }
-    , dataSort: function(data=null,dir="asc") {
+    , sort_by_dataset: function(data=null,dir="asc") {
         let
-        me = this,
         all = [].slice.call(this.children);
-        if(all.length) {
-            for(let i=all.length;i--;) {
-                for(let j=0;j<i;j++) {
-                    if((dir=="asc"&&(all[j].dataset[data]>all[j+1].dataset[data]))||(dir=="desc"&&(all[j].dataset[data]<all[j+1].dataset[data]))) {
-                        let
-                        tmp = all[j];
-                        all[j] = all[j+1];
-                        all[j+1] = tmp;
-                    }
-                }
-            }
-            all.each(x=>me.append(x))
-        }
+        if(all.length) all.sort(function(a,b){ return dir=="asc" ? a.dataset[data]*1 - b.dataset[data]*1 : b.dataset[data]*1 - a.dataset[data]*1 });
+        all.each(el => el.raise())
         return this
     }
     , index: function() {
@@ -340,8 +259,8 @@ bind(Element.prototype,{
             }
           } return this;
     }
-    , uid: function(hash = false, name=null) {
-        if(name) this.id = name;
+    , uid: function(name=null, hash = false) {
+        if(name) this.id = name.replace(/[^0-9a-zA-Z]/g,"");
         if(!this.id) this.id = app.nuid(8);
         return (hash ? "#" :"") + this.id;
     }
@@ -424,6 +343,32 @@ bind(String.prototype,{
 });
 bind(Object.prototype,{
     json:function(){ return JSON.stringify(this) }
+    , each: function(fn=null){
+        let
+        me = this
+        , arr = me.keys()
+        , final = [];
+        if(fn && arr.length){
+            arr.each(x => final.push({ key: x, content: me[x] }));
+            final.each(fn)
+        }
+        return this
+    }
+    , extract: function(fn=null){
+        let
+        final = [];
+        if(fn){
+            this.each((x,i) => {
+                let
+                y = fn.bind(x.content)(x.content, i);
+                if(y!==null||y!==false) final.push(y)
+            })
+        }
+        return final
+    }
+    , keys: function(){
+        return Object.keys(this);
+    }
 });
 bind(Array.prototype, {
     json: function(){ return JSON.stringify(this); }
@@ -436,23 +381,71 @@ bind(Array.prototype, {
         this.each(function(o,i){ 
             let
             x = fn.bind(this)(this,i);
-            if(x) narr.push(x) 
+            if(x||x===0) narr.push(x) 
         })
         return narr
     }
-    , calc: function(type=SUM){
+    , calc: function(type=SUM, helper=null){
         let
         res = 0;
         switch (type){
-            case (SUM): this.each(x=>res+=x); break;
-            case (AVERAGE): this.each(x=>res+=x); res=res/this.length; break;
-            case (HARMONIC): this.each(x=>res+=1/x); res=this.length/res; break;
+            case (SUM): this.each(x=>res+=x); break
+            case (AVERAGE): this.each(x=>res+=x); res=res/this.length; break
+            case (HARMONIC): this.each(x=>res+=1/x); res=this.length/res; break
+            case (TREND): {
+                let
+                m, b, x, y, x2, xy, z, np = this.length;
+                m = b = x = y = x2 = xy = z = 0;
+                if(!helper) helper = np;
+                this.each((n, i) => {
+                    x = x + i;
+                    y = y + n;
+                    xy = xy + i * n;
+                    x2 = x2 + i * i;
+                });
+                z = np*x2 - x*x
+                if(z){
+                    m = (np*xy - x*y)/z;
+                    b = (y*x2 - x*xy)/z;
+                }
+                res = m * helper + b
+            } break
+            
+            /* TODO POLINOMIAL FORMULA */
+            case (POLINOMIAL): {
+                res = 0
+            }break;
+
+            case (PROGRESS): {
+                let
+                me = this;
+                res = this.extract((x,i)=>{ return i ? me[i]/me[i-1] : 1 }).calc(AVERAGE)
+            }break;
+            case (MAX): {
+                res = Number.MIN_VALUE;
+                this.each(x=>res=Math.max(res,x))
+            }break;
+            case (MIN): {
+                res = Number.MAX_VALUE;
+                this.each(x=>res=Math.min(res,x))
+            }break;
         }
         return res;
     }
-    , last: function() { return this.length ? this[this.length-1] : null; }
-    , first: function() { return this.length ? this[0] : null; }
-    , at: function(n=0) { return this.length>=n ? this[n] : null; }
+    , last: function(n=null) { 
+        if (!this.length) return null;
+        if (n === null) return this[this.length - 1];
+        return this.slice(Math.max(this.length - n, 0));
+    }
+    , first: function(n=null) { 
+        if (!this.length) return null;
+        if (n === null) return this[0];
+        return this.slice(0, n);  
+    }
+    , at: function(n=0) { 
+        if(n>=0) return this.length>=n ? this[n] : null;
+        return this.length > n*-1 ? this[this.length+n] : null
+    }
     , not: function(el) { 
         let
         arr = this;
@@ -658,7 +651,7 @@ class __BaseElement__ {
 
     emptyElement(){
         this.node = _();
-        app.error("needs to be overwritten... =}")
+        app.error("__BaseElement__::emptyElement needs to be overwritten... =}")
     }
 
     icon(path){ 
@@ -672,8 +665,6 @@ class __BaseElement__ {
     invertIcon(){ this.icon().toggleClass("-inverted") }
 
     title(text){
-
-        console.log(text, typeof text, this.node);
         let
         node = this.node.get(".--title");
         if(!node.length) return null;
@@ -701,9 +692,13 @@ class __BaseElement__ {
     }
 
     custom(obj){
-        if(obj){
-            if(obj.css) this.node.css(obj.css);
-            if(obj.class) this.node.addClass(obj.class);
+        if (obj) {
+            if (obj.title) this.title(obj.title);
+            if (obj.icon) this.icon(obj.icon);
+            if (obj.content) this.content(obj.content);
+            if (obj.tags) this.tags(obj.tags);
+            if (obj.class) this.node.toggleClass(obj.class);
+            if (obj.css) this.node.css(obj.css);
         }
         return this
     }
@@ -712,36 +707,27 @@ class __BaseElement__ {
 
     constructor(obj){
         this.emptyElement();
-        if(obj){
-            if(obj.title) this.title(obj.title);
-            if(obj.icon) this.icon(obj.icon);
-            if(obj.content) this.content(obj.content);
-            if(obj.tags) this.tags(obj.tags);
-            if(obj.class) this.node.toggleClass(obj.class);
-            if(obj.css) this.node.css(obj.css);
-        }
-        
+        if(obj) this.custom(obj)
     }
 }
 
-class Tile  extends __BaseElement__ {
+class Tile extends __BaseElement__ {
     emptyElement() {
         this.node = _("div", "-row -tile -no-scrolls", {
-            borderRadius: ".25em"
-            , boxShadow: "0 0 .5em rgba(0,0,0,.32)"
+            borderRadius: ".5em"
+            , boxShadow: "0 0 .5em rgba(0,0,0,.64)"
             , background: "#f0f0f0"
-            , marginBottom: ".25em"
-            , padding:".25em"
+            , marginBottom: ".5em"
         }).app(
-            _("header", "-row -keep", { borderBottom: "1px solid rgba(0,0,0,.32)", paddingBottom: ".25em" }).app(
-                _("img", "-left -keep --icon", { width: "2.5em", height: "2.5em", padding: ".5em", scale: .8, opacity: .8 })
+            _("header", "-row -keep", { padding: ".25em", background:app.colors("DARK4") }).app(
+                _("img", "-left -keep -circle --close --icon", { width: "2em", height: "2em", opacity: .8, transform:"scale(.8)" })
             ).app(
-                _("b", "-left -content-left -ellipsis --title", { width: "calc(100% - 3em)", padding: ".75em 0", opacity: .8 })
+                _("b", "-left -content-left -ellipsis --title", { width: "calc(100% - 3em)", padding: ".5em .25em", opacity: .8 })
             )
         ).app(
-            _("section", "--content -row -content-left", { padding: ".25em 0" })
+            _("section", "--content -keep -row -content-left", { padding: ".5em 0" })
         ).app(
-            _("footer", "-row --tags", { borderTop: "1px solid rgba(0,0,0,.32)" })
+            _("footer", "-row -keep --tags")
         )
         return this.node
     }
@@ -749,14 +735,26 @@ class Tile  extends __BaseElement__ {
 
 class Row  extends __BaseElement__ {
     emptyElement() {
-        this.node = _("div", "-row -tile", {
+        this.node = _("div", "-relative -row ", {
             borderRadius: ".25em"
             , background: "#00000032"
         }).app(
             _("img", "-left -keep --icon", { width: "2em", height: "2em", scale: .8, opacity: .8 })
         ).app(
-            _("div", "-left -content-left -ellipsis --content", { width: "calc(100% - 2.5em)", padding: ".5em 0" })
+            _("div", "-left -keep -content-left -ellipsis --content", { width: "calc(100% - 2.5em)", padding: ".5em 0" })
         )
+        return this.node
+    }
+};
+
+class Tag extends __BaseElement__ {
+    emptyElement() {
+        this.node = _("div", "-pointer", {
+            borderRadius: ".25em"
+            , background: "#00000032"
+            , padding: ".25em"
+            , margin: ".25em"
+        }).app(_("div", "-left -row -ellipsis --content"))
         return this.node
     }
 };
@@ -797,14 +795,12 @@ class Swipe {
             else if(this.__RIGHT__) this.__RIGHT__.fire();
         }else{
             if(this.__UP__&&this.ydir>0) this.__UP__.fire();
-            else if(this.__DOWN__) this.__DOWN__.fire();
+            else if(this.__DOWN__) this.__DOWN__.fire()
         }
-        this.x = this.y = null;
+        this.x = this.y = null
     }
 
-    fire() {
-        this.e&&this.e.on('touchmove', function(v) { this.move(v) }.bind(this));
-    }
+    fire() { this.e&&this.e.on('touchmove', function(v) { this.move(v) }.bind(this)) }
 };
 /*
  * @class
@@ -852,6 +848,7 @@ class Throttle {
      *
      */
     fire(d) {
+        if(!this.func) return;
         let
         now = (new Date()).getTime();
         if (now - this.delay > this.timer) {
@@ -942,7 +939,7 @@ class FAAU {
             let
             o = new CallResponse(url, args, method)
             , xhr = new XMLHttpRequest();
-            args = args ? args : {};
+            
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4) {
                     o.status = xhr.status;
@@ -950,13 +947,12 @@ class FAAU {
                    return accepted(o);
                 };
             }
-            head = head ? head : new Headers();
-            xhr.open(method,url);   
-            head["Content-Type"] = head["Content-Type"] || "text/plain"
-            head["FA-Custom"] = "@rafsb"
-            o.headers = head;
-            // Object.keys(head).each(h=>xhr.setRequestHeader(h,head[h]));
-            xhr.send(args.json());
+            xhr.open(method,url);
+            // xhr.setRequestHeader("Content-Type", method=="POST" ? "application/json;charset=UTF-8": "text/plain");
+            // xhr.setRequestHeader("FA-Custom", "@rafsb");
+            // if(app.hash) xhr.setRequestHeader("hash", app.hash);
+            if(head) Object.keys(head).each(h=>xhr.setRequestHeader(h,head[h]));
+            xhr.send(args ? args.json() : null);
 
         });
         return o;
@@ -970,7 +966,7 @@ class FAAU {
         return this.call(url, args).then( r => {
             if(!r.status) return app.error("error loading "+url);
             r = r.data.prepare(app.colors()).morph();
-            if(!target) target = app.get('body')[0];
+            if(!target) target = document.getElementById('app');
             target.app(r);
             return r.evalute();
         });
@@ -993,6 +989,8 @@ class FAAU {
         while(n>0 && n-->n) { a+="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('')[parseInt((Math.random()*36)%36)] }
         return a 
     }
+
+    n2s(n){ return (n > 1000000 ? ((n / 1000000).toFixed(1)*1)+"mi" : (n > 1000 ? ((n / 1000).toFixed(1)*1)+"k" : n)) }
 
     loading(show = true, target= null) {
         if (!show) {
@@ -1076,13 +1074,14 @@ class FAAU {
 
         if(delall) $(".--hintifyied"+(evenSpecial?", .--hintifyied-sp":"")).each(x=>x.desappear(ANIMATION_LENGTH, true));
 
-        o.top = o.top||o.top==0 ? o.top : (mouseAxis.y)+"px";
-        o.left = o.left||o.left==0 ? o.left : (mouseAxis.x)+"px";
-        o.padding = o.padding||o.padding==0 ? o.padding : ".5em";
+        o = o || {};
+        o.top = o.top || o.top == 0 ? o.top : (maxis.y)+"px";
+        o.left   = o.left||o.left==0 ? o.left : (maxis.x)+"px";
+        o.padding   = o.padding||o.padding==0 ? o.padding : ".5em";
         o.borderRadius = o.borderRadius ? o.borderRadius : ".25em";
-        o.boxShadow =  o.boxShadow ? o.boxShadow :  "0 0 .5em "+app.colors().DARK1;
+        o.boxShadow   =  o.boxShadow ? o.boxShadow :  "0 0 .5em "+app.colors().DARK1;
         o.background =  o.background ? o.background : this.colors().DARK4;
-        o.color =  o.color ?  o.color : this.colors("FONT");
+        o.color     =  o.color ?  o.color : this.colors("FONT");
         o.fontSize = o.fontSize ? o.fontSize : "1em";
 
         if(typeof n == "string") n = ("<f>"+n+"</f>").morph()
@@ -1188,7 +1187,13 @@ class FAAU {
         return pallete&&this.color_pallete[pallete] ? this.color_pallete[pallete] : this.color_pallete;
     }
 
-    hashit(o){ if(typeof o == "object" || typeof o == "array") o = JSON.stringify(o); return { hash: btoa(o) } }
+    hashit(o){ if(typeof o == "object" || typeof o == "array") o = JSON.stringify(o); return { 
+        hash: btoa(o) 
+    }}
+
+    sanitize(str){
+        return encodeURIComponent(str).replace(/!/g, '%21').replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/\*/g, '%2A').replace(/%20/g, '+')
+    }
 
     async sleep(time=ANIMATION_LENGTH){
         return new Promise(function(ok){
@@ -1219,10 +1224,40 @@ class FAAU {
         this.initial_pragma = 0
         this.current        = 0
         this.last           = 0
-        this.initPool        = new Pool()
+        this.initPool       = new Pool()
         this.onPragmaChange = new Pool()
-        this.nodes = document
+        this.mousePool      = new Pool()
+        this.mouseFire      = new Throttle(maxis => this.mousePool.fire(maxis), 200)   
+        this.data = {}
+        this.tips = {}
+        this.components = {}
         this.nodearray = []
+        this.prism = {
+            ALIZARIN:"#E84C3D"
+            , PETER_RIVER:"#2C97DD"
+            , ICE_PINK: "#CA179E"
+            , EMERLAND:"#53D78B"
+            , SUN_FLOWER:"#F2C60F"
+            , AMETHYST:"#9C56B8"
+            , CONCRETE:"#95A5A5"
+            , WET_ASPHALT:"#383C59"
+            , TURQUOISE:"#00BE9C"
+            , PURPLE_PINK:"#8628B8"
+            , PASTEL: "#FEC200"
+            , CLOUDS:"#ECF0F1"
+            , CARROT:"#E67D21"
+            , MIDNIGHT_BLUE:"#27283D"
+            , WISTERIA:"#8F44AD"
+            , BELIZE_HOLE:"#2A80B9"
+            , NEPHIRITIS:"#27AE61"
+            , GREEN_SEA:"#169F85"
+            , ASBESTOS:"#7E8C8D"
+            , SILVER:"#BDC3C8"
+            , POMEGRANATE:"#C0382B"
+            , PUMPKIN: "#D35313"
+            , ORANGE: "#F39C19"
+            , BURRO_QNDO_FOJE: "#8C887B"
+        }
         this.color_pallete = {
             /*** SYSTEM***/
             BACKGROUND : "#FFFFFF"
@@ -1243,34 +1278,16 @@ class FAAU {
             /*** PALLETE ***/
             , WHITE: "#FFFFFF"
             , BLACK: "#000000"
-            , WET_ASPHALT:"#34495E"
-            , MIDNIGHT_BLUE:"#2D3E50"
-            , CONCRETE:"#95A5A5"
-            , ASBESTOS:"#7E8C8D"
-            , AMETHYST:"#9C56B8"
-            , WISTERIA:"#8F44AD"
-            , CLOUDS:"#ECF0F1"
-            , SILVER:"#BDC3C8"
-            , PETER_RIVER:"#2C97DD"
-            , BELIZE_HOLE:"#2A80B9"
-            , ALIZARIN:"#E84C3D"
-            , POMEGRANATE:"#C0382B"
-            , EMERLAND:"#53D78B"
-            , NEPHIRITIS:"#27AE61"
-            , CARROT:"#E67D21"
-            , PUMPKIN: "#D35313"
-            , TURQUOISE:"#00BE9C"
-            , GREEN_SEA:"#169F85"
-            , SUN_FLOWER:"#F2C60F"
-            , ORANGE: "#F39C19"
-            , BURRO_QNDO_FOJE: "#8C887B"
         }
+        bind(this.color_pallete, this.prism);
     }
 };
 bind(window, {
     mouseAxis: { x:0, y:0 }
     , $: function(wrapper=null, context=document){ return [].slice.call(context.querySelectorAll(wrapper)) }
-    , _:function(node='div', cls="faau", style={ display: "inline-block" }, fn){ return app.new(node,cls,style,fn) }
+    , _:function(node='div', cls, style, fn){ return app.new(node,cls,style,fn) }
+    , _S: function(type="svg", cls="--self-generated", attr={}, css={}){ return document.createElementNS("http://www.w3.org/2000/svg", type).addClass(cls).attr(attr||{}).css(css||{}) }
+    , _I: function(path="img/icons/cross.svg", cls="--self-generated", css={}){ return _("img", cls, css).attr({ src: path }) }
     , bootloader: new Bootloader()
     , app: (new FAAU())
     , tileClickEffectSelector: function(cls=null){
@@ -1290,14 +1307,26 @@ bind(window, {
                         , height        : size+"px"
                         , scale         : 0
                         , opacity       : .4
-                        , top           : (mouseAxis.y - bounds.height/2)+"px"
-                        , left          : (mouseAxis.x - bounds.left - bounds.width/2)+"px"
+                        , top: (maxis.y - -bounds.top - bounds.height/2 - size/2)+"px"
+                        , left: (maxis.x - bounds.left - bounds.width/2 - size/2)+"px"
                         , filter        : "invert(.2)"
+                        , transformOrigin:"center center"
                     }, x=>x.anime({scale:2},ANIMATION_LENGTH/2).then(x=>x.desappear(ANIMATION_LENGTH/4,true))))
                 }).addClass("--effect-selector-attached")
 
             }
         })
+    }
+    , tooltips: function(){
+        $(".--tooltip").each(ttip => {
+            ttip.raise().on("mouseenter", function () { 
+                $("tooltip.--tooltip-element")[0].html("<b>" + ( this.dataset.tip || "hooray" ) + "</b>").raise().stop().css({display:"block"}, me => me.anime({
+                    transform: "matrix(1,0,0,1,0,0)"
+                    , opacity:1
+                }, 64)) 
+            });
+            ttip.on("mouseleave", function () { $("tooltip.--tooltip-element")[0].html("").css({ display: "none", transform:"matrix(.9,0,.2,.9,12,12)" }) });
+        }).remClass("--tooltip")
     }
 });
 app.spy("pragma",function(x){
@@ -1307,8 +1336,8 @@ app.spy("pragma",function(x){
     this.onPragmaChange.fire(x);
 });
 window.onmousemove = e =>{
-    mouseAxis = { x: e.clientX, y: e.clientY  };
-    app.mouseFire&&app.mouseFire.fire()
+    window.maxis = { x: e.clientX, y: e.clientY };
+    app.mouseFire && app.mouseFire.fire(window.maxis)
 }
 document.addEventListener("touchstart", function() {}, true);
 console.log('  __\n\ / _| __ _  __ _ _   _\n\| |_ / _` |/ _` | | | |\n\|  _| (_| | (_| | |_| |\n\|_|  \\__,_|\\__,_|\\__,_|');
