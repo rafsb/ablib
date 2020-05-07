@@ -101,6 +101,7 @@ body *:not(script):not(style) {
 .-animated      { transition: all 1s ease 0s }
 .-left          { float: left; }
 .-right         { float: right; }
+.-centered      { position: absolute; top:50%; left: 50%; transform:translate(-50%, -50%); }
 .-content-center{ text-align: center; }
 .-content-left  { text-align: left; }
 .-content-right { text-align: right; }
@@ -219,5 +220,5 @@ a { text-decoration: none }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar { width: .5rem; }
-::-webkit-scrollbar-track { background: transparent }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,.16); border-radius: .25rem;}
+::-webkit-scrollbar-track { background: repeating-linear-gradient(90deg, transparent .25em, white 1px, transparent .25em) }
+::-webkit-scrollbar-thumb { background: transparent; border-radius: .5rem; border:1px solid white;height:1em; width:1em;}

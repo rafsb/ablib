@@ -10,12 +10,12 @@ _num = function(n){
     , xserie: [ -7, 0, 7 ]
     , graph: {
         type:    "split"
-        , color: [ clr.WHITE, clr.PASTEL ]
+        , color: [ clr.black, clr.PASTEL ]
         , flags: [ "hoje", tmp.angle_factor + "x" ]
     } 
     , lines: {
         type: "wave"
-        , fill:      [ clr.WHITE, clr.PASTEL ]
+        , fill:      [ clr.black, clr.PASTEL ]
         , bullets:   [ true, false ]
         , dasharray: [ false, [ 4,2,1,2 ] ]
         , axis:      [ 2, clr.LIGHT4 ]
@@ -24,68 +24,7 @@ _num = function(n){
 })
 */
 class Graph {
-
-    __makex__(){
-        let
-        s = this.o.series
-        , lines = this.o.lines
-        , final = this.o.xlabels || []
-        ;
-        
-        if(!final.length && s.length){
-            let
-            max = 0
-            , min = 0
-            ;
-            s.each(serie => max = Math.max(max, serie.length))
-            final = [ min, max/2, max ];
-        }
-        if(!final.length) final = [ 0, .5, 1 ];
-        this.xaxis = final;
-
-        return final
-    }
-
-    __makey__(){
-        var
-        final = [0]
-        , lines = this.o.lines
-        , max = 0
-        , min = lines.nozero ? Number.MAX_VALUE : 0
-        , s = this.o.series
-        ;
-
-        if(s.length){
-            s.each(serie => {
-                serie.each(fragment => {
-                    max = Math.max(max, fragment);
-                    min = Math.min(min, fragment);
-                })
-            })
-
-            if(this.o.log){
-                let 
-                i=1
-                while(i<max){
-                    i*=10;
-                    final.push(i)
-                }
-            } else {
-                max = Math.ceil(max*1.1/10)*10;
-                min = this.o.nonegatives ? Math.max(0, Math.floor(min*.9/10)*10) : Math.floor(min*.9/10)*10;
-                final = [ min, (max+min)/2, max ];
-            }
-        } else final = [0,.5,1]
-
-        if(lines.nozero&&final.length>2) while(final[1]<min) final = final.slice(1)
-
-        if(final.last()==final.first()) final = [0,.5,1]
-        
-        this.yaxis = final;
-
-        return this.yaxis
-    }
-
+    
     draw(){        
         if(this.o.target) this.o.target.empty().app(this.svg);
         tooltips();
@@ -119,13 +58,13 @@ class Graph {
         }
         , _ypos = function(n){
 
-            if(n*1===0) return h;
+            if(n*1===0) return h+fsize;
             if(!n) return null;
 
             var
             x = h
             , yiter = 0
-            , pace = h/(yaxis.last()-yaxis.first())
+            , pace = h/(yaxis.last() - yaxis.first())
             ;
 
             if(log){
@@ -133,7 +72,7 @@ class Graph {
                     let
                     logmax = 1;
                     while(logmax<max) logmax*=10;
-                    n = h*Math.log(n,10)/Math.log(logmax,10)
+                    x = h-h*Math.log(n*1,10)/Math.log(logmax,10)
                 }
             }
             else x = h-(n-yaxis.first())*pace;
@@ -143,7 +82,7 @@ class Graph {
         , stop = series.extract(function(){ return this.length }).calc(MAX)
         ;
 
-        lines = bind({series: [], stroke: "white 1 1 1" }, lines);        
+        lines = bind({series: [], stroke: "black 1 1 1" }, lines);        
 
         series.each((serie, iter) =>{
             var
@@ -153,7 +92,7 @@ class Graph {
             , head = lines.series[iter]&&lines.series[iter].head ? lines.series[iter].head.split(/\s+/g) : [ "transparent", 4, "transparent", 2 ]
             , tail = lines.series[iter]&&lines.series[iter].tail ? lines.series[iter].tail.split(/\s+/g) : [ "transparent", 4, "transparent", 2 ]
             , linepath = [ 
-                lines.series[iter]&&lines.series[iter].stroke ? lines.series[iter].stroke.split(/\s+/g)[0] : (lines.stroke.split(/\s+/g)[0] || "white")
+                lines.series[iter]&&lines.series[iter].stroke ? lines.series[iter].stroke.split(/\s+/g)[0] : (lines.stroke.split(/\s+/g)[0] || "black")
                 , lines.series[iter]&&lines.series[iter].stroke ? lines.series[iter].stroke.split(/\s+/g)[1] : (lines.stroke.split(/\s+/g)[1] || 1)
                 , lines.series[iter]&&lines.series[iter].stroke ? lines.series[iter].stroke.split(/\s+/g)[2] : (lines.stroke.split(/\s+/g)[2] || 1)
                 , lines.series[iter]&&lines.series[iter].stroke ? lines.series[iter].stroke.split(/\s+/g)[3] : (lines.stroke.split(/\s+/g)[3] || null)
@@ -171,11 +110,11 @@ class Graph {
                     split   = this.o.splitmark || Math.ceil(serie.length/2)
                     , path2 = [ "M", [ _xpos(split-1), _ypos(serie[split]) ], "L"]
                     , wv, wv2
-                    , s_bullets  = lines.series[iter+1]&&lines.series[iter+1].bullets ? lines.series[iter+1].bullets.split(/\s+/g) : (lines.bullets ? lines.bullets.split(/\s+/g) : [ "white", 2, "white", 1 ])
+                    , s_bullets  = lines.series[iter+1]&&lines.series[iter+1].bullets ? lines.series[iter+1].bullets.split(/\s+/g) : (lines.bullets ? lines.bullets.split(/\s+/g) : [ "black", 2, "black", 1 ])
                     , s_head     = lines.series[iter+1]&&lines.series[iter+1].head ? lines.series[iter+1].head.split(/\s+/g) : [ "transparent", 4, "transparent", 2 ]
                     , s_tail     = lines.series[iter+1]&&lines.series[iter+1].tail ? lines.series[iter+1].tail.split(/\s+/g) : [ "transparent", 4, "transparent", 2 ]
                     , s_linepath = [ 
-                        lines.series[iter+1]&&lines.series[iter+1].stroke ? lines.series[iter+1].stroke.split(/\s+/g)[0] : (lines.stroke.split(/\s+/g)[0] || "white")
+                        lines.series[iter+1]&&lines.series[iter+1].stroke ? lines.series[iter+1].stroke.split(/\s+/g)[0] : (lines.stroke.split(/\s+/g)[0] || "black")
                         , lines.series[iter+1]&&lines.series[iter+1].stroke ? lines.series[iter+1].stroke.split(/\s+/g)[1] : (lines.stroke.split(/\s+/g)[1] || 1)
                         , lines.series[iter+1]&&lines.series[iter+1].stroke ? lines.series[iter+1].stroke.split(/\s+/g)[2] : (lines.stroke.split(/\s+/g)[2] || 1)
                         , lines.series[iter+1]&&lines.series[iter+1].stroke ? lines.series[iter+1].stroke.split(/\s+/g)[3] : (lines.stroke.split(/\s+/g)[3] || null)
@@ -198,8 +137,8 @@ class Graph {
                         left = _xpos(i<split ? i : i-1)
                         , top = _ypos(serie[i])
                         , rad = i<split ? (first&&tail[1] ? tail[1] : (last&&head[1] ? head[1] : (bullets[1] || 2))) : (first&&s_tail[1] ? s_tail[1] : (last&&s_head[1] ? s_head[1] : (s_bullets[1] || 2)))
-                        , fill = i<split ? (first&&tail[0] ? tail[0] : (last&&head[0] ? head[0] : (bullets[0] || "white"))) : (first&&s_tail[0] ? s_tail[0] : (last&&s_head[0] ? s_head[0] : (s_bullets[0] || "white")))
-                        , stroke = i<split ? (first&&tail[2] ? tail[2] : (last&&head[2] ? head[2] : (bullets[2] || "white"))) : (first&&s_tail[2] ? s_tail[2] : (last&&s_head[2] ? s_head[2] : (s_bullets[2] || "white")))
+                        , fill = i<split ? (first&&tail[0] ? tail[0] : (last&&head[0] ? head[0] : (bullets[0] || "black"))) : (first&&s_tail[0] ? s_tail[0] : (last&&s_head[0] ? s_head[0] : (s_bullets[0] || "black")))
+                        , stroke = i<split ? (first&&tail[2] ? tail[2] : (last&&head[2] ? head[2] : (bullets[2] || "black"))) : (first&&s_tail[2] ? s_tail[2] : (last&&s_head[2] ? s_head[2] : (s_bullets[2] || "black")))
                         , stroke_width = i<split ? (first&&tail[3] ? tail[3] : (last&&head[3] ? head[3] : (bullets[3] || 1))) : (first&&s_tail[3] ? s_tail[3] : (last&&s_head[3] ? s_head[3] : (s_bullets[3] || 1)))
                         ;
 
@@ -208,7 +147,7 @@ class Graph {
 
                         /* TOOLTIPS */
                         svg.app(
-                            _S("circle", "--bullet -pointer --tooltip" + (first?" --tail":"") + (last?" --head":""), { 
+                            __svg("circle", "--bullet -pointer --tooltip" + (first?" --tail":"") + (last?" --head":""), { 
                                 cx: left
                                 , cy: top
                                 , r: rad*2
@@ -219,25 +158,17 @@ class Graph {
                                 , "stroke-width": stroke_width
                             })
                         )
-                        if(this.o.please_that && last && i<split){
-                            svg.app(
-                                _S("path", null, { d: [ "M", [ left, 0 ], "L", [ left, h ] ].join(" ") }, { stroke:"white", "stroke-dasharray":"4,4", opacity:.64, "stroke-width":1 })
-                            ).app(
-                                _S("text", null, { x:left-24, y:top-36 }, { "text-anchor":"middle", stroke:"white", opacity:.64, "transform-origin":(left-24)+"px "+(top-36)+"px", transform:"rotate(-90deg)"}).text("today")
-                            )
-                        }
-
                     }
 
                     path2[1] = path2[3] = path.last();
 
 
                     /* SEQUENCE 2 */
-                    svg.app(_S("path", "--default-sequence --serie --s"+iter, { d: path2.join(' ') }, bind({ 
+                    svg.app(__svg("path", "--default-sequence --serie --s"+iter, { d: path2.join(' ') }, bind({ 
                         stroke: s_linepath[0], "stroke-width": s_linepath[1], fill:"none", opacity: s_linepath[2]}, s_linepath[3] ? { "stroke-dasharray": s_linepath[3] } : {})));
 
                     /* SEQUENCE 1 */
-                    svg.app(_S("path", "--default-sequence --serie --s"+iter, { d: path.join(' ') }, bind({ 
+                    svg.app(__svg("path", "--default-sequence --serie --s"+iter, { d: path.join(' ') }, bind({ 
                         stroke: linepath[0], "stroke-width": linepath[1], fill:"none", opacity: linepath[2]}, linepath[3] ? { "stroke-dasharray": linepath[3] } : {})));
                     
                     if(lines.type=="wave"){
@@ -248,27 +179,27 @@ class Graph {
                         
                         /* WAVE 2 */
                         svg.get("defs").at().app(
-                            _S("linearGradient", "--graph-gradient --gd1", { id:gd2, x1:"50%", y1:"0%", x2:"50%", y2:"100%", gradientUnits:"userSpaceOnUse" })
-                            .app(_S("stop", "--gradient-stop --stop1", { offset:"0%" }, { "stop-color":s_linepath[0], "stop-opacity":.24 }))
-                            .app(_S("stop", "--gradient-stop --stop2", { offset:"95%" }, { "stop-color":s_linepath[0], "stop-opacity":0 }))
+                            __svg("linearGradient", "--graph-gradient --gd1", { id:gd2, x1:"50%", y1:"0%", x2:"50%", y2:"100%", gradientUnits:"userSpaceOnUse" })
+                            .app(__svg("stop", "--gradient-stop --stop1", { offset:"0%" }, { "stop-color":s_linepath[0], "stop-opacity":.24 }))
+                            .app(__svg("stop", "--gradient-stop --stop2", { offset:"95%" }, { "stop-color":s_linepath[0], "stop-opacity":0 }))
                         )
                         wv2 = path2.concat([ [ w+fsize, h ], [ _xpos(split-1), h ], "z" ]);
-                        svg.pre(_S("path", "--split-wave0 --serie", { d: wv2.join(' '), fill:"url(#"+gd2+")" }, { stroke: "none" }))
+                        svg.pre(__svg("path", "--split-wave0 --serie", { d: wv2.join(' '), fill:"url(#"+gd2+")" }, { stroke: "none" }))
 
                         /* WAVE 1 */
                         svg.get("defs").at().app(
-                            _S("linearGradient", "--graph-gradient --gd1", { id:gd1, x1:"50%", y1:"0%", x2:"50%", y2:"100%", gradientUnits:"userSpaceOnUse" })
-                            .app(_S("stop", "--gradient-stop --stop1", { offset:"0%" }, { "stop-color":linepath[0], "stop-opacity":.24 }))
-                            .app(_S("stop", "--gradient-stop --stop2", { offset:"95%" }, { "stop-color":linepath[0], "stop-opacity":0 }))
+                            __svg("linearGradient", "--graph-gradient --gd1", { id:gd1, x1:"50%", y1:"0%", x2:"50%", y2:"100%", gradientUnits:"userSpaceOnUse" })
+                            .app(__svg("stop", "--gradient-stop --stop1", { offset:"0%" }, { "stop-color":linepath[0], "stop-opacity":.24 }))
+                            .app(__svg("stop", "--gradient-stop --stop2", { offset:"95%" }, { "stop-color":linepath[0], "stop-opacity":0 }))
                         )
                         wv = path.concat([ [ _xpos(split-1), h ], [ _xpos(0), h ], "z" ]);
-                        svg.pre(_S("path", "--split-wave0 --serie", { d: wv.join(' '), fill:"url(#"+gd1+")" }, { stroke: "none" }))
+                        svg.pre(__svg("path", "--split-wave0 --serie", { d: wv.join(' '), fill:"url(#"+gd1+")" }, { stroke: "none" }))
                     }
                 } break;
 
                 case "bars":{
                     var
-                    clr = lines.series&&lines.series[iter]&&lines.series[iter].color ? lines.series[iter].color: (lines.color ? lines.color : "white")
+                    clr = lines.series&&lines.series[iter]&&lines.series[iter].color ? lines.series[iter].color: (lines.color ? lines.color : "black")
                     , rects = [ ]
                     ;
 
@@ -278,9 +209,9 @@ class Graph {
                     for(var i=0; i<stop; i++){
                         var
                         left = Math.min(w,w*i/(stop+1)+fsize*1.5)
-                        , top = _ypos(serie[i]*1)+(serie[i]*1 ? 0 : fsize)
+                        , top = _ypos(serie[i]*1)
                         ;                        
-                        svg.app(_S("rect", "--bar -pointer --tooltip", { 
+                        svg.app(__svg("rect", "--bar -pointer --tooltip", { 
                             y: top
                             , x: left + fsize/2
                             , width: fsize
@@ -294,13 +225,13 @@ class Graph {
                 default: {
                     var
                     path = [ "M", [ fsize*1.5, _ypos(serie.first()) ], "L" ]
-                    , clr = lines.colors&&lines.colors[iter]? lines.colors[iter] : "white"
+                    , clr = lines.colors&&lines.colors[iter]? lines.colors[iter] : "black"
                     , wv
                     , first = true
                     , last = false
                     ;
 
-                    for(var i=0; i<stop;i++){
+                    for(var i=1; i<stop;i++){
                         
                         if(i==stop-1) last = true;
 
@@ -314,7 +245,7 @@ class Graph {
 
                             /* TOOLTIPS */
                             svg.app(
-                                _S("circle", "--bullet -pointer --tooltip --"+clsname, {
+                                __svg("circle", "--bullet -pointer --tooltip --"+clsname, {
                                     cx: Math.ceil(left + (!i?4:(i==stop-1?-4:0)))
                                     , cy: top
                                     , r:4
@@ -333,7 +264,7 @@ class Graph {
 
                     svg
                     /* SEQUENCE 1 */
-                    .app(_S("path", "--default-sequence --serie --s"+iter+" --"+clsname, { d: path.join(' ') }, bind({ 
+                    .app(__svg("path", "--default-sequence --serie --s"+iter+" --"+clsname, { d: path.join(' ') }, bind({ 
                         stroke: clr
                         , "stroke-width": lines.width
                         , fill:"none" 
@@ -345,15 +276,15 @@ class Graph {
                         gd = "fagd"+app.nuid();
 
                         svg.get("defs").at().app(
-                            _S("linearGradient", "--graph-gradient --gd1", { id:gd, x1:"50%", y1:"0%", x2:"50%", y2:"100%", gradientUnits:"userSpaceOnUse" })
-                            .app(_S("stop", "--gradient-stop --stop1", { offset:"0%" }, { "stop-color":clr, "stop-opacity":.64 }))
-                            .app(_S("stop", "--gradient-stop --stop2", { offset:"100%" }, { "stop-color":clr, "stop-opacity":.32 }))
+                            __svg("linearGradient", "--graph-gradient --gd1", { id:gd, x1:"50%", y1:"0%", x2:"50%", y2:"100%", gradientUnits:"userSpaceOnUse" })
+                            .app(__svg("stop", "--gradient-stop --stop1", { offset:"0%" }, { "stop-color":clr, "stop-opacity":.24 }))
+                            .app(__svg("stop", "--gradient-stop --stop2", { offset:"100%" }, { "stop-color":clr, "stop-opacity":0 }))
                         )
 
                         wv = path.concat([ [ w, h+fsize ], [ fsize, h+fsize ], "z" ]);
 
                         /* WAVE */
-                        svg.pre(_S("path", "--split-wave1 --serie", { d: wv.join(' '), fill:"url(#"+gd+")" }, { stroke: "none" }))
+                        svg.pre(__svg("path", "--split-wave1 --serie", { d: wv.join(' '), fill:"url(#"+gd+")" }, { stroke: "none" }))
                     }
                 } break;
             }
@@ -361,31 +292,131 @@ class Graph {
         
         return this
     }
-    daxis(){
-        if(this.o){
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    lines(lines={}){
+        lines = lines || {};
+        
+        lines.class = (lines.class||"--auto")+" --serie --line";
+        lines.type  = lines.type||"std";
+        lines.color = lines.color||app.colors().FONT
+        lines.gradient = lines.gradient || [ lines.color, "transparent" ]
+        
+        lines.css = bind({
+            "stroke-width":2
+            , stroke:app.colors().BLACK
+            , fill: "none"
+            , "stroke-dasharray": "none"
+            , "stroke-linecap":"round"
+        },lines.css||{})
+        
+        [ "heads", "tails", "bullets" ].each(key => {
+            lines[key] = lines[key] || { css:{}, attr:{} }
+            lines[key] ={
+                css: bind({
+                    "stroke-width":1
+                    , stroke:app.colors().BLACK
+                    , fill: app.colors().BACKGROUND
+                }, lines[key].css || {})
+                , attr: bind({
+                    r: 2
+                }, lines[key].attr || {})
+            }
+        })
+
+        this.lines_ = lines;
+
+        return this
+    }
+
+    __makex__(o){
+        let
+        l = o.length || 0
+        , x = o.x || []
+        ;
+        if(Array.isArray(x)&&x.length) this.x_ = x;
+        else if(l){
+            x = array(this.length_)
+            x.each((el,i) => x[i]=i)
+        }
+        return this;
+    }
+
+     __makey__(o){
+        var
+        y = o.y || []
+        , max = o.max
+        ;
+        if(Array.isArray(x)&&y.length) this.y_ = y;
+        else if(max){
+            if(o.log){
+                let 
+                i=1
+                while(i<=max){
+                    i*=10;
+                    y.push(i)
+                }
+            }else{
+                max = Math.ceil(max*1.1/10)*10;
+                y = [ 0, max/2, max ]
+            }
+        }
+        this.y_ = y;
+        return this
+    }
+
+    guides(o){
+        let
+        x = o.x
+        , y = o.y;
+         if(x){
+            let
+            id = app.nuid()
+            ;
+            this.svg_.get("defs")[0].app(
+                __svg("linearGradient", "--graph-gradient --gd1", { id:gdx, x1:"0%", y1:"0%", x2:"0%", y2:"100%", gradientUnits:"userSpaceOnUse" })
+                    .app(__svg("stop", "--gradient-stop --stop1", { offset:"10%" }, { "stop-color":clr, "stop-opacity":.08 }))
+                    .app(__svg("stop", "--gradient-stop --stop2", { offset:"50%" }, { "stop-color":clr, "stop-opacity":.32 }))
+                    .app(__svg("stop", "--gradient-stop --stop2", { offset:"90%" }, { "stop-color":clr, "stop-opacity":.08 }))
+                );
+
+            
+
+         }
+        if(o){
             let
             gdx = "fagd"+app.nuid()
             , gdy = "fagd"+app.nuid()
             , gdxy = "fagd"+app.nuid()
             , lines = this.o.lines
-            , clr = lines.color || "white"
+            , clr = lines.color || "black"
             ;
 
             this.svg.get("defs").at().app(
-                _S("linearGradient", "--graph-gradient --gd1", { id:gdx, x1:"0%", y1:"0%", x2:"0%", y2:"100%", gradientUnits:"userSpaceOnUse" })
-                .app(_S("stop", "--gradient-stop --stop1", { offset:"10%" }, { "stop-color":clr, "stop-opacity":.08 }))
-                .app(_S("stop", "--gradient-stop --stop2", { offset:"50%" }, { "stop-color":clr, "stop-opacity":.32 }))
-                .app(_S("stop", "--gradient-stop --stop2", { offset:"90%" }, { "stop-color":clr, "stop-opacity":.08 }))
+                
             ).app(
-                _S("linearGradient", "--graph-gradient --gd1", { id:gdy, x1:"0%", y1:"0%", x2:"100%", y2:"0%", gradientUnits:"userSpaceOnUse" })
-                .app(_S("stop", "--gradient-stop --stop1", { offset:"10%" }, { "stop-color":clr, "stop-opacity":.08 }))
-                .app(_S("stop", "--gradient-stop --stop2", { offset:"50%" }, { "stop-color":clr, "stop-opacity":.32 }))
-                .app(_S("stop", "--gradient-stop --stop2", { offset:"90%" }, { "stop-color":clr, "stop-opacity":.08 }))
+                __svg("linearGradient", "--graph-gradient --gd1", { id:gdy, x1:"0%", y1:"0%", x2:"100%", y2:"0%", gradientUnits:"userSpaceOnUse" })
+                .app(__svg("stop", "--gradient-stop --stop1", { offset:"10%" }, { "stop-color":clr, "stop-opacity":.08 }))
+                .app(__svg("stop", "--gradient-stop --stop2", { offset:"50%" }, { "stop-color":clr, "stop-opacity":.32 }))
+                .app(__svg("stop", "--gradient-stop --stop2", { offset:"90%" }, { "stop-color":clr, "stop-opacity":.08 }))
             ).app(
-                _S("linearGradient", "--graph-gradient --gd1", { id:gdxy, x1:"0%", y1:"100%", x2:"100%", y2:"50%", gradientUnits:"userSpaceOnUse" })
-                .app(_S("stop", "--gradient-stop --stop1", { offset:"10%" }, { "stop-color":clr, "stop-opacity":.08 }))
-                .app(_S("stop", "--gradient-stop --stop2", { offset:"50%" }, { "stop-color":clr, "stop-opacity":.32 }))
-                .app(_S("stop", "--gradient-stop --stop2", { offset:"90%" }, { "stop-color":clr, "stop-opacity":.08 }))
+                __svg("linearGradient", "--graph-gradient --gd1", { id:gdxy, x1:"0%", y1:"100%", x2:"100%", y2:"50%", gradientUnits:"userSpaceOnUse" })
+                .app(__svg("stop", "--gradient-stop --stop1", { offset:"10%" }, { "stop-color":clr, "stop-opacity":.08 }))
+                .app(__svg("stop", "--gradient-stop --stop2", { offset:"50%" }, { "stop-color":clr, "stop-opacity":.32 }))
+                .app(__svg("stop", "--gradient-stop --stop2", { offset:"90%" }, { "stop-color":clr, "stop-opacity":.08 }))
             )
 
             let
@@ -403,7 +434,7 @@ class Graph {
                 , "stroke-dasharray":1 
             }
             , fsize = this.o.fsize || 10
-            , fcolor = this.o.fcolor || "white"
+            , fcolor = this.o.fcolor || "black"
             , maxx = 0
             ;
 
@@ -414,7 +445,7 @@ class Graph {
             --maxx;
 
             /* AXIS */
-            if(!this.o.noaxis) svg.app(_S("path", "--axis --y --x", { d: ["M", [ 0, 0 ], "L", [ 0, h ], [ w,h ] ].join(" ") }, axiscss))
+            if(!this.o.noaxis) svg.app(__svg("path", "--axis --y --x", { d: ["M", [ 0, 0 ], "L", [ 0, h ], [ w,h ] ].join(" ") }, axiscss))
 
             /* GUIDES Y */
             if(!this.o.noyguides&&!this.o.noguides){
@@ -422,7 +453,7 @@ class Graph {
                 z=0;
                 while(z<=ya.length){
                     let l = z/(ya.length-1)*h;
-                    svg.app(_S("path", "--guide --y", { d: ["M", [ 0, l ] , "L", [ w, l ] ].join(" ") }, bind(guidecss, { stroke: "url(#"+gdy+")" })));
+                    svg.app(__svg("path", "--guide --y", { d: ["M", [ 0, l ] , "L", [ w, l ] ].join(" ") }, bind(guidecss, { stroke: "url(#"+gdy+")" })));
                     z++
                 }
             }
@@ -432,7 +463,7 @@ class Graph {
                 let
                 i = 0;
                 while(i<=w){
-                    svg.pre(_S("path", "--guide --x", { d: ["M", [ Math.ceil(i-fsize*2), 0 ], "L", [ Math.ceil(i-fsize*2), h ] ].join(" ") }, bind(guidecss, { stroke: "url(#"+gdx+")" })));
+                    svg.pre(__svg("path", "--guide --x", { d: ["M", [ Math.ceil(i-fsize*2), 0 ], "L", [ Math.ceil(i-fsize*2), h ] ].join(" ") }, bind(guidecss, { stroke: "url(#"+gdx+")" })));
                     i+=w/maxx;
                 }
             }
@@ -443,41 +474,57 @@ class Graph {
                 ylapse = !i ? -fsize*.5 : (i==ya.length-1 ? fsize*1.5 : 0)
                 ;
                 y = _num(y)
-                svg.app(_S("text", "--label --y", { x: Math.ceil(fsize*.5), y: h-i/(ya.length-1)*h+ylapse }, { stroke: fcolor, opacity:.32, fontSize:fsize }).text(y))
+                svg.app(__svg("text", "--label --y", { x: Math.ceil(fsize*.5), y: h-i/(ya.length-1)*h+ylapse }, { stroke: fcolor, opacity:.32, fontSize:fsize }).text(y))
             })
 
             /* LABELS X */
             if(!this.o.nolabels&&!this.o.noxlabels) xa.each((x, i) => {
-                svg.app(_S("text", "--label --x", { x: Math.ceil(i/(xa.length-1)*w - fsize*2), y: h - fsize*1.5 }, { stroke: fcolor, opacity: .32, "text-anchor":"middle" }).text(x+""))
+                svg.app(__svg("text", "--label --x", { x: Math.ceil(i/(xa.length-1)*w - fsize*2), y: h - fsize*1.5 }, { stroke: fcolor, opacity: .32, "text-anchor":"middle" }).text(x+""))
             })
         }
         return this
     }
-    dbase(){
-        if(this.o) this.svg = app.svg("svg", "--fa-graph --fa-type-"+this.o.type, this.o.css).app(app.svg("defs")).attr({ width: this.o.width, height: this.o.height })
-        return this
-    }
+
     preload(o){
-        o.width = o.target ? o.target.getBoundingClientRect().width : window.innerWidth;
-        o.height = o.target ? o.target.getBoundingClientRect().height : window.innerHeight;
-        o.series = o.series || [];
-        o.graph = o.graph || {};
-        o.lines = o.lines || {};
-        o.length = 0;
-        if(!o.type) o.type = "regular";
+        
+        this.target_  = o.target || $("#app")[0]
+        this.type_    = o.type || "std";
+        this.width_   = this.target.getBoundingClientRect().width;
+        this.height_  = this.target.getBoundingClientRect().height;
+        this.css_     = o.css || {};
+        this.svg_     = app.svg("svg", "--graph --type-"+this.type_, this.css).app(app.svg("defs")).attr({ width: this.width_, height: this.height_ })
+        
+        this.lines(o.lines);
 
-        o.series.each(serie => o.length = Math.max(o.length, serie.length))
+        this.series = o.series || []; /* BASE SERIES CREATION */ {
+            if(Array.isArray(o.series)&&o.series.length){ if(!Array.isArray(o.series[0])) o.series = [ o.series ] }
+            else o.series = [];
+        }
 
-        this.o = o;
+        if(o.series.length){
+
+            this.length_ = 0;
+            o.series.each(serie => this.length_ = Math.max(this.length_, serie.length));
+
+            this.max_ = 0;
+            o.series.each(serie => this.max_ = Math.max(this.max_, serie.calc(MAX)));
+
+            this.axis({ series: o.series, x: o.xaxis, y: o.yaxis })
+            if(!o.noguides) this.guides({ x: o.noxguide ? null : this.x_, y: o.noyguide ? null : this.y_ })
+
+
+        }
+
         return this
     }
     constructor(o){
         if(o){
             this
             .preload(o)
-            .dbase()
-            .daxis()
-            .dseries()
+            //.dbase()
+            //.daxis()
+            //.dseries();
+            //if(o.draw) this.draw();
         }
     }
 }
