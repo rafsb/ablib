@@ -18,7 +18,9 @@ ANIMATION_LENGTH = 400
 , POLINOMIAL        = 5
 , MAX               = 6
 , MIN               = 7
-, PASSWD_AUTO_HASH  = false;
+, PASSWD_AUTO_HASH  = false
+, NUMBER            = 0
+, STRING            = 1
 ;
 
 var
@@ -37,16 +39,32 @@ bind(String.prototype, {
         while(s.length < l) s = (d<0?c:"")+s+(d>0?c:"");
         return s
     }
+    , desnerdify: function(){
+        let
+        n = Number(this.replace(/[^0-9\.]/g,'').replace(',','.'))
+        , s = this.replace(/[^a-zA-Z]/g,'');
+        switch(s){
+            case "tri": n *= 1000000000000; break;
+            case "bi" : n *= 1000000000; break;
+            case "mi" : n *= 1000000; break;
+            case "k"  : n *= 1000; break;
+            default   : n *= 1; break;
+        }
+        return n
+    }
 });
 bind(Number.prototype, {
     fill: function(c,l,d){ return (this+"").fill(c,l,d) }
-    , nerdify: function(){ return this*1 > 1000000000000 ? ((this*1 / 1000000000000).toFixed(1))+"tri" : (
-        this*1 > 1000000000 ? ((this*1 / 1000000000).toFixed(1))+"bi" : (
-            this*1 > 1000000 ? ((this*1 / 1000000).toFixed(1))+"mi" : (
-                this*1 > 1000 ? ((this*1 / 1000).toFixed(1))+"k" : this
+    , nerdify: function(){ 
+        let n = this*1;
+        return n > 1000000000000 ? ((n / 1000000000000).toFixed(1))+"tri" : (
+            n > 1000000000 ? ((n / 1000000000).toFixed(1))+"bi" : (
+                n > 1000000 ? ((n / 1000000).toFixed(1))+"mi" : (
+                    n > 1000 ? ((n / 1000).toFixed(1))+"k" : n
+                )
             )
         )
-    )}
+    }
 })
 bind(Date.prototype, {
     plus: function(n) {
@@ -317,10 +335,10 @@ bind(Element.prototype,{
         return this
     }
     , appear: function(len = ANIMATION_LENGTH, fn=null) {
-        return this.css({display:'inline-block'}, x=>x.anime({opacity:1}, len).then(fn))
+        return this.stop().css({display:'inline-block'}, x=>x.anime({opacity:1}, len).then(fn))
     }
     , desappear: function(len = ANIMATION_LENGTH, remove = false, fn=null) {
-        return this.anime({opacity:0}, len).then(x=>{ if(remove) x.remove(); else x.css({display:"none"}); if(fn) fn(remove ? null : this); });
+        return this.stop().anime({opacity:0}, len).then(x=>{ if(remove) x.remove(); else x.css({display:"none"}); if(fn) fn(remove ? null : this); });
     }
     , remove: function() { if(this&&this.parent()) this.parent().removeChild(this) }
 });
@@ -397,7 +415,7 @@ bind(Object.prototype,{
         return this
     }
     , array: function(){
-        return this.extract(function(n){ return n })
+        return this.extract(n => n.content)
     }
     , extract: function(fn=null){
         let
@@ -405,7 +423,7 @@ bind(Object.prototype,{
         if(fn){
             this.each((x,i) => {
                 let
-                y = fn.bind(x.content)(x.content, i);
+                y = fn.bind(x)(x, i);
                 if(y!=null||y!=false) final.push(y)
             })
         }
@@ -429,6 +447,9 @@ bind(Array.prototype, {
             if(x||x===0) narr.push(x) 
         })
         return narr
+    }
+    , cast: function(filter=STRING){
+        return this.extract(x => { return filter==STRING?x+"":(filter==NUMBER?x*1:x) })
     }
     , calc: function(type=SUM, helper=null){
         let
@@ -921,8 +942,8 @@ class Bootloader {
 
         if(!this.alreadyLoaded&&perc==1){ 
             this.alreadyLoaded=true; 
-            setTimeout(boot => boot.onFinishLoading.fire(nil => app.pragma = app.initial_pragma || true), ANIMATION_LENGTH, this);
-        }else this.onReadyStateChange.fire(perc)
+            setTimeout(boot => boot.onFinishLoading.fire(_ => app.pragma = app.initial_pragma || true), ANIMATION_LENGTH, this);
+        }else if(!this.alreadyLoaded) setTimeout((x,perc) => x.onReadyStateChange.fire(perc), ANIMATION_LENGTH/4, this, perc)
 
         return this.alreadyLoaded || false;
     }
@@ -1237,6 +1258,11 @@ class FAAU {
         })
     }
 
+    iter(n, fn){
+        if(!fn) fn = i => i;
+        return Array(n||1).extract((nil, i) => fn(i))
+    }
+
     makeServerHashToken(o){ return this.hashit(o).hash; }
 
     rgb2hex(color) {
@@ -1355,12 +1381,9 @@ bind(window, {
     , tooltips: function(){
         $(".--tooltip").each(ttip => {
             ttip.raise().on("mouseenter", function () { 
-                $("tooltip.--tooltip-element")[0].html("<b>" + ( this.dataset.tip || "hooray" ) + "</b>").raise().stop().css({display:"block", background:this.dataset.tipbg || "#DEDEDE", color:this.dataset.tipft || "#000" }, me => me.anime({
-                    transform: "matrix(1,0,0,1,0,0)"
-                    , opacity:1
-                }, 64)) 
+                $("tooltip.--tooltip-element")[0].stop().html(this.dataset.tip || "hooray").raise().css({ display:"block", background:this.dataset.tipbg || "#000A", color:this.dataset.tipft || "#FFF" })
             });
-            ttip.on("mouseleave", function () { $("tooltip.--tooltip-element")[0].html("").css({ display: "none", transform:"matrix(.9,0,.2,.9,12,12)" }) });
+            ttip.on("mouseleave", function () { $("tooltip.--tooltip-element")[0].css({ display:"none" }) });
         }).remClass("--tooltip")
     }
 });
