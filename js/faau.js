@@ -929,7 +929,7 @@ class Bootloader {
     loadLength(){
         var
         count=this.loaders.array();
-        return count.extract(n => n*1 ? 1 : null).length/count.length;
+        return count.extract(n => n!=0&&n!=undefined&&n!=null&&n!=false ? 1 : null).length/count.length;
     }
     check(scr){
         return scr ? this.loaders[scr] : this.alreadyLoaded
@@ -940,12 +940,10 @@ class Bootloader {
         let
         perc = this.loadLength();
 
-        console.log(perc)
-
         if(!this.alreadyLoaded&&perc>=1){ 
             this.alreadyLoaded=true; 
             setTimeout(boot => boot.onFinishLoading.fire(_ => app.pragma = app.initial_pragma || true), ANIMATION_LENGTH, this);
-        } else if(!this.alreadyLoaded) console.log(setTimeout((x,perc) => x.onReadyStateChange.fire(perc), ANIMATION_LENGTH/4, this, perc));
+        } else if(!this.alreadyLoaded) setTimeout((x,perc) => x.onReadyStateChange.fire(perc), ANIMATION_LENGTH/4, this, perc);
 
         return this.alreadyLoaded || false;
     }
@@ -954,7 +952,7 @@ class Bootloader {
         this.loadComponents     = new Pool();
         this.onReadyStateChange = new Pool();
         this.onFinishLoading    = new Pool();
-        this.loaders = { pass: true }
+        this.loaders = { pass: false }
     }
 };
 class CallResponse {
