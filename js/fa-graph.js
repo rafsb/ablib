@@ -62,6 +62,7 @@ window.Graph = function(o){
             , node = this.node || _S("svg").app("defs")
             ;
 
+
             node.get("defs").at().app(
                 _S("linearGradient", "--graph-guides-gradient --x --ggg", { id:"xguide-gradient", x1:"0%", y1:"0%", x2:"0%", y2:"100%", gradientUnits:"userSpaceOnUse" })
                 /**/.app(_S("stop", "--gradient-stop --stop1", { offset:"0%"   }, { "stop-color":color, "stop-opacity": 0.00 }))
@@ -131,13 +132,25 @@ window.Graph = function(o){
             let
             h = o.h
             , xmax = o.series.extract(s => s.length).calc(MAX)
-            , ymax = o.series.extract(s => s.calc(MAX)).calc(MAX)
-            , fsize = o.lines&&o.lines.css&&o.lines.css.fontSize ? o.lines.css.fontSize.replace(/[^0-9]/g,'')*1 : 12
-            , color = o.lines&&o.lines.css&&o.lines.css.color ? o.lines.css.color : "#000"
+            , ymax = o.series.extract(s => s.calc(MAX)).calc(MAX)*1.2
+            , css  = bind({
+                fontSize:12
+                , strokeWidth: [2]
+                , color: [ "#000" ]
+            }, o.lines&&o.lines.css ? o.lines.css : {})
+            , fsize = (css.fontSize+"").replace(/[^0-9]/g,'')*1
+            , color = css.color
+            , strokeWidth = css.strokeWidth
             , xpace = (o.w - fsize*3 - 8) / xmax
             , node = this.node
             , type
             ;
+
+            color = Array.isArray(color) ? color : [ color ];
+            strokeWidth = Array.isArray(strokeWidth) ? strokeWidth : [ strokeWidth ];
+
+            delete css.color;
+            delete css.strokeWidth;
 
             switch(o.type.toLowerCase()){
                 case "line"     : type = "L"    ; break;
@@ -147,13 +160,20 @@ window.Graph = function(o){
                 default         : type = o.type ; break;
             }
 
+            // GRADIENT
             node.get("defs").at().app(
                 _S("linearGradient", "--graph-lines-gradient --x --ggg", { id:"xguide-gradient", x1:"0%", y1:"0%", x2:"0%", y2:"100%", gradientUnits:"userSpaceOnUse" })
-                /**/.app(_S("stop", "--gradient-stop --stop1", { offset:"0%"   }, { "stop-color":color, "stop-opacity": 0.16 }))
-                /**/.app(_S("stop", "--gradient-stop --stop3", { offset:"100%" }, { "stop-color":color, "stop-opacity": 1.00 }))
+                /**/.app(_S("stop", "--gradient-stop --stop1", { offset:"0%"   }, { "stop-color":"#000", "stop-opacity": 0.16 }))
+                /**/.app(_S("stop", "--gradient-stop --stop3", { offset:"100%" }, { "stop-color":"#000", "stop-opacity": 1.00 }))
             );
 
             o.series.each((s, idx) => {
+
+                let
+                clr = color[idx] ? color[idx] : color[0]
+                , strw = strokeWidth[idx] ? strokeWidth[idx] : strokeWidth[0]
+                ;
+
                 let
                 d = [ "M", [ fsize*3 + 8, h - h * s[0] / ymax - fsize - 8 ], type ];
                 s.each((n,i) => {
@@ -171,7 +191,7 @@ window.Graph = function(o){
                             , x: x + (type== "bars" ? 2 : -xpace/2)
                             , y: type== "bars" ? y : 0
                             , "data-tip": n!=null ? (o.labels&&o.labels[i] ? o.labels[i] : "") +"<br>-<br>"+ (o.names&&o.names[idx] ? o.names[idx] + " " : "") + n.nerdify() + "<br>" : ""
-                        }, { fill: color, opacity:type == "bars" ? .64 : 0 });
+                        }, { fill: clr, opacity:type == "bars" ? .64 : 0 });
 
                         rect.on("mouseenter", function(){ 
                             $("#"+node.uid()+" .-hint-plate").not(this).stop().anime({ opacity:type == "bars" ? .32 : 0 });
@@ -190,8 +210,9 @@ window.Graph = function(o){
                         d.push([ x, y ])
                     }
                 });
+
                 if(type=="S" && s.length%2==0) d.push([ o.w - fsize, h - h * s.last() / ymax - fsize - 8 ]);
-                if(type!="bars") node.app(_S("path", "--line -avoid-pointer", { d:d.join(" ") }, { fill:"none", stroke: o.lines&&o.lines.css&&o.lines.css.color ? o.lines.css.color : "#000", "stroke-width": o.lines&&o.lines.css&&o.lines.css.strokeWidth ? o.lines.css.strokeWidth : 2 }))
+                if(type!="bars") node.app(_S("path", "--line -avoid-pointer", { d:d.join(" ") }, { fill:"none", stroke: clr, "stroke-width": strw }))
             })
             tooltips();
         }
