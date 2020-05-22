@@ -12,7 +12,6 @@ class Vector extends Activity {
 		return $return;
 	}
 
-
 	public static function each(Array $arr, Closure $fn){
 		if(!empty($arr)) foreach($arr as $k=>&$v) $fn($v,$k);
 	}
@@ -66,5 +65,22 @@ class Vector extends Activity {
 
 		}
 	}
+
+	public static function fit(Array $arr, int $fit=10){
+
+		if(!sizeof($arr)) return [];
+        $narr = [ $arr[0] ];
+        $x = sizeof($arr) / ($fit - 1);
+        $i = $x;
+
+        while($i<sizeof($arr)){
+            $narr[] = self::calc($arr, $i);
+            $i+=$x;
+        }
+
+        $narr[] = $arr[sizeof($arr)-1];
+        return $narr;
+    
+    }	
 
 }

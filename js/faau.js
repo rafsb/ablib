@@ -60,7 +60,7 @@ bind(Number.prototype, {
         return n > 1000000000000 ? ((n / 1000000000000).toFixed(1))+"tri" : (
             n > 1000000000 ? ((n / 1000000000).toFixed(1))+"bi" : (
                 n > 1000000 ? ((n / 1000000).toFixed(1))+"mi" : (
-                    n > 1000 ? ((n / 1000).toFixed(1))+"k" : n
+                    n > 1000 ? ((n / 1000).toFixed(1))+"k" : Math.ceil(n)
                 )
             )
         )
@@ -450,6 +450,19 @@ bind(Array.prototype, {
     }
     , cast: function(filter=STRING){
         return this.extract(x => { return filter==STRING?x+"":(filter==NUMBER?x*1:x) })
+    }
+    , fit: function(n=10){
+        let
+        narr=[ this.first() ]
+        , x = this.length / (n-1)
+        , i = x
+        ;
+        while(i<this.length){
+            narr.push(this.calc(TREND, i));
+            i+=x;
+        }
+        narr.push(this.last())
+        return narr
     }
     , calc: function(type=SUM, helper=null){
         let

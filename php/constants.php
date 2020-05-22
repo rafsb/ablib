@@ -83,3 +83,13 @@ define("NULL",null);
 
 define("POST","POST");
 define("GET","GET");
+
+
+define("SUM"		, 0);
+define("TREND"		, 1);
+define("HARMONIC"	, 2);
+define("POLINOMIAL"	, 3);
+define("PROGRESS"	, 4);
+define("MAX"		, 5);
+define("MIN"		, 6);
+define("AVERAGE"	, 7);
