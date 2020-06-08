@@ -1,26 +1,19 @@
 html { scroll-behavior: smooth }
 body { position: relative; text-align: inherit; animation-fill-mode: both; display:inline-block; }
 body *:not(script):not(style) { 
-	font-family: inherit; 
-	position: relative; 
-	display:inline-block; 
-	transition: ease all .2s; 
+	font-family: inherit;
+	position: relative;
+	display:inline-block;
+	transition: ease all .2s;
 	box-sizing: border-box;
 	backface-visibility: hidden;
 	vertical-align: middle;
-}script.tyle{ display: none !important}
+}
+script,style{ display: none !important; }
 
 .-view 			{ width:100vw;height:  100vh; top: 0; left: 0; padding: 0; overflow: hidden; margin: 0 }
 .-fixed         { position: fixed !important; }
 .-absolute      { position: absolute !important; }
-
-@media only screen and (min-width: 1366px) {
-	body { font-size: 1em; }
-}
-
-@media only screen and (max-width: 1366px) {
-	body { font-size: .75em; }
-}
 
 .-container { display: table-row; width: 100%; }
 .-cell      { display: table-cell; }
@@ -220,5 +213,5 @@ a { text-decoration: none }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar { width: .5rem; }
-::-webkit-scrollbar-track { background: repeating-linear-gradient(90deg, transparent .25em, white 1px, transparent .25em) }
-::-webkit-scrollbar-thumb { background: transparent; border-radius: .5rem; border:1px solid white;height:1em; width:1em;}
+::-webkit-scrollbar-track { background: #444; }
+::-webkit-scrollbar-thumb { background: #888; border-radius: .5rem; border:none;height:1em; width:1em;}

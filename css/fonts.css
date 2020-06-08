@@ -14,6 +14,6 @@
 
 /*@import url('https://fonts.googleapis.com/css?family=Roboto:300,500,900&display=swap');*/
 @import url('fonts/Roboto.css');
-.-roboto-light  { font-family: 'Roboto Light', sans-serif;font-weight: lighter; }
-.-roboto        { font-family: 'Roboto Medium', sans-serif;font-weight: normal; }
-.-roboto-bold   { font-family: 'Roboto Black', sans-serif;font-weight: bolder; }
+.-roboto-light  { font-family: 'Roboto';font-weight: 300; }
+.-roboto        { font-family: 'Roboto';font-weight: 500; }
+.-roboto-bold   { font-family: 'Roboto';font-weight: 900; }

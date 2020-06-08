@@ -30,29 +30,6 @@ bind = function(e,o){
     for(let i=a.length;i--;) e[a[a.length-i-1]]=o[a[a.length-i-1]];
     return e
 };
-bind(String.prototype, {
-    fill: function(c=" ", l=8, d=-1) {
-        let
-        s = this;
-        c = !c ? " " : c;
-        d = d==0||d==null||d==undefined ? -1 : d;
-        while(s.length < l) s = (d<0?c:"")+s+(d>0?c:"");
-        return s
-    }
-    , desnerdify: function(){
-        let
-        n = Number(this.replace(/[^0-9\.]/g,'').replace(',','.'))
-        , s = this.replace(/[^a-zA-Z]/g,'');
-        switch(s){
-            case "tri": n *= 1000000000000; break;
-            case "bi" : n *= 1000000000; break;
-            case "mi" : n *= 1000000; break;
-            case "k"  : n *= 1000; break;
-            default   : n *= 1; break;
-        }
-        return n
-    }
-});
 bind(Number.prototype, {
     fill: function(c,l,d){ return (this+"").fill(c,l,d) }
     , nerdify: function(){ 
@@ -227,7 +204,7 @@ bind(Element.prototype,{
         if(cls) return this.classList.contains(cls);
         return false
     }
-    , sort_by_dataset: function(data=null,dir="asc") {
+    , dataSort: function(data=null,dir="asc") {
         let
         all = [].slice.call(this.children);
         if(all.length) all.sort(function(a,b){ return dir=="asc" ? a.dataset[data]*1 - b.dataset[data]*1 : b.dataset[data]*1 - a.dataset[data]*1 });
@@ -360,6 +337,27 @@ bind(String.prototype,{
     , atob: function(){
         return atob(this);
     }
+    , fill: function(c=" ", l=8, d=-1) {
+        let
+        s = this;
+        c = !c ? " " : c;
+        d = d==0||d==null||d==undefined ? -1 : d;
+        while(s.length < l) s = (d<0?c:"")+s+(d>0?c:"");
+        return s
+    }
+    , desnerdify: function(){
+        let
+        n = Number(this.replace(/[^0-9\.]/g,'').replace(',','.'))
+        , s = this.replace(/[^a-zA-Z]/g,'');
+        switch(s){
+            case "tri": n *= 1000000000000; break;
+            case "bi" : n *= 1000000000; break;
+            case "mi" : n *= 1000000; break;
+            case "k"  : n *= 1000; break;
+            default   : n *= 1; break;
+        }
+        return n
+    }
     , json: function() {
         let
         result = null;
@@ -447,6 +445,11 @@ bind(Array.prototype, {
             if(x||x===0) narr.push(x) 
         })
         return narr
+    }
+    , fill: function(n=1, v=null){
+        let x = this;
+        app.iterate(0, Math.max(1,n), i => x[i] = x[i] || v.prepare({i:i}));
+        return x
     }
     , cast: function(filter=STRING){
         return this.extract(x => { return filter==STRING?x+"":(filter==NUMBER?x*1:x) })
@@ -800,15 +803,15 @@ class Tile extends __BaseElement__ {
             , background: "#f0f0f0"
             , marginBottom: ".5em"
         }).app(
-            _("header", "-row -keep", { padding: ".25em", background:app.colors("DARK4") }).app(
+            _("header", "-row -keep", { padding: ".5em" }).app(
                 _("img", "-left -keep -circle --close --icon", { width: "2em", height: "2em", opacity: .8, transform:"scale(.8)" })
             ).app(
                 _("b", "-left -content-left -ellipsis --title", { width: "calc(100% - 3em)", padding: ".5em .25em", opacity: .8 })
             )
         ).app(
-            _("section", "--content -keep -row -content-left", { padding: ".5em 0" })
+            _("section", "--content -keep -row -content-left", { padding: "0 .5em" })
         ).app(
-            _("footer", "-row -keep --tags")
+            _("footer", "-row -keep --tags", { padding:".5em" })
         )
         return this.node
     }
@@ -1058,8 +1061,6 @@ class FAAU {
         return a 
     }
 
-    n2s(n,f=1){ return (n > 1000000 ? (n / 1000000).toFixed(f)+"mi" : (n > 1000 ? (n / 1000).toFixed(f)+"k" : n)) }
-
     loading(show = true, target= null) {
         if (!show) {
             $(".--default-loading").each(x => { clearInterval(x.dataset.animation); x.remove() });
@@ -1269,9 +1270,9 @@ class FAAU {
         })
     }
 
-    iter(n, fn){
+    iterate(s, e, fn){
         if(!fn) fn = i => i;
-        return Array(n||1).extract((nil, i) => fn(i))
+        for(let i = s; i != e; i += s < e ? 1 : -1) fn(i)
     }
 
     makeServerHashToken(o){ return this.hashit(o).hash; }
