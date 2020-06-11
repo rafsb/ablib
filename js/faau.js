@@ -103,7 +103,7 @@ bind(HTMLFormElement.prototype,{
 bind(HTMLInputElement.prototype, {
     val: function(v=null) {
         if(v!==null) this.value = v;
-        return this.value
+        return this
     }
     , up: function(name, path, fn=null, mini=false) {
         let
@@ -611,7 +611,7 @@ bind(Array.prototype, {
     }
     , val: function(v=null){
         if(v) this.each(x=>{ if(x.tagName.toLowerCase()=="input") x.value = v })
-        return this.extract(x=>{ return x.tagName.toLowerCase()=="input" ? x.value || " " : null})
+        return this
     }
 });
 
@@ -1102,8 +1102,9 @@ class FAAU {
         if(!this.isMobile()) {
             toast.css({
                 top:0,
-                left:"80vw",
-                width:"calc(20vw - 1em)",
+                right:0,
+                width:"20vw",
+                margin:".5em"
             });
         }else{
             toast.css({
@@ -1121,22 +1122,27 @@ class FAAU {
         tileClickEffectSelector("-tile");
         
         let
-        notfys = $("toast.--notification");
-        notfys.each((x, i) => { x.anime({translateY:((toast.offsetHeight+8)*i+16)+"px", opacity:1}, ANIMATION_LENGTH/4) });
+        notfys = $("toast.--notification")
+        , ht = 0
+        ;
+        notfys.each((x, i) => { 
+            x.anime({transform: "translateY("+ht+"px)", opacity:1}, ANIMATION_LENGTH/4) 
+            ht += toast.getBoundingClientRect().height+8;
+        });
         toast.dataset.delay = setTimeout(function() { toast.desappear(ANIMATION_LENGTH/2,true); }, ANIMATION_LENGTH*5);
     }
 
     error(message=null) {
-        app.notify(message || "Ops! Something went wrong...", [this.color_pallete.ALIZARIN,this.color_pallete.FONT])
+        app.notify(message || "Ops! Something went wrong...", [this.color_pallete.POMEGRANATE,this.color_pallete.FONT])
     }
     success(message=null) {
-        app.notify(message || "Hooray! Success!", [this.color_pallete.NEPHIRITIS, this.color_pallete.FONT])
+        app.notify(message || "Hooray! Success!", [this.color_pallete.GREEN_SEA, this.color_pallete.FONT])
     }
-    advise(message = null) {
-        app.notify(message || "Ops! take attention...", [this.color_pallete.ORANGE, this.color_pallete.FONT])
+    warning(message = null) {
+        app.notify(message || "Ops! take attention...", [this.color_pallete.CARROT, this.color_pallete.FONT])
     }
     working(message = null) {
-        app.notify(message || "Hooray! Success!", [this.color_pallete.MIDNIGHT_BLUE, this.color_pallete.FONT])
+        app.notify(message || "Hooray! Success!", [this.color_pallete.CLOUDS, this.color_pallete.WET_ASPHALT])
     }
 
     hintify(n=null, o={}, delall=true, keep=false, special=false, evenSpecial=false) {
@@ -1173,24 +1179,27 @@ class FAAU {
 
     window(n=null, html=null, css={}){
         let
-        head = _("header","-row -left -content-left -zero",{background:app.colors().DARK3,padding:".25em", color:app.colors("FONT")}).text(n || "¬¬").app(
-            _("div","-absolute -zero-tr -pointer --close -tile",{padding:".25em", fontWeight:"bolder"}).app(
-                 _("img",null,{height:"1em",marginRight:".25em", filter:"invert(1)"}).attr({src:"src/img/icons/cross.svg"})
+        head = _("header","-col-12 -content-left -zero",{ height:"3em", padding:"1em", color:app.colors("FONT") }).text(n || "¬¬").app(
+            _("div","-absolute -zero-tr -pointer --close -tile").app(
+                 _I("spheres/img/icons/cross.svg", null, { height:"3em", padding:"1em", filter:app.theme=="dark" ? "invert(1)" : ""})
             )
         )
-        , wrapper = _("div", "-wrapper -zero -no-scrolls",{background:"inherit",boxShadow:"0 0 1em "+app.colors().DARK2})
+        , wrapper = _("div", "-wrapper -zero -no-scrolls")
             .app(_("blur"))
-            .app(head);
+            .app(head)
+            .app(_("div", "--content -row -scrolls", { height: "calc(100% - 3em)"}))
+        ;;
 
-        if(html) wrapper.app(html);
+        if(html) wrapper.get(".--content")[0].app(html);
         
-        css["top"]        = css["top"]        || "4.5em";
-        css["left"]       = css["left"]       || "2em";
-        css["width"]      = css["width"]      || "calc(100vw - 4em)";
-        css["height"]     = css["height"]     || "calc(100vh - 10em)";
-        css["padding"]    = css["padding"]    || "none";
-        css["background"] = css["background"] || "inherit";
-        css["color"]      = css["color"]      || app.colors().WET_ASPHALT;
+        css.top        = css.top        || "4.5em";
+        css.left       = css.left       || "2em";
+        css.width      = css.width      || "calc(100vw - 4em)";
+        css.height     = css.height     || "calc(100vh - 10em)";
+        css.padding    = css.padding    || 0;
+        css.background = css.background || "inherit";
+        css.color      = css.color      || app.colors().FONT;
+        css.boxShadow  = css.boxShadow  || "0 0 4em " + app.colors().BLACK;
 
         this.hintify(wrapper,css,true,true,true, true);
 

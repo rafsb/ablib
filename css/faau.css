@@ -213,5 +213,5 @@ a { text-decoration: none }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar { width: .5rem; }
-::-webkit-scrollbar-track { background: #444; }
-::-webkit-scrollbar-thumb { background: #888; border-radius: .5rem; border:none;height:1em; width:1em;}
+::-webkit-scrollbar-track { background: rgba(0,0,0,.16); }
+::-webkit-scrollbar-thumb { background: grey; border-radius: .5rem; border:none;height:1em; width:1em;}
