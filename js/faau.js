@@ -804,7 +804,7 @@ class Tile extends __BaseElement__ {
             , marginBottom: ".5em"
         }).app(
             _("header", "-row -keep", { padding: ".5em" }).app(
-                _("img", "-left -keep -circle --close --icon", { width: "2em", height: "2em", opacity: .8, transform:"scale(.8)" })
+                _("img", "-left -keep --close --icon", { width: "2em", height: "2em", opacity: .8, transform:"scale(.8)" })
             ).app(
                 _("b", "-left -content-left -ellipsis --title", { width: "calc(100% - 3em)", padding: ".5em .25em", opacity: .8 })
             )
@@ -1289,12 +1289,13 @@ class FAAU {
     rgb2hex(color) {
         let
         hex = "#";
-        color.split(/[\s+,.-]/g).each(clr => {
+        if(!Array.isArray(color)) color = color.split(/[\s+,.-]/g);
+        color.each(clr => {
             let
             tmp = (clr*1).toString(16);
             hex += tmp.length == 1 ? "0" + tmp : tmp;
         })
-        return hex
+        return hex.substring(0,9)
     }
 
     hex2rgb(color) {
