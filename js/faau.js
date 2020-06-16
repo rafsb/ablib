@@ -800,7 +800,7 @@ class Tile extends __BaseElement__ {
         this.node = _("div", "-row -tile -no-scrolls", {
             borderRadius: ".5em"
             , boxShadow: "none"//"0 0 .5em rgba(0,0,0,.64)"
-            , background: "#f0f0f0"
+            , background: app.colors("FOREGROUND")
             , marginBottom: ".5em"
         }).app(
             _("header", "-row -keep", { padding: ".5em" }).app(
@@ -821,11 +821,11 @@ class Row  extends __BaseElement__ {
     emptyElement() {
         this.node = _("div", "-relative -row ", {
             borderRadius: ".25em"
-            , background: "#00000032"
+            , background: app.colors("FOREGROUND")
         }).app(
-            _("img", "-left -keep --icon", { width: "2em", height: "2em", scale: .8, opacity: .8 })
+            _("img", "-right -keep --icon", { height: "2em", padding:".5em", opacity: .8 })
         ).app(
-            _("div", "-left -keep -content-left -ellipsis --content", { width: "calc(100% - 2.5em)", padding: ".5em 0" })
+            _("div", "-left -keep -content-left -ellipsis --content", { width: "calc(100% - 2.5em)", padding: ".5em" })
         )
         return this.node
     }
