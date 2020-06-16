@@ -825,7 +825,7 @@ class Row  extends __BaseElement__ {
         }).app(
             _("img", "-right -keep --icon", { height: "2em", padding:".5em", opacity: .8 })
         ).app(
-            _("div", "-left -keep -content-left -ellipsis --content", { width: "calc(100% - 2.5em)", padding: ".5em" })
+            _("div", "-left -keep -content-left -ellipsis --content", { width: "calc(100% - 2.5em)", padding: "calc(.5em + 2px)" })
         )
         return this.node
     }
