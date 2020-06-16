@@ -799,7 +799,7 @@ class Tile extends __BaseElement__ {
     emptyElement() {
         this.node = _("div", "-row -tile -no-scrolls", {
             borderRadius: ".5em"
-            , boxShadow: "0 0 .5em rgba(0,0,0,.64)"
+            , boxShadow: "none"//"0 0 .5em rgba(0,0,0,.64)"
             , background: "#f0f0f0"
             , marginBottom: ".5em"
         }).app(
