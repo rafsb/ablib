@@ -1,3 +1,5 @@
 #!/bin/bash
 DIR=$(dirname $0)
 rsync -av "$DIR/install.d/" "$DIR/../"
+echo "var/logs" >> "$DIR/../.gitignore"
+echo "webroot/App.php" >> "$DIR/../.gitignore"
