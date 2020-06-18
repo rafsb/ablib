@@ -18,7 +18,9 @@ ANIMATION_LENGTH = 400
 , POLINOMIAL        = 5
 , MAX               = 6
 , MIN               = 7
-, PASSWD_AUTO_HASH  = false;
+, PASSWD_AUTO_HASH  = false
+, NUMBER            = 0
+, STRING            = 1
 ;
 
 var
@@ -28,12 +30,47 @@ bind = function(e,o){
     for(let i=a.length;i--;) e[a[a.length-i-1]]=o[a[a.length-i-1]];
     return e
 };
+bind(Number.prototype, {
+    fill: function(c,l,d){ return (this+"").fill(c,l,d) }
+    , nerdify: function(){ 
+        let n = this*1;
+        return n > 1000000000000 ? ((n / 1000000000000).toFixed(1))+"tri" : (
+            n > 1000000000 ? ((n / 1000000000).toFixed(1))+"bi" : (
+                n > 1000000 ? ((n / 1000000).toFixed(1))+"mi" : (
+                    n > 1000 ? ((n / 1000).toFixed(1))+"k" : Math.ceil(n)
+                )
+            )
+        )
+    }
+})
 bind(Date.prototype, {
     plus: function(n) {
         let
         date = new Date(this.valueOf());
         date.setDate(date.getDate() + n);
         return date
+    }
+    , export(format = "Y-m-d"){
+        let
+        d = this
+        , arr = format.split(/[^a-zA-Z]/g);
+        arr.each(n => {
+            switch(n){
+                case "Y": format = format.replace(n, d.getFullYear());                   break;
+                case "y": format = format.replace(n, (d.getYear()-100).fill("0", 2));    break;
+                case "m": format = format.replace(n, (d.getMonth()+1).fill("0", 2));     break;
+                case "d": format = format.replace(n, d.getDate().fill("0", 2));          break;
+                case "h": format = format.replace(n, d.getHours().fill("0", 2));         break;
+                case "i": format = format.replace(n, d.getMinutes().fill("0", 2));       break;
+                case "s": format = format.replace(n, d.getSeconds().fill("0", 2));       break;
+                case "k": format = format.replace(n, d.getMilliseconds().fill("0", 3));  break;
+                case "t": format = format.replace(n, d.getTime());                       break;
+            }
+        })
+        return format
+    }
+    , refresh: function(){
+        return new Date()
     }
 });
 
@@ -66,7 +103,7 @@ bind(HTMLFormElement.prototype,{
 bind(HTMLInputElement.prototype, {
     val: function(v=null) {
         if(v!==null) this.value = v;
-        return this.value
+        return this
     }
     , up: function(name, path, fn=null, mini=false) {
         let
@@ -129,7 +166,7 @@ bind(Element.prototype,{
         return this
     }
     , text: function(t=null, fn=null){
-        if(!t) return this.textContent;
+        if(t==null||t==undefined) return this.textContent;
         this.textContent = t;
         if(fn) return fn.bind(this)(this);
         return this;
@@ -167,7 +204,7 @@ bind(Element.prototype,{
         if(cls) return this.classList.contains(cls);
         return false
     }
-    , sort_by_dataset: function(data=null,dir="asc") {
+    , dataSort: function(data=null,dir="asc") {
         let
         all = [].slice.call(this.children);
         if(all.length) all.sort(function(a,b){ return dir=="asc" ? a.dataset[data]*1 - b.dataset[data]*1 : b.dataset[data]*1 - a.dataset[data]*1 });
@@ -275,10 +312,10 @@ bind(Element.prototype,{
         return this
     }
     , appear: function(len = ANIMATION_LENGTH, fn=null) {
-        return this.css({display:'inline-block'}, x=>x.anime({opacity:1}, len).then(fn))
+        return this.stop().css({display:'inline-block'}, x=>x.anime({opacity:1}, len).then(fn))
     }
     , desappear: function(len = ANIMATION_LENGTH, remove = false, fn=null) {
-        return this.anime({opacity:0}, len).then(x=>{ if(remove) x.remove(); else x.css({display:"none"}); if(fn) fn(remove ? null : this); });
+        return this.stop().anime({opacity:0}, len).then(x=>{ if(remove) x.remove(); else x.css({display:"none"}); if(fn) fn(remove ? null : this); });
     }
     , remove: function() { if(this&&this.parent()) this.parent().removeChild(this) }
 });
@@ -299,6 +336,27 @@ bind(String.prototype,{
     }
     , atob: function(){
         return atob(this);
+    }
+    , fill: function(c=" ", l=8, d=-1) {
+        let
+        s = this;
+        c = !c ? " " : c;
+        d = d==0||d==null||d==undefined ? -1 : d;
+        while(s.length < l) s = (d<0?c:"")+s+(d>0?c:"");
+        return s
+    }
+    , desnerdify: function(){
+        let
+        n = Number(this.replace(/[^0-9\.]/g,'').replace(',','.'))
+        , s = this.replace(/[^a-zA-Z]/g,'');
+        switch(s){
+            case "tri": n *= 1000000000000; break;
+            case "bi" : n *= 1000000000; break;
+            case "mi" : n *= 1000000; break;
+            case "k"  : n *= 1000; break;
+            default   : n *= 1; break;
+        }
+        return n
     }
     , json: function() {
         let
@@ -354,14 +412,17 @@ bind(Object.prototype,{
         }
         return this
     }
+    , array: function(){
+        return this.extract(n => n.content)
+    }
     , extract: function(fn=null){
         let
         final = [];
         if(fn){
             this.each((x,i) => {
                 let
-                y = fn.bind(x.content)(x.content, i);
-                if(y!==null||y!==false) final.push(y)
+                y = fn.bind(x)(x, i);
+                if(y!=null||y!=false) final.push(y)
             })
         }
         return final
@@ -383,6 +444,27 @@ bind(Array.prototype, {
             x = fn.bind(this)(this,i);
             if(x||x===0) narr.push(x) 
         })
+        return narr
+    }
+    , fill: function(n=1, v=null){
+        let x = this;
+        app.iterate(0, Math.max(1,n), i => x[i] = x[i] || v.prepare({i:i}));
+        return x
+    }
+    , cast: function(filter=STRING){
+        return this.extract(x => { return filter==STRING?x+"":(filter==NUMBER?x*1:x) })
+    }
+    , fit: function(n=10){
+        let
+        narr=[ this.first() ]
+        , x = this.length / (n-1)
+        , i = x
+        ;
+        while(i<this.length){
+            narr.push(this.calc(TREND, i));
+            i+=x;
+        }
+        narr.push(this.last())
         return narr
     }
     , calc: function(type=SUM, helper=null){
@@ -413,7 +495,9 @@ bind(Array.prototype, {
             
             /* TODO POLINOMIAL FORMULA */
             case (POLINOMIAL): {
-                res = 0
+                
+                let w = helper || this.last()+1
+
             }break;
 
             case (PROGRESS): {
@@ -422,11 +506,11 @@ bind(Array.prototype, {
                 res = this.extract((x,i)=>{ return i ? me[i]/me[i-1] : 1 }).calc(AVERAGE)
             }break;
             case (MAX): {
-                res = Number.MIN_VALUE;
+                res = Number.MIN_SAFE_INTEGER;
                 this.each(x=>res=Math.max(res,x))
             }break;
             case (MIN): {
-                res = Number.MAX_VALUE;
+                res = Number.MAX_SAFE_INTEGER;
                 this.each(x=>res=Math.min(res,x))
             }break;
         }
@@ -527,7 +611,7 @@ bind(Array.prototype, {
     }
     , val: function(v=null){
         if(v) this.each(x=>{ if(x.tagName.toLowerCase()=="input") x.value = v })
-        return this.extract(x=>{ return x.tagName.toLowerCase()=="input" ? x.value || " " : null})
+        return this
     }
 });
 
@@ -608,7 +692,7 @@ class Pool {
             pool.execution.each((z, i) => {
                 pool.timeserie[i] = setTimeout(z, pool.timeline[i], x, pool.setup);
             })
-            setTimeout(function(ok){ return pass(ok) }, pool.timeserie.calc(SUM)+ANIMATION_LENGTH/4, true)
+            setTimeout(function(ok){ return pass(ok) }, pool.timeserie.calc(MAX)+ANIMATION_LENGTH/4, true)
         })
         
         return o
@@ -715,30 +799,19 @@ class Tile extends __BaseElement__ {
     emptyElement() {
         this.node = _("div", "-row -tile -no-scrolls", {
             borderRadius: ".5em"
-            , boxShadow: "0 0 .5em rgba(0,0,0,.64)"
-            , background: "#f0f0f0"
+            , boxShadow: "none"//"0 0 .5em rgba(0,0,0,.64)"
+            , background: app.colors("FOREGROUND")
             , marginBottom: ".5em"
-<<<<<<< HEAD
         }).app(
-            _("header", "-row -keep", { padding: ".25em", background:app.colors("DARK4") }).app(
-                _("img", "-left -keep -circle --close --icon", { width: "2em", height: "2em", opacity: .8, transform:"scale(.8)" })
-=======
-            , padding:".5em"
-        }).app(
-            _("header", "-row -keep", { borderBottom: "1px solid darkgray", paddingBottom: "calc(.5em - 2px)" }).app(
-                _("img", "-left -keep --close --icon", { width: "2em", height: "2em", scale: .6, opacity: .8 })
->>>>>>> ef184d0fb9a2c3f6d3f8742cb590a6954ed67317
+            _("header", "-row -keep", { padding: ".5em" }).app(
+                _("img", "-left -keep --close --icon", { width: "2em", height: "2em", opacity: .8, transform:"scale(.8)" })
             ).app(
                 _("b", "-left -content-left -ellipsis --title", { width: "calc(100% - 3em)", padding: ".5em .25em", opacity: .8 })
             )
         ).app(
-            _("section", "--content -keep -row -content-left", { padding: ".5em 0" })
+            _("section", "--content -keep -row -content-left", { padding: "0 .5em" })
         ).app(
-<<<<<<< HEAD
-            _("footer", "-row -keep --tags")
-=======
-            _("footer", "-row -keep --tags", { borderTop: "1px solid darkgray" })
->>>>>>> ef184d0fb9a2c3f6d3f8742cb590a6954ed67317
+            _("footer", "-row -keep --tags", { padding:".5em" })
         )
         return this.node
     }
@@ -748,11 +821,11 @@ class Row  extends __BaseElement__ {
     emptyElement() {
         this.node = _("div", "-relative -row ", {
             borderRadius: ".25em"
-            , background: "#00000032"
+            , background: app.colors("FOREGROUND")
         }).app(
-            _("img", "-left -keep --icon", { width: "2em", height: "2em", scale: .8, opacity: .8 })
+            _("img", "-right -keep --icon", { height: "2em", padding:".5em", opacity: .8 })
         ).app(
-            _("div", "-left -keep -content-left -ellipsis --content", { width: "calc(100% - 2.5em)", padding: ".5em 0" })
+            _("div", "-left -keep -content-left -ellipsis --content", { width: "calc(100% - 2.5em)", padding: "calc(.5em + 2px)" })
         )
         return this.node
     }
@@ -869,46 +942,33 @@ class Throttle {
     }
 };
 class Bootloader {   
-    pace(){
-        var 
-        i=0;
-        for(;++i<Object.keys(this.loaders).length;);
-        return 100/i;
-    }
     loadLength(){
         var
-        i=0
-        , count=0
-        , loaders = Object.keys(this.loaders);
-        for(;i++<=loaders.length;) if(this.loaders[loaders[i-1]]) count++;
-        return count*this.pace();
+        count=this.loaders.array();
+        return count.extract(n => n!=0&&n!=undefined&&n!=null&&n!=false ? 1 : null).length/count.length;
     }
     check(scr){
         return scr ? this.loaders[scr] : this.alreadyLoaded
     }
     ready(scr){
-        if(scr) this.loaders[scr] = true;
+        if(scr) this.loaders[scr] = 1;
 
         let
-        perc = this.loadLength()
-        , bootprogress = $(".--boot-progress");
-        
-        if(bootprogress.length) bootprogress.anime({width:(perc)+"%"})
+        perc = this.loadLength();
 
-        if(perc>=99&&!this.alreadyLoaded){ 
-            this.onFinishLoading.fire(()=>{ return app ? app.pragma = app.initial_pragma : true; }, ANIMATION_LENGTH);
+        if(!this.alreadyLoaded&&perc>=1){ 
             this.alreadyLoaded=true; 
-        }
+            setTimeout(boot => boot.onFinishLoading.fire(_ => app.pragma = app.initial_pragma || true), ANIMATION_LENGTH, this);
+        } else if(!this.alreadyLoaded) setTimeout((x,perc) => x.onReadyStateChange.fire(perc), ANIMATION_LENGTH/4, this, perc);
 
         return this.alreadyLoaded || false;
     }
     constructor(){
-        this.alreadyLoaded = false;
-        this.loadComponents = new Pool();
-        this.onFinishLoading = new Pool();
-        this.loaders = {
-            continuing: true 
-        }
+        this.alreadyLoaded      = false;
+        this.loadComponents     = new Pool();
+        this.onReadyStateChange = new Pool();
+        this.onFinishLoading    = new Pool();
+        this.loaders = { pass: false }
     }
 };
 class CallResponse {
@@ -1001,8 +1061,6 @@ class FAAU {
         return a 
     }
 
-    n2s(n){ return (n > 1000000 ? ((n / 1000000).toFixed(1)*1)+"mi" : (n > 1000 ? ((n / 1000).toFixed(1)*1)+"k" : n)) }
-
     loading(show = true, target= null) {
         if (!show) {
             $(".--default-loading").each(x => { clearInterval(x.dataset.animation); x.remove() });
@@ -1044,8 +1102,9 @@ class FAAU {
         if(!this.isMobile()) {
             toast.css({
                 top:0,
-                left:"80vw",
-                width:"calc(20vw - 1em)",
+                right:0,
+                width:"20vw",
+                margin:".5em"
             });
         }else{
             toast.css({
@@ -1063,22 +1122,27 @@ class FAAU {
         tileClickEffectSelector("-tile");
         
         let
-        notfys = $("toast.--notification");
-        notfys.each((x, i) => { x.anime({translateY:((toast.offsetHeight+8)*i+16)+"px", opacity:1}, ANIMATION_LENGTH/4) });
+        notfys = $("toast.--notification")
+        , ht = 0
+        ;
+        notfys.each((x, i) => { 
+            x.anime({transform: "translateY("+ht+"px)", opacity:1}, ANIMATION_LENGTH/4) 
+            ht += toast.getBoundingClientRect().height+8;
+        });
         toast.dataset.delay = setTimeout(function() { toast.desappear(ANIMATION_LENGTH/2,true); }, ANIMATION_LENGTH*5);
     }
 
     error(message=null) {
-        app.notify(message || "Ops! Something went wrong...", [this.color_pallete.ALIZARIN,this.color_pallete.FONT])
+        app.notify(message || "Ops! Something went wrong...", [this.color_pallete.POMEGRANATE,this.color_pallete.FONT])
     }
     success(message=null) {
-        app.notify(message || "Hooray! Success!", [this.color_pallete.NEPHIRITIS, this.color_pallete.FONT])
+        app.notify(message || "Hooray! Success!", [this.color_pallete.GREEN_SEA, this.color_pallete.FONT])
     }
-    advise(message = null) {
-        app.notify(message || "Ops! take attention...", [this.color_pallete.ORANGE, this.color_pallete.FONT])
+    warning(message = null) {
+        app.notify(message || "Ops! take attention...", [this.color_pallete.CARROT, this.color_pallete.FONT])
     }
     working(message = null) {
-        app.notify(message || "Hooray! Success!", [this.color_pallete.MIDNIGHT_BLUE, this.color_pallete.FONT])
+        app.notify(message || "Hooray! Success!", [this.color_pallete.CLOUDS, this.color_pallete.WET_ASPHALT])
     }
 
     hintify(n=null, o={}, delall=true, keep=false, special=false, evenSpecial=false) {
@@ -1086,14 +1150,9 @@ class FAAU {
         if(delall) $(".--hintifyied"+(evenSpecial?", .--hintifyied-sp":"")).each(x=>x.desappear(ANIMATION_LENGTH, true));
 
         o = o || {};
-        o.top = o.top || o.top == 0 ? o.top : (maxis.y)+"px";
-<<<<<<< HEAD
+        o.top = o.top || o.top == 0 ? o.top : (window.maxis.y)+"px";
         o.left   = o.left||o.left==0 ? o.left : (maxis.x)+"px";
         o.padding   = o.padding||o.padding==0 ? o.padding : ".5em";
-=======
-        o.left = o.left||o.left==0 ? o.left : (maxis.x)+"px";
-        o.padding = o.padding||o.padding==0 ? o.padding : ".5em";
->>>>>>> ef184d0fb9a2c3f6d3f8742cb590a6954ed67317
         o.borderRadius = o.borderRadius ? o.borderRadius : ".25em";
         o.boxShadow   =  o.boxShadow ? o.boxShadow :  "0 0 .5em "+app.colors().DARK1;
         o.background =  o.background ? o.background : this.colors().DARK4;
@@ -1104,7 +1163,7 @@ class FAAU {
 
         let
         toast = _("toast","-block -absolute --hintifyied"+(special?"-sp":""),o).css({opacity:0}).app(n||"<b>路路路!!!</b>".morph());
-        if(toast.get(".--close").length) toast.get(".--close").at().on("click",function(){ this.upFind("toast").desappear(ANIMATION_LENGTH, true) })
+        if(toast.get(".--close").length) toast.get(".--close").on("click",function(){ this.upFind("toast").desappear(ANIMATION_LENGTH, true) })
         else toast.on("click",function(){ this.desappear(ANIMATION_LENGTH, true) });
         
         if(!keep){
@@ -1120,24 +1179,27 @@ class FAAU {
 
     window(n=null, html=null, css={}){
         let
-        head = _("header","-row -left -content-left -zero",{background:app.colors().DARK3,padding:".25em", color:app.colors("FONT")}).text(n || "¬¬").app(
-            _("div","-absolute -zero-tr -pointer --close -tile",{padding:".25em", fontWeight:"bolder"}).app(
-                 _("img",null,{height:"1em",marginRight:".25em", filter:"invert(1)"}).attr({src:"src/img/icons/cross.svg"})
+        head = _("header","-col-12 -content-left -zero",{ height:"3em", padding:"1em", color:app.colors("FONT") }).text(n || "¬¬").app(
+            _("div","-absolute -zero-tr -pointer --close -tile").app(
+                 _I("spheres/img/icons/cross.svg", null, { height:"3em", padding:"1em", filter:app.theme=="dark" ? "invert(1)" : ""})
             )
         )
-        , wrapper = _("div", "-wrapper -zero -no-scrolls",{background:"inherit",boxShadow:"0 0 1em "+app.colors().DARK2})
+        , wrapper = _("div", "-wrapper -zero -no-scrolls")
             .app(_("blur"))
-            .app(head);
+            .app(head)
+            .app(_("div", "--content -row -scrolls", { height: "calc(100% - 3em)"}))
+        ;;
 
-        if(html) wrapper.app(html);
+        if(html) wrapper.get(".--content")[0].app(html);
         
-        css["top"]        = css["top"]        || "4.5em";
-        css["left"]       = css["left"]       || "2em";
-        css["width"]      = css["width"]      || "calc(100vw - 4em)";
-        css["height"]     = css["height"]     || "calc(100vh - 10em)";
-        css["padding"]    = css["padding"]    || "none";
-        css["background"] = css["background"] || "inherit";
-        css["color"]      = css["color"]      || app.colors().WET_ASPHALT;
+        css.top        = css.top        || "4.5em";
+        css.left       = css.left       || "2em";
+        css.width      = css.width      || "calc(100vw - 4em)";
+        css.height     = css.height     || "calc(100vh - 10em)";
+        css.padding    = css.padding    || 0;
+        css.background = css.background || "inherit";
+        css.color      = css.color      || app.colors().FONT;
+        css.boxShadow  = css.boxShadow  || "0 0 4em " + app.colors().BLACK;
 
         this.hintify(wrapper,css,true,true,true, true);
 
@@ -1217,17 +1279,23 @@ class FAAU {
         })
     }
 
+    iterate(s, e, fn){
+        if(!fn) fn = i => i;
+        for(let i = s; i != e; i += s < e ? 1 : -1) fn(i)
+    }
+
     makeServerHashToken(o){ return this.hashit(o).hash; }
 
     rgb2hex(color) {
         let
         hex = "#";
-        color.split(/[\s+,.-]/g).each(clr => {
+        if(!Array.isArray(color)) color = color.split(/[\s+,.-]/g);
+        color.each(clr => {
             let
             tmp = (clr*1).toString(16);
             hex += tmp.length == 1 ? "0" + tmp : tmp;
         })
-        return hex
+        return hex.substring(0,9)
     }
 
     hex2rgb(color) {
@@ -1242,16 +1310,11 @@ class FAAU {
         this.last           = 0
         this.initPool       = new Pool()
         this.onPragmaChange = new Pool()
-<<<<<<< HEAD
         this.mousePool      = new Pool()
         this.mouseFire      = new Throttle(maxis => this.mousePool.fire(maxis), 200)   
         this.data = {}
         this.tips = {}
         this.components = {}
-=======
-        this.mouseFire      = new Throttle()   
-        this.nodes = document
->>>>>>> ef184d0fb9a2c3f6d3f8742cb590a6954ed67317
         this.nodearray = []
         this.prism = {
             ALIZARIN:"#E84C3D"
@@ -1334,34 +1397,23 @@ bind(window, {
                         , transformOrigin:"center center"
                     }, x=>x.anime({scale:2},ANIMATION_LENGTH/2).then(x=>x.desappear(ANIMATION_LENGTH/4,true))))
                 }).addClass("--effect-selector-attached")
-
             }
         })
     }
     , tooltips: function(){
         $(".--tooltip").each(ttip => {
-<<<<<<< HEAD
             ttip.raise().on("mouseenter", function () { 
-                $("tooltip.--tooltip-element")[0].html("<b>" + ( this.dataset.tip || "hooray" ) + "</b>").raise().stop().css({display:"block"}, me => me.anime({
-                    transform: "matrix(1,0,0,1,0,0)"
-                    , opacity:1
-                }, 64)) 
+                $("tooltip.--tooltip-element")[0].stop().html(this.dataset.tip || "hooray").raise().css({ display:"block", background:this.dataset.tipbg || "#000A", color:this.dataset.tipft || "#FFF" })
             });
-            ttip.on("mouseleave", function () { $("tooltip.--tooltip-element")[0].html("").css({ display: "none", transform:"matrix(.9,0,.2,.9,12,12)" }) });
+            ttip.on("mouseleave", function () { $("tooltip.--tooltip-element")[0].css({ display:"none" }) });
         }).remClass("--tooltip")
-=======
-            ttip.on("mouseenter", function () { $("tooltip.--tooltip-element")[0].html(ttip.dataset.tip).appear() });
-            ttip.on("mouseleave", function () { $("tooltip.--tooltip-element")[0].html("ttip.dataset.tip").css({ display: "none" }) });
-            ttip.remClass("--tooltip")
-        })
->>>>>>> ef184d0fb9a2c3f6d3f8742cb590a6954ed67317
     }
 });
 app.spy("pragma",function(x){
     app.last = app.current;
     app.current = x;
-    if(bootloader&&!bootloader.ready()) return setTimeout((x)=>{ app.pragma = x }, ANIMATION_LENGTH, x);
     this.onPragmaChange.fire(x);
+
 });
 window.onmousemove = e =>{
     window.maxis = { x: e.clientX, y: e.clientY };
