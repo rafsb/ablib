@@ -94,16 +94,15 @@ class Mysql extends Activity {
         	$tmp = $this->object_ ? $this->object_->query(implode('{{ NO COMMENTS ALLOWED }}',explode('--',$this->query_))) : null;
 
         	if(gettype($tmp) == "object" && $tmp->num_rows)
-		{
-            		switch($response_type){
-                		case(__ASSOC__)     : { $data = (array)$tmp->fetch_assoc(); }                                                      break;
-                		case(__ARRAY__)     : { $data = []; while($nt = $tmp->fetch_assoc()) $data[] = $nt; }                              break;
-                		case(__JSON__)      : { $data = []; while($nt = $tmp->fetch_assoc()) $data[] = $nt; $data = json_encode($data); }  break;
-                		case(__OBJECT__)    : { $data = Convert::atoo($tmp->fetch_assoc()); }                                              break;
-                		case(__MYSQLI_OBJ__): { $data = $tmp; }                                                                            break;
-            		}
-        	}
-        	// Core::response(mysqli_connect_errno(),$this->object_->error . $this->query_);
+            {
+        		switch($response_type){
+            		case(__ASSOC__)     : { $data = (array)$tmp->fetch_assoc(); }                                                      break;
+            		case(__ARRAY__)     : { $data = []; while($nt = $tmp->fetch_assoc()) $data[] = $nt; }                              break;
+            		case(__JSON__)      : { $data = []; while($nt = $tmp->fetch_assoc()) $data[] = $nt; $data = json_encode($data); }  break;
+            		case(__OBJECT__)    : { $data = Convert::atoo($tmp->fetch_assoc()); }                                              break;
+            		case(__MYSQLI_OBJ__): { $data = $tmp; }                                                                            break;
+        		}
+        	} else Core::response(mysqli_connect_errno(),$this->object_->error . $this->query_);
         	return $data;
     	}
 

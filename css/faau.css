@@ -1,26 +1,19 @@
 html { scroll-behavior: smooth }
-body { position: relative; text-align: inherit; animation-fill-mode: both; display:inline-block; }
+body { position: relative; text-align: inherit; animation-fill-mode: both; display:inline-block; zoom:1;}
 body *:not(script):not(style) { 
-	font-family: inherit; 
-	position: relative; 
-	display:inline-block; 
-	transition: ease all .2s; 
+	font-family: inherit;
+	position: relative;
+	display:inline-block;
+	transition: ease all .2s;
 	box-sizing: border-box;
 	backface-visibility: hidden;
 	vertical-align: middle;
-}script.tyle{ display: none !important}
+}
+script,style{ display: none !important; }
 
 .-view 			{ width:100vw;height:  100vh; top: 0; left: 0; padding: 0; overflow: hidden; margin: 0 }
 .-fixed         { position: fixed !important; }
 .-absolute      { position: absolute !important; }
-
-@media only screen and (min-width: 1366px) {
-	body { font-size: 1em; }
-}
-
-@media only screen and (max-width: 1366px) {
-	body { font-size: .75em; }
-}
 
 .-container { display: table-row; width: 100%; }
 .-cell      { display: table-cell; }
@@ -75,7 +68,7 @@ body *:not(script):not(style) {
 .-ht-quart-min  { min-height: 25%; }
 .-ht-quart-max  { max-height: 25%; }
 
-@media only screen and (max-width: 1365px) {
+@media only screen and (max-width: 1366px) {
 	.-wd-2third    , .-wd-3quart    , .-wd-half:not(.-keep) 	{ width: 	  100%; }
 	.-wd-2third-min, .-wd-3quart-min, .-wd-half-min { min-width:  100%; }
 	.-wd-2third-max, .-wd-3quart-max, .-wd-half-max { max-width:  100%; }
@@ -90,6 +83,7 @@ body *:not(script):not(style) {
 	.-ht-third-min,  .-ht-quart-min,
 	.-ht-third-max,  .-ht-quart-max { height: auto; }
 	.-mob-hide { display: none; }
+	body { font-size: 12px  }
 } 
 
 .-relative      { position: relative }
@@ -101,6 +95,7 @@ body *:not(script):not(style) {
 .-animated      { transition: all 1s ease 0s }
 .-left          { float: left; }
 .-right         { float: right; }
+.-centered      { position: absolute; top:50%; left: 50%; transform:translate(-50%, -50%); }
 .-content-center{ text-align: center; }
 .-content-left  { text-align: left; }
 .-content-right { text-align: right; }
@@ -219,5 +214,5 @@ a { text-decoration: none }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar { width: .5rem; }
-::-webkit-scrollbar-track { background: transparent }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,.16); border-radius: .25rem;}
+::-webkit-scrollbar-track { background: rgba(0,0,0,.16); }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,.64); border-radius: .5rem; border:none;height:1em; width:1em;}

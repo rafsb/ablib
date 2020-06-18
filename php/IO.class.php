@@ -31,7 +31,7 @@ class IO {
         if($path===null) return Core::response(-1,"No path given");
         if($obj===null) return Core::response(-2,"No object given");
         // echo "<pre>"; print_r($obj);
-        return self::write($path,json_encode($obj),$mode);
+        return self::write($path,json_encode($obj, DEBUG ? JSON_PRETTY_PRINT : null),$mode);
         
     }
 
