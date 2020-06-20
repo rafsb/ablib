@@ -1229,7 +1229,7 @@ class FAAU {
     }
 
     storage(field=null,value=null){
-        if(!field) return false;
+        if(field==null||field==undefined) return false;
         if(value===null) return window.localStorage.getItem(field);
         window.localStorage.setItem(field,value);
         return window.localStorage.getItem(field);
