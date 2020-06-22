@@ -120,7 +120,7 @@ class Page extends DefaultInitiator
 	{
 		if($view!==null) $this->view_ = $view;
 		if($this->view_) $tmp = IO::root() . "webroot" . DS . "views" . DS . strtolower($this->view_=="@"?get_called_class():$this->view_) . ".php";
-		return $this->view_ ? (is_file($tmp) ? $tmp : Core::response(-1,"View file not found: $view")):false;
+		return $this->view_ ? (is_file($tmp) ? $tmp : Core::response(-1, "View file not found: $view AND $tmp")):false;
 	}
 
 	protected function layout($layout = null)

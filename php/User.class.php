@@ -29,16 +29,8 @@ class _User_Traits
                 , "System Administrator"
                 , "root"
                 , Hash::word("108698584") // rootz
-                , "src/img/user.svg"
+                , "img/user.svg"
                 , "9"
-            ]
-            , [
-                "public_user"
-                , "System Tester"
-                , "public"
-                , Hash::word("3537333") // spum
-                , "src/img/user.svg"
-                , "0"
             ]
         ]);
         return IO::jout($shadow_file);
@@ -74,12 +66,11 @@ class User extends Activity
     /*
      * PRIVATE
      */
-    private static function pswd_check($user=null,$password=null)
+    private static function pswd_check(String $user=null, String $password=null)
     {
-        if(!$user||!$password){ Core::response(-1,"user or password missing"); return 0; }
+        if(!$user||!$password){ Core::response(-1,"user or password missing at > private User::pswd_check(String $u, String $p)"); return 0; }
         $tmp = _User_Traits::find("user",$user);
-        $tmp = isset($tmp->pswd)&&$tmp->pswd==Hash::word($password) ? $tmp : false;
-        return $tmp;
+        return isset($tmp->pswd)&&$tmp->pswd==Hash::word($password) ? $tmp : false;
     }
 
     /*
@@ -166,16 +157,13 @@ class User extends Activity
         if($user)
         {
             if(isset($user->id)){
-                $user = $user->id;
+                $uuid = $user->id;
                 $time = time();
-                $hash = Hash::word($user.$time);
-                Request::sess("UUID",$user);
-                Request::cook("UUID",$user);
-                Request::cook("HASH",$hash);
-                Request::cook("ACTIVE","1",time()+3600);
-                IO::jin("var/users/sessions/" . $user,["hash"=>$hash,"since"=>$time,"device"=>$device]);
+                $hash = Hash::word($uuid.date("ymd"));
+                Request::sess("UUID",$uuid);
+                IO::jin("var/users/sessions/" . $uuid, ["hash"=>$hash,"since"=>$time,"device"=>$device], APPEND);
                 // echo '1'; die;
-                return Convert::json(["hash"=>$hash, "user"=>$user]);
+                return Convert::json([ "hash"=>$hash, "uuid"=>$uuid, "last_login"=>$time ]);
             } else return Core::response(-4, "no id found for user");
         }
         return Core::response(0, "incorrect credentials");;

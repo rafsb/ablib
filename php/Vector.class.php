@@ -12,6 +12,11 @@ class Vector extends Activity {
 		return $return;
 	}
 
+	public static function iterate(float $beg, float $end, Closure $fn, float $step=null){
+		$step = $step ? $step : 1.0;
+		for(;$beg!=$end;$beg+=$step) $fn($beg);
+	}
+
 	public static function each(Array $arr, Closure $fn){
 		if(!empty($arr)) foreach($arr as $k=>&$v) $fn($v,$k);
 	}
@@ -45,27 +50,6 @@ class Vector extends Activity {
 		return abs(($x - $y) / ((sizeof($arr1) + sizeof($arr2)) / 2));
 	}
 
-	public function test(){
-
-		$s = 0;
-		$e = 10;
-		$i = $e;
-		while(--$i){
-			
-			$a = [];
-			$b = [];
-			Loop::iterate(0, 20, function($i) use (&$a, &$b, $e){ $a[] = rand(0,$e); $b[] = rand(0,$e); });
-			echo ($e - $i) . ") ";
-			$s = self::similarity($a, $b);
-			echo "ab = $s";
-			$s = self::similarity($a, $a);
-			echo ", aa = $s";
-			$s = self::similarity($b, $b);
-			echo ", bb = $s" . PHP_EOL;
-
-		}
-	}
-
 	public static function fit(Array $arr, int $fit=10){
 
 		if(!sizeof($arr)) return [];
@@ -81,6 +65,56 @@ class Vector extends Activity {
         $narr[] = $arr[sizeof($arr)-1];
         return $narr;
     
-    }	
+    }
+
+    public static function sum(Array $mix) {
+    	$x = 0;
+		self::each($mix, function($y) use (&$x){ $x+=$y; });
+		return $x;
+	}
+
+	public static function average(Array $mix) {
+		return self::sum($mix) / sizeof($mix);
+	}
+
+	public static function harmonic_average(Array $mix) {
+		$x = 0;
+		self::each($mix, function($y) use (&$x){ $x+=(1/$y); });
+		return sizeof($mix) / $x;
+	}
+
+	public static function linear_trend(Array $mix, Number $h=null) {
+        $np = sizeof($mix);
+        $m = $b = $x = $y = $x2 = $xy = 0;
+        if($h===null) $h = $np;
+        self::each($mix, function($n, $i) use (&$x, &$y, &$xy, &$x2){
+            $x = $x + $i;
+            $y = $y + $n;
+            $xy = $xy + $i * $n;
+            $x2 = $x2 + $i * $i;
+        });
+        $z = $np * $x2 - $x * $x;
+        if($z){
+            $m = ($np * $xy - $x * $y) / $z;
+            $b = ($y * $x2 - $x * $xy) / $z;
+        }
+        return $m * $h + $b;
+	}
+
+	public static function interpolate(Array $mix, float $x=null) {
+		if($x===null) $x = count($mix)+1;
+        $yi = $mix;
+        $xi = array_keys($mix);
+        $n  = count($mix);
+        $sum = 0;
+        self::iterate(0, $n, function($k) use ($x, $xi, $yi, $n, &$sum){
+        	$prod = 1;
+        	Vector::iterate(0, $n, function($i) use ($x, $xi, $k, &$prod){
+        		if ($i!=$k) $prod = $prod * ($x - $xi[$i]) / ($xi[$k] - $xi[$i]);
+        	});
+            $sum += $yi[$k] * $prod;
+        });
+        return $sum;
+	}
 
 }

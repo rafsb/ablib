@@ -7,18 +7,17 @@
 
 ****************************************************************************/
 const
-ANIMATION_LENGTH = 400
-, DEBUG = false
-, REVERSE_PROXY_CLIENT_URI = "https://cors-anywhere.herokuapp.com/"
+ANIMATION_LENGTH    = 400
+, DEBUG             = false
 , SUM               = 0
 , AVERAGE           = 1
 , HARMONIC          = 2
 , TREND             = 3
 , PROGRESS          = 4
-, POLINOMIAL        = 5
+, INTERPOLATE       = 5
 , MAX               = 6
 , MIN               = 7
-, PASSWD_AUTO_HASH  = false
+, PASSWD_AUTO_HASH  = 1
 , NUMBER            = 0
 , STRING            = 1
 ;
@@ -53,7 +52,7 @@ bind(Date.prototype, {
     , export(format = "Y-m-d"){
         let
         d = this
-        , arr = format.split(/[^a-zA-Z]/g);
+        , arr = format.split("");
         arr.each(n => {
             switch(n){
                 case "Y": format = format.replace(n, d.getFullYear());                   break;
@@ -91,7 +90,7 @@ bind(HTMLFormElement.prototype,{
         this.get("input, textarea, select, .-value").each(o=>{
             if(!o.has("-skip")&&o.name){
                 tmp[o.name] = (o.tagName.toUpperCase()=="TEXTAREA"&&o.has("-list") ? o.value.trim().split('\n').clear() : o.value);
-                if(PASSWD_AUTO_HASH&&o.getAttribute("type")&&o.getAttribute("type").toUpperCase()=="PASSWORD") tmp[o.name] = tmp[o.name].hash();
+                if((PASSWD_AUTO_HASH||o.has("-hash"))&&o.getAttribute("type")&&o.getAttribute("type").toUpperCase()=="PASSWORD") tmp[o.name] = tmp[o.name].hash();
             }
         });
         return tmp;
@@ -494,9 +493,22 @@ bind(Array.prototype, {
             } break
             
             /* TODO POLINOMIAL FORMULA */
-            case (POLINOMIAL): {
-                
-                let w = helper || this.last()+1
+            case (INTERPOLATE): {
+                if(helper==null||helper==undefined) return app.error("Ops! a 'x' value is needed for array basic interpolation...")
+                let
+                x = helper
+                , yi = this
+                , xi = yi.extract((_,i) => i)
+                , N  = xi.length
+                , sum = 0
+                ;;
+                for (k=0; k<N; k++) {
+                    let
+                    product = 1;
+                    for (i=0; i<N; i++) if (i!=k) product = product*(x - xi[i]) / (xi[k] - xi[i]);
+                    sum += yi[k] * product;
+                }
+                res = sum;
 
             }break;
 
@@ -1029,12 +1041,12 @@ class FAAU {
         return o;
     }
 
-    async post(url, args, head=null){
+    async post(url, args, head={ "Content-Type": "application/json;charset=UTF-8" })    {
         return this.call(url, args, "POST", head)
     }
 
     async load(url, args=null, target=null) {
-        return this.call(url, args).then( r => {
+        return this.post(url, args).then( r => {
             if(!r.status) return app.error("error loading "+url);
             r = r.data.prepare(app.colors()).morph();
             if(!target) target = document.getElementById('app');
@@ -1068,7 +1080,7 @@ class FAAU {
         }
         $(target || "body")[0].app(app.new("div","-fixed -view -zero --default-loading").css({ boxShadow:"none" }));
 
-        // app.load("src/img/loading.svg", null, $(".--default-loading")[0], function () {
+        // app.load("img/loading.svg", null, $(".--default-loading")[0], function () {
         //     let
         //     circle = $(".--default-loading .--loading-circle")[0];
         //     if (!circle) return;
@@ -1133,13 +1145,13 @@ class FAAU {
     }
 
     error(message=null) {
-        app.notify(message || "Ops! Something went wrong...", [this.color_pallete.POMEGRANATE,this.color_pallete.FONT])
+        app.notify(message || "Ops! Something went wrong...", [this.color_pallete.POMEGRANATE,this.color_pallete.CLOUDS])
     }
     success(message=null) {
-        app.notify(message || "Hooray! Success!", [this.color_pallete.GREEN_SEA, this.color_pallete.FONT])
+        app.notify(message || "Hooray! Success!", [this.color_pallete.GREEN_SEA, this.color_pallete.WET_ASPHALT])
     }
     warning(message = null) {
-        app.notify(message || "Ops! take attention...", [this.color_pallete.CARROT, this.color_pallete.FONT])
+        app.notify(message || "Ops! take attention...", [this.color_pallete.CARROT, this.color_pallete.WET_ASPHALT])
     }
     working(message = null) {
         app.notify(message || "Hooray! Success!", [this.color_pallete.CLOUDS, this.color_pallete.WET_ASPHALT])
