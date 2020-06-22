@@ -50,27 +50,6 @@ class Vector extends Activity {
 		return abs(($x - $y) / ((sizeof($arr1) + sizeof($arr2)) / 2));
 	}
 
-	public function test(){
-
-		$s = 0;
-		$e = 10;
-		$i = $e;
-		while(--$i){
-			
-			$a = [];
-			$b = [];
-			Loop::iterate(0, 20, function($i) use (&$a, &$b, $e){ $a[] = rand(0,$e); $b[] = rand(0,$e); });
-			echo ($e - $i) . ") ";
-			$s = self::similarity($a, $b);
-			echo "ab = $s";
-			$s = self::similarity($a, $a);
-			echo ", aa = $s";
-			$s = self::similarity($b, $b);
-			echo ", bb = $s" . PHP_EOL;
-
-		}
-	}
-
 	public static function fit(Array $arr, int $fit=10){
 
 		if(!sizeof($arr)) return [];

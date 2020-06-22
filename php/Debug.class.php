@@ -1,7 +1,7 @@
 <?php
 class Debug {
 	public static function show(){
-		// echo "<br/><pre class='-left -content-left'>";
+		echo "<pre style='text-align:left'>";
 		echo PHP_EOL;
 		echo PHP_EOL;
 		print_r(Request::sess("DEBUG"));
