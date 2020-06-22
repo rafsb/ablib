@@ -1287,7 +1287,7 @@ class FAAU {
     makeServerHashToken(o){ return this.hashit(o).hash; }
 
     rgb2hex(color) {
-[]        let
+        let
         hex = "#";
         if(!Array.isArray(color)) color = color.split(/[\s+,.-]/g);
         color.each(clr => {
