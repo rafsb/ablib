@@ -17,7 +17,7 @@ ANIMATION_LENGTH    = 400
 , INTERPOLATE       = 5
 , MAX               = 6
 , MIN               = 7
-, PASSWD_AUTO_HASH  = 1
+, PASSWD_AUTO_HASH  = 0
 , NUMBER            = 0
 , STRING            = 1
 ;
