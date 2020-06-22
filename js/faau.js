@@ -1287,7 +1287,7 @@ class FAAU {
     makeServerHashToken(o){ return this.hashit(o).hash; }
 
     rgb2hex(color) {
-        let
+[]        let
         hex = "#";
         if(!Array.isArray(color)) color = color.split(/[\s+,.-]/g);
         color.each(clr => {
@@ -1300,8 +1300,8 @@ class FAAU {
 
     hex2rgb(color) {
         let
-        rgb = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
-        return rgb ? [ parseInt(rgb[1], 16), parseInt(rgb[2], 16), parseInt(rgb[3], 16) ] : null;
+        rgb = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})|([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
+        return  rgb ? [ parseInt(rgb[1] || 255, 16), parseInt(rgb[2] || 255, 16), parseInt(rgb[3] || 255, 16), parseInt(rgb[3] || 255, 16) ] : null;
     }
 
     constructor() {
