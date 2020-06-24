@@ -201,10 +201,6 @@ class Vector extends Activity {
 	public static function mixtrend(Array $serie, Array $trend_array)
 	{
 		$keys = array_merge(array_keys($serie), $trend_array);
-		$nkey = max($keys) * 1.1;
-		// $keys[] = $nkey;
-		// $serie[$nkey] = self::linear_trend($serie, $nkey);
-
 		self::each($keys, function($v) use (&$serie)
 		{
 			if(empty($serie[$v]))
@@ -213,7 +209,6 @@ class Vector extends Activity {
 				ksort($serie);
 			}
 		});
-		// array_splice($serie, -1);
 		return $serie;
 	}
 
