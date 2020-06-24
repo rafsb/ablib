@@ -1,6 +1,10 @@
 <?php
 class Vector extends Activity {
 
+	public static function of_size(int $x){
+		return array_keys(array_fill(0, $x > 0 ? $x : 1, null));
+	}
+
 	public static function extract(Array $arr, Closure $fn){
 		$return = [];
 		if(!empty($arr)){
@@ -83,7 +87,7 @@ class Vector extends Activity {
 		return sizeof($mix) / $x;
 	}
 
-	public static function linear_trend(Array $mix, Number $h=null) {
+	public static function linear_trend(Array $mix, int $h=null) {
         $np = sizeof($mix);
         $m = $b = $x = $y = $x2 = $xy = 0;
         if($h===null) $h = $np;
@@ -102,19 +106,133 @@ class Vector extends Activity {
 	}
 
 	public static function interpolate(Array $mix, float $x=null) {
-		if($x===null) $x = count($mix)+1;
-        $yi = $mix;
-        $xi = array_keys($mix);
-        $n  = count($mix);
-        $sum = 0;
-        self::iterate(0, $n, function($k) use ($x, $xi, $yi, $n, &$sum){
-        	$prod = 1;
-        	Vector::iterate(0, $n, function($i) use ($x, $xi, $k, &$prod){
-        		if ($i!=$k) $prod = $prod * ($x - $xi[$i]) / ($xi[$k] - $xi[$i]);
-        	});
-            $sum += $yi[$k] * $prod;
-        });
-        return $sum;
+		$result = .0;
+		// $xarr = array_keys($mix);
+		Vector::each($mix, function($yi, $xi) use ($mix, $x, &$result){
+			$lag = 1;
+			Vector::each($mix, function($yn, $xn) use ($x, $xi, &$lag){
+				if($xn != $xi) $lag *= ( ($x - $xn) / ($xi - $xn) );
+				// echo $lag . PHP_EOL;
+			});
+			$result += ( $yi * $lag );
+		});
+	    return $result;
 	}
 
+	public static function fourier(Array $mix=null, bool $sign=true) {
+		
+		// $mix = [ 0, 1, 2, 3, 4 ];
+
+		$n = count($mix);
+	   	$acc = 1;
+	   	while($acc < $n) $acc*=2;
+	   	while($n++ < $acc) $mix[] = 0;
+	   	$n = count($mix);
+
+	   	// print_r($mix); die;
+
+	   	// $n = count($mix);
+	   	
+	   	$j = 1;
+
+	   	for ($i = 1; $i < $n; $i += 2) {
+	      	if ($j > $i) {
+	        	$mix[($j)] = $mix[($i)];
+	         	$mix[($i)] = $mix[($j)];
+	         	$mix[($j+1)] = $mix[($i+1)];
+	         	$mix[($i+1)] = $mix[($j+1)];
+	      	}
+	      	$n /= 2;
+	      	$m = $n;
+	      	while (($m >= 2) && ($j > $m)) {
+	         	$j -= $m;
+	         	$m = $m >> 1;
+	      	}
+	      	$j += $m;
+	   	}
+
+	   $mmax = 2;
+	 
+	   while ($n > $mmax) {  # Outer loop executed log2(nn) times
+	      $istep = $mmax << 1;
+
+	      $theta = $isign * 2*pi()/$mmax;
+
+	      $wtemp = sin(0.5 * $theta);
+	      $wpr   = -2.0*$wtemp*$wtemp;
+	      $wpi   = sin($theta);
+	 
+	      $wr = 1.0;
+	      $wi = 0.0;
+	      for ($m = 1; $m < $mmax; $m += 2) {  # Here are the two nested inner loops
+	         for ($i = $m; $i <= $n; $i+= $istep) {
+
+	            $j = $i + $mmax;
+
+	            $tempr = $wr * $mix[$j]     - $wi * $mix[($j+1)];
+	            $tempi = $wr * $mix[($j+1)] + $wi * $mix[$j];
+
+	            $mix[$j]     = $mix[$i]     - $tempr;
+	            $mix[($j+1)] = $mix[($i+1)] - $tempi;
+
+	            $mix[$i]     += $tempr;
+	            $mix[($i+1)] += $tempi;
+
+	         }
+	         $wtemp = $wr;
+	         $wr = ($wr * $wpr) - ($wi    * $wpi) + $wr;
+	         $wi = ($wi * $wpr) + ($wtemp * $wpi) + $wi;
+	      }
+	      $mmax = $istep;
+	   }
+
+	   for ($i = 1; $i < count($mix); $i++) { 
+	      $mix[$i] *= sqrt(2/$n);                   # Normalize the mix
+	      if (abs($mix[$i]) < 1E-8) $mix[$i] = 0;  # Let's round small numbers to zero
+	      $mix[($i-1)] = $mix[$i];                # We need to shift array back (see beginning)
+	   }
+
+	   print_r($mix); die;
+
+	   return $mix;
+
+	}
+
+	public static function mixtrend(Array $serie, Array $trend_array)
+	{
+		$keys = array_merge(array_keys($serie), $trend_array);
+		$nkey = max($keys) * 1.1;
+		// $keys[] = $nkey;
+		// $serie[$nkey] = self::linear_trend($serie, $nkey);
+
+		self::each($keys, function($v) use (&$serie)
+		{
+			if(empty($serie[$v]))
+			{
+				$serie[$v] = Vector::linear_trend($serie, $v);
+				ksort($serie);
+			}
+		});
+		// array_splice($serie, -1);
+		return $serie;
+	}
+
+	public function test(){
+
+		// some ordinary serie
+		$a  = [ 2, 3, 0, 6, 5, 0, 8, 9, 12, 13 ];
+
+		// array of x's to findout
+		$b = [ 20, 21 ];
+		print_r(self::mixtrend($a, $b));
+
+		echo PHP_EOL;
+		echo PHP_EOL;
+
+		// of_size is the positions to be filled
+		print_r(self::mixtrend($a, self::of_size(20)));
+
+		echo PHP_EOL;
+		echo PHP_EOL;
+	}
 }
