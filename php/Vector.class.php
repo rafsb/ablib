@@ -1,6 +1,10 @@
 <?php
 class Vector extends Activity {
 
+	public static function of_size(int $x){
+		return array_keys(array_fill(0, $x > 0 ? $x : 1, null));
+	}
+
 	public static function extract(Array $arr, Closure $fn){
 		$return = [];
 		if(!empty($arr)){
@@ -83,7 +87,7 @@ class Vector extends Activity {
 		return sizeof($mix) / $x;
 	}
 
-	public static function linear_trend(Array $mix, Number $h=null) {
+	public static function linear_trend(Array $mix, int $h=null) {
         $np = sizeof($mix);
         $m = $b = $x = $y = $x2 = $xy = 0;
         if($h===null) $h = $np;
@@ -102,44 +106,50 @@ class Vector extends Activity {
 	}
 
 	public static function interpolate(Array $mix, float $x=null) {
-		if($x===null) $x = count($mix)+1;
-        $yi = $mix;
-        $xi = array_keys($mix);
-        $n  = count($mix);
-        $sum = 0;
-        self::iterate(0, $n, function($k) use ($x, $xi, $yi, $n, &$sum){
-        	$prod = 1;
-        	Vector::iterate(0, $n, function($i) use ($x, $xi, $k, &$prod){
-        		if ($i!=$k) $prod = $prod * ($x - $xi[$i]) / ($xi[$k] - $xi[$i]);
-        	});
-            $sum += $yi[$k] * $prod;
-        });
-        return $sum;
+		$result = .0;
+		// $xarr = array_keys($mix);
+		Vector::each($mix, function($yi, $xi) use ($mix, $x, &$result){
+			$lag = 1;
+			Vector::each($mix, function($yn, $xn) use ($x, $xi, &$lag){
+				if($xn != $xi) $lag *= ( ($x - $xn) / ($xi - $xn) );
+				// echo $lag . PHP_EOL;
+			});
+			$result += ( $yi * $lag );
+		});
+	    return $result;
 	}
 
-	
+	public static function fourier(Array $mix=null, bool $sign=true) {
+		
+		// $mix = [ 0, 1, 2, 3, 4 ];
 
-	public static function fourier(Array $mix, bool $sign=trua) {
+		$n = count($mix);
+	   	$acc = 1;
+	   	while($acc < $n) $acc*=2;
+	   	while($n++ < $acc) $mix[] = 0;
+	   	$n = count($mix);
 
-	   $n = count($mix);
-	   $j = 1;
+	   	// print_r($mix); die;
 
-	   for ($i = 1; $i < $n; $i += 2) {
-	      if ($j > $i) {
-	         list($data[($j+0)], $data[($i+0)]) = array($data[($i+0)], $data[($j+0)]);
-	         list($data[($j+1)], $data[($i+1)]) = array($data[($i+1)], $data[($j+1)]);
-	      }
+	   	// $n = count($mix);
+	   	
+	   	$j = 1;
 
-	      $m = $n >> 1;
-
-	      while (($m >= 2) && ($j > $m)) {
-	         $j -= $m;
-	         $m = $m >> 1;
-	      }
-
-	      $j += $m;
-
-	   }
+	   	for ($i = 1; $i < $n; $i += 2) {
+	      	if ($j > $i) {
+	        	$mix[($j)] = $mix[($i)];
+	         	$mix[($i)] = $mix[($j)];
+	         	$mix[($j+1)] = $mix[($i+1)];
+	         	$mix[($i+1)] = $mix[($j+1)];
+	      	}
+	      	$n /= 2;
+	      	$m = $n;
+	      	while (($m >= 2) && ($j > $m)) {
+	         	$j -= $m;
+	         	$m = $m >> 1;
+	      	}
+	      	$j += $m;
+	   	}
 
 	   $mmax = 2;
 	 
@@ -159,14 +169,14 @@ class Vector extends Activity {
 
 	            $j = $i + $mmax;
 
-	            $tempr = $wr * $data[$j]     - $wi * $data[($j+1)];
-	            $tempi = $wr * $data[($j+1)] + $wi * $data[$j];
+	            $tempr = $wr * $mix[$j]     - $wi * $mix[($j+1)];
+	            $tempi = $wr * $mix[($j+1)] + $wi * $mix[$j];
 
-	            $data[$j]     = $data[$i]     - $tempr;
-	            $data[($j+1)] = $data[($i+1)] - $tempi;
+	            $mix[$j]     = $mix[$i]     - $tempr;
+	            $mix[($j+1)] = $mix[($i+1)] - $tempi;
 
-	            $data[$i]     += $tempr;
-	            $data[($i+1)] += $tempi;
+	            $mix[$i]     += $tempr;
+	            $mix[($i+1)] += $tempi;
 
 	         }
 	         $wtemp = $wr;
@@ -176,47 +186,30 @@ class Vector extends Activity {
 	      $mmax = $istep;
 	   }
 
-	   for ($i = 1; $i < count($data); $i++) { 
-	      $data[$i] *= sqrt(2/$n);                   # Normalize the data
-	      if (abs($data[$i]) < 1E-8) $data[$i] = 0;  # Let's round small numbers to zero
-	      $mix[($i-1)] = $data[$i];                # We need to shift array back (see beginning)
+	   for ($i = 1; $i < count($mix); $i++) { 
+	      $mix[$i] *= sqrt(2/$n);                   # Normalize the mix
+	      if (abs($mix[$i]) < 1E-8) $mix[$i] = 0;  # Let's round small numbers to zero
+	      $mix[($i-1)] = $mix[$i];                # We need to shift array back (see beginning)
 	   }
+
+	   print_r($mix); die;
 
 	   return $mix;
 
 	}
 
-	public function test(){
-
-		// $a =  [
-		// 	"0" => 2318.2418
-		// 	, "1" => 2517.8829333333238
-		// 	, "2" => 2259.7786666666752
-		// 	, "3" => 2351.638933333324
-		// 	, "4" => 2322.0694
-		// 	, "5" => 2298.2210000000005
-		// 	, "6" => 2404.4522666666758
-		// 	, "7" => 2506.4970666666763
-		// 	, "9" => 2549.3887999999993
-		// 	, "10" => 2659.0203333333225
-		// 	, "11" => 2771.6392
-		// 	, "12" => 3053.0719999999997
-		// 	, "14" => 3345.7405333333195
-		// 	, "15" => 2724.0887999999995
-		// ];
-		
-		// echo Vector::interpolate($a, 8);
-
-		$i = 10;
-		$m = 10;
-		echo "$i" . PHP_EOL;
-		$i = $m >> 1;
-		echo "$i" . PHP_EOL;
-		$i = $m >> 1;
-		echo "$i" . PHP_EOL;
-		$i = $m >> 1;
-		echo "$i" . PHP_EOL;
-		$i = $m >> 1;
-		echo "$i" . PHP_EOL;
+	public static function mixtrend(Array $serie, Array $trend_array)
+	{
+		$keys = array_merge(array_keys($serie), $trend_array);
+		self::each($keys, function($v) use (&$serie)
+		{
+			if(empty($serie[$v]))
+			{
+				$serie[$v] = Vector::linear_trend($serie, $v);
+				ksort($serie);
+			}
+		});
+		return $serie;
 	}
+	
 }
