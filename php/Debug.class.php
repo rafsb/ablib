@@ -1,6 +1,8 @@
 <?php
 class Debug {
 	public static function show(){
+		echo PHP_EOL;
+		echo PHP_EOL;
 		echo "<pre style='text-align:left'>";
 		echo PHP_EOL;
 		echo PHP_EOL;

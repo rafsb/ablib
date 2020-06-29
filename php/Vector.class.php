@@ -271,5 +271,4 @@ class Vector extends Activity {
 			, $v->blur($a,5)
 		]);
 	}
-
 }
