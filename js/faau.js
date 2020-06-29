@@ -497,20 +497,42 @@ bind(Array.prototype, {
                 if(helper==null||helper==undefined) return app.error("Ops! a 'x' value is needed for array basic interpolation...")
                 let
                 x = helper
-                , yi = this
-                , xi = yi.extract((_,i) => i)
+                , yi = this.extract(_y => Array.isArray(_y) ? _y[1] : y*1)
+                , xi = yi.extract((_x, i) => Array.isArray(_x) ? _x[0] : i*1)
                 , N  = xi.length
                 , sum = 0
                 ;;
-                for (k=0; k<N; k++) {
-                    let
-                    product = 1;
-                    for (i=0; i<N; i++) if (i!=k) product = product*(x - xi[i]) / (xi[k] - xi[i]);
-                    sum += yi[k] * product;
-                }
-                res = sum;
 
-            }break;
+                //for (k=0; k<N; k++) {
+                xi.each(k => {
+                //     if(k==x) break;
+                     let
+                     product = 1;
+                //     for (i=0; i<N; i++){
+                    xi.each(j => {
+                         if(k!=j) product = product * (x-j) / (k-j);   
+                //         console.log(xi[k], xi[i]    )
+                    })
+                //     }
+                     sum += yi[k] * product;
+                })
+                // }
+
+                // let
+                // x = helper
+                // , yi = this
+                // , xi = yi.extract((_,i) => i)
+                // , N  = xi.length
+                // , sum = 0
+                // ;;
+                // for (k=0; k<N; k++) {
+                //     let
+                //     product = 1;
+                //     for (i=0; i<N; i++) if (i!=k) product = product*(x - xi[i]) / (xi[k] - xi[i]);
+                //     sum += yi[k] * product;
+                // }
+                res = sum;
+            } break;
 
             case (PROGRESS): {
                 let
@@ -527,6 +549,22 @@ bind(Array.prototype, {
             }break;
         }
         return res;
+    }
+    , fillNulls: function(){
+        let
+        final
+        , nulls = []
+        , narr = this.extract((el,i) => {
+            let
+            y = Array.isArray(el) ? el[1] : el
+            , x = Array.isArray(el) ? el[0] : i
+            ;;
+            if(y==null || y==undefined) nulls.push(x);
+            else return [ x, y ];
+        })
+        nulls.each(n => narr.push([ n, narr.calc(INTERPOLATE, n)]));
+        narr.sort(function(a,b){ return a[0] - b[0] })
+        return narr;
     }
     , last: function(n=null) { 
         if (!this.length) return null;

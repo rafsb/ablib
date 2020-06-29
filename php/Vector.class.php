@@ -117,4 +117,106 @@ class Vector extends Activity {
         return $sum;
 	}
 
+	
+
+	public static function fourier(Array $mix, bool $sign=trua) {
+
+	   $n = count($mix);
+	   $j = 1;
+
+	   for ($i = 1; $i < $n; $i += 2) {
+	      if ($j > $i) {
+	         list($data[($j+0)], $data[($i+0)]) = array($data[($i+0)], $data[($j+0)]);
+	         list($data[($j+1)], $data[($i+1)]) = array($data[($i+1)], $data[($j+1)]);
+	      }
+
+	      $m = $n >> 1;
+
+	      while (($m >= 2) && ($j > $m)) {
+	         $j -= $m;
+	         $m = $m >> 1;
+	      }
+
+	      $j += $m;
+
+	   }
+
+	   $mmax = 2;
+	 
+	   while ($n > $mmax) {  # Outer loop executed log2(nn) times
+	      $istep = $mmax << 1;
+
+	      $theta = $isign * 2*pi()/$mmax;
+
+	      $wtemp = sin(0.5 * $theta);
+	      $wpr   = -2.0*$wtemp*$wtemp;
+	      $wpi   = sin($theta);
+	 
+	      $wr = 1.0;
+	      $wi = 0.0;
+	      for ($m = 1; $m < $mmax; $m += 2) {  # Here are the two nested inner loops
+	         for ($i = $m; $i <= $n; $i+= $istep) {
+
+	            $j = $i + $mmax;
+
+	            $tempr = $wr * $data[$j]     - $wi * $data[($j+1)];
+	            $tempi = $wr * $data[($j+1)] + $wi * $data[$j];
+
+	            $data[$j]     = $data[$i]     - $tempr;
+	            $data[($j+1)] = $data[($i+1)] - $tempi;
+
+	            $data[$i]     += $tempr;
+	            $data[($i+1)] += $tempi;
+
+	         }
+	         $wtemp = $wr;
+	         $wr = ($wr * $wpr) - ($wi    * $wpi) + $wr;
+	         $wi = ($wi * $wpr) + ($wtemp * $wpi) + $wi;
+	      }
+	      $mmax = $istep;
+	   }
+
+	   for ($i = 1; $i < count($data); $i++) { 
+	      $data[$i] *= sqrt(2/$n);                   # Normalize the data
+	      if (abs($data[$i]) < 1E-8) $data[$i] = 0;  # Let's round small numbers to zero
+	      $mix[($i-1)] = $data[$i];                # We need to shift array back (see beginning)
+	   }
+
+	   return $mix;
+
+	}
+
+	public function test(){
+
+		// $a =  [
+		// 	"0" => 2318.2418
+		// 	, "1" => 2517.8829333333238
+		// 	, "2" => 2259.7786666666752
+		// 	, "3" => 2351.638933333324
+		// 	, "4" => 2322.0694
+		// 	, "5" => 2298.2210000000005
+		// 	, "6" => 2404.4522666666758
+		// 	, "7" => 2506.4970666666763
+		// 	, "9" => 2549.3887999999993
+		// 	, "10" => 2659.0203333333225
+		// 	, "11" => 2771.6392
+		// 	, "12" => 3053.0719999999997
+		// 	, "14" => 3345.7405333333195
+		// 	, "15" => 2724.0887999999995
+		// ];
+		
+		// echo Vector::interpolate($a, 8);
+
+		$i = 10;
+		$m = 10;
+		echo "$i" . PHP_EOL;
+		$i = $m >> 1;
+		echo "$i" . PHP_EOL;
+		$i = $m >> 1;
+		echo "$i" . PHP_EOL;
+		$i = $m >> 1;
+		echo "$i" . PHP_EOL;
+		$i = $m >> 1;
+		echo "$i" . PHP_EOL;
+	}
 }
