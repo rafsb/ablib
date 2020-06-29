@@ -64,6 +64,21 @@ define("__JSON__",2);
 define("__OBJECT__",3);
 define("__MYSQLI_OBJ__",4);
 
+/*
+ * USER LEVELS
+ */
+define("PUBLIC"  , 0);
+define("STAFF"   , 1);
+define("GENERAL" , 2);
+define("TI-I"    , 3);
+define("MANAGER" , 4);
+define("TI-II"   , 5);
+define("DIRECTOR", 6);
+define("TI-III"  , 7);
+define("ADMIN"	 , 8);
+define("ROOT"	 , 9);
+
+
 define("SHA1","sha1");
 define("SHA256","sha256");
 define("SHA512","sha512");

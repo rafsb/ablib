@@ -1,6 +1,6 @@
 <?php
 // REQUIRED FILE
-if(!defined("DEBUG")) define("DEBUG",  false);
+if(!defined("DEBUG")) define("DEBUG",  true);
 if(!defined("LOGIN_REQUIRED")) define("LOGIN_REQUIRED",  false);
 
 class App
@@ -17,6 +17,12 @@ class App
         	, "passwd"   => ""
 	        , "database" => "test"
         	, "encoding" => "utf8"
+		]
+		, "twitter_api" => [
+			"api_key" => ":key"
+			, "api_secret" => ":secret"
+			, "token_uri" => "https://api.twitter.com/oauth2/token?grant_type=client_credentials"
+			, "tweets_uri" => "https://api.twitter.com/1.1/tweets/search/:type/:app.json"
 		]
 	];
 

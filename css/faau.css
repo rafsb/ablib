@@ -167,11 +167,13 @@ blur
 .-circle { border-radius: 50%; min-height: .25em; min-width: .25em }
 .-ball { border-radius: 50%; min-width: .25rem; min-height: .25rem; width:1.5rem;height:1.5rem;margin:.5rem;float:left; vertical-align: middle; }
 .-icon { height:1em; width:1em; margin:0 1em; display: inline; vertical-align: middle}
-.-input:not([type='button'])
-, select
-, textarea { font-family:inherit;transition:all .4s;background: transparent; border: none; border-bottom: 2px solid lightgray; padding:.5rem; outline:none;font-size:1em}
+.-input:not([type='button']){ font-family:inherit;transition:all .4s;background: transparent; border: none; border-bottom: 2px solid lightgray; padding:.5rem; outline:none;font-size:1em}
 .-input:not([type='button'])::placeholder { opacity: .6; }
 .-input:not([type='button']):not(:placeholder-shown) { border-bottom: 2px solid attr(data-color) }
+input, select, textarea {
+	font-size:1em;
+	font-family: inherit;
+}
 
 /* BOTOES */
 .-bt{ padding: .5rem 1rem; border-radius: 4px; border: none; opacity: .8; transition: all .2s; cursor: pointer;}

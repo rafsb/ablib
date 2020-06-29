@@ -186,7 +186,7 @@ class IO {
         return \is_dir($p) ? 0 : 1;
     }
 
-    public static function mkd($dir,$perm=0775)
+    public static function mkd($dir, $perm=0775)
     {
         if(substr($dir,0,1)!=DS) $dir = self::root() . $dir;
         umask(002);

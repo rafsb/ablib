@@ -6,6 +6,8 @@ require "php" . DS . "autoload.php";
 
 require dirname(__DIR__) . DS . "webroot" . DS . "App.php";
 
+// print_r($_SERVER['argv']);
+
 if(sizeof($_SERVER['argv']))
 {   
     $args = $_SERVER['argv'];

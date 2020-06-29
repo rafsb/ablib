@@ -1,10 +1,4 @@
 <?php
-define("PUBLIC", 0);
-define("STANDARD", 0);
-define("EDITOR", 2);
-define("MANAGER",3);
-define("ADMIN",  4);
-
 class _User_Traits
 {
     public static function list(){

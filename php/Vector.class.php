@@ -21,6 +21,21 @@ class Vector extends Activity {
 		for(;$beg!=$end;$beg+=$step) $fn($beg);
 	}
 
+	public static function parallel(float $beg, float $end, Closure $fn, float $step=null){
+		$step = $step ? $step : 1.0;
+		for(;$beg!=$end;$beg+=$step){
+			if(function_exists("pcntl_fork")){
+				$status = null;
+				$pid = pcntl_fork();
+				if(!$pid){ 
+					$fn($beg); 
+					die;
+				}
+				pcntl_wait($null);
+			} else $fn($beg);
+		}
+	}
+
 	public static function each(Array $arr, Closure $fn){
 		if(!empty($arr)) foreach($arr as $k=>&$v) $fn($v,$k);
 	}
@@ -29,7 +44,6 @@ class Vector extends Activity {
 		if(!empty($arr)){
 			foreach($arr as $k=>&$v){				
 				if(function_exists("pcntl_fork")){
-					$status = null;
 					$pid = pcntl_fork();
 					if(!$pid){ 
 						$fn($v,$k); 
@@ -132,6 +146,8 @@ class Vector extends Activity {
 	   	// print_r($mix); die;
 
 	   	// $n = count($mix);
+
+	   	$isign = $sign ? 1 : -1;
 	   	
 	   	$j = 1;
 
@@ -192,8 +208,6 @@ class Vector extends Activity {
 	      $mix[($i-1)] = $mix[$i];                # We need to shift array back (see beginning)
 	   }
 
-	   print_r($mix); die;
-
 	   return $mix;
 
 	}
@@ -212,22 +226,50 @@ class Vector extends Activity {
 		return $serie;
 	}
 
-	public function test(){
-
-		// some ordinary serie
-		$a  = [ 2, 3, 0, 6, 5, 0, 8, 9, 12, 13 ];
-
-		// array of x's to findout
-		$b = [ 20, 21 ];
-		print_r(self::mixtrend($a, $b));
-
-		echo PHP_EOL;
-		echo PHP_EOL;
-
-		// of_size is the positions to be filled
-		print_r(self::mixtrend($a, self::of_size(20)));
-
-		echo PHP_EOL;
-		echo PHP_EOL;
+	public static function smooth(Array $serie, int $aggregate = 3){
+		$return = [];
+		Vector::each($serie, function($n, $i) use ($serie, $aggregate, &$return) {
+			if($i < $aggregate) $return[] = $n;
+			else $return[] = Vector::average(array_slice($serie, $i - $aggregate, $aggregate));
+		});
+		return $return;
 	}
+
+	public static function blur(Array $serie, int $ngbr=5){
+		$return = [];
+		$ngbr = min($ngbr, floor(count($serie)/2));
+		$len = count($serie);
+		Vector::iterate(0, count($serie), function($i) use ($serie, $ngbr, $len, &$return) {
+			$from = max(0, $i - $ngbr);
+			$offset = $ngbr*2+1;
+			$return[] = Vector::average(array_slice($serie, $from, min($len-$from, $offset)));
+		});
+		return $return;
+	}
+
+	public function test(){
+		$v = new Vector();
+		$a = [];		
+		$v->iterate(2, 58, function($x) use (&$a) {
+			$a[] = random_int(20, 100);
+		});
+
+		$a[3] = 200;
+		$a[4] = null;
+		$a[5] = 500;
+		$a[6] = 0;
+		$a[20] = null;
+		$a[21] = 100;
+		$a[40] = null;
+		$a[41] = 300;
+
+		return Convert::json([ 
+			$a
+			, $v->blur($a,2)
+			, $v->blur($a,3)
+			, $v->blur($a,4)
+			, $v->blur($a,5)
+		]);
+	}
+
 }

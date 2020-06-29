@@ -1291,9 +1291,9 @@ class FAAU {
         })
     }
 
-    iterate(s, e, fn){
+    iterate(s, e, fn, step=1){
         if(!fn) fn = i => i;
-        for(let i = s; i != e; i += s < e ? 1 : -1) fn(i)
+        for(let i = s; i != e; i += step) fn(i)
     }
 
     makeServerHashToken(o){ return this.hashit(o).hash; }
