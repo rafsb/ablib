@@ -163,7 +163,7 @@ class User extends Activity
         return Core::response(0, "incorrect credentials");;
     }
 
-    public static function each(Closure $fn){
+    protected static function each(Closure $fn){
         foreach (_User_Traits::list() as $us) $fn($us);
     }
 
@@ -176,7 +176,7 @@ class User extends Activity
         return $user && self::allow($user->level) ? Convert::json($user) : Core::response(0,"not allowed");
     }
 
-    public function list(){
+    protected function list(){
 
         $args = Request::in();
     

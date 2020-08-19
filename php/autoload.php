@@ -4,6 +4,18 @@ require_once "Core.class.php";
 require_once "Request.class.php";
 require_once "Debug.class.php";
 
+// WEBROOT/CLASSES 
+spl_autoload_register(function($class)
+{
+    // fetch plugins first, at /modules/NAMESPACE/src/CLASSNAME
+    $cls = preg_replace("/\\\\/",'/',$class);
+    $cls = explode("/",$cls);
+    // seek on user's classes folder
+    $path  = dirname(__DIR__, 2) . DS . "webroot" . DS . "classes" . DS . ucfirst($cls[0]) . ".class.php";
+    if(is_file($path)) include_once $path;    
+});
+
+// VENDOR
 spl_autoload_register(function($class)
 {
     // fetch plugins first, at /modules/NAMESPACE/src/CLASSNAME
@@ -13,20 +25,17 @@ spl_autoload_register(function($class)
     foreach($namespaces as &$ns) $ns=strtolower($ns); 
     $tmp = array_merge(["src"],array_slice($cls, sizeof($cls)-1));
     $cls = implode("/", array_merge($namespaces,$tmp));
-    $path = __DIR__ . DIRECTORY_SEPARATOR . "modules" . DIRECTORY_SEPARATOR . $class . ".php";
-    
+    $path = dirname(__DIR__, 2) . DS . "modules" . DS . $cls . ".class.php";
     if(is_file($path)) include_once $path;
-    else
-    {
-        // seek on user's classes folder
-        $path  = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . "webroot" . DIRECTORY_SEPARATOR . "classes" . DIRECTORY_SEPARATOR . ucfirst($class) . ".class.php";
-        if(is_file($path)) include_once $path;
-        else
-        {
-            // an then use the lib's classes
-            $path = __DIR__ . DIRECTORY_SEPARATOR . ucfirst($class) . ".class.php";
-            if(is_file($path)) include_once $path;
-            else Core::response(0, $class . ": not found...");
-        }
-    }
+});
+
+// LIB/PHP
+spl_autoload_register(function($class)
+{
+    // fetch plugins first, at /modules/NAMESPACE/src/CLASSNAME
+    $cls = preg_replace("/\\\\/",'/',$class);
+    $cls = explode("/",$cls);
+    // an then use the lib's classes
+    $path = __DIR__ . DS . ucfirst($cls[0]) . ".class.php";
+    if(is_file($path)) include_once $path;
 });

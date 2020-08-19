@@ -140,7 +140,9 @@ blur
 	-webkit-tap-highlight-color: transparent;
 }
 .-link:hover { text-decoration: underline;  }
-.-disabled {
+.-disabled
+, .-disabled * {
+	opacity:.25;
 	filter: grayscale(1);
 	pointer-events: none;
 }
@@ -186,6 +188,9 @@ input, select, textarea {
 .-multline-force { overflow-wrap:break-word !important}
 
 /* ANIMATING */
+.-fast-spin{
+	animation: spin-kf 1s linear infinite;
+}
 .-spin{
 	animation: spin-kf 4s ease infinite;
 }
@@ -217,5 +222,5 @@ a { text-decoration: none }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar { width: .5rem; }
-::-webkit-scrollbar-track { background: rgba(0,0,0,.16); }
-::-webkit-scrollbar-thumb { background: rgba(0,0,0,.64); border-radius: .5rem; border:none;height:1em; width:1em;}
+::-webkit-scrollbar-track { background: rgba(0,0,0,.08); }
+::-webkit-scrollbar-thumb { background: #2A80B9; border-radius: .25rem; border:none;height:.5em; width:.25em;}

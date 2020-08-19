@@ -6,9 +6,11 @@
     |_| |_|  \__,_|_| |_| |_|\___| \_/\_/ \___/|_|  |_|\_\
 
 ****************************************************************************/
+var 
+DEBUG = false
+
 const
 ANIMATION_LENGTH    = 400
-, DEBUG             = false
 , SUM               = 0
 , AVERAGE           = 1
 , HARMONIC          = 2
@@ -122,9 +124,7 @@ bind(HTMLInputElement.prototype, {
         if(fn) xhr.upload.onload = function() {
             console.log(xhr.responseText)
         }
-        xhr.upload.onerror = function() {
-            app.notify("Ops! N茫o foi poss铆vel subir esta imagem... chama o berts...",["#ff0066","white"]);
-        };
+        xhr.upload.onerror = _ => app.error("Ops! N茫o foi poss铆vel subir esta imagem... chama o berts...");
         xhr.open("POST", "image/upload");
         xhr.send(form);
 
@@ -994,8 +994,8 @@ class Throttle {
 class Bootloader {   
     loadLength(){
         var
-        count=this.loaders.array();
-        return count.extract(n => n!=0&&n!=undefined&&n!=null&&n!=false ? 1 : null).length/count.length;
+        count=this.loaders.array();        
+        return count.extract(n => n*1 || null).length/count.length;
     }
     check(scr){
         return scr ? this.loaders[scr] : this.alreadyLoaded
@@ -1006,7 +1006,7 @@ class Bootloader {
         let
         perc = this.loadLength();
 
-        if(!this.alreadyLoaded&&perc>=1){ 
+        if(!this.alreadyLoaded&&perc>=1){
             this.alreadyLoaded=true; 
             setTimeout(boot => boot.onFinishLoading.fire(_ => app.pragma = app.initial_pragma || true), ANIMATION_LENGTH, this);
         } else if(!this.alreadyLoaded) setTimeout((x,perc) => x.onReadyStateChange.fire(perc), ANIMATION_LENGTH/4, this, perc);
@@ -1019,6 +1019,7 @@ class Bootloader {
         this.onReadyStateChange = new Pool();
         this.onFinishLoading    = new Pool();
         this.loaders = { pass: false }
+        if(DEBUG) this.onReadyStateChange.add(nil => console.log(bootloader.loaders))
     }
 };
 class CallResponse {
@@ -1087,7 +1088,7 @@ class FAAU {
         return this.post(url, args).then( r => {
             if(!r.status) return app.error("error loading "+url);
             r = r.data.prepare(app.colors()).morph();
-            if(!target) target = document.getElementById('app');
+            if(!target) target = $('#app')[0];
             target.app(r);
             return r.evalute();
         });
@@ -1101,8 +1102,6 @@ class FAAU {
         })
     }
 
-    get(el,scop=document) { return [].slice.call(scop ? scop.querySelectorAll(el) : document.querySelectorAll(el)); }
-
     nuid(n=8, prefix="_") { 
         let 
         a = prefix;
@@ -1111,37 +1110,42 @@ class FAAU {
         return a 
     }
 
-    loading(show = true, target= null) {
+    /* 
+     * @Override
+     */
+    loading(show = true, target =null) {
+        let
+        loads = $(".--default-loading");
         if (!show) {
-            $(".--default-loading").each(x => { clearInterval(x.dataset.animation); x.remove() });
-            return
+            loads.each(x => { 
+                clearInterval(x.dataset.offloading); 
+                x.desappear(ANIMATION_LENGTH, true) 
+            });
+        }else{
+            if(loads.length){
+                clearInterval(loads[0].dataset.offloading);
+                loads[0].data({ animation: setTimeout(nil => app.loading(false), ANIMATION_LENGTH*8) })
+            } else {
+                let
+                load = _("section", "-fixed -view --default-loading", { 
+                    background: "linear-gradient(135deg, "+app.color_pallete.FONT+"22, transparent, "+app.color_pallete.FOREGROUND+"88)"
+                    , zIndex:100 
+                }).data({
+                    offloading: setTimeout(nil => app.loading(false), ANIMATION_LENGTH*8)
+                });
+                app.load("img/loading.svg", null, load);
+                (target || $("#app")[0]).app(load);
+            }
         }
-        $(target || "body")[0].app(app.new("div","-fixed -view -zero --default-loading").css({ boxShadow:"none" }));
-
-        // app.load("img/loading.svg", null, $(".--default-loading")[0], function () {
-        //     let
-        //     circle = $(".--default-loading .--loading-circle")[0];
-        //     if (!circle) return;
-        //     circle.css({ transformOrigin: "top left", scale: window.innerWidth / 1920, "stroke-dasharray": circle.getTotalLength() + "," + circle.getTotalLength() + "," + circle.getTotalLength() });
-        //     $(".--default-loading")[0].dataset.animation = setInterval(() => {
-        //         let
-        //             circle = $(".--default-loading .--loading-circle")[0];
-        //         if (circle) {
-        //             circle.css({ "stroke-dashoffset": 0 });
-        //             circle.anime({ "stroke-dashoffset": circle.getTotalLength() * 4 }, ANIMATION_LENGTH * 4)
-        //         }
-        //     }, 2201)
-        // })
-        
     }
 
     notify(n, c=null) {
         let
         toast = document.createElement("toast")
-        , clr = app.colors();
+        , clr = this.color_pallete;
         toast.addClass("-fixed -tile -content-left --notification").css({
-            background: c&&c[0] ? c[0] : clr.CLOUDS
-            , color: c&&c[1] ? c[1] : clr.BACKGROUND
+            background: c&&c[0] ? c[0] : clr.FOREGROUND
+            , color: c&&c[1] ? c[1] : clr.FONT
             , boxShadow:"0 0 .5em "+clr.DARK2
             , borderRadius: ".25em"
             , padding:"1em"
@@ -1183,16 +1187,16 @@ class FAAU {
     }
 
     error(message=null) {
-        app.notify(message || "Ops! Something went wrong...", [this.color_pallete.POMEGRANATE,this.color_pallete.CLOUDS])
+        app.notify(message || "Ops! Something went wrong...", [ this.color_pallete.POMEGRANATE,this.color_pallete.CLOUDS ])
     }
     success(message=null) {
-        app.notify(message || "Hooray! Success!", [this.color_pallete.GREEN_SEA, this.color_pallete.WET_ASPHALT])
+        app.notify(message || "Hooray! Success!", [ this.color_pallete.GREEN_SEA, this.color_pallete.WHITE ])
     }
     warning(message = null) {
-        app.notify(message || "Ops! take attention...", [this.color_pallete.CARROT, this.color_pallete.WET_ASPHALT])
+        app.notify(message || "Ops! take attention...", [ this.color_pallete.SUN_FLOWER, this.color_pallete.WET_ASPHALT ])
     }
     working(message = null) {
-        app.notify(message || "Hooray! Success!", [this.color_pallete.CLOUDS, this.color_pallete.WET_ASPHALT])
+        app.notify(message || "Hooray! Success!", [ this.color_pallete.PETER_RIVER, this.color_pallete.WHITE ])
     }
 
     hintify(n=null, o={}, delall=true, keep=false, special=false, evenSpecial=false) {
@@ -1281,7 +1285,7 @@ class FAAU {
     storage(field=null,value=null){
         if(field==null||field==undefined) return false;
         if(value===null) return window.localStorage.getItem(field);
-        window.localStorage.setItem(field,value);
+        window.localStorage.setItem(field,value===false ? "" : value);
         return window.localStorage.getItem(field);
     }
 
@@ -1353,6 +1357,21 @@ class FAAU {
         rgb = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})|([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
         return  rgb ? [ parseInt(rgb[1] || 255, 16), parseInt(rgb[2] || 255, 16), parseInt(rgb[3] || 255, 16), parseInt(rgb[3] || 255, 16) ] : null;
     }
+
+    download(data, filename, type="text/json"){ 
+        filename = filename || 'app.txt'; 
+        if(typeof data === "object") data = JSON.stringify(data, undefined, 4);
+        var 
+        blob = new Blob([data], { type: type })
+        , e = document.createEvent('MouseEvents')
+        , a = document.createElement('a');
+        a.download = filename;
+        a.href = window.URL.createObjectURL(blob);
+        a.dataset.downloadurl = [type, a.download, a.href].join(':');
+        e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+        a.dispatchEvent(e);
+    }
+    
 
     constructor() {
         this.initial_pragma = 0
@@ -1470,4 +1489,8 @@ window.onmousemove = e =>{
     app.mouseFire && app.mouseFire.fire(window.maxis)
 }
 document.addEventListener("touchstart", function() {}, true);
+var
+y = setInterval( _ => { window.scrollTo(0, ( document.body.scrollHeight)) }, 1000)
+, z = 4000
+, name = "relaxar_jul20.txt";
 console.log('  __\n\ / _| __ _  __ _ _   _\n\| |_ / _` |/ _` | | | |\n\|  _| (_| | (_| | |_| |\n\|_|  \\__,_|\\__,_|\\__,_|');

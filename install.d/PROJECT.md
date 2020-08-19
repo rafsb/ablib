@@ -1,5 +1,5 @@
 <p align="center">
-      <img src="src/img/spume-w.png" alt="Spume, Co." width="300px"/>
+      <img src="img/spume-w.png" alt="Spume, Co." width="300px"/>
 </p>
 
 ## Desenvolvido por:
@@ -31,7 +31,7 @@ Rafael Bertolini
 | /lib/std.min.js           | Conjunto de classes do framework ABLIB       |
 | /project/header.php       | Primeira página carregada pelo launcher      |
 | /project/weather/tile.php | Template dos blocos de informação mostrados  |
-| /src/img/*                | Imagens utilizadas no projeto                |
+| /img/*                    | Imagens utilizadas no projeto                |
 | /src/json/*               | Arquivos base para consultas                 |
 | /var/.PROJ                | Nome do projeto                              |
 | /var/.HTTP                | URL do projeto                               |
