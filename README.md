@@ -1,5 +1,5 @@
 # install an'joy
 
-clone to your new empty project folder, open terminal and run the command below: 
+go to your very new empty project folder, open terminal and run the command below: 
 
     git clone --single-branch --branch rolling https://github.com/rafsb/lib.git lib && sh lib/install
