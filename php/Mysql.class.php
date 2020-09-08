@@ -93,6 +93,8 @@ class Mysql extends Activity {
 
         	$tmp = $this->object_ ? $this->object_->query(implode('{{ NO COMMENTS ALLOWED }}',explode('--',$this->query_))) : null;
 
+            // echo $this->query_;die;
+
         	if(gettype($tmp) == "object" && $tmp->num_rows)
             {
         		switch($response_type){
