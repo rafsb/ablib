@@ -132,7 +132,7 @@ class Graph {
             h = o.h
             , xmax = o.series.extract(s => s.length).calc(MAX)
             , ymax = Math.max(1, o.series.extract(s => s.calc(MAX)).calc(MAX)*1.2)
-            , css  = bind({
+            , css  =__bind__({
                 fontSize:12
                 , "stroke-width": [2]
                 , color: [ "#000" ]

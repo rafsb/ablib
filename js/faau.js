@@ -6,11 +6,9 @@
     |_| |_|  \__,_|_| |_| |_|\___| \_/\_/ \___/|_|  |_|\_\
 
 ****************************************************************************/
-var 
-DEBUG = false
-
 const
-ANIMATION_LENGTH    = 400
+DEBUG = false
+, ANIMATION_LENGTH    = 400
 , SUM               = 0
 , AVERAGE           = 1
 , HARMONIC          = 2
@@ -22,16 +20,14 @@ ANIMATION_LENGTH    = 400
 , PASSWD_AUTO_HASH  = 0
 , NUMBER            = 0
 , STRING            = 1
-;
-
-var
-bind = function(e,o){
+, __bind__ = function(e,o){
     let
     a = Object.keys(o);
     for(let i=a.length;i--;) e[a[a.length-i-1]]=o[a[a.length-i-1]];
     return e
-};
-bind(Number.prototype, {
+}
+;;
+__bind__(Number.prototype, {
     fill: function(c,l,d){ return (this+"").fill(c,l,d) }
     , nerdify: function(){ 
         let n = this*1;
@@ -44,7 +40,7 @@ bind(Number.prototype, {
         )
     }
 })
-bind(Date.prototype, {
+__bind__(Date.prototype, {
     plus: function(n) {
         let
         date = new Date(this.valueOf());
@@ -75,17 +71,17 @@ bind(Date.prototype, {
     }
 });
 
-bind(NodeList.prototype, {
+__bind__(NodeList.prototype, {
     array: function() {
         return [].slice.call(this);
     }
 });
-bind(HTMLCollection.prototype, {
+__bind__(HTMLCollection.prototype, {
     array: function() {
         return [].slice.call(this);
     }
 })
-bind(HTMLFormElement.prototype,{
+__bind__(HTMLFormElement.prototype,{
     json: function(){
         let
         tmp = {};
@@ -101,7 +97,7 @@ bind(HTMLFormElement.prototype,{
         return JSON.stringify(this.json())
     }
 });
-bind(HTMLInputElement.prototype, {
+__bind__(HTMLInputElement.prototype, {
     val: function(v=null) {
         if(v!==null) this.value = v;
         return this
@@ -131,7 +127,7 @@ bind(HTMLInputElement.prototype, {
         const formData = new FormData();
     }
 });
-bind(Element.prototype,{
+__bind__(Element.prototype,{
     anime: function(obj,len=ANIMATION_LENGTH,delay=0,trans=null) {
         let
         el = this
@@ -177,7 +173,7 @@ bind(Element.prototype,{
     }
     , data: function(o=null, fn=null) {
         if (o===null) return this.dataset;
-        bind(this.dataset, o);
+       __bind__(this.dataset, o);
         if(fn!==null&&typeof fn=="function") fn.bind(this)(this);
         return this;
     }
@@ -318,7 +314,7 @@ bind(Element.prototype,{
     }
     , remove: function() { if(this&&this.parent()) this.parent().removeChild(this) }
 });
-bind(String.prototype,{
+__bind__(String.prototype,{
     hash: function() {
         let
         h = 0, c = "", i = 0, j = this.length;
@@ -343,6 +339,9 @@ bind(String.prototype,{
         d = d==0||d==null||d==undefined ? -1 : d;
         while(s.length < l) s = (d<0?c:"")+s+(d>0?c:"");
         return s
+    }
+    , nerdify: function(){
+        return (this*1).nerdify()
     }
     , desnerdify: function(){
         let
@@ -398,7 +397,7 @@ bind(String.prototype,{
         return false
     }
 });
-bind(Object.prototype,{
+__bind__(Object.prototype,{
     json:function(){ return JSON.stringify(this) }
     , each: function(fn=null){
         let
@@ -430,7 +429,7 @@ bind(Object.prototype,{
         return Object.keys(this);
     }
 });
-bind(Array.prototype, {
+__bind__(Array.prototype, {
     json: function(){ return JSON.stringify(this); }
     , clone: function() { return this.slice(0) }
     , each: function(fn) { if(fn) { for(let i=0;i++<this.length;) fn.bind(this[i-1])(this[i-1], i-1); } return this }
@@ -740,7 +739,7 @@ class Pool {
         const
         o = new Promise(function(pass, deny){
             pool.execution.each((z, i) => {
-                pool.timeserie[i] = setTimeout(z, pool.timeline[i], x, pool.setup);
+                if(z) pool.timeserie[i] = setTimeout(z, pool.timeline[i], x, pool.setup);
             })
             setTimeout(function(ok){ return pass(ok) }, pool.timeserie.calc(MAX)+ANIMATION_LENGTH/4, true)
         })
@@ -770,6 +769,12 @@ class Pool {
     after(fn=null) {
         if(fn&&typeof fn=='function') setTimeout(fn,this.moment+1);
         return this
+    }
+    drop(e){
+        if(!e) return this;
+        const 
+        i = this.execution.indexOf(e);
+        if(i+1) this.execution[i] = null;
     }
     constructor(x) {
         this.moment = 0;
@@ -993,7 +998,7 @@ class Throttle {
 };
 class Bootloader {   
     loadLength(){
-        var
+        const
         count=this.loaders.array();        
         return count.extract(n => n*1 || null).length/count.length;
     }
@@ -1084,10 +1089,10 @@ class FAAU {
         return this.call(url, args, "POST", head)
     }
 
-    async load(url, args=null, target=null) {
+    async load(url, args=null, target=null, bind=null) {
         return this.post(url, args).then( r => {
             if(!r.status) return app.error("error loading "+url);
-            r = r.data.prepare(app.colors()).morph();
+            r = r.data.prepare(__bind__(bind || {}, app.colors())).morph();
             if(!target) target = $('#app')[0];
             target.app(r);
             return r.evalute();
@@ -1203,20 +1208,21 @@ class FAAU {
 
         if(delall) $(".--hintifyied"+(evenSpecial?", .--hintifyied-sp":"")).each(x=>x.desappear(ANIMATION_LENGTH, true));
 
-        o = o || {};
-        o.top = o.top || o.top == 0 ? o.top : (window.maxis.y)+"px";
-        o.left   = o.left||o.left==0 ? o.left : (maxis.x)+"px";
-        o.padding   = o.padding||o.padding==0 ? o.padding : ".5em";
-        o.borderRadius = o.borderRadius ? o.borderRadius : ".25em";
-        o.boxShadow   =  o.boxShadow ? o.boxShadow :  "0 0 .5em "+app.colors().DARK1;
-        o.background =  o.background ? o.background : this.colors().DARK4;
-        o.color     =  o.color ?  o.color : this.colors("FONT");
-        o.fontSize = o.fontSize ? o.fontSize : "1em";
+        o = __bind__({
+            top: maxis.y+"px"
+            , left: maxis.x+"px"
+            , padding: ".5em"
+            , borderRadius: ".25em"
+            , boxShadow: "0 0 .5em "+app.colors("DARK1")
+            , background: this.colors("DARK4")
+            , color: this.colors("FONT")
+            , fontSize: "1em"
+        }, o);
 
         if(typeof n == "string") n = ("<f>"+n+"</f>").morph()
 
         let
-        toast = _("toast","-block -absolute --hintifyied"+(special?"-sp":""),o).css({opacity:0}).app(n||"<b>路路路!!!</b>".morph());
+        toast = _("toast","-block -fixed --hintifyied"+(special?"-sp":""),o).css({opacity:0}).app(n||"<b>路路路!!!</b>".morph());
         if(toast.get(".--close").length) toast.get(".--close").on("click",function(){ this.upFind("toast").desappear(ANIMATION_LENGTH, true) })
         else toast.on("click",function(){ this.desappear(ANIMATION_LENGTH, true) });
         
@@ -1233,30 +1239,30 @@ class FAAU {
 
     window(n=null, html=null, css={}){
         let
-        head = _("header","-col-12 -content-left -zero",{ height:"3em", padding:"1em", color:app.colors("FONT") }).text(n || "¬¬").app(
-            _("div","-absolute -zero-tr -pointer --close -tile").app(
-                 _I("spheres/img/icons/cross.svg", null, { height:"3em", padding:"1em", filter:app.theme=="dark" ? "invert(1)" : ""})
+        head = _("header","-row -content-left -zero",{ height:"2em", padding:".5em", color:app.colors("FONT") }).text(n || "¬¬").app(
+            _("div","-absolute -zero-tr -pointer --close -circle -tile", { background:"red", transform:"translate(1em, -1em)" }).app(
+                 _I("img/icons/cross.svg", null, { height:"3em", padding:"1em", filter:"invert(1)"})
             )
         )
-        , wrapper = _("div", "-wrapper -zero -no-scrolls")
-            .app(_("blur"))
+        , wrapper = _("div", "-wrapper -zero")
             .app(head)
-            .app(_("div", "--content -row -scrolls", { height: "calc(100% - 3em)"}))
+            .app(_("div", "--content -row -scrolls", { height: "calc(100% - 2em)"}))
         ;;
 
-        if(html) wrapper.get(".--content")[0].app(html);
+        if(html) wrapper.get(".--content")[0].html(html);
         
-        css.top        = css.top        || "4.5em";
-        css.left       = css.left       || "2em";
-        css.width      = css.width      || "calc(100vw - 4em)";
-        css.height     = css.height     || "calc(100vh - 10em)";
-        css.padding    = css.padding    || 0;
-        css.background = css.background || "inherit";
-        css.color      = css.color      || app.colors().FONT;
-        css.boxShadow  = css.boxShadow  || "0 0 4em " + app.colors().BLACK;
+        css = __bind__({
+            top: "4em"
+            , left: "2.5vw"
+            , width: "95vw"
+            , height: "calc(100vh - 6em)"
+            , padding: 0
+            , background: app.colors("BACKGROUND")
+            , color: app.colors("FONT")
+            , boxShadow: "0 0 4em " + app.colors("DARK4")
+        }, css);
 
-        this.hintify(wrapper,css,true,true,true, true);
-
+        this.hintify(wrapper,css,true,true,true,true);
         tileClickEffectSelector(".-tile")
 
     }
@@ -1361,10 +1367,11 @@ class FAAU {
     download(data, filename, type="text/json"){ 
         filename = filename || 'app.txt'; 
         if(typeof data === "object") data = JSON.stringify(data, undefined, 4);
-        var 
+        const
         blob = new Blob([data], { type: type })
         , e = document.createEvent('MouseEvents')
-        , a = document.createElement('a');
+        , a = document.createElement('a')
+        ;
         a.download = filename;
         a.href = window.URL.createObjectURL(blob);
         a.dataset.downloadurl = [type, a.download, a.href].join(':');
@@ -1432,10 +1439,10 @@ class FAAU {
             , WHITE: "#FFFFFF"
             , BLACK: "#000000"
         }
-        bind(this.color_pallete, this.prism);
+        __bind__(this.color_pallete, this.prism);
     }
 };
-bind(window, {
+__bind__(window, {
     mouseAxis: { x:0, y:0 }
     , $: function(wrapper=null, context=document){ return [].slice.call(context.querySelectorAll(wrapper)) }
     , _:function(node='div', cls, style, fn){ return app.new(node,cls,style,fn) }
@@ -1489,8 +1496,4 @@ window.onmousemove = e =>{
     app.mouseFire && app.mouseFire.fire(window.maxis)
 }
 document.addEventListener("touchstart", function() {}, true);
-var
-y = setInterval( _ => { window.scrollTo(0, ( document.body.scrollHeight)) }, 1000)
-, z = 4000
-, name = "relaxar_jul20.txt";
 console.log('  __\n\ / _| __ _  __ _ _   _\n\| |_ / _` |/ _` | | | |\n\|  _| (_| | (_| | |_| |\n\|_|  \\__,_|\\__,_|\\__,_|');

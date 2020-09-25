@@ -159,11 +159,11 @@ blur
 .-flip { transform: scaleX(-1); }
 
 /* SPECIALS */
-.-zero, .-zero-top, .-zero-bottom, .-zero-tl, .-zero-tr, .-zero-bl, .-zero-br { margin: 0; }
-.-zero, .-zero-top, .-zero-tl, .-zero-tr { top: 0; }
-.-zero-bottom, .-zero-bl, .-zero-br { bottom: 0; }
-.-zero, .-zero-tl, .-zero-bl, .-zero-bottom { left:0; }
-.-zero-tr, .-zero-br { right:0; }
+.-zero, .-zero-top, .-zero-bottom, .-zero-tl, .-zero-top-left, .-zero-tr, .-zero-top-right, .-zero-bl, .-zero-bottom-left, .-zero-br, .-zero-bottom-right { margin: 0; }
+.-zero, .-zero-top, .-zero-tl, .-zero-top-left, .-zero-tr, .-zero-top-right { top: 0; }
+.-zero-bottom, .-zero-bl, .-zero-bottom-left, .-zero-br, .-zero-bottom-right { bottom: 0; }
+.-zero, .-zero-tl, .-zero-top-left, .-zero-bl, .-zero-bottom-left, .-zero-bottom { left:0; }
+.-zero-tr, .-zero-top-right, .-zero-br, .-zero-bottom-right { right:0; }
 .-centralized { top:50%; left:50%; transform:translate(-50%, -50%); }
 
 .-circle { border-radius: 50%; min-height: .25em; min-width: .25em }
