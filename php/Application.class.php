@@ -1,9 +1,7 @@
 <?php
-if(!defined("DEBUG")) define("DEBUG",  false);
-if(!defined("LOGIN_REQUIRED")) define("LOGIN_REQUIRED",  true);
-
-class App
+class Application
 {
+	// @override
 	private static $config = [
     	"developer"                 => "DEV Team"
         , "project_name"            => "MobileApi"
@@ -12,26 +10,28 @@ class App
         , "hash_algorithm"          => SHA512
         , "database_credentials"    => [
 			"host" 		 => "127.0.0.1"
-            , "username" => "root"
-        	, "passwd"   => ""
+            , "user"     => "root"
+        	, "pass"     => ""
 	        , "database" => "test"
-        	, "encoding" => "utf8"
+			, "encoding" => "utf8"
+			, "port"     => "3306"
 		]
 	];
 
-	private static $datasources = [
-
-    	"default"  => []
-
-	];
+	// @override
+	private static $datasources = [	];
 
 	public static function connections($datasource=DEFAULT_DB)
 	{
-    	$tmp = isset(self::$datasources[$datasource]) ? self::$datasources[$datasource] : [];
+
+		$tmp = [];
+
+		if(isset(self::$datasources[$datasource])) $tmp[$datasource] = self::$datasources[$datasource];
+		else if(is_file(IO::root("etc/sql.d/conf/$datasource.json"))) $tmp = (array)IO::jout("etc/sql.d/conf/$datasource.json");
 
     	if(!isset($tmp["host"]))     $tmp["host"]     = self::$config["database_credentials"]["host"];
-    	if(!isset($tmp["username"])) $tmp["username"] = self::$config["database_credentials"]["username"];
-    	if(!isset($tmp["passwd"]))   $tmp["passwd"]   = self::$config["database_credentials"]["passwd"];
+    	if(!isset($tmp["user"]))     $tmp["user"]     = self::$config["database_credentials"]["user"];
+    	if(!isset($tmp["pass"]))     $tmp["pass"]     = self::$config["database_credentials"]["pass"];
     	if(!isset($tmp["database"])) $tmp["database"] = self::$config["database_credentials"]["database"];
     	if(!isset($tmp["encoding"])) $tmp["encoding"] = self::$config["database_credentials"]["encoding"];
 
