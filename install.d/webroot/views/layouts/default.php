@@ -5,89 +5,95 @@ header('Content-Type: text/html; charset=UTF-8',true);?>
 <!DOCTYPE html>
 <html lang='pt-BR'>
     <head>
-        <!-- Basic Tags -->
+        <!-- Begin: Basic Meta Tags -->
+        <meta name="referrer" content="origin">
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-        <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-eval' data: blob: filesystem: ws: gap: cdvfile: https://ssl.gstatic.com *; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'; img-src * data: 'unsafe-inline'; connect-src * 'unsafe-inline'; child-src *; media-src *;" /> -->
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-eval' data: blob: filesystem: ws: gap: cdvfile: https://ssl.gstatic.com *; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'; img-src * data: 'unsafe-inline'; connect-src * 'unsafe-inline'; child-src *; media-src *;"/>
         <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, minimal-ui, viewport-fit=cover" />
-        
-        <!-- Android Tags -->
-        <meta name="mobile-web-app-capable" content="yes"/>
-        <meta name="theme-color" content="#343A40"/>
-        <link rel="manifest" href="manifest.json"/>
-
-        <!-- Apple Tags -->
-        <meta name="apple-mobile-web-app-capable" content="yes"/>
-        <meta name="apple-mobile-web-app-title" content="<?=App::project_name()?>"/>
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-        <meta name="format-detection" content="telephone=no"/>
-        <link rel="apple-touch-icon" sizes="180x180" href="img/icons/favicon/apple-touch-icon-180x180.png"/> <!-- iPhone -->
-        <link rel="apple-touch-icon" sizes="167x167" href="img/icons/favicon/apple-touch-icon-167x167.png"/> <!-- iPad Pro -->
-        <link rel="apple-touch-icon" sizes="152x152" href="img/icons/favicon/apple-touch-icon-152x152.png"/> <!-- iPad, iPad Air & iPad Mini -->
-        <link rel="mask-icon" href="img/icons/favicon/safari-pinned-tab-icon.svg" color="#424242"/> <!-- MacOS Safari -->
-        <link rel="apple-touch-startup-image" href="img/icons/favicon/apple-touch-startup-image-iphone-5-5s-se.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)"/> <!-- iPhone 5, iPhone 5s & iPhone SE -->
-        <link rel="apple-touch-startup-image" href="img/icons/favicon/apple-touch-startup-image-iphone-6-6s-7-8.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)"/> <!-- iPhone 6, iPhone 6s, iPhone 7 & iPhone 8 -->
-        <link rel="apple-touch-startup-image" href="img/icons/favicon/apple-touch-startup-image-iphone-plus.png" media="(device-width: 621px) and (device-height: 1104px) and (-webkit-device-pixel-ratio: 2)"/> <!-- iPhone 6s Plus, iPhone 7 Plus & iPhone 8 Plus -->
-        <link rel="apple-touch-startup-image" href="img/icons/favicon/apple-touch-startup-image-iphone-x-xs.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)"/> <!-- iPhone X & iPhone XS -->
-        <link rel="apple-touch-startup-image" href="img/icons/favicon/apple-touch-startup-image-iphone-xr.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)"/> <!-- iPhone XR -->
-        <link rel="apple-touch-startup-image" href="img/icons/favicon/apple-touch-startup-image-iphone-xs-max.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)"/> <!-- iPhone XS Max -->
-        <link rel="apple-touch-startup-image" href="img/icons/favicon/apple-touch-startup-image-ipad-ipad-mini.png" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)"/> <!-- 7.9" iPad Mini 4 & 9.7" iPad -->
-        <link rel="apple-touch-startup-image" href="img/icons/favicon/apple-touch-startup-image-ipad-pro-10-5.png" media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2)"/> <!-- 10.5" iPad Pro -->
-        <link rel="apple-touch-startup-image" href="img/icons/favicon/apple-touch-startup-image-ipad-pro-11.png" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)"/> <!-- 11" iPad Pro -->
-        <link rel="apple-touch-startup-image" href="img/icons/favicon/apple-touch-startup-image-ipad-pro-12-9.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)"/> <!-- 12.9" iPad Pro -->
-
-        <!-- Windows Tags -->
-        <meta name="application-name" content="Spume | Real Time" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="theme-color" content="#343A40" />
+        <!-- Begin: Apple Meta Tags -->
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-title" content="App" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="format-detection" content="telephone=no" />
+        <link rel="apple-touch-icon" sizes="180x180" href="img/favicon/apple-touch-icon-180x180.png" />
+        <!-- iPhone -->
+        <link rel="apple-touch-icon" sizes="167x167" href="img/favicon/apple-touch-icon-167x167.png" />
+        <!-- iPad Pro -->
+        <link rel="apple-touch-icon" sizes="152x152" href="img/favicon/apple-touch-icon-152x152.png" />
+        <!-- iPad, iPad Air & iPad Mini -->
+        <link rel="mask-icon" href="img/favicon/safari-pinned-tab-icon.svg" color="#FFD43B" />
+        <!-- MacOS Safari -->
+        <link rel="apple-touch-startup-image" href="img/favicon/apple-touch-startup-image-iphone-5-5s-se.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)" />
+        <!-- iPhone 5, iPhone 5s & iPhone SE -->
+        <link rel="apple-touch-startup-image" href="img/favicon/apple-touch-startup-image-iphone-6-6s-7-8.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" />
+        <!-- iPhone 6, iPhone 6s, iPhone 7 & iPhone 8 -->
+        <link rel="apple-touch-startup-image" href="img/favicon/apple-touch-startup-image-iphone-plus.png" media="(device-width: 621px) and (device-height: 1104px) and (-webkit-device-pixel-ratio: 2)" />
+        <!-- iPhone 6s Plus, iPhone 7 Plus & iPhone 8 Plus -->
+        <link rel="apple-touch-startup-image" href="img/favicon/apple-touch-startup-image-iphone-x-xs.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" />
+        <!-- iPhone X & iPhone XS -->
+        <link rel="apple-touch-startup-image" href="img/favicon/apple-touch-startup-image-iphone-xr.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" />
+        <!-- iPhone XR -->
+        <link rel="apple-touch-startup-image" href="img/favicon/apple-touch-startup-image-iphone-xs-max.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)" />
+        <!-- iPhone XS Max -->
+        <link rel="apple-touch-startup-image" href="img/favicon/apple-touch-startup-image-ipad-ipad-mini.png" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)" />
+        <!-- 7.9" iPad Mini 4 & 9.7" iPad -->
+        <link rel="apple-touch-startup-image" href="img/favicon/apple-touch-startup-image-ipad-pro-10-5.png" media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2)" />
+        <!-- 10.5" iPad Pro -->
+        <link rel="apple-touch-startup-image" href="img/favicon/apple-touch-startup-image-ipad-pro-11.png" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)" />
+        <!-- 11" iPad Pro -->
+        <link rel="apple-touch-startup-image" href="img/favicon/apple-touch-startup-image-ipad-pro-12-9.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)" />
+        <!-- 12.9" iPad Pro -->
+        <!-- Begin: Windows Meta Tags -->
+        <meta name="application-name" content="App" />
         <meta name="msapplication-navbutton-color" content="#343A40" />
         <meta name="msapplication-TileColor" content="#343A40" />
-        <meta name="msapplication-TileImage" content="img/icons/favicon/mstile-144x144.png" />
+        <meta name="msapplication-TileImage" content="img/favicon/mstile-144x144.png" />
         <meta name="msapplication-config" content="browserconfig.xml" />
-
-        <!-- Favicons -->
-        <link rel="icon" type="image/png" sizes="32x32" href="img/icons/favicon/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="img/icons/favicon/favicon-16x16.png" />
-        <link rel="shortcut icon" type="image/x-icon" href="img/icons/favicon/favicon.ico" /> <!-- 16x16 32x32 48x48 -->
+        <!-- Begin: Favicons -->
+        <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png" />
+        <link rel="shortcut icon" type="image/x-icon" href="img/favicon/favicon.ico" />
+        <!-- Begin: Stylesheets -->
+        <link rel="stylesheet" href="css/fonts.css"/>
+        <link rel="stylesheet" href="lib/css/faau.css"/>
+        <link rel="stylesheet" href="css/style.css"/>
         
-        <!-- Custom Tags -->
-        <meta name='description' content=''/>
         <meta name='author' content='<?=App::devel()?>'/>
+
+               
         <!-- Scripts -->
+        <!-- <script type="text/javascript" src="lib/js/faau.js"></script> -->
         <?php
         IO::js(SCAN,APP);
         IO::js(SCAN,CLIENT);?>
+        
         <!-- Stylesheets -->
         <?php
         IO::css(SCAN,APP);
         IO::css(SCAN,CLIENT);?>
+
         <title><?=App::project_name()?></title>
     </head>
-    <body id="app" class='-view -zero -content-center -roboto-light -scrolls --background'>
+    <body id="app" class="-view -zero -content-center -scrolls -roboto-light">
 
         <?php
         $load = $this->view() ? $this->view() : IO::root() . "/webroot/views/" . strtolower(get_called_class()) . ".php";
         if(is_file($load)) include $load;
         else if($this->result()) echo $this->result();
-        else if(DEBUG) Debug::show();?>
+        else if(DEBUG) Debug::show();
+        ?>
+
+        <!-- Begin: Stylesheets -->
+        <style type="text/css"></style>
+        
+        <!-- Begin: Scripts -->
+        <script type="text/javascript" src="config.js"></script>
+        <script type="text/javascript" src="js/router.js"></script>
+        <script type="text/javascript" src="js/preset.js"></script>
+        <script type="text/javascript">(function(){ app.initialize() })()</script>
 
     </body>
-    <script type="text/javascript">
-        (function(){ 
-            /* TOOLTIP */
-            document.getElementById("app").app(
-                _("tooltip", "-fixed --tooltip-element", {
-                    display: "none"
-                    , background: this.color_pallete["BACKGROUND"]
-                    , color:this.color_pallete["FONT"]
-                    , padding:".5em"
-                    , borderRadius:".25em"
-                    , border:"1px solid "+this.color_pallete["FONT"]
-                })
-            )
-            app.mousePool&&app.mousePool.add(coord => $("tooltip.--tooltip-element")[0].anime({ top:(coord.y+14)+"px", left: (coord.x+14)+"px" }))
-            /* INITIALIZATION */
-            app.hash = app.storage("HASH") || app.storage("HASH", <?= LOGIN_REQUIRED ? (User::logged() ? "'" . Request::sess("UUID") ."'" : "") : "app.nuid(12)" ?>);
-            bootloader&&app.initPool.add(nil =>  bootloader.loadComponents.fire());
-            app.initialize();
-        })();
-    </script>
 </html>

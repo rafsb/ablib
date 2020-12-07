@@ -14,7 +14,7 @@ class IO {
         $pre = "<script type='text/javascript' src='" . ($mode==APP ? "lib" : "webroot") . "/js/";
         $pos = "'></script>";
         if($file!==SCAN) echo $pre . $file . ".js" . $pos;
-        else foreach(self::scan(($mode==APP ? "lib" : "webroot") . DS . "js","js") as $file) echo $pre . $file . $pos;
+        else foreach(self::scan(($mode==APP ? "lib" : "") . DS . "js","js") as $file) echo $pre . $file . $pos;
     }
 
     public static function css($file = null, $mode=CLIENT)
@@ -22,7 +22,7 @@ class IO {
         $pre = "<link rel='stylesheet' type='text/css' href='" . ($mode==APP ? "lib" : "webroot") . "/css/";
         $pos = "' media='screen'/>";
         if($file!==SCAN) echo $pre . $file . ".css" . $pos;
-        else foreach(self::scan(($mode==APP ? "lib" : "webroot") . DS . "css","css") as $file) echo $pre . $file . $pos;
+        else foreach(self::scan(($mode==APP ? "lib" : "") . DS . "css","css") as $file) echo $pre . $file . $pos;
     }
 
     public static function jin($path=null,$obj=null,$mode=REPLACE)
