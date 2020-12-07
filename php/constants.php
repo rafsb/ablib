@@ -86,7 +86,7 @@ define("MD5","md5");
 
 define("DISK","disk");
 define("DATABASE","database");
-define("DEFAULT_DB","default");
+define("DEFAULT_DB","defaultdb");
 define("DEFAULT_COLLECTION","default");
 
 define("LAYOUTS_DEFAULT","default");
