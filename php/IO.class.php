@@ -14,7 +14,7 @@ class IO {
         $pre = "<script type='text/javascript' src='" . ($mode==APP ? "lib" : "webroot") . "/js/";
         $pos = "'></script>";
         if($file!==SCAN) echo $pre . $file . ".js" . $pos;
-        else foreach(self::scan(($mode==APP ? "lib" : "webroot") . DS . "js","js") as $file) echo $pre . $file . $pos;
+        else foreach(self::scan(($mode==APP ? "lib" : "") . DS . "js","js") as $file) echo $pre . $file . $pos;
     }
 
     public static function css($file = null, $mode=CLIENT)
@@ -22,7 +22,7 @@ class IO {
         $pre = "<link rel='stylesheet' type='text/css' href='" . ($mode==APP ? "lib" : "webroot") . "/css/";
         $pos = "' media='screen'/>";
         if($file!==SCAN) echo $pre . $file . ".css" . $pos;
-        else foreach(self::scan(($mode==APP ? "lib" : "webroot") . DS . "css","css") as $file) echo $pre . $file . $pos;
+        else foreach(self::scan(($mode==APP ? "lib" : "") . DS . "css","css") as $file) echo $pre . $file . $pos;
     }
 
     public static function jin($path=null,$obj=null,$mode=REPLACE)
@@ -33,23 +33,6 @@ class IO {
         // echo "<pre>"; print_r($obj);
         return self::write($path,json_encode($obj, DEBUG ? JSON_PRETTY_PRINT : null),$mode);
         
-    }
-
-    public static function csvin($path=null,$obj=null)
-    {
-        if($path===null) return Core::response(-1,"No path given");
-        if($obj===null) return Core::response(-2,"No object given");
-        if(substr($path,0,1)!=DS) $path = self::root() . $path;
-        // echo "<pre>"; print_r($obj);
-        if(!sizeof($obj)) return Core::response(-3,"No object length");
-        $csv = "";
-        foreach ($obj as $line)
-        {
-            $tmp = "";
-            if(sizeof($line)) foreach($line as $cell) $tmp.=",".$cell;
-            $csv .= ($tmp?substr($tmp,1):"")."\n";
-        }
-        echo self::write($path,$csv);
     }
 
     /* signature: jin('var/config.json');
@@ -63,20 +46,25 @@ class IO {
         return json_decode(self::read($path)); 
     }
 
-    public static function csvout($path=null)
+    public static function csvin($path=null,$obj=null, $delimiter=";", $endline="\n")
+    {
+        if($path===null) return Core::response(-1,"IO::csvin => No path given");
+        if($obj===null) return Core::response(-2,"IO::csvin => No object given");
+        echo self::write($path, _As::obj2csv($obj, $delimiter, $endline));
+    }
+
+    public static function csvout($path=null, $delimiter = ";", $endline ="\n")
     {
         if($path===null) return Core::response(-1,"No path given");
-        if(substr($path,0,1)!=DS) $path = self::root() . $path;
-        // echo "<pre>"; print_r($obj);
         $obj = self::read($path);
         $csv = [];
         if($obj)
         {
-            $obj = explode("\n",$obj);
+            $obj = explode($endline,$obj);
             foreach ($obj as $line)
             {
                 $tmp = [];
-                if($line) $tmp = explode(",",$line);
+                if($line) $tmp = explode($delimiter,str_replace($endline, "", $line));
                 $csv[] = $tmp;
             }
         }

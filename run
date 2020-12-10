@@ -3,10 +3,7 @@
 
 require "php" . DIRECTORY_SEPARATOR . "constants.php";
 require "php" . DS . "autoload.php";
-
 require dirname(__DIR__) . DS . "webroot" . DS . "App.php";
-
-// print_r($_SERVER['argv']);
 
 if(sizeof($_SERVER['argv']))
 {   
@@ -18,8 +15,6 @@ if(sizeof($_SERVER['argv']))
         $class_instance = new $class_name();
         echo $class_instance->$method_name(...array_slice($args,3));
         if(DEBUG) Debug::show();
-    }catch (Exception $e){
-        IO::debug($e);
-    }
+    }catch (Exception $e){ IO::debug($e); }
 
-}else \App::init();
+}else App::init();

@@ -1,5 +1,5 @@
 app.hash = app.storage("hash") || null;
-app.theme = app.storage("theme") || DEFAULT_THEME;
+app.theme = app.storage("theme") || DEFAULT_APP_THEME;
 app.body = $("body")[0];
 app.initial_pragma = START;
 app.components = { /**/ };

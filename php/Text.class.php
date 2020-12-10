@@ -1,12 +1,14 @@
 <?php
 class Text {
 
-    public static function sparse(String $tx, $offset=10, $dir=LEFT) {
+    public static function sparse(String $tx, $offset=10, $dir=LEFT)
+    {
         while(strlen($tx) < $offset) $tx = $dir ? $tx . " " : " " . $tx;
         return substr($tx, 0, $offset);
     }
 
-    public static function flex(String $text, String $doc="etc/text.d/sufix.json") {
+    public static function flex(String $text, String $doc="etc/text.d/sufix.json")
+    {
         $sufix = IO::jout($doc);
 
         $final = [];
@@ -26,7 +28,8 @@ class Text {
         return implode(" ", $final);
     }
 
-    public static function raccent(String $text, String $doc="etc/text.d/accent.json"){
+    public static function raccent(String $text, String $doc="etc/text.d/accent.json")
+    {
         $accent = IO::jout($doc);
         return strtr($text, $accent);
     }

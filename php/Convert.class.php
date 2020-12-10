@@ -54,4 +54,24 @@ class Convert
         return json_decode(json_encode(simplexml_load_string($xml)));
     }
 
+    public static function obj2csv($obj, $delimiter=";", $endline="\n")
+    {
+        if(!$obj || !sizeof((array)$obj)) return Core::response(-1,"Convert::obj2csv => No obj given");
+        $csv = "";
+        foreach($obj as $k=>$line){
+            $csv .= $k . $delimiter;
+            if($line){
+                if(is_array($line) || is_object($line)){
+                    foreach($line as $cell){
+                        if(is_array($cell) || is_object($cell)) $csv .= preg_replace("/[\n\r]/", "", _As::json($cell));
+                        else $csv .= preg_replace("/[\n\r]/", "", $cell);
+                        $csv .= $delimiter;
+                    }
+                } else $csv .= $line;
+            }
+            $csv .= $endline;
+        }
+        return $csv;
+    }
+
 }
