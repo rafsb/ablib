@@ -1,13 +1,9 @@
 html { scroll-behavior: smooth }
-body { position: relative; text-align: inherit; animation-fill-mode: both; display:inline-block; zoom:1;}
+body { position: relative; text-align: inherit; animation-fill-mode: both; display:inline-block; zoom:1;font-size: 14px;}
 body *:not(script):not(style) { 
 	font-family: inherit;
-	position: relative;
-	display:inline-block;
 	transition: ease all .2s;
 	box-sizing: border-box;
-	backface-visibility: hidden;
-	vertical-align: middle;
 }
 script,style{ display: none !important; }
 
@@ -68,7 +64,7 @@ script,style{ display: none !important; }
 .-ht-quart-min  { min-height: 25%; }
 .-ht-quart-max  { max-height: 25%; }
 
-@media only screen and (max-width: 1366px) {
+@media only screen and (max-width: 1367px) {
 	.-wd-2third    , .-wd-3quart    , .-wd-half:not(.-keep) 	{ width: 	  100%; }
 	.-wd-2third-min, .-wd-3quart-min, .-wd-half-min { min-width:  100%; }
 	.-wd-2third-max, .-wd-3quart-max, .-wd-half-max { max-width:  100%; }
@@ -83,7 +79,7 @@ script,style{ display: none !important; }
 	.-ht-third-min,  .-ht-quart-min,
 	.-ht-third-max,  .-ht-quart-max { height: auto; }
 	.-mob-hide { display: none; }
-	body { font-size: 12px  }
+	body { font-size: 11px  }
 } 
 
 .-relative      { position: relative }

@@ -20,14 +20,14 @@ DEBUG = false
 , PASSWD_AUTO_HASH  = 0
 , NUMBER            = 0
 , STRING            = 1
-, __bind__ = function(e,o){
+, _Bind = function(e,o){
     let
     a = Object.keys(o);
     for(let i=a.length;i--;) e[a[a.length-i-1]]=o[a[a.length-i-1]];
     return e
 }
 ;;
-__bind__(Number.prototype, {
+_Bind(Number.prototype, {
     fill: function(c,l,d){ return (this+"").fill(c,l,d) }
     , nerdify: function(){ 
         let n = this*1;
@@ -40,7 +40,7 @@ __bind__(Number.prototype, {
         )
     }
 })
-__bind__(Date.prototype, {
+_Bind(Date.prototype, {
     plus: function(n) {
         let
         date = new Date(this.valueOf());
@@ -71,24 +71,29 @@ __bind__(Date.prototype, {
     }
 });
 
-__bind__(NodeList.prototype, {
+_Bind(NodeList.prototype, {
     array: function() {
         return [].slice.call(this);
     }
 });
-__bind__(HTMLCollection.prototype, {
+_Bind(HTMLCollection.prototype, {
     array: function() {
         return [].slice.call(this);
     }
 })
-__bind__(HTMLFormElement.prototype,{
+_Bind(HTMLFormElement.prototype,{
     json: function(){
         let
         tmp = {};
         this.get("input, textarea, select, .-value").each(o=>{
-            if(!o.has("-skip")&&o.name){
-                tmp[o.name] = (o.tagName.toUpperCase()=="TEXTAREA"&&o.has("-list") ? o.value.trim().split('\n').clear() : o.value);
-                if((PASSWD_AUTO_HASH||o.has("-hash"))&&o.getAttribute("type")&&o.getAttribute("type").toUpperCase()=="PASSWORD") tmp[o.name] = tmp[o.name].hash();
+            if(!o.has("-skip")&&(o.name || o.dataset.name)){
+                let 
+                name = (o.name || o.dataset.name),
+                value = (o.value || o.dataset.value);
+                ;
+                if(o.has("-list")) value = value.split(/[\n\t]/g).clear();
+                if(o.has("-hash")) value = Array.isArray(value) ? value.extract(x => { return x.hash() }) : value.hash();
+                tmp[name] = value;
             }
         });
         return tmp;
@@ -97,7 +102,7 @@ __bind__(HTMLFormElement.prototype,{
         return JSON.stringify(this.json())
     }
 });
-__bind__(HTMLInputElement.prototype, {
+_Bind(HTMLInputElement.prototype, {
     val: function(v=null) {
         if(v!==null) this.value = v;
         return this
@@ -127,7 +132,7 @@ __bind__(HTMLInputElement.prototype, {
         const formData = new FormData();
     }
 });
-__bind__(Element.prototype,{
+_Bind(Element.prototype,{
     anime: function(obj,len=ANIMATION_LENGTH,delay=0,trans=null) {
         let
         el = this
@@ -173,7 +178,7 @@ __bind__(Element.prototype,{
     }
     , data: function(o=null, fn=null) {
         if (o===null) return this.dataset;
-       __bind__(this.dataset, o);
+       _Bind(this.dataset, o);
         if(fn!==null&&typeof fn=="function") fn.bind(this)(this);
         return this;
     }
@@ -314,7 +319,7 @@ __bind__(Element.prototype,{
     }
     , remove: function() { if(this&&this.parent()) this.parent().removeChild(this) }
 });
-__bind__(String.prototype,{
+_Bind(String.prototype,{
     hash: function() {
         let
         h = 0, c = "", i = 0, j = this.length;
@@ -370,7 +375,7 @@ __bind__(String.prototype,{
     , morph: function() {
         let
         x = document.createElement("div");
-        x.innerHTML = this.replace(/\t+/g, "").trim();
+        x.innerHTML = this;//.trim();
         return x.firstChild.tagName.toLowerCase()=="template" ? x.firstChild.content.children.array() : x.children.array();
     }
     , prepare: function(obj=null){
@@ -397,7 +402,7 @@ __bind__(String.prototype,{
         return false
     }
 });
-__bind__(Object.prototype,{
+_Bind(Object.prototype,{
     json:function(){ return JSON.stringify(this) }
     , each: function(fn=null){
         let
@@ -429,7 +434,7 @@ __bind__(Object.prototype,{
         return Object.keys(this);
     }
 });
-__bind__(Array.prototype, {
+_Bind(Array.prototype, {
     json: function(){ return JSON.stringify(this); }
     , clone: function() { return this.slice(0) }
     , each: function(fn) { if(fn) { for(let i=0;i++<this.length;) fn.bind(this[i-1])(this[i-1], i-1); } return this }
@@ -1092,7 +1097,7 @@ class FAAU {
     async load(url, args=null, target=null, bind=null) {
         return this.post(url, args).then( r => {
             if(!r.status) return app.error("error loading "+url);
-            r = r.data.prepare(__bind__(bind || {}, app.colors())).morph();
+            r = r.data.prepare(_Bind(bind || {}, app.colors())).morph();
             if(!target) target = $('#app')[0];
             target.app(r);
             return r.evalute();
@@ -1208,12 +1213,12 @@ class FAAU {
 
         if(delall) $(".--hintifyied"+(evenSpecial?", .--hintifyied-sp":"")).each(x=>x.desappear(ANIMATION_LENGTH, true));
 
-        o = __bind__({
+        o = _Bind({
             top: maxis.y+"px"
             , left: maxis.x+"px"
             , padding: ".5em"
             , borderRadius: ".25em"
-            , boxShadow: "0 0 .5em "+app.colors("DARK1")
+            , boxShadow: "0 0 .5em "+app.colors("DARK4")
             , background: this.colors("DARK4")
             , color: this.colors("FONT")
             , fontSize: "1em"
@@ -1237,33 +1242,32 @@ class FAAU {
         $('body')[0].app(toast.css({ zIndex: 1000 }).appear());
     }
 
-    window(n=null, html=null, css={}){
+    window(html=null, css={}){
         let
-        head = _("header","-row -content-left -zero",{ height:"2em", padding:".5em", color:app.colors("FONT") }).text(n || "¬¬").app(
-            _("div","-absolute -zero-tr -pointer --close -circle -tile", { background:"red", transform:"translate(1em, -1em)" }).app(
-                 _I("img/icons/cross.svg", null, { height:"3em", padding:"1em", filter:"invert(1)"})
+        head = _("header","-relative -row -zero").app(
+            _("div","-absolute -zero-tr -pointer --close -circle -tile", { background:"red", transform:"translate(1.5em, -2em)", border:"1px solid #000a", height:"3em", width:"3em" }).app(
+                 _I("img/icons/cross.svg", null, { height:"3em", width:"3em", padding:"1em", filter:"invert(1)", transform:"translate(-.05em) scale(1.1)"})
             )
         )
-        , wrapper = _("div", "-wrapper -zero")
+        , wrapper = _("div", "-absolute -zero", _Bind({ height:"80vh", width:"80vw", top:"10vh", left:"10vw", background:app.colors("BACKGROUND") }, css))
+            .app(_("div", "-absolute -wrapper --content -scrolls", { height: "100%"}))
             .app(head)
-            .app(_("div", "--content -row -scrolls", { height: "calc(100% - 2em)"}))
         ;;
 
-        if(html) wrapper.get(".--content")[0].html(html);
+        if(html) wrapper.get(".--content")[0].app(typeof html == "string" ? html.prepare(this.color_pallete).morph() : html);
         
-        css = __bind__({
-            top: "4em"
-            , left: "2.5vw"
-            , width: "95vw"
-            , height: "calc(100vh - 6em)"
-            , padding: 0
-            , background: app.colors("BACKGROUND")
-            , color: app.colors("FONT")
-            , boxShadow: "0 0 4em " + app.colors("DARK4")
-        }, css);
+        css = {
+            top: 0
+            , left: 0
+            , width: "100vw"
+            , height: "100vh"
+            , background: app.colors("DARK4")
+        };
 
         this.hintify(wrapper,css,true,true,true,true);
-        tileClickEffectSelector(".-tile")
+        tileClickEffectSelector(".-tile");
+
+        wrapper.evalute();
 
     }
 
@@ -1439,11 +1443,11 @@ class FAAU {
             , WHITE: "#FFFFFF"
             , BLACK: "#000000"
         }
-        __bind__(this.color_pallete, this.prism);
+        _Bind(this.color_pallete, this.prism);
     }
 };
-__bind__(window, {
-    mouseAxis: { x:0, y:0 }
+_Bind(window, {
+    maxis: { x: 0, y: 0 }
     , $: function(wrapper=null, context=document){ return [].slice.call(context.querySelectorAll(wrapper)) }
     , _:function(node='div', cls, style, fn){ return app.new(node,cls,style,fn) }
     , _S: function(type="svg", cls="--self-generated", attr={}, css={}){ return document.createElementNS("http://www.w3.org/2000/svg", type).addClass(cls).attr(attr||{}).css(css||{}) }
