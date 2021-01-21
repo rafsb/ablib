@@ -1242,34 +1242,48 @@ class FAAU {
         $('body')[0].app(toast.css({ zIndex: 1000 }).appear());
     }
 
-    window(html=null, css={}){
-        let
-        head = _("header","-relative -row -zero").app(
-            _("div","-absolute -zero-tr -pointer --close -circle -tile", { background:"red", transform:"translate(1.5em, -2em)", border:"1px solid #000a", height:"3em", width:"3em" }).app(
-                 _I("img/icons/cross.svg", null, { height:"3em", width:"3em", padding:"1em", filter:"invert(1)", transform:"translate(-.05em) scale(1.1)"})
+    
+    window(html=null, title="" , css={}){
+        const
+        head = _("header","-relative -row -zero").app(_("div", "-left -ellipsis", { padding:".75em", width:"calc(100% - 7em)" }).text(title)).app(
+            _("div","-right -pointer --close -tile").app(
+                 _I("img/icons/cross.svg", null, { height:"3em", width:"3em", padding:".75em", filter:"invert(1)" })
+            ).on("click", function(){ this.upFind("--window").desappear(ANIMATION_LENGTH, true) })
+        ).app(
+            _("div","-right -pointer --minimize -tile").app(
+                 _I("img/icons/minimize.svg", null, { height:"3em", width:"3em", padding:".75em", filter:"invert(1)" })
             )
         )
-        , wrapper = _("div", "-absolute -zero", _Bind({ height:"80vh", width:"80vw", top:"10vh", left:"10vw", background:app.colors("BACKGROUND") }, css))
-            .app(_("div", "-absolute -wrapper --content -scrolls", { height: "100%"}))
-            .app(head)
+        , wrapper = _("div", "-absolute -zero -wrapper -scrolls", { top:"3em", height:"calc(100% - 3em)", background: app.colors("LIGHT3") })
+        , _W = _("div", "--window -fixed --drag", _Bind({
+            height: "80vh"
+            , width: "80vw"
+            , top:"10vh"
+            , left: "10vw"
+            , background: app.colors("BACKGROUND")
+            , border: "1px solid " + app.colors("FONT") + "88"
+            , borderRadius: ".25em"
+            , boxShadow: "0 0 2em "+app.colors("DARK4")
+            , color: app.colors("FONT")
+            , zIndex:10000
+            , resize: "both"
+            , overflow: "auto"
+            , padding: "0 .25em .25em 0"
+        }, css))
         ;;
 
-        if(html) wrapper.get(".--content")[0].app(typeof html == "string" ? html.prepare(this.color_pallete).morph() : html);
-        
-        css = {
-            top: 0
-            , left: 0
-            , width: "100vw"
-            , height: "100vh"
-            , background: app.colors("DARK4")
-        };
+        if(html) wrapper.app(typeof html == "string" ? html.prepare(this.color_pallete).morph() : html);
 
-        this.hintify(wrapper,css,true,true,true,true);
+        $("#app")[0].app(_W.app(head).app(wrapper));
+
         tileClickEffectSelector(".-tile");
 
         wrapper.evalute();
 
+        enableDragging()
+
     }
+
 
     apply(fn,obj=null) { return (fn ? fn(obj) : null) }
 
@@ -1285,7 +1299,14 @@ class FAAU {
     }
 
     new(node='div', cls="auto-created", style={display:"inline-block"}, fn) {
-        return document.createElement(node).addClass(cls).css(style,fn);
+        let name = node, id = false;
+        if(name.indexOf("#")+1){
+            id = name.split("#")[1];
+            name = name.split("#")[0] || "div";
+        }
+        node = document.createElement(name).addClass(cls).css(style,fn);
+        if(id) node.id = id;
+        return node;
     }
 
     svg(type="svg", cls="--self-generated", attr={}, css={}){
@@ -1470,6 +1491,48 @@ _Bind(window, {
     , _I: function(path="img/icons/cross.svg", cls="--self-generated", css={}){ return _("img", cls, css).attr({ src: path }) }
     , bootloader: new Bootloader()
     , app: (new FAAU())
+    , enableDragging: function(){
+        $(".--draggable, .--drag").each(x => {
+            
+            if(x.has(".--drag-enabled")) return;
+            
+            x.css({
+                position:"absolute"
+            }).attr({ 
+                draggable: "true" 
+            }).on("dragstart", function(e){
+                this.dataset.before = { x: e.clientX, y: e.clientY, t: this.offsetTop, l: this.offsetLeft }.json()
+            }).on("drag", function(e){
+                const bef = this.dataset.before.json();
+                this.anime({ top: (bef.t + e.clientY - bef.y) + "px", left: (bef.l + e.clientX - bef.x)+"px" });
+            }).on("dragend", function(e){
+                const bef = this.dataset.before.json();
+                this.anime({ top: (bef.t + e.clientY - bef.y) + "px", left: (bef.l + e.clientX - bef.x)+"px" });
+            })
+
+            x.addClass("--drag-enabled");
+        })
+        $(".--drag-trigger").each(x => {
+            
+            if(x.has(".--drag-enabled")) return;
+            if(x.upFind("--drag-target")==$('#app')[0]) return;
+
+            x.attr({ 
+                draggable: "true"
+            }).on("dragstart", function(e){
+                const tgt = this.upFind("--drag-target");
+                this.dataset.before = { x: e.clientX, y: e.clientY, t: tgt.offsetTop, l: tgt.offsetLeft }.json()
+            }).on("drag", function(e){
+                const bef = this.dataset.before.json();
+                this.upFind("--drag-target").anime({ top: (bef.t + e.clientY - bef.y) + "px", left:(bef.l + e.clientX - bef.x) + "px" })
+            }).on("dragend", function(e){
+                const bef = this.dataset.before.json();
+                this.upFind("--drag-target").anime({ top: (bef.t + e.clientY - bef.y) + "px", left:(bef.l + e.clientX - bef.x) + "px" })
+            })
+
+            x.addClass("--drag-enabled");
+        })
+    }
     , tileClickEffectSelector: function(cls=null){
         if(!cls) return;
         $(cls).each(x=>{
@@ -1497,6 +1560,19 @@ _Bind(window, {
         })
     }
     , tooltips: function(){
+        if(!$("tooltip").length){
+            $("#app")[0].app(
+                _("tooltip#tooltip", "-fixed --tooltip-element", { 
+                    padding:".5em"
+                    , borderRadius:".25em"
+                    , border: "1px solid rgba(255,255,255,.25)"
+                    , boxShadow: "0 0 1em rgba(0,0,0,.5)"
+                    , background: app.colors("DARK4")
+                    , color: app.colors("SILVER")
+                    , display: "none" 
+                }))
+            app.mousePool.add(pos => document.getElementById("tooltip").anime({ transform:"translate(calc(1em + "+pos.x+"px),calc(1em + "+pos.y+"px))" }))
+        }
         $(".--tooltip").each(ttip => {
             ttip.raise().on("mouseenter", function () { 
                 $("tooltip.--tooltip-element")[0].stop().html(this.dataset.tip || "hooray").raise().css({ display:"block", background:this.dataset.tipbg || "#000A", color:this.dataset.tipft || "#FFF" })
