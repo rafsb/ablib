@@ -1245,21 +1245,46 @@ class FAAU {
     
     window(html=null, title="" , css={}){
         const
-        head = _("header","-relative -row -zero").app(_("div", "-left -ellipsis", { padding:".75em", width:"calc(100% - 7em)" }).text(title)).app(
+        head = _("header","-relative -row -zero").app(_("div", "-left -content-left -ellipsis", { lineHeight:3, width:"calc(100% - 6em)", padding: "0 1em" }).text(title)).app(
             _("div","-right -pointer --close -tile").app(
-                 _I("img/icons/cross.svg", null, { height:"3em", width:"3em", padding:".75em", filter:"invert(1)" })
+                 _I("img/icons/cross.svg", null, { height:"2.75em", width:"2.75em", padding:".75em", filter:"invert(1)" })
             ).on("click", function(){ this.upFind("--window").desappear(ANIMATION_LENGTH, true) })
         ).app(
             _("div","-right -pointer --minimize -tile").app(
-                 _I("img/icons/minimize.svg", null, { height:"3em", width:"3em", padding:".75em", filter:"invert(1)" })
-            )
+                 _I("img/icons/minimize.svg", null, { height:"2.75em", width:"2.75em", padding:".75em", filter:"invert(1)" })
+            ).on("click", function(){
+                const
+                win = this.upFind("--window")
+                ;;
+                if(win.has("--minimized")){
+                    const
+                    pos = win.dataset.position.json()
+                    this.anime({ transform:"rotate(0deg)" });
+                    win.get(".-wrapper")[0].style.display = "block";
+                    win.anime({ height:pos.h+"px", width:pos.w+"px", top:pos.y+"px", left:pos.x+"px" });
+                    win.remClass("--minimized");
+                }else{
+                    win.dataset.position = ({
+                        w: win.offsetWidth
+                        , h: win.offsetHeight
+                        , x: win.offsetLeft
+                        , y: win.offsetTop
+                    }).json();
+                    this.anime({ transform:"rotate(180deg)" });
+                    win.get(".-wrapper")[0].style.display = "none";
+                    win.anime({ height:"3.5em", width:"20vw", top:"calc(100vh - 3em)", left:"0px" });
+                    win.addClass("--minimized");
+                }
+                $(".--minimized").each((el,i) => { el.anime({ transform:"translateX("+(app.wd*.2*i)+"px)" }) })
+
+            })
         )
-        , wrapper = _("div", "-absolute -zero -wrapper -scrolls", { top:"3em", height:"calc(100% - 3em)", background: app.colors("LIGHT3") })
+        , wrapper = _("div", "-absolute -zero -wrapper -no-scrolls", { top:"3em", height:"calc(100% - 3em)", background: app.colors("LIGHT2") })
         , _W = _("div", "--window -fixed --drag", _Bind({
-            height: "80vh"
-            , width: "80vw"
-            , top:"10vh"
-            , left: "10vw"
+            height: "70vh"
+            , width: "70vw"
+            , top:"15vh"
+            , left: "15vw"
             , background: app.colors("BACKGROUND")
             , border: "1px solid " + app.colors("FONT") + "88"
             , borderRadius: ".25em"
@@ -1269,7 +1294,7 @@ class FAAU {
             , resize: "both"
             , overflow: "auto"
             , padding: "0 .25em .25em 0"
-        }, css))
+        }, css)).data({ state:"default" }).on("click", function(){ this.raise() })
         ;;
 
         if(html) wrapper.app(typeof html == "string" ? html.prepare(this.color_pallete).morph() : html);
@@ -1450,7 +1475,7 @@ class FAAU {
             , MIDNIGHT_BLUE:"#27283D"
             , WISTERIA:"#8F44AD"
             , BELIZE_HOLE:"#2A80B9"
-            , NEPHIRITIS:"#27AE61"
+            , NEPHRITIS:"#27AE61"
             , GREEN_SEA:"#169F85"
             , ASBESTOS:"#7E8C8D"
             , SILVER:"#BDC3C8"
@@ -1501,13 +1526,14 @@ _Bind(window, {
             }).attr({ 
                 draggable: "true" 
             }).on("dragstart", function(e){
+                e.dataTransfer.setDragImage(new Image(), 0, 0);
                 this.dataset.before = { x: e.clientX, y: e.clientY, t: this.offsetTop, l: this.offsetLeft }.json()
             }).on("drag", function(e){
                 const bef = this.dataset.before.json();
-                this.anime({ top: (bef.t + e.clientY - bef.y) + "px", left: (bef.l + e.clientX - bef.x)+"px" });
+                this.css({ top: (bef.t + e.clientY - bef.y) + "px", left: (bef.l + e.clientX - bef.x)+"px" });
             }).on("dragend", function(e){
                 const bef = this.dataset.before.json();
-                this.anime({ top: (bef.t + e.clientY - bef.y) + "px", left: (bef.l + e.clientX - bef.x)+"px" });
+                this.css({ top: (bef.t + e.clientY - bef.y) + "px", left: (bef.l + e.clientX - bef.x)+"px" });
             })
 
             x.addClass("--drag-enabled");
@@ -1543,18 +1569,18 @@ _Bind(window, {
                     bounds = this.getBoundingClientRect()
                     , size = Math.max(bounds.width, bounds.height);
                     this.app(_("span","-absolute",{
-                        background      : "inherit"
+                        background      : "rgba(255,255,255,.3)"
                         , display       : "inline-block"
                         , borderRadius  : "50%"
                         , width         : size+"px"
                         , height        : size+"px"
-                        , scale         : 0
                         , opacity       : .4
-                        , top: (maxis.y - -bounds.top - bounds.height/2 - size/2)+"px"
-                        , left: (maxis.x - bounds.left - bounds.width/2 - size/2)+"px"
+                        , top: e.layerY+"px"
+                        , left: e.layerX+"px"
                         , filter        : "invert(.2)"
                         , transformOrigin:"center center"
-                    }, x=>x.anime({scale:2},ANIMATION_LENGTH/2).then(x=>x.desappear(ANIMATION_LENGTH/4,true))))
+                        , transform: "translate(-50%, -50%) scale(0)"
+                    }, x=>x.anime({transform:"translate(-50%, -50%) scale(2)"},ANIMATION_LENGTH/2).then(x=>x.desappear(ANIMATION_LENGTH/4,true))))
                 }).addClass("--effect-selector-attached")
             }
         })
@@ -1571,7 +1597,7 @@ _Bind(window, {
                     , color: app.colors("SILVER")
                     , display: "none" 
                 }))
-            app.mousePool.add(pos => document.getElementById("tooltip").anime({ transform:"translate(calc(1em + "+pos.x+"px),calc(1em + "+pos.y+"px))" }))
+            app.mousePool.add(pos => document.getElementById("tooltip").css({ transform:"translate(calc(1em + "+pos.x+"px),calc(1em + "+pos.y+"px))" }))
         }
         $(".--tooltip").each(ttip => {
             ttip.raise().on("mouseenter", function () { 
