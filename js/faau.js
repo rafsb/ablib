@@ -1444,7 +1444,15 @@ class FAAU {
         e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
         a.dispatchEvent(e);
     }
-    
+
+    copy2clipboard = str => {
+        const el = document.createElement('textarea');
+        el.value = str;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+      }
 
     constructor() {
         this.initial_pragma = 0
