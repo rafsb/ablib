@@ -20,6 +20,12 @@ DEBUG = false
 , PASSWD_AUTO_HASH  = 0
 , NUMBER            = 0
 , STRING            = 1
+, TAG = (n,c,s) => _(n,c,s)
+, DIV = (c,s) => _("div",c,s)
+, IMG = (p,c,s) => _I(p,c,s)
+, SVG = (c,a,s,t) => _S(t,c,a,s)
+, SPATH = (c,a,s) => _("path",c,a,s)
+, TEXT = (t,c,s,n) => TAG(n,c,s).text(t)
 , _Bind = function(e,o){
     let
     a = Object.keys(o);
@@ -1323,7 +1329,7 @@ class FAAU {
         return field===null?args:(args[field]?args[field]:null);
     }
 
-    new(node='div', cls="auto-created", style={display:"inline-block"}, fn) {
+    new(node='div', cls="--self-generated", style={display:"inline-block"}, fn) {
         let name = node, id = false;
         if(name.indexOf("#")+1){
             id = name.split("#")[1];
