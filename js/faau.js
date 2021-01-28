@@ -20,12 +20,13 @@ DEBUG = false
 , PASSWD_AUTO_HASH  = 0
 , NUMBER            = 0
 , STRING            = 1
-, TAG = (n,c,s) => _(n,c,s)
+, TAG = (n="div",c,s,t) => _(n,c,s).text(t||"")
 , DIV = (c,s) => _("div",c,s)
 , IMG = (p,c,s) => _I(p,c,s)
-, SVG = (c,a,s,t) => _S(t,c,a,s)
+, SVG = (t,c,a,s) => _S(t,c,a,s)
 , SPATH = (c,a,s) => _("path",c,a,s)
-, TEXT = (t,c,s,n) => TAG(n,c,s).text(t)
+, TEXT = (t,c,s,n="p") => TAG(n,c,s,t)
+, SPAN = (t,c,s,n="span") => TAG(n,c,s,t)   
 , _Bind = function(e,o){
     let
     a = Object.keys(o);
@@ -1329,7 +1330,7 @@ class FAAU {
         return field===null?args:(args[field]?args[field]:null);
     }
 
-    new(node='div', cls="--self-generated", style={display:"inline-block"}, fn) {
+    new(node='div', cls="", style={}, fn) {
         let name = node, id = false;
         if(name.indexOf("#")+1){
             id = name.split("#")[1];
@@ -1338,11 +1339,7 @@ class FAAU {
         node = document.createElement(name).addClass(cls).css(style,fn);
         if(id) node.id = id;
         return node;
-    }
-
-    svg(type="svg", cls="--self-generated", attr={}, css={}){
-        return document.createElementNS("http://www.w3.org/2000/svg", type).addClass(cls).attr(attr).css(css)
-    }
+    }    
 
     storage(field=null,value=null){
         if(field==null||field==undefined) return false;
@@ -1526,7 +1523,7 @@ _Bind(window, {
     maxis: { x: 0, y: 0 }
     , $: function(wrapper=null, context=document){ return [].slice.call(context.querySelectorAll(wrapper)) }
     , _:function(node='div', cls, style, fn){ return app.new(node,cls,style,fn) }
-    , _S: function(type="svg", cls="--self-generated", attr={}, css={}){ return document.createElementNS("http://www.w3.org/2000/svg", type).addClass(cls).attr(attr||{}).css(css||{}) }
+    , _S: function(type="svg", cls="--self-generated", attr={}, css={}){ return document.createElementNS("http://www.w3.org/2000/svg", type).addClass(cls).attr(attr||{}).css(css||{}).html(type=="svg"?"<defs></defs>":"") }
     , _I: function(path="img/icons/cross.svg", cls="--self-generated", css={}){ return _("img", cls, css).attr({ src: path }) }
     , bootloader: new Bootloader()
     , app: (new FAAU())
