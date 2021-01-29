@@ -1311,6 +1311,7 @@ class FAAU {
         tileClickEffectSelector(".-tile");
 
         wrapper.evalute();
+        app.sleep(400).then(NULL => _W.raise());
 
         enableDragging()
 
@@ -1417,7 +1418,7 @@ class FAAU {
         return  rgb ? [ parseInt(rgb[1] || 255, 16), parseInt(rgb[2] || 255, 16), parseInt(rgb[3] || 255, 16), parseInt(rgb[3] || 255, 16) ] : null;
     }
 
-    objectdl(data, filename, filetype="text"){
+    download(data, filename, filetype="text"){
         if(!data) return;
         if(!filename) filename = 'app.txt';
         if(typeof data === "object") data = JSON.stringify(data, undefined, 4);
@@ -1429,21 +1430,6 @@ class FAAU {
         a.download = filename;
         a.href = window.URL.createObjectURL(blob);
         a.dataset.downloadurl =  [ filetype, a.download, a.href].join(':');
-        e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-        a.dispatchEvent(e);
-    }
-
-    download(data, filename, type="text/json"){ 
-        filename = filename || 'app.txt'; 
-        if(typeof data === "object") data = JSON.stringify(data, undefined, 4);
-        const
-        blob = new Blob([data], { type: type })
-        , e = document.createEvent('MouseEvents')
-        , a = document.createElement('a')
-        ;
-        a.download = filename;
-        a.href = window.URL.createObjectURL(blob);
-        a.dataset.downloadurl = [type, a.download, a.href].join(':');
         e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
         a.dispatchEvent(e);
     }
