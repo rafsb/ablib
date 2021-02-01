@@ -1230,6 +1230,7 @@ class FAAU {
             , background: app.colors("BACKGROUND")
             , color: app.colors("FONT")
             , fontSize: "1em"
+            , zIndex:9000
         }, o);
 
         if(typeof n == "string") n = ("<f>"+n+"</f>").morph()
@@ -1247,7 +1248,7 @@ class FAAU {
             }).dataset.animationFunction = setTimeout(toast => toast.desappear(ANIMATION_LENGTH, true), ANIMATION_LENGTH*8, toast)
         }
 
-        $('body')[0].app(toast.css({ zIndex: 9000 }).appear());
+        $('body')[0].app(toast.appear());
     }
 
     
