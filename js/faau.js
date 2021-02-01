@@ -20,8 +20,9 @@ DEBUG = false
 , PASSWD_AUTO_HASH  = 0
 , NUMBER            = 0
 , STRING            = 1
-, TAG = (n="div",c,s,t) => _(n,c,s).text(t||"")
+, TAG = (n="div",c,s,t) => _(n,c,s).html(t||"")
 , DIV = (c,s) => _("div",c,s)
+, WRAP = (c,s) => DIV((c||"")+" -wrapper",s)
 , IMG = (p,c,s) => _I(p,c,s)
 , SVG = (t,c,a,s) => _S(t,c,a,s)
 , SPATH = (c,a,s) => _("path",c,a,s)
@@ -92,14 +93,14 @@ _Bind(HTMLFormElement.prototype,{
     json: function(){
         let
         tmp = {};
-        this.get("input, textarea, select, .-value").each(o=>{
-            if(!o.has("-skip")&&(o.name || o.dataset.name)){
+        this.get("input, textarea, select, .-value").each( o => {
+            if(!o.has("-skip")&&(o.name)){
                 let 
-                name = (o.name || o.dataset.name),
-                value = (o.value || o.dataset.value);
-                ;
-                if(o.has("-list")) value = value.split(/[\n\t]/g).clear();
-                if(o.has("-hash")) value = Array.isArray(value) ? value.extract(x => { return x.hash() }) : value.hash();
+                name = o.name
+                , value = o.value || o.textContent
+                ;;
+                if(value&&o.has("-list")) value = value.split(/[\n\t]/g).clear();
+                if(value&&o.has("-hash")) value = Array.isArray(value) ? value.extract(x => { return x.hash() }) : value.hash();
                 tmp[name] = value;
             }
         });
@@ -1226,8 +1227,8 @@ class FAAU {
             , padding: ".5em"
             , borderRadius: ".25em"
             , boxShadow: "0 0 .5em "+app.colors("DARK4")
-            , background: this.colors("DARK4")
-            , color: this.colors("FONT")
+            , background: app.colors("BACKGROUND")
+            , color: app.colors("FONT")
             , fontSize: "1em"
         }, o);
 
@@ -1246,7 +1247,7 @@ class FAAU {
             }).dataset.animationFunction = setTimeout(toast => toast.desappear(ANIMATION_LENGTH, true), ANIMATION_LENGTH*8, toast)
         }
 
-        $('body')[0].app(toast.css({ zIndex: 1000 }).appear());
+        $('body')[0].app(toast.css({ zIndex: 9000 }).appear());
     }
 
     
@@ -1285,7 +1286,7 @@ class FAAU {
                 $(".--minimized").each((el,i) => { el.anime({ transform:"translateX("+(app.wd*.2*i)+"px)" }) })
 
             })
-        )
+        ).on("click", function(){ this.upFind("--window").raise() })
         , wrapper = _("div", "-absolute -zero -wrapper -no-scrolls", { top:"3em", height:"calc(100% - 3em)", background: app.colors("LIGHT2") })
         , _W = _("div", "--window -fixed --drag", _Bind({
             height: "70vh"
@@ -1297,11 +1298,11 @@ class FAAU {
             , borderRadius: ".25em"
             , boxShadow: "0 0 2em "+app.colors("DARK4")
             , color: app.colors("FONT")
-            , zIndex:10000
+            , zIndex:8000
             , resize: "both"
             , overflow: "auto"
             , padding: "0 .25em .25em 0"
-        }, css)).data({ state:"default" }).on("click", function(){ this.raise() })
+        }, css)).data({ state:"default" })
         ;;
 
         if(html) wrapper.app(typeof html == "string" ? html.prepare(this.color_pallete).morph() : html);
@@ -1590,9 +1591,10 @@ _Bind(window, {
                     , borderRadius:".25em"
                     , border: "1px solid rgba(255,255,255,.25)"
                     , boxShadow: "0 0 1em rgba(0,0,0,.5)"
-                    , background: app.colors("DARK4")
+                    , background: app.colors("BACKGROUND")
                     , color: app.colors("SILVER")
                     , display: "none" 
+                    , zIndex:10000
                 }))
             app.mousePool.add(pos => document.getElementById("tooltip").css({ transform:"translate(calc(1em + "+pos.x+"px),calc(1em + "+pos.y+"px))" }))
         }
