@@ -200,8 +200,8 @@ _Bind(Element.prototype,{
     , _put_where_: function(obj=null,w="beforeend"){
         let
         el=this;
-        if(Array.isArray(obj)) obj.each(o=>el.app(o));
-        else if(obj) el.insertAdjacentElement("beforeend",obj);
+        if(Array.isArray(obj)) obj.each(o=>el._put_where_(o,w));
+        else if(obj) el.insertAdjacentElement(w,obj);
         return this;
     }
     , aft: function(obj=null) { return this._put_where_(obj,"afterend")     }
@@ -655,8 +655,8 @@ _Bind(Array.prototype, {
         return this
     }
     , clear: function(){
-        return this.extract(function(){
-            return this && this != "" ? (this instanceof String ? this+"" : (this instanceof Number ? this*1 : this)) : null
+        return this.extract(n => {
+            return n!=null && n!=undefined && n!=NaN && n!=window ? (n instanceof String ? n+"" : (n instanceof Number ? n*1 : n)) : null
          })
     }
     , evalute: function(){
@@ -1254,7 +1254,9 @@ class FAAU {
     
     window(html=null, title="" , css={}){
         const
-        head = _("header","-relative -row -zero").app(_("div", "-left -content-left -ellipsis", { lineHeight:3, width:"calc(100% - 6em)", padding: "0 1em" }).text(title)).app(
+        head = _("header","-relative -row -zero").app(_("div", "-left -content-left -ellipsis", { minHeight:"3em", lineHeight:3, width:"calc(100% - 6em)", padding: "0 1em" }).app(
+            typeof(title) == "string" ? ("<span class='-row' style='min-height:3em'>"+title+"</span>").morph() : title
+        )).app(
             _("div","-right -pointer --close -tile").app(
                  _I("img/icons/cross.svg", null, { height:"2.75em", width:"2.75em", padding:".75em", filter:"invert(1)" })
             ).on("click", function(){ this.upFind("--window").desappear(ANIMATION_LENGTH, true) })
