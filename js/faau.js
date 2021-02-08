@@ -1254,8 +1254,8 @@ class FAAU {
     
     window(html=null, title="" , css={}){
         const
-        head = _("header","-relative -row -zero").app(_("div", "-left -content-left -ellipsis", { minHeight:"3em", lineHeight:3, width:"calc(100% - 6em)", padding: "0 1em" }).app(
-            typeof(title) == "string" ? ("<span class='-row' style='min-height:3em'>"+title+"</span>").morph() : title
+        head = _("header","-relative -row -zero").app(_("div", "-left -content-left -ellipsis", { minHeight:"3em", lineHeight:3, width:"calc(100% - 6em)" }).app(
+            typeof(title) == "string" ? ("<span class='-row' style='min-height:3em;padding:1em'>"+title+"</span>").morph() : title
         )).app(
             _("div","-right -pointer --close -tile").app(
                  _I("img/icons/cross.svg", null, { height:"2.75em", width:"2.75em", padding:".75em", filter:"invert(1)" })
