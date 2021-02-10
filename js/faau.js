@@ -1290,7 +1290,7 @@ class FAAU {
 
             })
         ).on("click", function(){ this.upFind("--window").raise() })
-        , wrapper = _("div", "-absolute -zero -wrapper -no-scrolls", { top:"3em", height:"calc(100% - 3em)", background: app.colors("LIGHT2") })
+        , wrapper = _("div", "-absolute -zero -wrapper -no-scrolls", { top:"3em", height:"calc(100% - 3em)" })
         , _W = _("div", "--window -fixed --drag", _Bind({
             height: "70vh"
             , width: "70vw"
