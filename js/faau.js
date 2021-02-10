@@ -28,6 +28,8 @@ DEBUG = false
 , SPATH = (c,a,s) => _("path",c,a,s)
 , TEXT = (t,c,s,n="p") => TAG(n,c,s,t)
 , SPAN = (t,c,s,n="span") => TAG(n,c,s,t)   
+, ROW = (e,s) => {const x=DIV("-row",s);x.html(e);return x}
+, WSPAN = (t,c,s,n="span") => TAG(n,c,_Bind({ paddingLeft:"1em" }, s||{}),t)   
 , _Bind = function(e,o){
     let
     a = Object.keys(o);
