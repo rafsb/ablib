@@ -183,7 +183,8 @@ blur
 
 /* LININGS */
 .-ellipsis {overflow-x: hidden; text-overflow: ellipsis; white-space: nowrap }
-.-clamp{ display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;  text-overflow: ellipsis;  }
+.-clamp, .-singleline{ display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;  text-overflow: ellipsis;  }
+.-singleline{ -webkit-line-clamp: 1;  }
 .-multline { overflow-wrap:normal !important}
 .-multline-force { overflow-wrap:break-word !important}
 
