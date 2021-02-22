@@ -1,9 +1,9 @@
-<svg version="1.1" id="Camada_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 256 256" style="enable-background:new 0 0 256 256;" xml:space="preserve">
-<style type="text/css">
-	.st0{fill-rule:evenodd;clip-rule:evenodd;}
-</style>
-<path class="st0" d="M105.9,5l16.7,16.7L61.1,83.1h83.5v0.3l11.1,0.7c26,3.3,49.3,18.8,62.4,42c15,26.6,14.4,59.2-1.5,85.2
-	s-44.8,41.3-75.2,40l0.9-20.2c23.2,1,45-10.6,57.1-30.4c12.1-19.8,12.6-44.5,1.2-64.7c-10-17.7-27.6-29.4-47.4-31.9l-8.5-0.5v0H61.1
-	l61.4,61.4l-16.7,16.7L17.3,94l0.7-0.6l-0.7-0.7L105.9,5z"/>
+<svg
+   xmlns="http://www.w3.org/2000/svg"
+   viewBox="0 0 33.866666 33.866668"
+   height="128"
+   width="128">
+  <path
+     style="fill:none;stroke:#000000;stroke-width:2.11666679;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 22.754167,1.0583332 11.288889,16.933333 22.754167,32.631945"/>
 </svg>
