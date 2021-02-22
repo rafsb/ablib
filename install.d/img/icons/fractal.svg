@@ -1,0 +1,56 @@
+<svg
+   xmlns="http://www.w3.org/2000/svg"
+   viewBox="0 0 67.733332 67.733335"
+   height="256"
+   width="256">
+  <g transform="translate(0,-229.26665)">
+    <circle
+       style="opacity:1;fill:#000000;fill-opacity:1"
+       data-y="238.90513610839844"
+       data-x="426.3173522949219"
+       class="-pointer --childball"
+       cy="265.88257"
+       cx="52.489952"
+       r="13.4081" />
+    <circle
+       style="opacity:1;fill:#000000;fill-opacity:1"
+       data-y="168.38040161132812"
+       data-x="370.79730224609375"
+       class="-pointer --childball"
+       cy="244.31711"
+       cx="35.512703"
+       r="11.651176" />
+    <circle
+       style="opacity:1;fill:#000000;fill-opacity:1"
+       data-y="195.50457763671875"
+       data-x="295.58233642578125"
+       class="-pointer --childball"
+       cy="252.61131"
+       cx="12.513027"
+       r="9.8942528" />
+    <circle
+       style="opacity:1;fill:#000000;fill-opacity:1"
+       data-y="264.400390625"
+       data-x="285.7835693359375"
+       class="-pointer --childball"
+       cy="273.67868"
+       cx="9.5167027"
+       r="8.1373301" />
+    <circle
+       style="opacity:1;fill:#000000;fill-opacity:1"
+       data-y="306.3345642089844"
+       data-x="326.9360656738281"
+       class="-pointer --childball"
+       cy="286.50153"
+       cx="22.100554"
+       r="6.3804059" />
+    <circle
+       style="opacity:1;fill:#000000;fill-opacity:1"
+       data-y="308.5540466308594"
+       data-x="374.4012756347656"
+       class="-pointer --childball"
+       cy="287.18024"
+       cx="36.614746"
+       r="4.6234822" />
+  </g>
+</svg>

@@ -1,4 +1,10 @@
-var/logs
-webroot/App.php
-var/logs
-webroot/App.php
+var/
+lib/
+logs/
+# config
+img/logos/client.png
+# src/fonts
+# platforms/
+# node_modules/
+# plugins/
+# res/
