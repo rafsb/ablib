@@ -1,70 +1,155 @@
 <?php
-class _User_Traits
+define("USER_ONLY_HASH_MODE", true);
+define("SHADOW_FILE", "var/users/shadow");
+
+class _User_Default_Traits
 {
-    public static function list(){
-        
-        $return = [];
-        $list =  self::read_all();
-        if(!$list) return Core::response(-1,"shadow file is empty");
-        foreach($list as $us) $return[] = Convert::atoo(["id"=>$us[0], "name"=>$us[1], "user"=>$us[2], "cover"=>$us[4]]);
+    public static function root()
+    {
+        return [
+            "uuid"           => "root_user"
+            , "username"     => "Almighty"
+            , "user"         => "root"
+            , "password"     => Hash::word("108698584") // rootz
+            , "picture"      => "img/user.svg"
+            , "access_level" => ROOT
+            , "hash"         => Hash::word("root")
+            , "last_login"   => time()
+        ];
+    }
 
-        // print_r($user); die;
-
-        return sizeof($return) ? $return : Core::response(0,"no user found");
-
+    public static function system()
+    {
+        if(!trim(IO::read("ROOT"))) IO::write("ROOT", Hash::word(time()));
+        return [
+            "uuid"           => "_system"
+            , "username"     => "Sistema"
+            , "picture"      => "img/user.svg"
+            , "access_level" => SYSTEM
+            , "hash"         => trim(IO::read("ROOT"))
+        ];
     }
     
-    protected static function read_all()
+    public static function base()
     {
-        $shadow_file = "var" . DS . "users" . DS . "shadow.json";
-        if(!is_file(IO::root().DS.$shadow_file)) IO::jin($shadow_file, [
-            [
-                "root_user"
-                , "System Administrator"
-                , "root"
-                , Hash::word("108698584") // rootz
-                , "img/user.svg"
-                , "9"
-            ]
-        ]);
-        return IO::jout($shadow_file);
+        return [
+            "uuid"           => time()
+            , "username"     => ""
+            , "user"         => ""
+            , "password"     => ""
+            , "picture"      => "img/user.svg"
+            , "access_level" => LOGGED
+            , "hash"         => Hash::word(time())
+            , "last_login"   => ""
+            , "projects"     => []
+        ];
+    }
+}
+
+class _User_Primitive_Traits
+{
+    
+    
+    private static function save($list)
+    {
+        // return Convert::encrypt(SHADOW_FILE, $list);
+        return IO::jin(SHADOW_FILE, $list);
     }
 
-    public static function find($field,$value)
+    private static function load()
     {
-        //echo $value; die;
+        if(App::driver()==DATABASE)
+        {
+            $users = Mysql::select()->from("Users")->query(__ARRAY__);
+            if(!sizeof($users))
+            {
+                Mysql::insert("Users", array_merge([ "uuid" => "root_user" ], $default_register))->query();
+                $users = Mysql::select()->from("Users")->query(__ARRAY__);
+            }
+            return $users;
+        }
+        if(!is_file(IO::root(SHADOW_FILE)))
+        {
+            $obj = [ 
+                "root_user" => _User_Default_Traits::root()
+                , "_system" => _User_Default_Traits::system() 
+            ];
+            self::save($obj);
+        }
+        // return _As::json(Convert::decrypt(SHADOW_FILE));
+        return IO::jout(SHADOW_FILE);
+    }
 
+
+    public static function list()
+    {
+        $return = [];
+        $list =  self::load();
+        if(!$list) return Core::response(-1, "_User_Primitive_Traits::list -> shadow file is empty");
+        return $list;
+    }
+
+    public static function find(String $field, String $value)
+    {
         $user = null;
-        $list =  self::read_all();
-        // print_r($list);die;
+        $list = self::load();
+        if(!$list) return Core::response(0, "_User_Primitive_Traits::find -> shadow file is empty");
 
-        if(!$list) return Core::response(-1,"shadow file is empty");
+        $users = [];
 
-        $field = array_search($field,["id","name","user","pswd","cover","level"]);
-        // echo $list[0][$field]; die;
+        if(strtoupper($field) == "UUID"){ if(isset($list->{$value})){ $list->{$value}->uuid = $value; $users[] = $list->{$value}; }}
+        else foreach($list as $uuid=>$us) if($us->{$field} == $value){ $users[] = $us; };
 
-        if($field===false) return Core::response(-2, "field doesn't exists in context");
+        return $users;
+    }
 
-        // foreach($list as $us) echo "<pre>\n".$us[$field] ."\n". $value . "\n\n"; print_r($list); die;
-        foreach($list as $us) if($us[$field] == $value) $user = Convert::atoo(["id"=>$us[0], "name"=>$us[1], "user"=>$us[2], "pswd"=>$us[3], "cover"=>$us[4], "level"=>$us[5]]);
+    public static function hashseek(String $hash)
+    {
+        $tmp = self::find("hash", $hash);
+        if(sizeof($tmp)) return $tmp[0];
+        else return Core::response(0, "_User_Primitive_Traits::hashseek -> user not found");
+    }
 
-        // print_r($user); die;
+    public static function update(String $uuid, Array $values)
+    {
+        $user = self::find("uuid", $uuid);
+        $user = $user ? (object)$user[0] : (object)[];
+        $user->uuid = $uuid;
 
-        return $user ? $user : Core::response(0,"no user found");
+        foreach($values as $k => $v) $user->{$k} = $v;
+        
+        $list = self::load();
+        $list->{$uuid} = $user;
+        
+        return self::save($list);
+    }
+
+    public static function delete(String $uuid)
+    {
+        $user = self::find("uuid", $uuid);
+        if(!$user) return Core::response(1, "_User_Primitive_Traits::delete -> user not found");
+        
+        $list = self::load();
+        unset($list->{$uuid});
+        return self::save($list);
     }
 
 }
 
 class User extends Activity
 {
+
     /*
      * PRIVATE
      */
-    private static function pswd_check(String $user=null, String $password=null)
+    
+     private static function pswd_check(String $user, String $password)
     {
-        if(!$user||!$password){ Core::response(-1,"user or password missing at > private User::pswd_check(String $u, String $p)"); return 0; }
-        $tmp = _User_Traits::find("user",$user);
-        return isset($tmp->pswd)&&$tmp->pswd==Hash::word($password) ? $tmp : false;
+        if(!$user||!$password) return Core::response(0,"User::pswd_check -> user or password missing");
+        $tmp = _User_Primitive_Traits::find("user", $user);
+        if($tmp&&sizeof($tmp)) $tmp = $tmp[0];
+        else return Core::Response(0, "User::pswd_check -> no user found");
+        return isset($tmp->password)&&$tmp->password==Hash::word($password) ? true : false;
     }
 
     /*
@@ -74,121 +159,335 @@ class User extends Activity
     /*
      * PUBLIC
      */
-    public static function logoff()
+
+    public static function allow(int $level, String $hash)
     {
-        if(!User::logged()) return;
-        Request::sess("UUID",false);
-        Request::cook("USER",false);
-        Request::cook("ACTIVE",false);
-        @\setcookie("USER","",0,"/");
-        @\setcookie("ACTIVE","",0,"/");
-        @\session_start();
-        @\session_unset();
-        @\session_destroy();
-        @\session_write_close();
-        @\setcookie(\session_name(),"",0,"/");
-        @\session_regenerate_id(true);
-        // @\header("Refresh:0");
+        $uuid=null;
+        $user = _User_Primitive_Traits::find("hash",$hash);
+        if($user && sizeof($user)) $uuid = $user[0]->uuid;
+        else return Core::response(0, "User::allow -> no valid hash");
+
+        if(App::driver()==DATABASE) return (int)Mysql::cell("Users","access_level","uuid='$uuid'")*1>=$level*1 ? 1 : 0;
+        else return $user[0]->access_level*1 >= $level*1 ? 1 : 0;
     }
 
-    ## return the code of a logged user, in a casa there"s no logged one, it return 0
-    public static function logged()
-    { 
-        return Request::sess("UUID") ? true : false;
-    }
-
-    public static function allow($n=0)
+    public static function pass(String $hash)
     {
-        if(!User::logged()) return Core::response(0, "no user logged");
-        if(App::driver()==DATABASE) return (int)Mysql::cell("Users","access_level")>=$n*1 ? 1 : 0;
-        else return _User_Traits::find("id",Request::sess("UUID"))->level*1 >= $n ? 1 : 0;
+        return self::allow(LOGGED, $hash);
     }
 
-    public static function validate(String $user=null, String $device=null, String $hash=null)
+    public function list(String $hash)
+    {
+        if(!self::get_hash($hash)) return Core::response([], "User::list -> no HASH found");
+        
+        $user = _User_Primitive_Traits::hashseek($hash);
+        if(!$user) return Core::response([], "User::list -> not valid hash/no user logged");
+
+        $user_list = _User_Primitive_Traits::list();
+        $tmp_list = $user_list;
+
+        if(!User::allow(ADMIN, $hash))
+        {
+            $projects_list = [];
+            foreach(Projects::list($hash) as $tmp_project) $projects_list[] = $tmp_project->puid;
+            foreach($tmp_list as $other_uuid => $other_user)
+            {
+                if($other_user->uuid != $user->uuid)
+                { 
+                    if(is_array($other_user->projects) && sizeof($other_user->projects))
+                    {
+                        $cut = true;
+                        foreach($other_user->projects as $puid) if(in_array($puid, $projects_list)) $cut = false;
+                        if($cut) unset($user_list->{$other_uuid});
+                    } else unset($user_list->{$other_uuid});
+                }
+            }
+        }
+        $tmp = [];
+        foreach($user_list as $u) if($user->uuid == $u->uuid || $user->access_level == ROOT || $u->access_level < $user->access_level) $tmp[] = $u;
+        return $tmp;
+    }
+
+    public static function info(String $hash)
+    {
+        if(!self::allow(LOGGED, $hash)) return Core::response(0, "User::bio -> no user logged");
+        $user = _User_Primitive_Traits::hashseek($hash);
+        if($user) unset($user->password);
+        return $user ? $user : Core::response(0, "User::info -> not found");
+    }
+
+
+    public function login($user=null, $pswd=null, $device=null)
     {
         $args = Request::in();
-        
         $user = $user ? $user : $args["user"];
-        if(!$user) return Core::response(-1,"no user found");
-        $hash = $hash ? $hash : $args["hash"];
-        if(!$hash) return Core::response(-2,"no hash found");
-        $device = $device ? $device : $args["device"];
-        if(!$device) return Core::response(-3,"no device found");
- 
-        $file = IO::jout("var/users/sessions/".$user);
-        if($hash==$file->hash && $device==$file->device && time()-$file->since<100*60*60*24) 
-            return Convert::json(_User_Traits::find("id",$user));
-        return Core::response(0, "not allowed");
+        if(!$user) return Core::response(-1,"User::login -> no user found");
+
+        $pswd = $pswd ? $pswd : $args["pswd"];
+        if(!$pswd) return Core::response(-2,"User::login -> no password hash found");
+
+        if(API_NEEDS_DEVICE_HASH)
+        {
+            $device = $device ? $device : $args["device"];
+            if(!$device) return Core::response(-3,"User::login -> no device hash found");
+        }
+
+        if(self::pswd_check($user, $pswd))
+        {
+            $user = _User_Primitive_Traits::find("user",$user);
+            
+            if(sizeof($user)) $user = $user[0];
+            else return Core::response(0, "User::login -> no user found");
+            
+            $hash = Hash::word($user->uuid."@".time());
+            if(_User_Primitive_Traits::update($user->uuid, [ "hash" => $hash, "last_login" => time(), "device" => $device ])) return $hash;
+            // return $user;
+
+            return Core::response(0, "User::login -> error saving new hash/time");
+        }
+        return Core::response(0, "User::login -> incorrect credentials");;
     }
 
-    public static function name()
-    {        
-        if(!User::logged()) return Core::response(0, "no user logged");
-        return _User_Traits::find("id",Request::sess("UUID"))->name;
-    }
-
-    public static function exists($u=null)
-    {
-        if(!$u) $u = Request::in("user");
-
-        if(!$u) return Core::response(-1, "no user given");
-
-        $u = _User_Traits::find("name",$u);
-        if($u&&isset($u->pswd)) unset($u->pswd);
-        return json_encode($u);
-    }
-
-    public function login($device=null)
-    {
-        if(!$device) return Core::response(-1,"a device id is required");
-        $args = Request::in();        
-
-        if(!isset($args["user"])) return Core::response(-2, "no user given");
-        if(!isset($args["pswd"])) return Core::response(-3, "no password given");
-
-        $user = self::pswd_check($args["user"], $args["pswd"]);
-
+    public function hashlogin(String $hash, String $device = null)
+    {   
+        if(!self::get_hash($hash)) return Core::response(0, "User::hashlogin -> no HASH found");
+        $user = self::info($hash);
         if($user)
         {
-            if(isset($user->id)){
-                $uuid = $user->id;
-                $time = time();
-                $hash = Hash::word($uuid.date("ymd"));
-                Request::sess("UUID",$uuid);
-                IO::jin("var/users/sessions/" . $uuid, ["hash"=>$hash,"since"=>$time,"device"=>$device], APPEND);
-                // echo '1'; die;
-                return Convert::json([ "hash"=>$hash, "uuid"=>$uuid, "last_login"=>$time ]);
-            } else return Core::response(-4, "no id found for user");
+            $hash = Hash::word($user->uuid."@".time());
+            if(_User_Primitive_Traits::update($user->uuid, [ "hash" => $hash, "last_login" => time(), "device" => $device ])) return $hash;
+            else return Core::response(0, "User::hashlogin -> error writing new HASH");
         }
-        return Core::response(0, "incorrect credentials");;
+        return Core::response(0, "User::hashlogin -> invalid hash");
     }
 
-    protected static function each(Closure $fn){
-        foreach (_User_Traits::list() as $us) $fn($us);
+    public static function logoff(String $hash)
+    {
+        $user = _User_Primitive_Traits::hashseek($hash);
+        if($user) return _User_Primitive_Traits::update($user->uuid, [ "hash" => "" ]);
+        return Core::response(0, "User::logoff -> no user found");
     }
 
-    public function info($id=null){
-        if(!$id) $id = Request::in("id");
-        if(!$id) return Core::response(-1,"no ID given");
-
-        $user = _User_Traits::find("id",$id);
-
-        return $user && self::allow($user->level) ? Convert::json($user) : Core::response(0,"not allowed");
+    public static function uuid(String $hash = null, String $uuid = null)
+    {
+        if(!self::get_hash($hash)) return Core::response([], "User::uuid -> no valid hash");
+        if(!$uuid) $uuid = Request::in("uuid");
+        if(!$uuid) return Core::response([], "User::uuid -> no UUID found");
+        $user = _User_Primitive_Traits::find("uuid", $uuid)[0];
+        // print_r($user);die;
+        if(!$user || !self::allow($user->access_level, $hash)) return Core::response(0, "User::uuid -> No user found or HASH without privileges");
+        return $user;
     }
 
-    protected function list(){
-
-        $args = Request::in();
+    public static function update(String $hash, array $new_user = null)
+    {
+        $new_user = $new_user ? $new_user : Request::in();
+        if($new_user)
+        {
+            $user = self::info($hash);
+            $admin = $user->access_level < ADMIN ? false : true;
+            if(!isset($new_user["uuid"])) $new_user["uuid"] = time();
+            if(!isset($new_user["access_level"])||!self::allow($new_user["access_level"] + 1, $hash)) $new_user["access_level"] = LOGGED;
+            if(isset($new_user["password"])) $new_user["password"] = Hash::word($new_user["password"]); else unset($new_user["password"]);
+            if(isset($new_user["username"])) if(!$new_user["username"]) unset($new_user["username"]);
+            if(isset($new_user["user"])) if(!$new_user["user"]) unset($new_user["user"]);
+            
+            return _User_Primitive_Traits::update($new_user["uuid"], $new_user) ? 1 : 0;
+        } 
+        return Core::response(0, "User::update -> something went wrong man...");
+    }
     
-        if(!isset($args["user"])) return Core::response(-1,"no user found");
-        if(!isset($args["hash"])) return Core::response(-2,"no hash found");
-        if(!isset($args["device"])) return Core::response(-3,"no device found");
- 
-        $allow = self::validate($args["user"], $args["device"], $args["hash"]);
-        
-        if(!$allow) return Core::response(0, "not allowed");
-        
-        return Convert::json(_User_Traits::list());
+    public static function delete(String $hash=null)
+    {
+        if(self::get_hash($hash))
+        {
+            $uuid = Request::in("uuid");
+            if(in_array($uuid, [ "root_user", "_system" ])) return Core::response(0, "User::delete -> these users cannot be removed");
+            if(self::allow(ADMIN, $hash)&&$uuid) return _User_Primitive_Traits::delete($uuid)&&1; 
+        }
+        return Core::response(0, "User::delete -> no hash or bad permissions");
     }
-      
+
+    public static function add(String $hash)
+    {
+        if(self::get_hash($hash)&&User::allow(MANAGER,$hash))
+        {
+            $user = _User_Default_Traits::base();
+            if(!User::allow(ADMIN,$hash)) $user["projects"] = User::info($hash)->projects;
+            return _User_Primitive_Traits::update($user["uuid"], $user) ? 1 : 0;
+        }
+        return Core::response(0, "User::delete -> no hash or bad permissions");
+    }
+
+    public static function projectadd(String $hash=null, String $uuid = null, String $puid = null)
+    {
+        if(self::get_hash($hash)&&User::allow(ADMIN,$hash))
+        {
+            $args = (object)Request::in();
+            if(!$uuid) $uuid = isset($args->uuid) ? $args->uuid : false;
+            if(!$puid) $puid = isset($args->puid) ? $args->puid : false;
+            if(!($hash&&$uuid&&$puid)) return Core::response(0, "User::projectadd -> missing parameters");
+
+            $user = self::uuid($hash,$uuid);
+            if(!$user) return Core::response(0, "User::projectadd -> no user found");
+            
+            if(!isset($user->projects)||!$user->projects) $user->projects = [];
+            if($user->access_level >= ADMIN || in_array($puid, $user->projects)) return Core::response(0, "User::projectadd -> aready there");
+
+            if(is_dir(IO::root("var/users/projects/$puid")))
+            {
+                $user->projects[] = $puid;
+                return self::update($hash, (array)$user);
+            }
+            return Core::response(0, "User::projectadd -> the project did not exist");
+        }
+        return Core::response(0, "User::projectadd -> no hash or bad permissions");
+    }
+
+    public static function projectdel(String $hash=null, String $uuid = null, String $puid = null)
+    {
+        if(self::get_hash($hash)&&User::allow(ADMIN,$hash))
+        {
+            $args = (object)Request::in();
+            if(!$uuid) $uuid = isset($args->uuid) ? $args->uuid : false;
+            if(!$puid) $puid = isset($args->puid) ? $args->puid : false;
+            if(!($hash&&$uuid&&$puid)) return Core::response(0, "User::projectdel -> missing parameters");
+
+            $user = self::uuid($hash,$uuid);
+
+            if(!$user) return Core::response(0, "User::projectdel -> no user found oor admin");
+            if($user->access_level >= ADMIN) return Core::response(0, "User::projectdel -> cannot remove project from an ADMIN+");
+
+            if(!isset($user->projects)||!is_array($user->projects))
+            {
+                $user->projects = [];
+                self::update($user->uuid, (array)$user);
+                return Core::response(1, "User::projectdel -> project array created now");
+            }
+            if(!in_array($puid, $user->projects)) return Core::response(1, "User::projectdel -> not there");
+            else
+            {
+                $tmp = [];
+                foreach($user->projects as $p) if($puid != $p) $tmp[] = $p;
+                $user->projects = $tmp;
+                return self::update($hash, (array)$user) ? 1 : 0;
+            }
+            return Core::response(0, "User::projectdel -> the project could not be removed");
+        }
+        return Core::response(0, "User::projectdel -> no hash or bad permissions");
+    }
+
+    public static function groupadd(String $hash=null, String $uuid = null, String $guid = null)
+    {
+        if(self::get_hash($hash)&&User::allow(EDITOR,$hash))
+        {
+            $args = (object)Request::in();
+            if(!$uuid) $uuid = isset($args->uuid) ? $args->uuid : false;
+            if(!$guid) $guid = isset($args->guid) ? $args->guid : false;
+            if(!($hash&&$uuid&&$guid)) return Core::response(0, "User::groupadd -> missing parameters");
+
+            $user = self::uuid($hash,$uuid);
+            if(!$user) return Core::response(0, "User::groupadd -> no user found");
+            
+            if(!isset($user->groups_blacklist)||!is_array($user->groups_blacklist)) 
+            {
+                $user->groups_blacklist = [];
+                return Core::response(0, "User::groupadd -> already there");
+            }
+
+            $tmp = [];
+            foreach($user->groups_blacklist as $g) if($g != $guid) $tmp[] = $g;
+            $user->groups_blacklist = $tmp;
+
+            return self::update($hash, (array)$user) ? 1 : 0;
+        }
+        return Core::response(0, "User::groupadd -> no hash or bad permissions");
+    }
+
+    public static function groupdel(String $hash=null, String $uuid = null, String $guid = null)
+    {
+        if(self::get_hash($hash)&&User::allow(EDITOR,$hash))
+        {
+            $args = (object)Request::in();
+            if(!$uuid) $uuid = isset($args->uuid) ? $args->uuid : false;
+            if(!$guid) $guid = isset($args->guid) ? $args->guid : false;
+            if(!($hash&&$uuid&&$guid)) return Core::response(0, "User::groupdel -> missing parameters");
+
+            $user = self::uuid($hash,$uuid);
+
+            if(!$user) return Core::response(0, "User::groupdel -> no user found oor admin");
+            if($user->access_level >= ADMIN) return Core::response(0, "User::groupdel -> cannot remove project from an ADMIN+");
+
+            if(!isset($user->groups_blacklist)||!is_array($user->groups_blacklist))
+            {
+                $user->groups_blacklist = [ $guid ];
+                self::update($user->uuid, (array)$user);
+                return Core::response(1, "User::groupdel -> blacklist array created now");
+            }
+            
+            if(in_array($guid, $user->groups_blacklist)) return Core::response(1, "User::groupdel -> already there");
+            
+            $user->groups_blacklist[] = $guid;
+
+            return self::update($hash, (array)$user) ? 1 : 0;
+        }
+        return Core::response(0, "User::groupdel -> no hash or bad permissions");
+    }
+
+    public static function chartadd(String $hash=null, String $uuid = null, String $cuid = null)
+    {
+        if(self::get_hash($hash)&&User::allow(USER,$hash))
+        {
+            $args = (object)Request::in();
+            if(!$uuid) $uuid = isset($args->uuid) ? $args->uuid : false;
+            if(!$cuid) $cuid = isset($args->cuid) ? $args->cuid : false;
+            if(!($hash&&$uuid&&$cuid)) return Core::response(0, "User::chartadd -> missing parameters");
+
+            $user = self::uuid($hash,$uuid);
+            if(!$user) return Core::response(0, "User::chartadd -> no user found");
+            
+            if(!isset($user->charts_blacklist)||!is_array($user->charts_blacklist)) 
+            {
+                $user->charts_blacklist = [];
+                return Core::response(0, "User::chartadd -> already there");
+            }
+
+            $tmp = [];
+            foreach($user->charts_blacklist as $g) if($g != $cuid) $tmp[] = $g;
+            $user->charts_blacklist = $tmp;
+
+            return self::update($hash, (array)$user) ? 1 : 0;
+        }
+        return Core::response(0, "User::chartadd -> no hash or bad permissions");
+    }
+
+    public static function chartdel(String $hash=null, String $uuid = null, String $cuid = null)
+    {
+        if(self::get_hash($hash)&&User::allow(USER,$hash))
+        {
+            $args = (object)Request::in();
+            if(!$uuid) $uuid = isset($args->uuid) ? $args->uuid : false;
+            if(!$cuid) $cuid = isset($args->cuid) ? $args->cuid : false;
+            if(!($hash&&$uuid&&$cuid)) return Core::response(0, "User::chartdel -> missing parameters");
+
+            $user = self::uuid($hash,$uuid);
+
+            if(!$user) return Core::response(0, "User::chartdel -> no user found oor admin");
+            if($user->access_level >= ADMIN) return Core::response(0, "User::chartdel -> cannot remove project from an ADMIN+");
+
+            if(!isset($user->charts_blacklist)||!is_array($user->charts_blacklist))
+            {
+                $user->charts_blacklist = [ $cuid ];
+                self::update($user->uuid, (array)$user);
+                return Core::response(1, "User::chartdel -> blacklist array created now");
+            }
+            
+            if(in_array($cuid, $user->charts_blacklist)) return Core::response(1, "User::chartdel -> already there");
+            
+            $user->charts_blacklist[] = $cuid;
+
+            return self::update($hash, (array)$user) ? 1 : 0;
+        }
+        return Core::response(0, "User::chartdel -> no hash or bad permissions");
+    }
 }

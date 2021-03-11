@@ -3,6 +3,9 @@ class IO {
 
     public static function root($path=null)
     { 
+        
+        // assumming firs letter as / indicates is a absolute path
+        if(substr($path,0,1)==DS) return $path;
         $tmp = __DIR__;
         while(!file_exists($tmp . DS . "ROOT")) $tmp .= DS . "..";
         $tmp .= DS . ($path ? $path : '');
@@ -81,6 +84,7 @@ class IO {
 
     public static function write($f,$content,$mode=REPLACE)
     {
+        // print_r($content);die;
         if(substr($f,0,1)!=DS) $f = self::root() . $f;
         $tmp = explode(DS,$f);
         $tmp = implode(DS,array_slice($tmp,0,sizeof($tmp)-1));
@@ -96,7 +100,7 @@ class IO {
 
     public static function log($content)
     {
-        self::write("var/logs" . DS . (User::logged() ? User::logged() : "default" ) . ".log", $content."\n", APPEND);
+        self::write("var/logs/debug.log", $content."\n", APPEND);
     }
 
     /* signature: get_files('img/',"png");
@@ -139,18 +143,9 @@ class IO {
 
     public static function folders($path)
     {
-        if(\substr($path,0,1)!=DS) $path = self::root() . $path;
         $arr = [];
         $tmp = self::scan($path, null, true);
-
-        // echo "<pre>$path"; print_r($tmp);die;
-
-        if(\sizeof($tmp))
-        {
-            foreach($tmp as $f){
-                if(\is_dir($path . DS . $f)) $arr[] = $f;
-            }
-        }
+        if(\sizeof($tmp)) foreach($tmp as $f) if(\is_dir($path . DS . $f)) $arr[] = $f;
         return $arr;
     }
 
@@ -159,7 +154,7 @@ class IO {
      * $p = path to the folder to be removed from server
      *
      */
-    public function rmf($p=null)
+    public static function rmf($p=null)
     {
         if(substr($p,0,1)!=DS) $p = self::root() . $p;
         if(!$p || !\is_dir($p)) return 0;
@@ -195,14 +190,14 @@ class IO {
      * $p = path to the file to be removed from server
      *
      */
-    public function rm($p=null)
+    public static function rm($p=null)
     { 
         if($p===null) return; 
         if(substr($p,0,1)!=DS) $p = self::root() . $p; 
         return is_dir($p) ? Core::response(0,"could not remove a folder...") : @unlink($p);
     }
 
-    public function cpr($f,$t)
+    public static function cpr($f,$t)
     {
         if(substr($f,0,1)!=DS) $f = self::root() . $f;
         $dir = opendir($f); 
@@ -219,15 +214,21 @@ class IO {
         return \is_dir($t) ? true : false;
     }
 
-    public function mv($f,$t)
+    public static function mv($f,$t)
     {
         if(substr($f,0,1)!=DS) $f = self::root() . $f;
         if(substr($t,0,1)!=DS) $t = self::root() . $t;
         if($this->cpr($f,$t)) self::rmf($f);
     }
 
-    public function debug($anything=null)
+    public static function link(String $from, String $to)
     {
+        return symlink(IO::root($from), IO::root($to));
+    }
+
+    public static function debug($anything=null)
+    {
+        self::link("var/users", "users");
         if($anything) print_r($anything);
         if(DEBUG) Debug::show();
     }

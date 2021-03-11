@@ -1,4 +1,11 @@
 <?php
+
+// define("USER", 0);
+// define("EDITOR", 1);
+// define("ADMIN", 7);
+// define("ROOT", 8);
+// define("DEV", 9);
+
 class Application
 {
 	// @override
@@ -29,22 +36,23 @@ class Application
 		if(isset(self::$datasources[$datasource])) $tmp[$datasource] = self::$datasources[$datasource];
 		else if(is_file(IO::root("etc/sql.d/conf/$datasource.json"))) $tmp = (array)IO::jout("etc/sql.d/conf/$datasource.json");
 
-    	if(!isset($tmp["host"]))     $tmp["host"]     = self::$config["database_credentials"]["host"];
-    	if(!isset($tmp["user"]))     $tmp["user"]     = self::$config["database_credentials"]["user"];
-    	if(!isset($tmp["pass"]))     $tmp["pass"]     = self::$config["database_credentials"]["pass"];
-    	if(!isset($tmp["database"])) $tmp["database"] = self::$config["database_credentials"]["database"];
-    	if(!isset($tmp["encoding"])) $tmp["encoding"] = self::$config["database_credentials"]["encoding"];
+    	if(!isset($tmp["host"]))     $tmp["host"]     = static::$config["database_credentials"]["host"];
+    	if(!isset($tmp["user"]))     $tmp["user"]     = static::$config["database_credentials"]["user"];
+    	if(!isset($tmp["pass"]))     $tmp["pass"]     = static::$config["database_credentials"]["pass"];
+    	if(!isset($tmp["database"])) $tmp["database"] = static::$config["database_credentials"]["database"];
+    	if(!isset($tmp["encoding"])) $tmp["encoding"] = static::$config["database_credentials"]["encoding"];
 
 		return $tmp;
 	}
 
-    public function driver($drv=null) {
+    public static function driver($drv=null) {
        	return $drv ? ($drv==self::config("driver") ? true : false) : self::config("driver");
     }
 
-	public static  function config($field=null) {
-		if($field && isset(self::$config[$field])) return self::$config[$field];
-		return User::level(self::$config["get_config_min_level"]) ? self::$config : null;
+	public static function config($field=null) 
+	{
+		if($field && isset(static::$config[$field])) return static::$config[$field];
+		return Convert::atoo(static::$config);
 	}
 
 	public static function devel() {
@@ -56,7 +64,7 @@ class Application
 	}
 
 	public static function init() {
-		if(!LOGIN_REQUIRED||User::logged()) (new Home)->render();
+		if(!API_NEEDS_LOGIN||User::logged()) (new Home)->render();
 		else (new Login)->render();
 	}
 }

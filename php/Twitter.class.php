@@ -15,14 +15,14 @@ class Twitter extends Activity
 		curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);
 		// curl_setopt($c, CURLOPT_VERBOSE, 1);
 		// curl_setopt($c, CURLOPT_HEADER, 1);
-		curl_setopt($c, CURLOPT_HTTPHEADER, [ "Authorization: Basic " . self::auth_key() ]);
+		curl_setopt($c, CURLOPT_HTTPHEADER, [ "Authorization: Basic " .static::auth_key() ]);
 		$r = Convert::json(curl_exec($c));
 		curl_close($c);
 		if(isset($r->access_token) && strlen($r->access_token) > 1) return $r->access_token;
 		else return 0;
 	}
 
-	protected static function query(String $query, $toDate=null, $fromDate=null, $maxresults=1000, $api="30day")
+	protected static function query(String $query, $toDate=null, $fromDate=null, $maxresults=10, $api="30day")
 	{
 		$args_query = [
 			"query" => $query
@@ -41,8 +41,10 @@ class Twitter extends Activity
 		}
 
 		$cfg = App::config("twitter_api_$api");
+		// print_r($cfg);die;
 		$r = null;
 		$count = 0;
+		$final = [];
 
 		do 
 		{
@@ -53,51 +55,61 @@ class Twitter extends Activity
 			}
 			$c = curl_init($cfg["tweets_uri"] . "?" . http_build_query($args_query));
 			curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);
-			curl_setopt($c, CURLOPT_HTTPHEADER, [ "Authorization: Bearer " . self::get_token() ]);
+			curl_setopt($c, CURLOPT_HTTPHEADER, [ "Authorization: Bearer " . static::get_token() ]);
 			$r = Convert::json(curl_exec($c));
-
 			curl_close($c);
-			$final = [];
-			if(isset($r->results)) $final = $r->results;
-			$count += $args_query["maxResults"];
+			if(isset($r->results)) $final = array_merge($final, $r->results);
+			// echo sizeof($r->results);die;
+			$count += $r->results ? sizeof($r->results) : $maxresults;
 
 		} while((!isset($r->error) || isset($r->next)) && $count < $maxresults);
+		
+		// print_r($final);die;
+
 		return $final;
 	}
 
-	public static function client(String $query, $todate=null, $fromdate=null, $limit=1000)
+	public static function client(String $query, $todate=null, $fromdate=null, $limit=10)
 	{
 		$final = [];
-		$query = self::query($query, $todate, $fromdate, $limit);
+		$query = static::query($query, $todate, $fromdate, $limit);
+		$clean_array = [];
+
+		// print_r($query); die;
 		
 		foreach($query as $k=>$twit)
 		{
 
-			$referencetime = new DateTime($twit->created_at);
-			$final[] = Convert::atoo([
-				"time" => $referencetime->format("YmdHi")
-				, "tuid" => $twit->id
-				, "text" => isset($twit->extended_tweet) && isset($twit->extended_tweet->full_text) ? $twit->extended_tweet->full_text : $twit->text
-				, "hashtags" => $twit->entities->hashtags
-				, "media" => [
-					"uri" => isset($twit->entities->media) ? $twit->entities->media[0]->expanded_url : null
-					, "type" => isset($twit->entities->media) ? $twit->entities->media[0]->type : null
-				]
-				, "user" => [
-					"uuid" => $twit->user->id
-					, "name" => $twit->user->screen_name . "/" . $twit->user->name
-					, "thumb" => $twit->user->profile_image_url_https
-				]
-			]);
+			// $referencetime = new DateTime($twit->created_at);
+			if(!in_array($twit->id, $clean_array))
+			{
+				$final[] = Convert::atoo([
+					"time" => (new DateTime($twit->created_at))->format("YmdHi")
+					// "time" => $referencetime->format("YmdHi")
+					, "tuid" => $twit->id
+					, "text" => isset($twit->extended_tweet) && isset($twit->extended_tweet->full_text) ? $twit->extended_tweet->full_text : $twit->text
+					, "hashtags" => $twit->entities->hashtags
+					, "media" => [
+						"uri" => isset($twit->entities->media) ? $twit->entities->media[0]->expanded_url : null
+						, "type" => isset($twit->entities->media) ? $twit->entities->media[0]->type : null
+					]
+					, "user" => [
+						"uuid" => $twit->user->id
+						, "name" => $twit->user->screen_name . "/" . $twit->user->name
+						, "thumb" => $twit->user->profile_image_url_https
+					]
+				]);
+				$clean_array[] = $twit->id;
+			}
 		}
 		return Convert::json($final);
 	}
 
-	public static function toMaxqda(String $query, $todate=null, $fromdate=null, $limit=100)
+	public static function text(String $query, $todate=null, $fromdate=null, $limit=100, $showdate = false)
 	{
 		$tmp = (array)Convert::json(self::client($query, $todate, $fromdate, $limit));
 		$str = "";
-		foreach($tmp as $twit) $str .= $twit->time . " " . $twit->text . PHP_EOL;
+		foreach($tmp as $twit) $str .= ($showdate ? $twit->time . " " : "") . str_replace("\n", " ", $twit->text) . PHP_EOL;
 		return $str;
 	}
 

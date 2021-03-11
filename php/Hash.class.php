@@ -43,8 +43,7 @@ class Hash{
 	
     public static function word($w=null,$h=null,$r=false){
     	$h = $h ? $h : App::config("hash_algorithm");
-    	return \in_array($h,self::$valid_haxits) ? \hash($h,$w?$w:\uniqid(\rand()),$r) 
-    	: "<pre>$h is not a recognized hash, try: <br/><br/>" . \implode("<br/>",self::$valid_haxits); 
+    	return \in_array($h,self::$valid_haxits) ? \hash($h,$w?$w:\uniqid(\rand()),$r) : Core::response(0, "Hash::word -> $h is not a recognized hash, try: " . PHP_EOL . \implode(PHP_EOL, self::$valid_haxits));
     }
 
     public function all_haxits($w=null){

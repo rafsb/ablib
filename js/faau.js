@@ -28,7 +28,7 @@ DEBUG = false
 , SPATH = (c,a,s) => _("path",c,a,s)
 , TEXT = (t,c,s,n="p") => TAG(n,c,s,t)
 , SPAN = (t,c,s,n="span") => TAG(n,c,s,t)   
-, ROW = (e,s) => {const x=DIV("-row",s);x.html(e);return x}
+, ROW = (e,s) => {const x=DIV("-row",s);typeof e == "string" ? x.html(e) : x.app(e); return x}
 , WSPAN = (t,c,s,n="span") => TAG(n,c,_Bind({ paddingLeft:"1em" }, s||{}),t)   
 , _Bind = function(e,o){
     let
@@ -101,7 +101,7 @@ _Bind(HTMLFormElement.prototype,{
                 name = o.name
                 , value = o.value || o.textContent
                 ;;
-                if(value&&o.has("-list")) value = value.split(/[\n\t]/g).clear();
+                if(value&&o.has("-list")) value = value.list().clear() || [];
                 if(value&&o.has("-hash")) value = Array.isArray(value) ? value.extract(x => { return x.hash() }) : value.hash();
                 tmp[name] = value;
             }
@@ -123,7 +123,7 @@ _Bind(HTMLInputElement.prototype, {
         , form = new FormData()
         , counter = 0;
 
-        name = name || app.uid(13);
+        name = name || app.nuid(13);
 
         form.append("picture", this.files[0]);
         form.append("name", name);
@@ -135,15 +135,14 @@ _Bind(HTMLInputElement.prototype, {
         if(fn) xhr.upload.onload = function() {
             console.log(xhr.responseText)
         }
-        xhr.upload.onerror = _ => app.error("Ops! N茫o foi poss铆vel subir esta imagem... chama o berts...");
+        xhr.upload.onerror = _ => app.error("Ops! Não foi possível subir esta imagem... chama o berts...");
         xhr.open("POST", "image/upload");
         xhr.send(form);
-
-        const formData = new FormData();
     }
 });
 _Bind(Element.prototype,{
-    anime: function(obj,len=ANIMATION_LENGTH,delay=0,trans=null) {
+    at: function(){ return this }
+    , anime: function(obj,len=ANIMATION_LENGTH,delay=0,trans=null) {
         let
         el = this
         return new Promise(function(ok, err){
@@ -346,6 +345,9 @@ _Bind(String.prototype,{
     }
     , atob: function(){
         return atob(this);
+    }
+    , list: function(){
+        return this.split(/[\n+\t+,|]/g)
     }
     , fill: function(c=" ", l=8, d=-1) {
         let
@@ -1075,7 +1077,8 @@ class FAAU {
         return new CallResponse(url, args, method, head, ans.trim());
     }
 
-    async call(url, args=null, method="GET", head=null){
+    async call(url, args=null, method=null, head=null){
+        method = method ? method : (args ? "POST" : "GET")
         const
         o = new Promise(function(accepted,rejected){
             let
@@ -1093,7 +1096,8 @@ class FAAU {
             // xhr.setRequestHeader("Content-Type", method=="POST" ? "application/json;charset=UTF-8": "text/plain");
             // xhr.setRequestHeader("FA-Custom", "@rafsb");
             // if(app.hash) xhr.setRequestHeader("hash", app.hash);
-            if(head) Object.keys(head).each(h=>xhr.setRequestHeader(h,head[h]));
+            // if(method == "POST") head = _Bind({ "Content-Type": "application/json"}, head||{});
+            // if(head) Object.keys(head).each(h=>xhr.setRequestHeader(h,head[h]));
             xhr.send(args ? args.json() : null);
 
         });
@@ -1108,7 +1112,7 @@ class FAAU {
         return this.post(url, args).then( r => {
             if(!r.status) return app.error("error loading "+url);
             r = r.data.prepare(_Bind(bind || {}, app.colors())).morph();
-            if(!target) target = $('#app')[0];
+            if(!target) target = $('#app');
             target.app(r);
             return r.evalute();
         });
@@ -1154,7 +1158,7 @@ class FAAU {
                     offloading: setTimeout(nil => app.loading(false), ANIMATION_LENGTH*8)
                 });
                 app.load("img/loading.svg", null, load);
-                (target || $("#app")[0]).app(load);
+                (target || $("#app")).app(load);
             }
         }
     }
@@ -1193,7 +1197,7 @@ class FAAU {
             this.dataset.delay = setTimeout(t=>{ t.desappear(ANIMATION_LENGTH/2,true); }, ANIMATION_LENGTH, this);
         };
         document.getElementsByTagName('body')[0].appendChild(toast);
-        tileClickEffectSelector("-tile");
+        this.tileClickEffectSelector(".-tile");
         
         let
         notfys = $("toast.--notification")
@@ -1254,17 +1258,17 @@ class FAAU {
     }
 
     
-    window(html=null, title="" , css={}){
+    window(html=null, title=null , css={}){
         const
-        head = _("header","-relative -row -zero").app(_("div", "-left -content-left -ellipsis", { minHeight:"3em", lineHeight:3, width:"calc(100% - 6em)" }).app(
-            typeof(title) == "string" ? ("<span class='-row' style='min-height:3em;padding:1em'>"+title+"</span>").morph() : title
+        head = _("header","-relative -row -zero -no-scrolls").app(DIV("-left -content-left -ellipsis", { minHeight:"3em", lineHeight:3, width:"calc(100% - 6em)" }).app(
+            typeof title == "string" ? ("<span class='-row -no-scrolls' style='height:3em;padding:0 1em;opacity:.75'>"+title+"</span>").morph()[0] : title
         )).app(
             _("div","-right -pointer --close -tile").app(
-                 _I("img/icons/cross.svg", null, { height:"2.75em", width:"2.75em", padding:".75em", filter:"invert(1)" })
+                 IMG("img/icons/cross.svg", null, { height:"2.75em", width:"2.75em", padding:".75em"})
             ).on("click", function(){ this.upFind("--window").desappear(ANIMATION_LENGTH, true) })
         ).app(
             _("div","-right -pointer --minimize -tile").app(
-                 _I("img/icons/minimize.svg", null, { height:"2.75em", width:"2.75em", padding:".75em", filter:"invert(1)" })
+                 IMG("img/icons/minimize.svg", null, { height:"2.75em", width:"2.75em", padding:".75em"})
             ).on("click", function(){
                 const
                 win = this.upFind("--window")
@@ -1312,17 +1316,58 @@ class FAAU {
 
         if(html) wrapper.app(typeof html == "string" ? html.prepare(this.color_pallete).morph() : html);
 
-        $("#app")[0].app(_W.app(head).app(wrapper));
+        $("#app").app(_W.app(head).app(wrapper));
 
-        tileClickEffectSelector(".-tile");
+        this.tileClickEffectSelector(".-tile");
 
         wrapper.evalute();
         app.sleep(400).then(NULL => _W.raise());
 
-        enableDragging()
+        app.enableDragging();
+
+        return _W;
 
     }
 
+    dialog(html=null, title=null , css={}){
+        const
+        head = _("header","-relative -row -zero -no-scrolls").app(DIV("-left -content-left -ellipsis", { minHeight:"3em", lineHeight:3, width:"calc(100% - 6em)" }).app(
+            typeof title == "string" ? ("<span class='-row -no-scrolls' style='height:3em;padding:0 1em;opacity:.75'>"+title+"</span>").morph()[0] : title
+        )).app(
+            _("div","-right -pointer --close -tile").app(
+                 IMG("img/icons/cross.svg", null, { height:"2.75em", width:"2.75em", padding:".75em"})
+            ).on("click", function(){ this.upFind("--dialog").desappear(ANIMATION_LENGTH, true) })
+        ).on("click", function(){ this.upFind("--dialog").raise() })
+        , wrapper = _("div", "-absolute -zero -wrapper -no-scrolls", { top:"3em", height:"calc(100% - 3em)" })
+        , _D = _("div", "--dialog -fixed", _Bind({
+            minHeight: "15vh"
+            , width: "25vw"
+            , top:"40vh"
+            , left: "37.5vw"
+            , background: app.colors("BACKGROUND")
+            , border: "1px solid " + app.colors("FONT") + "88"
+            , borderRadius: ".25em"
+            , boxShadow: "0 0 2em "+app.colors("DARK4")
+            , color: app.colors("FONT")
+            , zIndex:8000
+            , overflow: "auto"
+            , padding: "0 .25em .25em 0"
+        }, css))
+        ;;
+
+        if(html) wrapper.app(typeof html == "string" ? html.prepare(this.color_pallete).morph()[0] : html);
+
+        $("#app").app(_D.app(head).app(wrapper));
+
+        this.tileClickEffectSelector(".-tile");
+
+        wrapper.evalute();
+        app.sleep(400).then(NULL => _D.raise());
+
+        app.enableDragging();
+
+        return _D;
+    }
 
     apply(fn,obj=null) { return (fn ? fn(obj) : null) }
 
@@ -1400,8 +1445,10 @@ class FAAU {
     }
 
     iterate(s, e, fn, step=1){
+        const x = [];
         if(!fn) fn = i => i;
-        for(let i = s; i != e; i += step) fn(i)
+        for(let i = s; i != e; i += step) x.push(fn(i));
+        return x;
     }
 
     makeServerHashToken(o){ return this.hashit(o).hash; }
@@ -1447,7 +1494,101 @@ class FAAU {
         el.select();
         document.execCommand('copy');
         document.body.removeChild(el);
-      }
+    }
+
+    enableDragging(){
+        $(".--draggable, .--drag").each(x => {
+            
+            if(x.has(".--drag-enabled")) return;
+            
+            x.css({
+                position:"absolute"
+            }).attr({ 
+                draggable: "true" 
+            }).on("dragstart", function(e){
+                e.dataTransfer.setDragImage(new Image(), 0, 0);
+                this.dataset.before = { x: e.clientX, y: e.clientY, t: this.offsetTop, l: this.offsetLeft }.json()
+            }).on("drag", function(e){
+                const bef = this.dataset.before.json();
+                this.css({ top: (bef.t + e.clientY - (bef.y*.75)) + "px", left: (bef.l + e.clientX -( bef.x*.75))+"px" });
+            }).on("dragend", function(e){
+                const bef = this.dataset.before.json();
+                this.css({ top: (bef.t + e.clientY - (bef.y*.75)) + "px", left: (bef.l + e.clientX -( bef.x*.75))+"px" });
+            })
+
+            x.addClass("--drag-enabled");
+        })
+        $(".--drag-trigger").each(x => {
+            
+            if(x.has(".--drag-enabled")) return;
+            if(x.upFind("--drag-target")==$('#app')) return;
+
+            x.attr({ 
+                draggable: "true"
+            }).on("dragstart", function(e){
+                const tgt = this.upFind("--drag-target");
+                this.dataset.before = { x: e.clientX, y: e.clientY, t: tgt.offsetTop, l: tgt.offsetLeft }.json()
+            }).on("drag", function(e){
+                const bef = this.dataset.before.json();
+                this.upFind("--drag-target").anime({ top: (bef.t + e.clientY - bef.y) + "px", left:(bef.l + e.clientX - bef.x) + "px" })
+            }).on("dragend", function(e){
+                const bef = this.dataset.before.json();
+                this.upFind("--drag-target").anime({ top: (bef.t + e.clientY - bef.y) + "px", left:(bef.l + e.clientX - bef.x) + "px" })
+            })
+
+            x.addClass("--drag-enabled");
+        })
+    }
+    
+    tileClickEffectSelector(cls=null){
+        if(!cls) return;
+        $(cls).each(x=>{
+            if(!x.has("--effect-selector-attached")){
+                x.addClass("-no-scrolls").on("click",function(e){
+                    if(this.classList.contains("-skip")) return;
+                    let
+                    bounds = this.getBoundingClientRect()
+                    , size = Math.max(bounds.width, bounds.height);
+                    this.app(_("span","-absolute",{
+                        background      : app.colors().FONT+"44"
+                        , display       : "inline-block"
+                        , borderRadius  : "50%"
+                        , width         : size+"px"
+                        , height        : size+"px"
+                        , opacity       : .4
+                        , top: e.layerY+"px"
+                        , left: e.layerX+"px"
+                        , filter        : "invert(.2)"
+                        , transformOrigin:"center center"
+                        , transform: "translate(-50%, -50%) scale(0)"
+                    }, x=>x.anime({transform:"translate(-50%, -50%) scale(1.5"},ANIMATION_LENGTH/2).then(x=>x.desappear(ANIMATION_LENGTH/4,true))))
+                }).addClass("--effect-selector-attached")
+            }
+        })
+    }
+    
+    tooltips(){
+        if(!$("tooltip").length){
+            $("#app").app(
+                _("tooltip#tooltip", "-fixed --tooltip-element", { 
+                    padding:".5em"
+                    , borderRadius:".25em"
+                    , border: "1px solid rgba(255,255,255,.25)"
+                    , boxShadow: "0 0 1em rgba(0,0,0,.5)"
+                    , background: app.colors("BACKGROUND")
+                    , color: app.colors("SILVER")
+                    , display: "none" 
+                    , zIndex:10000
+                }))
+            app.mousePool.add(pos => document.getElementById("tooltip").css({ transform:"translate(calc(1em + "+pos.x+"px),calc(1em + "+pos.y+"px))" }))
+        }
+        $(".--tooltip").each(ttip => {
+            ttip.raise().on("mouseenter", function () { 
+                $("tooltip.--tooltip-element")[0].stop().html(this.dataset.tip || "hooray").raise().css({ display:"block", background:this.dataset.tipbg || "#000A", color:this.dataset.tipft || "#FFF" })
+            });
+            ttip.on("mouseleave", function () { $("tooltip.--tooltip-element")[0].css({ display:"none" }) });
+        }).remClass("--tooltip")
+    }
 
     constructor() {
         this.initial_pragma = 0
@@ -1513,103 +1654,12 @@ class FAAU {
 };
 _Bind(window, {
     maxis: { x: 0, y: 0 }
-    , $: function(wrapper=null, context=document){ return [].slice.call(context.querySelectorAll(wrapper)) }
+    , $: function(wrapper=null, context=document){ const x = [].slice.call(context.querySelectorAll(wrapper)); if(wrapper.indexOf("#")+1&&x.length==1) return x[0]; return x }
     , _:function(node='div', cls, style, fn){ return app.new(node,cls,style,fn) }
-    , _S: function(type="svg", cls="--self-generated", attr={}, css={}){ return document.createElementNS("http://www.w3.org/2000/svg", type).addClass(cls).attr(attr||{}).css(css||{}).html(type=="svg"?"<defs></defs>":"") }
-    , _I: function(path="img/icons/cross.svg", cls="--self-generated", css={}){ return _("img", cls, css).attr({ src: path }) }
+    , _S: function(type="svg", cls="--self-generated", attr={focusable:"false"}, css={}){ return document.createElementNS("http://www.w3.org/2000/svg", type).addClass(cls).attr(attr||{}).css(css||{}).html(type=="svg"?"<defs></defs>":"") }
+    , _I: function(path="img/icons/cross.svg", cls="--self-generated", css={}){ return _("img", cls, css).attr({ src: path, role:"img" }) }
     , bootloader: new Bootloader()
-    , app: (new FAAU())
-    , enableDragging: function(){
-        $(".--draggable, .--drag").each(x => {
-            
-            if(x.has(".--drag-enabled")) return;
-            
-            x.css({
-                position:"absolute"
-            }).attr({ 
-                draggable: "true" 
-            }).on("dragstart", function(e){
-                e.dataTransfer.setDragImage(new Image(), 0, 0);
-                this.dataset.before = { x: e.clientX, y: e.clientY, t: this.offsetTop, l: this.offsetLeft }.json()
-            }).on("drag", function(e){
-                const bef = this.dataset.before.json();
-                this.css({ top: (bef.t + e.clientY - bef.y) + "px", left: (bef.l + e.clientX - bef.x)+"px" });
-            }).on("dragend", function(e){
-                const bef = this.dataset.before.json();
-                this.css({ top: (bef.t + e.clientY - bef.y) + "px", left: (bef.l + e.clientX - bef.x)+"px" });
-            })
-
-            x.addClass("--drag-enabled");
-        })
-        $(".--drag-trigger").each(x => {
-            
-            if(x.has(".--drag-enabled")) return;
-            if(x.upFind("--drag-target")==$('#app')[0]) return;
-
-            x.attr({ 
-                draggable: "true"
-            }).on("dragstart", function(e){
-                const tgt = this.upFind("--drag-target");
-                this.dataset.before = { x: e.clientX, y: e.clientY, t: tgt.offsetTop, l: tgt.offsetLeft }.json()
-            }).on("drag", function(e){
-                const bef = this.dataset.before.json();
-                this.upFind("--drag-target").anime({ top: (bef.t + e.clientY - bef.y) + "px", left:(bef.l + e.clientX - bef.x) + "px" })
-            }).on("dragend", function(e){
-                const bef = this.dataset.before.json();
-                this.upFind("--drag-target").anime({ top: (bef.t + e.clientY - bef.y) + "px", left:(bef.l + e.clientX - bef.x) + "px" })
-            })
-
-            x.addClass("--drag-enabled");
-        })
-    }
-    , tileClickEffectSelector: function(cls=null){
-        if(!cls) return;
-        $(cls).each(x=>{
-            if(!x.has("--effect-selector-attached")){
-                x.addClass("-no-scrolls").on("click",function(e){
-                    if(this.classList.contains("-skip")) return;
-                    let
-                    bounds = this.getBoundingClientRect()
-                    , size = Math.max(bounds.width, bounds.height);
-                    this.app(_("span","-absolute",{
-                        background      : "rgba(255,255,255,.3)"
-                        , display       : "inline-block"
-                        , borderRadius  : "50%"
-                        , width         : size+"px"
-                        , height        : size+"px"
-                        , opacity       : .4
-                        , top: e.layerY+"px"
-                        , left: e.layerX+"px"
-                        , filter        : "invert(.2)"
-                        , transformOrigin:"center center"
-                        , transform: "translate(-50%, -50%) scale(0)"
-                    }, x=>x.anime({transform:"translate(-50%, -50%) scale(2)"},ANIMATION_LENGTH/2).then(x=>x.desappear(ANIMATION_LENGTH/4,true))))
-                }).addClass("--effect-selector-attached")
-            }
-        })
-    }
-    , tooltips: function(){
-        if(!$("tooltip").length){
-            $("#app")[0].app(
-                _("tooltip#tooltip", "-fixed --tooltip-element", { 
-                    padding:".5em"
-                    , borderRadius:".25em"
-                    , border: "1px solid rgba(255,255,255,.25)"
-                    , boxShadow: "0 0 1em rgba(0,0,0,.5)"
-                    , background: app.colors("BACKGROUND")
-                    , color: app.colors("SILVER")
-                    , display: "none" 
-                    , zIndex:10000
-                }))
-            app.mousePool.add(pos => document.getElementById("tooltip").css({ transform:"translate(calc(1em + "+pos.x+"px),calc(1em + "+pos.y+"px))" }))
-        }
-        $(".--tooltip").each(ttip => {
-            ttip.raise().on("mouseenter", function () { 
-                $("tooltip.--tooltip-element")[0].stop().html(this.dataset.tip || "hooray").raise().css({ display:"block", background:this.dataset.tipbg || "#000A", color:this.dataset.tipft || "#FFF" })
-            });
-            ttip.on("mouseleave", function () { $("tooltip.--tooltip-element")[0].css({ display:"none" }) });
-        }).remClass("--tooltip")
-    }
+    , app: new FAAU()
 });
 app.spy("pragma",function(x){
     app.last = app.current;
