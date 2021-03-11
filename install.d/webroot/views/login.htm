@@ -1,0 +1,33 @@
+<template>
+	
+	<section class="-fixed -zero -wrapper" style="background:@BACKGROUND">
+		
+		<form class="-absolute -centered -col-3" style="background:@FOREGROUND;border-radius:.25em;border:@FONT22;box-shadow: 0 0 1em @DARK3" action="javascript:void(0)" onsubmit="submit_login_form(this.json())">
+			<header class="-row -content-center"><img src="img/logos/logo.png" style="height:6em;padding:2em"></header>
+			<div class="-row -flex">
+				<div class="-left -col-2"></div>
+				<div class="-left -col-8" style="border-top:.5px solid @FONT22;border-bottom:.5px solid @FONT22">
+					<div class="-row" style="padding-top:2em">
+						<label class="-left">USUÁRIO</label>
+						<input type="user" name="user" class="-row -content-center" required style="padding:1em;background:@DARK1;border-radius:.25em;border:1px solid @FONT22">	
+					</div>
+					<div class="-row" style="padding:2em 0">
+						<label class="-left">SENHA</label>
+						<input type="password" name="pswd" class="-row -content-center -hash" required style="padding:1em;background:@DARK1;border-radius:.25em;border:1px solid @FONT22">	
+					</div>
+				</div>
+				<div class="-left -col-2"></div>
+			</div>
+			<footer class="-row -content-center" style="padding:2em 0 3em 0">
+				<input type="submit" class="-pointer" style="background: @SPAN;padding:1em 2em;border-radius:.25em;border:@FOREGROUND22;color:@FOREGROUND" value="ENTRAR"/>
+			</footer>
+		</form>
+
+	</section>
+	<script type="text/javascript">
+		submit_login_form = form => {
+			app.post("user/login", form).then(hash => console.log(hash.data))
+		}
+	</script>
+
+</template>

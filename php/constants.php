@@ -67,17 +67,16 @@ define("__MYSQLI_OBJ__",4);
 /*
  * USER LEVELS
  */
-define("PUBLIC"  , 0);
-define("STAFF"   , 1);
-define("GENERAL" , 2);
-define("TI-I"    , 3);
-define("MANAGER" , 4);
-define("TI-II"   , 5);
-define("DIRECTOR", 6);
-define("TI-III"  , 7);
-define("ADMIN"	 , 8);
+define("LOGGED"  , 0);
+define("USER"    , 1);
+define("EDITOR"  , 2);
+define("MANAGER" , 3);
+define("TI"      , 4);
+define("DIRECTOR", 5);
+define("ADMIN"   , 6);
+define("DEV"	 , 7);
+define("SYSTEM"  , 8);
 define("ROOT"	 , 9);
-
 
 define("SHA1","sha1");
 define("SHA256","sha256");
@@ -94,7 +93,6 @@ define("LAYOUTS_THIN","thin");
 
 define("DS","/");
 define("NL","\n");
-define("NULL",null);
 
 define("POST","POST");
 define("GET","GET");

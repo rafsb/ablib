@@ -12,8 +12,7 @@ class Page extends DefaultInitiator
 	/*
 	 * @Overridable
 	 */
-	protected function before()
-	{}
+	protected function before(){}
 
 	protected function import($file = null)
 	{

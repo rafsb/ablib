@@ -57,9 +57,9 @@ header('Content-Type: text/html; charset=UTF-8',true);?>
         <link rel="icon" type="image/png" sizes="16x16" href="img/favicon/favicon-16x16.png" />
         <link rel="shortcut icon" type="image/x-icon" href="img/favicon/favicon.ico" />
         <!-- Begin: Stylesheets -->
-        <link rel="stylesheet" href="css/fonts.css"/>
         <link rel="stylesheet" href="lib/css/faau.css"/>
-        <link rel="stylesheet" href="css/style.css"/>
+        <link rel="stylesheet" href="webroot/css/fonts.css"/>
+        <link rel="stylesheet" href="webroot/css/style.css"/>
         
         <meta name='author' content='<?=App::devel()?>'/>
 
@@ -90,9 +90,9 @@ header('Content-Type: text/html; charset=UTF-8',true);?>
         <style type="text/css"></style>
         
         <!-- Begin: Scripts -->
-        <script type="text/javascript" src="config.js"></script>
-        <script type="text/javascript" src="js/router.js"></script>
-        <script type="text/javascript" src="js/preset.js"></script>
+        <script type="text/javascript" src="webroot/config"></script>
+        <script type="text/javascript" src="webroot/js/router.js"></script>
+        <script type="text/javascript" src="webroot/js/preset.js"></script>
         <script type="text/javascript">(function(){ app.initialize() })()</script>
 
     </body>
