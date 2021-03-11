@@ -57,7 +57,6 @@ class Twitter extends Activity
 			$r = Convert::json(curl_exec($c));
 
 			curl_close($c);
-			print_r($r); die;
 			$final = [];
 			if(isset($r->results)) $final = $r->results;
 			$count += $args_query["maxResults"];

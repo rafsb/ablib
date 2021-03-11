@@ -1225,7 +1225,7 @@ class FAAU {
 
         o = _Bind({
             top: maxis.y+"px"
-            , left: maxis.x+"px"
+            , left: Math.min(app.wd*.8,maxis.x)+"px"
             , padding: ".5em"
             , borderRadius: ".25em"
             , boxShadow: "0 0 .5em "+app.colors("DARK4")

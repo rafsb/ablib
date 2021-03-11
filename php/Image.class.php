@@ -181,7 +181,6 @@ class Image
     public static function upload(){
         $args = request::in();
         $img = new Image($args["name"],$args["path"],8388608,$args["minify"],false);
-        print_r($img);die;
         if($img->run()) echo $img->path.$img->newname; else echo $img->log0;
     }
 
