@@ -1158,7 +1158,7 @@ class FAAU {
                     offloading: setTimeout(nil => app.loading(false), ANIMATION_LENGTH*8)
                 });
                 app.load("img/loading.svg", null, load);
-                (target || $("#app")).app(load);
+                (target || $("#app")[0]).app(load);
             }
         }
     }
@@ -1316,7 +1316,7 @@ class FAAU {
 
         if(html) wrapper.app(typeof html == "string" ? html.prepare(this.color_pallete).morph() : html);
 
-        $("#app").app(_W.app(head).app(wrapper));
+        $("#app")[0].app(_W.app(head).app(wrapper));
 
         this.tileClickEffectSelector(".-tile");
 
@@ -1357,7 +1357,7 @@ class FAAU {
 
         if(html) wrapper.app(typeof html == "string" ? html.prepare(this.color_pallete).morph()[0] : html);
 
-        $("#app").app(_D.app(head).app(wrapper));
+        $("#app")[0].app(_D.app(head).app(wrapper));
 
         this.tileClickEffectSelector(".-tile");
 
@@ -1569,7 +1569,7 @@ class FAAU {
     
     tooltips(){
         if(!$("tooltip").length){
-            $("#app").app(
+            $("#app")[0].app(
                 _("tooltip#tooltip", "-fixed --tooltip-element", { 
                     padding:".5em"
                     , borderRadius:".25em"
@@ -1654,7 +1654,7 @@ class FAAU {
 };
 _Bind(window, {
     maxis: { x: 0, y: 0 }
-    , $: function(wrapper=null, context=document){ const x = [].slice.call(context.querySelectorAll(wrapper)); if(wrapper.indexOf("#")+1&&x.length==1) return x[0]; return x }
+    , $: function(wrapper=null, context=document){ return [].slice.call(context.querySelectorAll(wrapper)) }
     , _:function(node='div', cls, style, fn){ return app.new(node,cls,style,fn) }
     , _S: function(type="svg", cls="--self-generated", attr={focusable:"false"}, css={}){ return document.createElementNS("http://www.w3.org/2000/svg", type).addClass(cls).attr(attr||{}).css(css||{}).html(type=="svg"?"<defs></defs>":"") }
     , _I: function(path="img/icons/cross.svg", cls="--self-generated", css={}){ return _("img", cls, css).attr({ src: path, role:"img" }) }
