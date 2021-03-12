@@ -50,7 +50,6 @@ class Page extends DefaultInitiator
 		if(is_file(IO::root() . "webroot" . DS . "views" . DS . "templates" . DS . "tiles" . DS . $t . ".htm" ))
 		{
 			$tmp = IO::read("/webroot" . DS . "views" . DS . "templates" . DS . "tiles" . DS . $t . ".htm");
-			// print_r($tmp);
 			if(sizeof($args))
 			{
 				foreach($args as $k => $v)
