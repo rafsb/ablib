@@ -217,7 +217,7 @@ class User extends Activity
     }
 
 
-    public function login($user=null, $pswd=null, $device=null)
+    public function login(String $user=null, String $pswd=null, String $device=null)
     {
         $args = Request::in();
         $user = $user ? $user : $args["user"];
