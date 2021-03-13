@@ -7,8 +7,8 @@
 
 ****************************************************************************/
 const
-DEBUG = false
-, ANIMATION_LENGTH    = 400
+DEBUG               = false
+, ANIMATION_LENGTH  = 400
 , SUM               = 0
 , AVERAGE           = 1
 , HARMONIC          = 2
@@ -20,15 +20,16 @@ DEBUG = false
 , PASSWD_AUTO_HASH  = 0
 , NUMBER            = 0
 , STRING            = 1
-, TAG = (n="div",c,s,t) => _(n,c,s).html(t||"")
-, DIV = (c,s) => _("div",c,s)
-, WRAP = (c,s) => DIV((c||"")+" -wrapper",s)
-, IMG = (p,c,s) => _I(p,c,s)
-, SVG = (t,c,a,s) => _S(t,c,a,s)
+, ID    = query => { const el = $("#"+query); return el.length ? el[0] : [] }
+, TAG   = (n="div",c,s,t) => _(n,c,s).html(t||"")
+, DIV   = (c,s) => _("div",c,s)
+, WRAP  = (c,s) => DIV((c||"")+" -wrapper",s)
+, IMG   = (p,c,s) => _I(p,c,s)
+, SVG   = (t,c,a,s) => _S(t,c,a,s)
 , SPATH = (c,a,s) => _("path",c,a,s)
-, TEXT = (t,c,s,n="p") => TAG(n,c,s,t)
-, SPAN = (t,c,s,n="span") => TAG(n,c,s,t)   
-, ROW = (e,s) => {const x=DIV("-row",s);typeof e == "string" ? x.html(e) : x.app(e); return x}
+, TEXT  = (t,c,s,n="p") => TAG(n,c,s,t)
+, SPAN  = (t,c,s,n="span") => TAG(n,c,s,t)   
+, ROW   = (e,s) => {const x=DIV("-row",s);typeof e == "string" ? x.html(e) : x.app(e); return x}
 , WSPAN = (t,c,s,n="span") => TAG(n,c,_Bind({ paddingLeft:"1em" }, s||{}),t)   
 , _Bind = function(e,o){
     let
@@ -37,6 +38,7 @@ DEBUG = false
     return e
 }
 ;;
+
 _Bind(Number.prototype, {
     fill: function(c,l,d){ return (this+"").fill(c,l,d) }
     , nerdify: function(){ 
@@ -1112,7 +1114,7 @@ class FAAU {
         return this.post(url, args).then( r => {
             if(!r.status) return app.error("error loading "+url);
             r = r.data.prepare(_Bind(bind || {}, app.colors())).morph();
-            if(!target) target = $('#app');
+            if(!target) target = $('#app')[0];
             target.app(r);
             return r.evalute();
         });
@@ -1158,7 +1160,7 @@ class FAAU {
                     offloading: setTimeout(nil => app.loading(false), ANIMATION_LENGTH*8)
                 });
                 app.load("img/loading.svg", null, load);
-                (target || $("#app")[0]).app(load);
+                (target || ID("app")).app(load);
             }
         }
     }
@@ -1316,7 +1318,7 @@ class FAAU {
 
         if(html) wrapper.app(typeof html == "string" ? html.prepare(this.color_pallete).morph() : html);
 
-        $("#app")[0].app(_W.app(head).app(wrapper));
+        ID("app").app(_W.app(head).app(wrapper));
 
         this.tileClickEffectSelector(".-tile");
 
@@ -1357,7 +1359,7 @@ class FAAU {
 
         if(html) wrapper.app(typeof html == "string" ? html.prepare(this.color_pallete).morph()[0] : html);
 
-        $("#app")[0].app(_D.app(head).app(wrapper));
+        ID("app").app(_D.app(head).app(wrapper));
 
         this.tileClickEffectSelector(".-tile");
 
@@ -1521,7 +1523,7 @@ class FAAU {
         $(".--drag-trigger").each(x => {
             
             if(x.has(".--drag-enabled")) return;
-            if(x.upFind("--drag-target")==$('#app')) return;
+            if(x.upFind("--drag-target")==$('#app')[0]) return;
 
             x.attr({ 
                 draggable: "true"
@@ -1569,7 +1571,7 @@ class FAAU {
     
     tooltips(){
         if(!$("tooltip").length){
-            $("#app")[0].app(
+            ID("app").app(
                 _("tooltip#tooltip", "-fixed --tooltip-element", { 
                     padding:".5em"
                     , borderRadius:".25em"

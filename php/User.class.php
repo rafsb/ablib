@@ -175,6 +175,11 @@ class User extends Activity
     {
         return self::allow(LOGGED, $hash);
     }
+    
+    public static function exchange_keys(String $hash=null)
+    {
+        return self::hashlogin(self::get_hash($hash));
+    }
 
     public function list(String $hash)
     {
@@ -248,7 +253,7 @@ class User extends Activity
         return Core::response(0, "User::login -> incorrect credentials");;
     }
 
-    public function hashlogin(String $hash, String $device = null)
+    public static function hashlogin(String $hash, String $device = null)
     {   
         if(!self::get_hash($hash)) return Core::response(0, "User::hashlogin -> no HASH found");
         $user = self::info($hash);
@@ -288,7 +293,7 @@ class User extends Activity
             $admin = $user->access_level < ADMIN ? false : true;
             if(!isset($new_user["uuid"])) $new_user["uuid"] = time();
             if(!isset($new_user["access_level"])||!self::allow($new_user["access_level"] + 1, $hash)) $new_user["access_level"] = LOGGED;
-            if(isset($new_user["password"])) $new_user["password"] = Hash::word($new_user["password"]); else unset($new_user["password"]);
+            if(isset($new_user["password"])&&$new_user["password"]) $new_user["password"] = Hash::word($new_user["password"]); else unset($new_user["password"]);
             if(isset($new_user["username"])) if(!$new_user["username"]) unset($new_user["username"]);
             if(isset($new_user["user"])) if(!$new_user["user"]) unset($new_user["user"]);
             
@@ -303,7 +308,7 @@ class User extends Activity
         {
             $uuid = Request::in("uuid");
             if(in_array($uuid, [ "root_user", "_system" ])) return Core::response(0, "User::delete -> these users cannot be removed");
-            if(self::allow(ADMIN, $hash)&&$uuid) return _User_Primitive_Traits::delete($uuid)&&1; 
+            if(self::allow(self::uuid($hash, $uuid)->access_level, $hash)) return _User_Primitive_Traits::delete($uuid)&&1; 
         }
         return Core::response(0, "User::delete -> no hash or bad permissions");
     }
