@@ -38,7 +38,7 @@ class Request {
         if(!$tmp) $tmp = $_POST;
         if(!$tmp) $tmp = $_GET;
         // print_r($tmp); echo $f . $tmp[$f];;
-        if($f!==null) return(!empty($tmp[$f]) ? $tmp[$f] : null);
+        if($f!==null) return(isset($tmp[$f]) ? $tmp[$f] : null);
         else return(!empty($tmp) ? $tmp : null);
     }
 

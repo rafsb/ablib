@@ -49,6 +49,24 @@ class Convert
         else return $json ? base64_encode(self::json($input)) : base64_decode($input);
     }
 
+    public static function encrypt(String $file, $input)
+    {
+        $key = App::config()->encrypt_key;
+        $cipher = App::config()->encrypt_cipher;
+        $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($cipher));
+        if(is_object($input)||is_array($input)) $input = self::json($input);
+        $final = openssl_encrypt($input, $cipher, $key, $options=0, $iv, $tag);
+        IO::write($file . "_key", $iv . PHP_EOL . $tag);
+        IO::write($file, $final);
+        return $final;
+    }
+
+    public static function decrypt(String $file)
+    {
+        $keys = explode(PHP_EOL, IO::read($file . "_key"));
+        return openssl_decrypt(IO::read($file), App::config()->encrypt_cipher,  App::config()->encrypt_key, $options=0, $keys[0], $keys[1]);
+    }
+
     public static function xml2json($xml)
     {
         return json_decode(json_encode(simplexml_load_string($xml)));
