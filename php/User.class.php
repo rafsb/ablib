@@ -178,7 +178,7 @@ class User extends Activity
     
     public static function exchange_keys(String $hash=null)
     {
-        return self::hashlogin(self::get_hash($hash));
+        return self::get_hash($hash) ? self::hashlogin($hash) : Core::response(0, "User:hashlogin -> no valid hash");
     }
 
     public function list(String $hash)
@@ -231,7 +231,7 @@ class User extends Activity
         $pswd = $pswd ? $pswd : $args["pswd"];
         if(!$pswd) return Core::response(-2,"User::login -> no password hash found");
 
-        if(API_NEEDS_DEVICE_HASH)
+        if(defined("API_NEEDS_DEVICE_HASH")&&API_NEEDS_DEVICE_HASH)
         {
             $device = $device ? $device : $args["device"];
             if(!$device) return Core::response(-3,"User::login -> no device hash found");

@@ -3,8 +3,8 @@
 /* 
  * USERS
  */
-define("USER",1);
-define("UUID",2);
+// define("USER",1);
+define("UUID",0);
 
 /* 
  * CALL TYPES

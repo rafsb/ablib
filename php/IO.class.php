@@ -31,11 +31,10 @@ class IO {
     public static function jin($path=null,$obj=null,$mode=REPLACE)
     {
         // print_r($obj); die;
-        if($path===null) return Core::response(-1,"No path given");
-        if($obj===null) return Core::response(-2,"No object given");
+        if($path===null) return Core::response(-1,"IO::jin -> No path given");
+        if($obj===null) return Core::response(-2,"IO::jin -> No object given");
         // echo "<pre>"; print_r($obj);
-        return self::write($path,json_encode($obj, DEBUG ? JSON_PRETTY_PRINT : null),$mode);
-        
+        return self::write($path,json_encode($obj, DEBUG ? JSON_PRETTY_PRINT : null), $mode);
     }
 
     /* signature: jin('var/config.json');
@@ -51,14 +50,14 @@ class IO {
 
     public static function csvin($path=null,$obj=null, $delimiter=";", $endline="\n")
     {
-        if($path===null) return Core::response(-1,"IO::csvin => No path given");
-        if($obj===null) return Core::response(-2,"IO::csvin => No object given");
+        if($path===null) return Core::response(-1,"IO::csvin -> No path given");
+        if($obj===null) return Core::response(-2,"IO::csvin -> No object given");
         echo self::write($path, _As::obj2csv($obj, $delimiter, $endline));
     }
 
     public static function csvout($path=null, $delimiter = ";", $endline ="\n")
     {
-        if($path===null) return Core::response(-1,"No path given");
+        if($path===null) return Core::response(-1,"IO::csvout -> No path given");
         $obj = self::read($path);
         $csv = [];
         if($obj)
@@ -223,7 +222,7 @@ class IO {
 
     public static function link(String $from, String $to)
     {
-        return symlink(IO::root($from), IO::root($to));
+        return \symlink(self::root($from), self::root($to));
     }
 
     public static function debug($anything=null)

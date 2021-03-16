@@ -64,7 +64,8 @@ class Application
 	}
 
 	public static function init() {
-		if(!API_NEEDS_LOGIN||User::logged()) (new Home)->render();
-		else (new Login)->render();
+		//if(!API_NEEDS_LOGIN||User::allow(UUID))
+		(new Home)->render();
+		//else (new Login)->render();
 	}
 }
