@@ -468,6 +468,10 @@ _Bind(Array.prototype, {
         app.iterate(0, Math.max(1,n), i => x[i] = x[i] || v.prepare({i:i}));
         return x
     }
+    , mutate: function(fn){
+        if(!fn) return this;
+        return this.extract((x, i) => { return fn(x,i) })
+    }
     , cast: function(filter=STRING){
         return this.extract(x => { return filter==STRING?x+"":(filter==NUMBER?x*1:x) })
     }
@@ -1449,6 +1453,8 @@ class FAAU {
     iterate(s, e, fn, step=1){
         const x = [];
         if(!fn) fn = i => i;
+        s = s || 0;
+        e = e || s+1;
         for(let i = s; i != e; i += step) x.push(fn(i));
         return x;
     }
