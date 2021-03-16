@@ -233,8 +233,9 @@ class User extends Activity
 
         if(defined("API_NEEDS_DEVICE_HASH")&&API_NEEDS_DEVICE_HASH)
         {
-            $device = $device ? $device : $args["device"];
-            if(!$device) return Core::response(-3,"User::login -> no device hash found");
+		$device = $device ? $device : null;
+		if(!$device && isset($args["device"])) $device = $args["device"];
+            	if(!$device) return Core::response(-3,"User::login -> no device hash found");
         }
 
         if(self::pswd_check($user, $pswd))
