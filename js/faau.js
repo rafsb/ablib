@@ -103,8 +103,8 @@ _Bind(HTMLFormElement.prototype,{
                 name = o.name
                 , value = o.value || o.textContent
                 ;;
-                if(value&&o.has("-list")) value = value.list().clear() || [];
-                if(value&&o.has("-hash")) value = Array.isArray(value) ? value.extract(x => { return x.hash() }) : value.hash();
+                if(o.has("-list")) value = value.list().clear();
+                if(o.has("-hash")) value = Array.isArray(value) ? value.extract(x => { return x.hash() }) : value.hash();
                 tmp[name] = value;
             }
         });
@@ -349,7 +349,7 @@ _Bind(String.prototype,{
         return atob(this);
     }
     , list: function(){
-        return this.split(/[\n+\t+,|]/g)
+        return this.split(/[\n+\t+,|]/g) || []
     }
     , fill: function(c=" ", l=8, d=-1) {
         let

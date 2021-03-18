@@ -1,6 +1,8 @@
 <?php
 define("USER_ONLY_HASH_MODE", true);
 define("SHADOW_FILE", "var/users/shadow");
+define("TEAM_SIZE_LIMIT", 20);
+if(!defined("API_NEEDS_DEVICE_HASH")) define("API_NEEDS_DEVICE_HASH", false);
 
 class _User_Default_Traits
 {
@@ -12,7 +14,7 @@ class _User_Default_Traits
             , "user"         => "root"
             , "password"     => Hash::word("108698584") // rootz
             , "picture"      => "img/user.svg"
-            , "access_level" => ROOT
+            , "access_level" => EUser::ROOT
             , "hash"         => Hash::word("root")
             , "last_login"   => time()
         ];
@@ -25,7 +27,7 @@ class _User_Default_Traits
             "uuid"           => "_system"
             , "username"     => "Sistema"
             , "picture"      => "img/user.svg"
-            , "access_level" => SYSTEM
+            , "access_level" => EUser::SYSTEM
             , "hash"         => trim(IO::read("ROOT"))
         ];
     }
@@ -38,7 +40,7 @@ class _User_Default_Traits
             , "user"         => ""
             , "password"     => ""
             , "picture"      => "img/user.svg"
-            , "access_level" => LOGGED
+            , "access_level" => EUser::LOGGED
             , "hash"         => Hash::word(time())
             , "last_login"   => ""
             , "projects"     => []
@@ -58,7 +60,7 @@ class _User_Primitive_Traits
 
     private static function load()
     {
-        if(App::driver()==DATABASE)
+        if(App::driver()==EPersistance::DATABASE)
         {
             $users = Mysql::select()->from("Users")->query(__ARRAY__);
             if(!sizeof($users))
@@ -167,13 +169,13 @@ class User extends Activity
         if($user && sizeof($user)) $uuid = $user[0]->uuid;
         else return Core::response(0, "User::allow -> no valid hash");
 
-        if(App::driver()==DATABASE) return (int)Mysql::cell("Users","access_level","uuid='$uuid'")*1>=$level*1 ? 1 : 0;
+        if(App::driver()==EPersistance::DATABASE) return (int)Mysql::cell("Users","access_level","uuid='$uuid'")*1>=$level*1 ? 1 : 0;
         else return $user[0]->access_level*1 >= $level*1 ? 1 : 0;
     }
 
-    public static function pass(String $hash)
+    public static function pass(String $hash=null)
     {
-        return self::allow(LOGGED, $hash);
+        return self::allow(EUser::LOGGED, self::get_hash($hash)) ? 1 : Core::response(0, "User::pass -> No valid hash");
     }
     
     public static function exchange_keys(String $hash=null)
@@ -181,7 +183,7 @@ class User extends Activity
         return self::get_hash($hash) ? self::hashlogin($hash) : Core::response(0, "User:hashlogin -> no valid hash");
     }
 
-    public function list(String $hash)
+    public static function list(String $hash=null)
     {
         if(!self::get_hash($hash)) return Core::response([], "User::list -> no HASH found");
         
@@ -191,7 +193,7 @@ class User extends Activity
         $user_list = _User_Primitive_Traits::list();
         $tmp_list = $user_list;
 
-        if(!User::allow(ADMIN, $hash))
+        if(!User::allow(EUser::ADMIN, $hash))
         {
             $projects_list = [];
             foreach(Projects::list($hash) as $tmp_project) $projects_list[] = $tmp_project->puid;
@@ -209,13 +211,13 @@ class User extends Activity
             }
         }
         $tmp = [];
-        foreach($user_list as $u) if($user->uuid == $u->uuid || $user->access_level == ROOT || $u->access_level < $user->access_level) $tmp[] = $u;
+        foreach($user_list as $u) if($user->uuid == $u->uuid || $user->access_level == EUser::ROOT || $u->access_level < $user->access_level) $tmp[] = $u;
         return $tmp;
     }
 
-    public static function info(String $hash)
+    public static function info(String $hash=null)
     {
-        if(!self::allow(LOGGED, $hash)) return Core::response(0, "User::bio -> no user logged");
+        if(!self::allow(EUser::LOGGED, self::get_hash($hash))) return Core::response(0, "User::bio -> no user logged");
         $user = _User_Primitive_Traits::hashseek($hash);
         if($user) unset($user->password);
         return $user ? $user : Core::response(0, "User::info -> not found");
@@ -231,27 +233,23 @@ class User extends Activity
         $pswd = $pswd ? $pswd : $args["pswd"];
         if(!$pswd) return Core::response(-2,"User::login -> no password hash found");
 
-        if(defined("API_NEEDS_DEVICE_HASH")&&API_NEEDS_DEVICE_HASH)
+        if(API_NEEDS_DEVICE_HASH)
         {
 		$device = $device ? $device : null;
 		if(!$device && isset($args["device"])) $device = $args["device"];
-            	if(!$device) return Core::response(-3,"User::login -> no device hash found");
+            if(!$device) return Core::response(-3,"User::login -> no device hash found");
         }
 
         if(self::pswd_check($user, $pswd))
         {
-            $user = _User_Primitive_Traits::find("user",$user);
-            
-            if(sizeof($user)) $user = $user[0];
-            else return Core::response(0, "User::login -> no user found");
-            
+            $user = _User_Primitive_Traits::find("user",$user)[0];
             $hash = Hash::word($user->uuid."@".time());
             if(_User_Primitive_Traits::update($user->uuid, [ "hash" => $hash, "last_login" => time(), "device" => $device ])) return $hash;
             // return $user;
 
-            return Core::response(0, "User::login -> error saving new hash/time");
+            return Core::response(-4, "User::login -> error saving new hash/time");
         }
-        return Core::response(0, "User::login -> incorrect credentials");;
+        return Core::response(-5, "User::login -> incorrect credentials");;
     }
 
     public static function hashlogin(String $hash, String $device = null)
@@ -287,17 +285,25 @@ class User extends Activity
 
     public static function update(String $hash, array $new_user = null)
     {
+        
+        $user = self::info($hash);
         $new_user = $new_user ? $new_user : Request::in();
-        if($new_user)
+        if($user->access_level >= EUser::MANAGER && $new_user)
         {
-            $user = self::info($hash);
-            $admin = $user->access_level < ADMIN ? false : true;
-            if(!isset($new_user["uuid"])) $new_user["uuid"] = time();
-            if(!isset($new_user["access_level"])||!self::allow($new_user["access_level"] + 1, $hash)) $new_user["access_level"] = LOGGED;
-            if(isset($new_user["password"])&&$new_user["password"]) $new_user["password"] = Hash::word($new_user["password"]); else unset($new_user["password"]);
-            if(isset($new_user["username"])) if(!$new_user["username"]) unset($new_user["username"]);
-            if(isset($new_user["user"])) if(!$new_user["user"]) unset($new_user["user"]);
-            
+            $admin = $user->access_level < EUser::ADMIN ? false : true;
+            if(!$new_user["uuid"]) $new_user["uuid"] = time();
+            if(!$new_user["access_level"]) $new_user["access_level"] = $user->access_level - 1;
+            else if($user->access_level < $new_user["access_level"]) return Core::response(0, "User::update -> permission`s issues");
+            if(!$new_user["username"]) unset($new_user["username"]);
+            if(!$new_user["user"]) unset($new_user["user"]);
+            if(!$new_user["hash"]) $new_user["hash"] = Hash::word(time());
+            if(!$admin)
+            {
+                if(!$new_user["team_limit"]) $new_user["team_limit"] = TEAM_SIZE_LIMIT;
+                if(!$new_user["groups_blacklist"]) $new_user["groups_blacklist"] = [];
+                if(!$new_user["charts_blacklist"]) $new_user["charts_blacklist"] = [];
+            }
+            if($new_user["password"]) $new_user["password"] = Hash::word($new_user["password"]); else unset($new_user["password"]);
             return _User_Primitive_Traits::update($new_user["uuid"], $new_user) ? 1 : 0;
         } 
         return Core::response(0, "User::update -> something went wrong man...");
@@ -316,18 +322,28 @@ class User extends Activity
 
     public static function add(String $hash)
     {
-        if(self::get_hash($hash)&&User::allow(MANAGER,$hash))
+        if(self::get_hash($hash)&&self::allow(EUser::MANAGER,$hash))
         {
+            if(!self::allow(EUser::ADMIN, $hash))
+            {
+                $user = self::info($hash);
+                if(!isset($user->team_limit))
+                {
+                    $user->team_limit = TEAM_SIZE_LIMIT;
+                    self::update($user->uuid, (array)$user);
+                } 
+                if(sizeof(self::list($hash)) >= $user->team_limit) return Core::response(0, "User::add -> user team limit exedded");
+            }
             $user = _User_Default_Traits::base();
-            if(!User::allow(ADMIN,$hash)) $user["projects"] = User::info($hash)->projects;
+            if(!User::allow(EUser::ADMIN,$hash)) $user["projects"] = User::info($hash)->projects;
             return _User_Primitive_Traits::update($user["uuid"], $user) ? 1 : 0;
         }
-        return Core::response(0, "User::delete -> no hash or bad permissions");
+        return Core::response(0, "User::add -> no hash or bad permissions");
     }
 
     public static function projectadd(String $hash=null, String $uuid = null, String $puid = null)
     {
-        if(self::get_hash($hash)&&User::allow(ADMIN,$hash))
+        if(self::get_hash($hash)&&User::allow(EUser::ADMIN,$hash))
         {
             $args = (object)Request::in();
             if(!$uuid) $uuid = isset($args->uuid) ? $args->uuid : false;
@@ -338,7 +354,7 @@ class User extends Activity
             if(!$user) return Core::response(0, "User::projectadd -> no user found");
             
             if(!isset($user->projects)||!$user->projects) $user->projects = [];
-            if($user->access_level >= ADMIN || in_array($puid, $user->projects)) return Core::response(0, "User::projectadd -> aready there");
+            if($user->access_level >= EUser::ADMIN || in_array($puid, $user->projects)) return Core::response(0, "User::projectadd -> aready there");
 
             if(is_dir(IO::root("var/users/projects/$puid")))
             {
@@ -352,7 +368,7 @@ class User extends Activity
 
     public static function projectdel(String $hash=null, String $uuid = null, String $puid = null)
     {
-        if(self::get_hash($hash)&&User::allow(ADMIN,$hash))
+        if(self::get_hash($hash)&&User::allow(EUser::ADMIN,$hash))
         {
             $args = (object)Request::in();
             if(!$uuid) $uuid = isset($args->uuid) ? $args->uuid : false;
@@ -362,7 +378,7 @@ class User extends Activity
             $user = self::uuid($hash,$uuid);
 
             if(!$user) return Core::response(0, "User::projectdel -> no user found oor admin");
-            if($user->access_level >= ADMIN) return Core::response(0, "User::projectdel -> cannot remove project from an ADMIN+");
+            if($user->access_level >= EUser::ADMIN) return Core::response(0, "User::projectdel -> cannot remove project from an ADMIN+");
 
             if(!isset($user->projects)||!is_array($user->projects))
             {
@@ -385,7 +401,7 @@ class User extends Activity
 
     public static function groupadd(String $hash=null, String $uuid = null, String $guid = null)
     {
-        if(self::get_hash($hash)&&User::allow(EDITOR,$hash))
+        if(self::get_hash($hash)&&User::allow(EUser::EDITOR,$hash))
         {
             $args = (object)Request::in();
             if(!$uuid) $uuid = isset($args->uuid) ? $args->uuid : false;
@@ -395,11 +411,7 @@ class User extends Activity
             $user = self::uuid($hash,$uuid);
             if(!$user) return Core::response(0, "User::groupadd -> no user found");
             
-            if(!isset($user->groups_blacklist)||!is_array($user->groups_blacklist)) 
-            {
-                $user->groups_blacklist = [];
-                return Core::response(0, "User::groupadd -> already there");
-            }
+            if(!isset($user->groups_blacklist)||!is_array($user->groups_blacklist)) $user->groups_blacklist = [];
 
             $tmp = [];
             foreach($user->groups_blacklist as $g) if($g != $guid) $tmp[] = $g;
@@ -412,7 +424,7 @@ class User extends Activity
 
     public static function groupdel(String $hash=null, String $uuid = null, String $guid = null)
     {
-        if(self::get_hash($hash)&&User::allow(EDITOR,$hash))
+        if(self::get_hash($hash)&&User::allow(EUser::EDITOR,$hash))
         {
             $args = (object)Request::in();
             if(!$uuid) $uuid = isset($args->uuid) ? $args->uuid : false;
@@ -422,13 +434,13 @@ class User extends Activity
             $user = self::uuid($hash,$uuid);
 
             if(!$user) return Core::response(0, "User::groupdel -> no user found oor admin");
-            if($user->access_level >= ADMIN) return Core::response(0, "User::groupdel -> cannot remove project from an ADMIN+");
+            if($user->access_level >= EUser::ADMIN) return Core::response(0, "User::groupdel -> cannot remove project from an ADMIN+");
 
             if(!isset($user->groups_blacklist)||!is_array($user->groups_blacklist))
             {
                 $user->groups_blacklist = [ $guid ];
-                self::update($user->uuid, (array)$user);
-                return Core::response(1, "User::groupdel -> blacklist array created now");
+                // IO::log("User::groupdel -> blacklist array created for user {$user->uuid}", strtolower(get_called_class()));
+                return self::update($user->uuid, (array)$user);
             }
             
             if(in_array($guid, $user->groups_blacklist)) return Core::response(1, "User::groupdel -> already there");
@@ -442,7 +454,7 @@ class User extends Activity
 
     public static function chartadd(String $hash=null, String $uuid = null, String $cuid = null)
     {
-        if(self::get_hash($hash)&&User::allow(USER,$hash))
+        if(self::get_hash($hash)&&User::allow(EUser::USER,$hash))
         {
             $args = (object)Request::in();
             if(!$uuid) $uuid = isset($args->uuid) ? $args->uuid : false;
@@ -455,7 +467,8 @@ class User extends Activity
             if(!isset($user->charts_blacklist)||!is_array($user->charts_blacklist)) 
             {
                 $user->charts_blacklist = [];
-                return Core::response(0, "User::chartadd -> already there");
+                // IO::log("User::chartadd -> charts_blacklist created for user {$user->uuid}", strtolower(get_called_class()));
+                return self::update($hash, (array)$user) ? 1 : 0;
             }
 
             $tmp = [];
@@ -469,7 +482,7 @@ class User extends Activity
 
     public static function chartdel(String $hash=null, String $uuid = null, String $cuid = null)
     {
-        if(self::get_hash($hash)&&User::allow(USER,$hash))
+        if(self::get_hash($hash)&&User::allow(EUser::USER,$hash))
         {
             $args = (object)Request::in();
             if(!$uuid) $uuid = isset($args->uuid) ? $args->uuid : false;
@@ -479,7 +492,7 @@ class User extends Activity
             $user = self::uuid($hash,$uuid);
 
             if(!$user) return Core::response(0, "User::chartdel -> no user found oor admin");
-            if($user->access_level >= ADMIN) return Core::response(0, "User::chartdel -> cannot remove project from an ADMIN+");
+            if($user->access_level >= EUser::ADMIN) return Core::response(0, "User::chartdel -> cannot remove project from an ADMIN+");
 
             if(!isset($user->charts_blacklist)||!is_array($user->charts_blacklist))
             {

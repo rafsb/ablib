@@ -1,5 +1,5 @@
 <?php
-class IO {
+abstract class IO {
 
     public static function root($path=null)
     { 
@@ -12,23 +12,23 @@ class IO {
         return $tmp;
     }
 
-    public static function js($file = null, $mode=CLIENT)
+    public static function js($file = null, $mode=ETypes::CLIENT)
     {
-        $pre = "<script type='text/javascript' src='" . ($mode==APP ? "lib" : "webroot") . "/js/";
+        $pre = "<script type='text/javascript' src='" . ($mode==ETypes::APP ? "lib" : "webroot") . "/js/";
         $pos = "'></script>";
-        if($file!==SCAN) echo $pre . $file . ".js" . $pos;
-        else foreach(self::scan(($mode==APP ? "lib" : "") . DS . "js","js") as $file) echo $pre . $file . $pos;
+        if($file!==EBehavior::SCAN) echo $pre . $file . ".js" . $pos;
+        else foreach(self::scan(($mode==ETypes::APP ? "lib" : "") . DS . "js","js") as $file) echo $pre . $file . $pos;
     }
 
-    public static function css($file = null, $mode=CLIENT)
+    public static function css($file = null, $mode=ETypes::CLIENT)
     {
-        $pre = "<link rel='stylesheet' type='text/css' href='" . ($mode==APP ? "lib" : "webroot") . "/css/";
+        $pre = "<link rel='stylesheet' type='text/css' href='" . ($mode==ETypes::APP ? "lib" : "webroot") . "/css/";
         $pos = "' media='screen'/>";
-        if($file!==SCAN) echo $pre . $file . ".css" . $pos;
-        else foreach(self::scan(($mode==APP ? "lib" : "") . DS . "css","css") as $file) echo $pre . $file . $pos;
+        if($file!==EBehavior::SCAN) echo $pre . $file . ".css" . $pos;
+        else foreach(self::scan(($mode==ETypes::APP ? "lib" : "") . DS . "css","css") as $file) echo $pre . $file . $pos;
     }
 
-    public static function jin($path=null,$obj=null,$mode=REPLACE)
+    public static function jin($path=null,$obj=null,$mode=EModes::REPLACE)
     {
         // print_r($obj); die;
         if($path===null) return Core::response(-1,"IO::jin -> No path given");
@@ -48,10 +48,10 @@ class IO {
         return json_decode(self::read($path)); 
     }
 
-    public static function csvin($path=null,$obj=null, $delimiter=";", $endline="\n")
+    public static function csvin($path=null,$obj=null, $delimiter=";", $endline=NL)
     {
-        if($path===null) return Core::response(-1,"IO::csvin -> No path given");
-        if($obj===null) return Core::response(-2,"IO::csvin -> No object given");
+        if($path===null) return Core::response(-1, "IO::csvin -> No path given");
+        if($obj===null) return Core::response(-2, "IO::csvin -> No object given");
         echo self::write($path, _As::obj2csv($obj, $delimiter, $endline));
     }
 
@@ -75,13 +75,11 @@ class IO {
 
     public static function read($f)
     {
-        // echo "<pre>" . $f . PHP_EOL;
         if(substr($f,0,1)!=DS) $f = self::root() . $f;
-        // echo $f;
         return $f&&is_file($f) ? file_get_contents($f) : "";
     }
 
-    public static function write($f,$content,$mode=REPLACE)
+    public static function write($f,$content,$mode=EModes::REPLACE)
     {
         // print_r($content);die;
         if(substr($f,0,1)!=DS) $f = self::root() . $f;
@@ -89,7 +87,7 @@ class IO {
         $tmp = implode(DS,array_slice($tmp,0,sizeof($tmp)-1));
         if(!is_dir($tmp)) mkdir($tmp,0777,true);
         @chmod($tmp,0777);
-        $tmp = ($mode == APPEND ? self::read($f) : "") . $content;
+        $tmp = ($mode == EModes::APPEND ? self::read($f) : "") . $content;
         // echo $f; echo self::read($f); die;
         file_put_contents($f,$tmp);
         @chmod($f,0777);
@@ -97,9 +95,9 @@ class IO {
         return is_file($f) ? 1 : 0;
     }
 
-    public static function log($content)
+    public static function log($content, String $file = "debug.log")
     {
-        self::write("var/logs/debug.log", $content."\n", APPEND);
+        self::write("var/logs/$file", $content."\n", EModes::APPEND);
     }
 
     /* signature: get_files('img/',"png");

@@ -5,7 +5,7 @@ class Page extends DefaultInitiator
 
 	protected $result_ = null;
 
-	protected $layout_ = LAYOUTS_DEFAULT; // also LAYOUTS_THIN
+	protected $layout_ = ELayouts::DEFAULT; // also LAYOUTS::THIN
 
 	protected $allow_access_ = false;
 

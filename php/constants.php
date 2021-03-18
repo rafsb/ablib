@@ -6,49 +6,75 @@
 // define("USER",1);
 define("UUID",0);
 
+define("DS",DIRECTORY_SEPARATOR);
+define("NL",PHP_EOL);
+
 /* 
  * CALL TYPES
  */
-define("SYNC",true);
-define("ASYNC",false);
-define("IN",true);
-define("OUT",false);
-define("SCAN",'{*}');
-define("NOSCAN",false);
+abstract class EBehavior
+{
+    const SYNC   = true;
+    const ASYNC  = false;
+    const IN     = true;
+    const OUT    = false;
+    const SCAN   = '*';
+    const ALL    = '*';
+    const NOSCAN = false;
+}
 
 
 /* 
  * TEXT TYPES
  */
-define("LEFT", true);
-define("RIGHT",false);
-define("REVERSE",true);
-define("CUT",true);
-define("WHERE",true);
+abstract class EText
+{
+    const LEFT    = true;
+    const RIGHT   = false;
+    const REVERSE = true;
+    const CUT     = true;
+    const WHERE   = true;
+}
 /*
  * HANDLER MODES
  */
-define("NEW",0);
-define("INSERT",0);
-define("EDIT",1);
-define("UPDATE",1);
-define("REMOVE",2);
-define("DELETE",2);
-define("VIEW",3);
-define("REPLACE",4);
-define("APPEND",5);
-define("PREPEND",6);
-define("RECURSIVE",true);
-define("NORECURSIVE",false);
-define("FORCE",true);
-define("NOFORCE",false);
-define("LOG",true);
-define("NOLOG",false);
-define("PRINT",true);
-define("NOPRINT",false);
-define("APP",true);
-define("CLIENT",false);
+abstract class ESql
+{
+    const INSERT = 0;
+    const UPDATE = 1;
+    const DELETE = 3;
+    const __ARRAY  = 0;
+    const __ASSOC  = 1;
+    const __JSON   = 2;
+    const __OBJECT = 3;
+    const __MYSQLI = 4;    
+}
 
+abstract class EModes
+{
+    const NEW         = 0;
+    const EDIT        = 1;
+    const REMOVE      = 2; 
+    const VIEW        = 4;
+    const REPLACE     = 5;
+    const APPEND      = 6;
+    const PREPEND     = 7;
+    const RECURSIVE   = true;
+    const NORECURSIVE = false;
+    const FORCE       = true;
+    const NOFORCE     = false;
+    const LOG         = true;
+    const NOLOG       = false;
+    const PRINT       = true;
+    const NOPRINT     = false;
+
+}
+
+abstract class ETypes
+{
+    const APP    = true;
+    const CLIENT = false;
+}
 /*
  * ENVIROMENTS
  */
@@ -56,53 +82,62 @@ define("SESSION",1);
 define("COOKIE",2);
 
 /*
- * RESPONSE FORMATS
- */
-define("__ASSOC__",0);
-define("__ARRAY__",1);
-define("__JSON__",2);
-define("__OBJECT__",3);
-define("__MYSQLI_OBJ__",4);
-
-/*
  * USER LEVELS
  */
-define("LOGGED"  , 0);
-define("USER"    , 1);
-define("EDITOR"  , 2);
-define("MANAGER" , 3);
-define("TI"      , 4);
-define("DIRECTOR", 5);
-define("ADMIN"   , 6);
-define("DEV"	 , 7);
-define("SYSTEM"  , 8);
-define("ROOT"	 , 9);
+abstract class EUser
+{
+    const LOGGED    =  0;
+    const USER      =  1;
+    const EDITOR    =  2;
+    const MANAGER   =  3;
+    const TI        =  4;
+    const DIRECTOR  =  5;
+    const ADMIN     =  6;
+    const DEV       =  7;
+    const SYSTEM    =  8;
+    const ROOT      =  9;
 
-define("SHA1","sha1");
-define("SHA256","sha256");
-define("SHA512","sha512");
-define("MD5","md5");
+}
+abstract class EHash
+{
+    const SHA1   = "sha1";
+    const SHA256 = "sha256";
+    const SHA512 = "sha512";
+    const MD5    = "md5";
+}
 
-define("DISK","disk");
-define("DATABASE","database");
-define("DEFAULT_DB","defaultdb");
-define("DEFAULT_COLLECTION","default");
+abstract class EPersistance
+{
+    const DISK = "disk";
+    const DATABASE = "database";
+    const DEFAULT_DB = "defaultdb";
+    const DEFAULT_COLLECTION = "default";
+    
+}
 
-define("LAYOUTS_DEFAULT","default");
-define("LAYOUTS_THIN","thin");
-
-define("DS","/");
-define("NL","\n");
-
-define("POST","POST");
-define("GET","GET");
+abstract class ELayouts
+{
+    const DEFAULT = "default";
+    const THIN    = "thin";
+}
 
 
-define("SUM"		, 0);
-define("TREND"		, 1);
-define("HARMONIC"	, 2);
-define("POLINOMIAL"	, 3);
-define("PROGRESS"	, 4);
-define("MAX"		, 5);
-define("MIN"		, 6);
-define("AVERAGE"	, 7);
+abstract class ERequest
+{
+    const POST   = "POST";
+    const GET    = "GET";
+    const OPTION = "OPTION";
+    const PUT    = "PUT";
+}
+
+abstract class ECalculate
+{
+    const SUM        = 0;
+    const TREND      = 1;
+    const HARMONIC   = 2;
+    const POLINOMIAL = 3;
+    const PROGRESS   = 4;
+    const MAX        = 5;
+    const MIN        = 6;
+    const AVERAGE    = 7;
+}

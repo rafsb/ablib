@@ -126,7 +126,6 @@ class Vector extends Activity {
 			$lag = 1;
 			Vector::each($mix, function($yn, $xn) use ($x, $xi, &$lag){
 				if($xn != $xi) $lag *= ( ($x - $xn) / ($xi - $xn) );
-				// echo $lag . PHP_EOL;
 			});
 			$result += ( $yi * $lag );
 		});
@@ -263,12 +262,12 @@ class Vector extends Activity {
 		$a[40] = null;
 		$a[41] = 300;
 
-		return Convert::json([ 
+		return [ 
 			$a
 			, $v->blur($a,2)
 			, $v->blur($a,3)
 			, $v->blur($a,4)
 			, $v->blur($a,5)
-		]);
+		];
 	}
 }

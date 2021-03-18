@@ -11,10 +11,10 @@ class Application
 	// @override
 	private static $config = [
     	"developer"                 => "DEV Team"
-        , "project_name"            => "MobileApi"
-        , "driver"                  => DISK
-        , "get_config_min_level"    => MANAGER
-        , "hash_algorithm"          => SHA512
+        , "project_name"            => "MobileApi"	
+        , "driver"                  => EPersistance::DISK
+        , "get_config_min_level"    => EUser::MANAGER
+        , "hash_algorithm"          => EHash::SHA512
         , "database_credentials"    => [
 			"host" 		 => "127.0.0.1"
             , "user"     => "root"
@@ -64,8 +64,6 @@ class Application
 	}
 
 	public static function init() {
-		//if(!API_NEEDS_LOGIN||User::allow(UUID))
 		(new Home)->render();
-		//else (new Login)->render();
 	}
 }

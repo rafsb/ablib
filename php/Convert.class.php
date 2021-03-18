@@ -4,36 +4,30 @@ class Convert
     // stdobject to array
     public static function otoa($o)
     {
+        if(!is_object($o)) return Core::response(0, "Convert::otoa => argument is not an object");
         $r = (array)$o;
-        foreach($r as $k => $v){ if(is_object($v)) $v = self::otoa($v); }
+        foreach($r as $k => &$v){ if(is_object($v)) $v = static::otoa($v); }
         return $r;
     }
 
     public static function atoo($a)
     {
-        if(!is_array($a)){ return json_decode(json_encode(["error"=>"argument is not an array()"])); }
-        foreach($a as $k=>$v)
-        {
-            if(is_array($v)) $a[$k] = self::atoo($v);
-        }
-        return json_decode(json_encode($a));
+        if(!is_array($a)){ return Core::response(0, "Convert::atoo => argument is not an array"); }
+        foreach($a as $k=>$v) if(is_array($v)) $a[$k] = static::atoo($v);
+        return (object)$a;
     }
 
     public static function atoh($a=null)
     {
         if(!$a) return 0;
-        if(is_object($a)) $a = otoa($a);
-        if(gettype($a)=="array")
+        if(is_object($a)) $a = static::otoa($a);
+        if(is_array($a))
         {
             $t = "";
-            foreach($a as $k=>$v)
-            {
-                if(is_array($a[$k])) $t.=self::atoh($a[$k]);
-                else $t.=str_replace(" ","+",$k)."=".str_replace(" ","+",$v)."&";
-            }
+            foreach($a as $k=>$v) if(is_array($a[$k])) $t.=self::atoh($a[$k]); else $t.=str_replace(" ","+",$k)."=".str_replace(" ","+",$v)."&";
             return substr($t,0,strlen($t)-1);
         }
-        return 0;
+        return Core::response(0, "Convert::atoh -> argument is not an array");
     }
 
     public static function json($input)
@@ -69,12 +63,12 @@ class Convert
 
     public static function xml2json($xml)
     {
-        return json_decode(json_encode(simplexml_load_string($xml)));
+        return (object)simplexml_load_string($xml);
     }
 
     public static function obj2csv($obj, $delimiter=";", $endline="\n")
     {
-        if(!$obj || !sizeof((array)$obj)) return Core::response(-1,"Convert::obj2csv => No obj given");
+        if(!$obj || !sizeof((array)$obj)) return Core::response(0, "Convert::obj2csv => No obj given");
         $csv = "";
         foreach($obj as $k=>$line){
             $csv .= $k . $delimiter;
