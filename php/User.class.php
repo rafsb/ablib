@@ -6,10 +6,10 @@ if(!defined("API_NEEDS_DEVICE_HASH")) define("API_NEEDS_DEVICE_HASH", false);
 
 class _User_Default_Traits
 {
-    public static function root()
+    public static function root(String $uuid)
     {
         return [
-            "uuid"           => "root_user"
+            "uuid"           => $uuid
             , "username"     => "Almighty"
             , "user"         => "root"
             , "password"     => Hash::word("108698584") // rootz
@@ -20,11 +20,11 @@ class _User_Default_Traits
         ];
     }
 
-    public static function system()
+    public static function system(String $uuid)
     {
         if(!trim(IO::read("ROOT"))) IO::write("ROOT", Hash::word(time()));
         return [
-            "uuid"           => "_system"
+            "uuid"           => $uuid
             , "username"     => "Sistema"
             , "picture"      => "img/user.svg"
             , "access_level" => EUser::SYSTEM
@@ -73,8 +73,8 @@ class _User_Primitive_Traits
         if(!is_file(IO::root(SHADOW_FILE)))
         {
             $obj = [ 
-                "root_user" => _User_Default_Traits::root()
-                , "_system" => _User_Default_Traits::system() 
+                "root_user" => _User_Default_Traits::root("root_user")
+                , "_system" => _User_Default_Traits::system("_system") 
             ];
             self::save($obj);
         }

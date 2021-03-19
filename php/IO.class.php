@@ -126,7 +126,7 @@ abstract class IO {
                     {
                         if(substr($t,strlen($extension)*-1)==$extension) $result[] = $t; 
                     }
-                    else if($withfolders||!is_dir($folder.DS.$t)) $result[] = $t;
+                    else if($withfolders||(!is_dir($folder.DS.$t)&&!is_link($folder.DS.$t))) $result[] = $t;
                 }
             }
         }
@@ -142,7 +142,16 @@ abstract class IO {
     {
         $arr = [];
         $tmp = self::scan($path, null, true);
-        if(\sizeof($tmp)) foreach($tmp as $f) if(\is_dir($path . DS . $f)) $arr[] = $f;
+        if(\sizeof($tmp)) foreach($tmp as $f) if(!is_link($path . DS . $f)&&is_dir($path . DS . $f)) $arr[] = $f;
+        return $arr;
+    }
+
+    public static function links($path)
+    {
+        
+        $arr = [];
+        $tmp = self::scan($path, null, true);
+        if(\sizeof($tmp)) foreach($tmp as $f) if(is_link($path . DS . $f)) $arr[] = $f;
         return $arr;
     }
 
@@ -151,19 +160,16 @@ abstract class IO {
      * $p = path to the folder to be removed from server
      *
      */
-    public static function rmf($p=null)
+    public static function rmf($dir=null)
     {
-        if(substr($p,0,1)!=DS) $p = self::root() . $p;
-        if(!$p || !\is_dir($p)) return 0;
-        if(substr($p,strlen($p)-1)!=DS) $p .= DS;
-        $files = \glob($p.'*', GLOB_MARK);
-        foreach($files as $file)
-        {
-            if (\is_dir($file)) self::rmf($file);
-            else \unlink($file);
+        $dir = IO::root($dir);
+        if (!file_exists($dir)) return true;
+        if (!is_dir($dir)) return unlink($dir);
+        foreach (scandir($dir) as $item) {
+            if ($item == '.' || $item == '..') continue;
+            if (!self::rmf($dir . DS . $item)) return false;
         }
-        if(\is_dir($p)) @\rmdir($p);
-        return \is_dir($p) ? 0 : 1;
+        return rmdir($dir);
     }
 
     public static function mkd($dir, $perm=0775)
