@@ -122,7 +122,6 @@ class _User_Primitive_Traits
         
         $list = self::load();
         $list->{$uuid} = $user;
-        
         return self::save($list);
     }
 
@@ -292,7 +291,7 @@ class User extends Activity
         {
             $admin = $user->access_level < EUser::ADMIN ? false : true;
             if(!$new_user["uuid"]) $new_user["uuid"] = time();
-            if(!$new_user["access_level"]) $new_user["access_level"] = $user->access_level - 1;
+            if($new_user["access_level"]==null) $new_user["access_level"] = $user->access_level - 1;
             else if($user->access_level < $new_user["access_level"]) return Core::response(0, "User::update -> permission`s issues");
             if(!$new_user["username"]) unset($new_user["username"]);
             if(!$new_user["user"]) unset($new_user["user"]);
