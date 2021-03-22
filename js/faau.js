@@ -17,6 +17,7 @@ DEBUG               = false
 , INTERPOLATE       = 5
 , MAX               = 6
 , MIN               = 7
+, RELATIFY          = 8
 , PASSWD_AUTO_HASH  = 0
 , NUMBER            = 0
 , STRING            = 1
@@ -568,6 +569,10 @@ _Bind(Array.prototype, {
             case (MIN): {
                 res = Number.MAX_SAFE_INTEGER;
                 this.each(x=>res=Math.min(res,x))
+            }break;
+            case (RELATIFY): {
+                res = this.calc(MAX);
+                res = this.extract(x=>x/res)
             }break;
         }
         return res;
@@ -1302,7 +1307,7 @@ class FAAU {
 
             })
         ).on("click", function(){ this.upFind("--window").raise() })
-        , wrapper = _("div", "-absolute -zero -wrapper -no-scrolls", { top:"3em", height:"calc(100% - 3em)" })
+        , wrapper = _("div", "-zero -wrapper -no-scrolls", { height:"calc(100% - 3em)" })
         , _W = _("div", "--window -fixed --drag", _Bind({
             height: "70vh"
             , width: "70vw"
