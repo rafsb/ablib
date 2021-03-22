@@ -97,7 +97,11 @@ abstract class IO {
 
     public static function log($content, String $file = "debug.log")
     {
-        self::write("var/logs/$file", $content."\n", EModes::APPEND);
+        $file = "var/logs/$file";
+        $tmp = explode("\n", IO::read($file));
+        $offset = sizeof($tmp)-API_MAX_LOG_LINES;
+        $tmp = implode("\n", array_slice($tmp, $offset > 0 ? $offset : 0, API_MAX_LOG_LINES)) . $content;
+        self::write($file, $tmp.NL, EModes::REPLACE);
     }
 
     /* signature: get_files('img/',"png");

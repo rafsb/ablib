@@ -232,33 +232,40 @@ class User extends Activity
         $pswd = $pswd ? $pswd : $args["pswd"];
         if(!$pswd) return Core::response(-2,"User::login -> no password hash found");
 
-        if(API_NEEDS_DEVICE_HASH)
-        {
-		$device = $device ? $device : null;
-		if(!$device && isset($args["device"])) $device = $args["device"];
-            if(!$device) return Core::response(-3,"User::login -> no device hash found");
-        }
+        $device = $device ? $device : $args["device"];
+        if(API_NEEDS_DEVICE_HASH&&!$device) return Core::response(-3,"User::login -> no device hash found");
 
         if(self::pswd_check($user, $pswd))
         {
             $user = _User_Primitive_Traits::find("user",$user)[0];
-            $hash = Hash::word($user->uuid."@".time());
-            if(_User_Primitive_Traits::update($user->uuid, [ "hash" => $hash, "last_login" => time(), "device" => $device ])) return $hash;
-            // return $user;
+            $hash = Hash::word($user->uuid."@".time()); 
+            if(_User_Primitive_Traits::update($user->uuid, [ "hash" => $hash, "last_login" => time(), "device" => $device ]))
+            {
+                if($device) IO::log("User::login".NL."device: " . $device . NL . "user: " . $user->uuid . "/" . $user->username . NL, "user_login.log");
+                return $hash;
+            }
 
             return Core::response(-4, "User::login -> error saving new hash/time");
         }
         return Core::response(-5, "User::login -> incorrect credentials");;
     }
 
-    public static function hashlogin(String $hash, String $device = null)
+    public static function hashlogin(String $hash = null, String $device = null)
     {   
         if(!self::get_hash($hash)) return Core::response(0, "User::hashlogin -> no HASH found");
+
+        $device = $device ? $device : $args["device"];
+        if(API_NEEDS_DEVICE_HASH&&!$device) return Core::response(-3,"User::login -> no device hash found");
+
         $user = self::info($hash);
         if($user)
         {
             $hash = Hash::word($user->uuid."@".time());
-            if(_User_Primitive_Traits::update($user->uuid, [ "hash" => $hash, "last_login" => time(), "device" => $device ])) return $hash;
+            if(_User_Primitive_Traits::update($user->uuid, [ "hash" => $hash, "last_login" => time(), "device" => $device ]))
+            {
+                if($device) IO::log("User::hashlogin".NL."device: " . $device . NL . "user: " . $user->uuid . "/" . $user->username . NL, "user_login.log");
+                return $hash;
+            }
             else return Core::response(0, "User::hashlogin -> error writing new HASH");
         }
         return Core::response(0, "User::hashlogin -> invalid hash");
