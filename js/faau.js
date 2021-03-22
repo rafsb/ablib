@@ -1183,7 +1183,7 @@ class FAAU {
             , opacity:0
             , zIndex: 2000
         }).innerHTML = n ? n : "Hello <b>World</b>!!!";
-        if(!this.isMobile()) {
+        if(!this.is_mobile()) {
             toast.css({
                 top:0,
                 right:0,
@@ -1428,7 +1428,7 @@ class FAAU {
         if(field) app.cook(field,"",-1);
     }
 
-    isMobile(){
+    is_mobile(){
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
     }
 
