@@ -66,4 +66,9 @@ class Application
 	public static function init() {
 		(new Home)->render();
 	}
+
+	public static function system_token()
+	{
+		return IO::read("ROOT");
+	}
 }
