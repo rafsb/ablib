@@ -1,5 +1,5 @@
 <?php
-class DefaultInitiator extends IO
+class DefaultInitiator
 {
 
 	protected $argv = [];

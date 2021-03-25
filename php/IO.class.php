@@ -1,5 +1,5 @@
 <?php
-abstract class IO {
+abstract class IO extends Activity {
 
     public static function root($path=null)
     { 
@@ -100,8 +100,8 @@ abstract class IO {
         $file = "var/logs/$file";
         $tmp = explode("\n", IO::read($file));
         $offset = sizeof($tmp)-API_MAX_LOG_LINES;
-        $tmp = implode("\n", array_slice($tmp, $offset > 0 ? $offset : 0, API_MAX_LOG_LINES)) . $content;
-        self::write($file, $tmp.NL, EModes::REPLACE);
+        $tmp = implode("\n", array_slice($tmp, $offset > 0 ? $offset : 0, API_MAX_LOG_LINES)) . NL . $content;
+        self::write($file, $tmp, EModes::REPLACE);
     }
 
     /* signature: get_files('img/',"png");

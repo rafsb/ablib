@@ -153,6 +153,18 @@ class User extends Activity
         return isset($tmp->password)&&$tmp->password==Hash::word($password) ? true : false;
     }
 
+    private static function sign(String $username, String $device=null)
+    {
+        $user = _User_Primitive_Traits::find("user",$username)[0];
+        $time = date("Ymd");
+        $hash = Hash::word("{$user->uuid}@$time"); 
+        if(_User_Primitive_Traits::update($user->uuid, [ "hash" => $hash, "last_login" => $time, "device" => $device ]))
+        {
+            IO::log("User::sign -> at $time, $username - $device", "user_sign/$username");
+            return $hash;
+        }
+        return Core::response(0, "User::sign -> error saving new hash/time");
+    }
     /*
      * PROTECTED
      */
@@ -227,27 +239,17 @@ class User extends Activity
     {
         $args = Request::in();
         $user = $user ? $user : $args["user"];
-        if(!$user) return Core::response(-1,"User::login -> no user found");
+        if(!$user) return Core::response(0,"User::login -> no user found");
 
         $pswd = $pswd ? $pswd : $args["pswd"];
-        if(!$pswd) return Core::response(-2,"User::login -> no password hash found");
+        if(!$pswd) return Core::response(0,"User::login -> no password hash found");
 
         $device = $device ? $device : $args["device"];
-        if(API_NEEDS_DEVICE_HASH&&!$device) return Core::response(-3,"User::login -> no device hash found");
+        if(API_NEEDS_DEVICE_HASH&&!$device) return Core::response(0,"User::login -> no device hash found");
 
-        if(self::pswd_check($user, $pswd))
-        {
-            $user = _User_Primitive_Traits::find("user",$user)[0];
-            $hash = Hash::word($user->uuid."@".time()); 
-            if(_User_Primitive_Traits::update($user->uuid, [ "hash" => $hash, "last_login" => time(), "device" => $device ]))
-            {
-                if($device) IO::log("User::login".NL."device: " . $device . NL . "user: " . $user->uuid . "/" . $user->username . NL, "user_login.log");
-                return $hash;
-            }
-
-            return Core::response(-4, "User::login -> error saving new hash/time");
-        }
-        return Core::response(-5, "User::login -> incorrect credentials");;
+        if(self::pswd_check($user, $pswd)) return self::sign($user, $device);
+        
+        return Core::response(0, "User::login -> incorrect credentials");;
     }
 
     public static function hashlogin(String $hash = null, String $device = null)
@@ -255,19 +257,10 @@ class User extends Activity
         if(!self::get_hash($hash)) return Core::response(0, "User::hashlogin -> no HASH found");
 
         $device = $device ? $device : $args["device"];
-        if(API_NEEDS_DEVICE_HASH&&!$device) return Core::response(-3,"User::login -> no device hash found");
+        if(API_NEEDS_DEVICE_HASH&&!$device) return Core::response(0,"User::login -> no device hash found");
 
         $user = self::info($hash);
-        if($user)
-        {
-            $hash = Hash::word($user->uuid."@".time());
-            if(_User_Primitive_Traits::update($user->uuid, [ "hash" => $hash, "last_login" => time(), "device" => $device ]))
-            {
-                if($device) IO::log("User::hashlogin".NL."device: " . $device . NL . "user: " . $user->uuid . "/" . $user->username . NL, "user_login.log");
-                return $hash;
-            }
-            else return Core::response(0, "User::hashlogin -> error writing new HASH");
-        }
+        if($user) return self::sign($user->user, $device);
         return Core::response(0, "User::hashlogin -> invalid hash");
     }
 

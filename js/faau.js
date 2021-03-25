@@ -1046,12 +1046,16 @@ class Bootloader {
 
         return this.alreadyLoaded || false;
     }
-    constructor(){
+    pass(){
+        this.loaders = { pass: false };
+        return this.ready("pass")
+    }
+    constructor(loader){
         this.alreadyLoaded      = false;
         this.loadComponents     = new Pool();
         this.onReadyStateChange = new Pool();
         this.onFinishLoading    = new Pool();
-        this.loaders = { pass: false }
+        this.loaders = loader || { pass: false }
         if(DEBUG) this.onReadyStateChange.add(nil => console.log(bootloader.loaders))
     }
 };
