@@ -1,5 +1,5 @@
 <?php
-class DefaultInitiator extends IO
+class DefaultInitiator
 {
 
 	protected $argv = [];
@@ -20,7 +20,7 @@ class DefaultInitiator extends IO
 	{
 		$argv = is_array(Request::in()) ? array_merge($argv,Request::in()) : $argv;
 		$this->argv = $argv;
-		$this->argc = sizeof($argv);
+		$this->argc = sizeof((array)$argv);
 	}
 
 }

@@ -1,55 +1,40 @@
 <?php
-class IO {
+abstract class IO extends Activity {
 
     public static function root($path=null)
     { 
+        
+        // assumming firs letter as / indicates is a absolute path
+        if(substr($path,0,1)==DS) return $path;
         $tmp = __DIR__;
         while(!file_exists($tmp . DS . "ROOT")) $tmp .= DS . "..";
         $tmp .= DS . ($path ? $path : '');
         return $tmp;
     }
 
-    public static function js($file = null, $mode=CLIENT)
+    public static function js($file = null, $mode=ETypes::CLIENT)
     {
-        $pre = "<script type='text/javascript' src='" . ($mode==APP ? "lib" : "webroot") . "/js/";
+        $pre = "<script type='text/javascript' src='" . ($mode==ETypes::APP ? "lib" : "webroot") . "/js/";
         $pos = "'></script>";
-        if($file!==SCAN) echo $pre . $file . ".js" . $pos;
-        else foreach(self::scan(($mode==APP ? "lib" : "webroot") . DS . "js","js") as $file) echo $pre . $file . $pos;
+        if($file!==EBehavior::SCAN) echo $pre . $file . ".js" . $pos;
+        else foreach(self::scan(($mode==ETypes::APP ? "lib" : "") . DS . "js","js") as $file) echo $pre . $file . $pos;
     }
 
-    public static function css($file = null, $mode=CLIENT)
+    public static function css($file = null, $mode=ETypes::CLIENT)
     {
-        $pre = "<link rel='stylesheet' type='text/css' href='" . ($mode==APP ? "lib" : "webroot") . "/css/";
+        $pre = "<link rel='stylesheet' type='text/css' href='" . ($mode==ETypes::APP ? "lib" : "webroot") . "/css/";
         $pos = "' media='screen'/>";
-        if($file!==SCAN) echo $pre . $file . ".css" . $pos;
-        else foreach(self::scan(($mode==APP ? "lib" : "webroot") . DS . "css","css") as $file) echo $pre . $file . $pos;
+        if($file!==EBehavior::SCAN) echo $pre . $file . ".css" . $pos;
+        else foreach(self::scan(($mode==ETypes::APP ? "lib" : "") . DS . "css","css") as $file) echo $pre . $file . $pos;
     }
 
-    public static function jin($path=null,$obj=null,$mode=REPLACE)
+    public static function jin($path=null,$obj=null,$mode=EModes::REPLACE)
     {
         // print_r($obj); die;
-        if($path===null) return Core::response(-1,"No path given");
-        if($obj===null) return Core::response(-2,"No object given");
+        if($path===null) return Core::response(-1,"IO::jin -> No path given");
+        if($obj===null) return Core::response(-2,"IO::jin -> No object given");
         // echo "<pre>"; print_r($obj);
-        return self::write($path,json_encode($obj),$mode);
-        
-    }
-
-    public static function csvin($path=null,$obj=null)
-    {
-        if($path===null) return Core::response(-1,"No path given");
-        if($obj===null) return Core::response(-2,"No object given");
-        if(substr($path,0,1)!=DS) $path = self::root() . $path;
-        // echo "<pre>"; print_r($obj);
-        if(!sizeof($obj)) return Core::response(-3,"No object length");
-        $csv = "";
-        foreach ($obj as $line)
-        {
-            $tmp = "";
-            if(sizeof($line)) foreach($line as $cell) $tmp.=",".$cell;
-            $csv .= ($tmp?substr($tmp,1):"")."\n";
-        }
-        echo self::write($path,$csv);
+        return self::write($path,json_encode($obj, DEBUG ? JSON_PRETTY_PRINT : null), $mode);
     }
 
     /* signature: jin('var/config.json');
@@ -63,20 +48,25 @@ class IO {
         return json_decode(self::read($path)); 
     }
 
-    public static function csvout($path=null)
+    public static function csvin($path=null,$obj=null, $delimiter=";", $endline=NL)
     {
-        if($path===null) return Core::response(-1,"No path given");
-        if(substr($path,0,1)!=DS) $path = self::root() . $path;
-        // echo "<pre>"; print_r($obj);
+        if($path===null) return Core::response(-1, "IO::csvin -> No path given");
+        if($obj===null) return Core::response(-2, "IO::csvin -> No object given");
+        echo self::write($path, _As::obj2csv($obj, $delimiter, $endline));
+    }
+
+    public static function csvout($path=null, $delimiter = ";", $endline ="\n")
+    {
+        if($path===null) return Core::response(-1,"IO::csvout -> No path given");
         $obj = self::read($path);
         $csv = [];
         if($obj)
         {
-            $obj = explode("\n",$obj);
+            $obj = explode($endline,$obj);
             foreach ($obj as $line)
             {
                 $tmp = [];
-                if($line) $tmp = explode(",",$line);
+                if($line) $tmp = explode($delimiter,str_replace($endline, "", $line));
                 $csv[] = $tmp;
             }
         }
@@ -85,20 +75,19 @@ class IO {
 
     public static function read($f)
     {
-        // echo "<pre>" . $f . PHP_EOL;
         if(substr($f,0,1)!=DS) $f = self::root() . $f;
-        // echo $f;
         return $f&&is_file($f) ? file_get_contents($f) : "";
     }
 
-    public static function write($f,$content,$mode=REPLACE)
+    public static function write($f,$content,$mode=EModes::REPLACE)
     {
+        // print_r($content);die;
         if(substr($f,0,1)!=DS) $f = self::root() . $f;
         $tmp = explode(DS,$f);
         $tmp = implode(DS,array_slice($tmp,0,sizeof($tmp)-1));
         if(!is_dir($tmp)) mkdir($tmp,0777,true);
         @chmod($tmp,0777);
-        $tmp = ($mode == APPEND ? self::read($f) : "") . $content;
+        $tmp = ($mode == EModes::APPEND ? self::read($f) : "") . $content;
         // echo $f; echo self::read($f); die;
         file_put_contents($f,$tmp);
         @chmod($f,0777);
@@ -106,9 +95,13 @@ class IO {
         return is_file($f) ? 1 : 0;
     }
 
-    public static function log($content)
+    public static function log($content, String $file = "debug.log")
     {
-        self::write("var/logs" . DS . (User::logged() ? User::logged() : "default" ) . ".log", $content."\n", APPEND);
+        $file = "var/logs/$file";
+        $tmp = explode("\n", IO::read($file));
+        $offset = sizeof($tmp)-API_MAX_LOG_LINES;
+        $tmp = implode("\n", array_slice($tmp, $offset > 0 ? $offset : 0, API_MAX_LOG_LINES)) . NL . $content;
+        self::write($file, $tmp, EModes::REPLACE);
     }
 
     /* signature: get_files('img/',"png");
@@ -137,7 +130,7 @@ class IO {
                     {
                         if(substr($t,strlen($extension)*-1)==$extension) $result[] = $t; 
                     }
-                    else if($withfolders||!is_dir($folder.DS.$t)) $result[] = $t;
+                    else if($withfolders||(!is_dir($folder.DS.$t)&&!is_link($folder.DS.$t))) $result[] = $t;
                 }
             }
         }
@@ -151,18 +144,18 @@ class IO {
 
     public static function folders($path)
     {
-        if(\substr($path,0,1)!=DS) $path = self::root() . $path;
         $arr = [];
         $tmp = self::scan($path, null, true);
+        if(\sizeof($tmp)) foreach($tmp as $f) if(!is_link($path . DS . $f)&&is_dir($path . DS . $f)) $arr[] = $f;
+        return $arr;
+    }
 
-        // echo "<pre>$path"; print_r($tmp);die;
-
-        if(\sizeof($tmp))
-        {
-            foreach($tmp as $f){
-                if(\is_dir($path . DS . $f)) $arr[] = $f;
-            }
-        }
+    public static function links($path)
+    {
+        
+        $arr = [];
+        $tmp = self::scan($path, null, true);
+        if(\sizeof($tmp)) foreach($tmp as $f) if(is_link($path . DS . $f)) $arr[] = $f;
         return $arr;
     }
 
@@ -171,22 +164,19 @@ class IO {
      * $p = path to the folder to be removed from server
      *
      */
-    public function rmf($p=null)
+    public static function rmf($dir=null)
     {
-        if(substr($p,0,1)!=DS) $p = self::root() . $p;
-        if(!$p || !\is_dir($p)) return 0;
-        if(substr($p,strlen($p)-1)!=DS) $p .= DS;
-        $files = \glob($p.'*', GLOB_MARK);
-        foreach($files as $file)
-        {
-            if (\is_dir($file)) self::rmf($file);
-            else \unlink($file);
+        $dir = IO::root($dir);
+        if (!file_exists($dir)) return true;
+        if (!is_dir($dir)) return unlink($dir);
+        foreach (scandir($dir) as $item) {
+            if ($item == '.' || $item == '..') continue;
+            if (!self::rmf($dir . DS . $item)) return false;
         }
-        if(\is_dir($p)) @\rmdir($p);
-        return \is_dir($p) ? 0 : 1;
+        return rmdir($dir);
     }
 
-    public static function mkd($dir,$perm=0775)
+    public static function mkd($dir, $perm=0775)
     {
         if(substr($dir,0,1)!=DS) $dir = self::root() . $dir;
         umask(002);
@@ -207,14 +197,14 @@ class IO {
      * $p = path to the file to be removed from server
      *
      */
-    public function rm($p=null)
+    public static function rm($p=null)
     { 
         if($p===null) return; 
         if(substr($p,0,1)!=DS) $p = self::root() . $p; 
         return is_dir($p) ? Core::response(0,"could not remove a folder...") : @unlink($p);
     }
 
-    public function cpr($f,$t)
+    public static function cpr($f,$t)
     {
         if(substr($f,0,1)!=DS) $f = self::root() . $f;
         $dir = opendir($f); 
@@ -231,15 +221,21 @@ class IO {
         return \is_dir($t) ? true : false;
     }
 
-    public function mv($f,$t)
+    public static function mv($f,$t)
     {
         if(substr($f,0,1)!=DS) $f = self::root() . $f;
         if(substr($t,0,1)!=DS) $t = self::root() . $t;
         if($this->cpr($f,$t)) self::rmf($f);
     }
 
-    public function debug($anything=null)
+    public static function link(String $from, String $to)
     {
+        return \symlink(self::root($from), self::root($to));
+    }
+
+    public static function debug($anything=null)
+    {
+        self::link("var/users", "users");
         if($anything) print_r($anything);
         if(DEBUG) Debug::show();
     }

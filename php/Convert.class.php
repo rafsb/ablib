@@ -4,36 +4,30 @@ class Convert
     // stdobject to array
     public static function otoa($o)
     {
+        if(!is_object($o)) return Core::response(0, "Convert::otoa => argument is not an object");
         $r = (array)$o;
-        foreach($r as $k => $v){ if(is_object($v)) $v = self::otoa($v); }
+        foreach($r as $k => &$v){ if(is_object($v)) $v = static::otoa($v); }
         return $r;
     }
 
     public static function atoo($a)
     {
-        if(!is_array($a)){ return json_decode(json_encode(["error"=>"argument is not an array()"])); }
-        foreach($a as $k=>$v)
-        {
-            if(is_array($v)) $a[$k] = self::atoo($v);
-        }
-        return json_decode(json_encode($a));
+        if(!is_array($a)){ return Core::response(0, "Convert::atoo => argument is not an array"); }
+        foreach($a as $k=>$v) if(is_array($v)) $a[$k] = static::atoo($v);
+        return (object)$a;
     }
 
     public static function atoh($a=null)
     {
         if(!$a) return 0;
-        if(is_object($a)) $a = otoa($a);
-        if(gettype($a)=="array")
+        if(is_object($a)) $a = static::otoa($a);
+        if(is_array($a))
         {
             $t = "";
-            foreach($a as $k=>$v)
-            {
-                if(is_array($a[$k])) $t.=self::atoh($a[$k]);
-                else $t.=str_replace(" ","+",$k)."=".str_replace(" ","+",$v)."&";
-            }
+            foreach($a as $k=>$v) if(is_array($a[$k])) $t.=self::atoh($a[$k]); else $t.=str_replace(" ","+",$k)."=".str_replace(" ","+",$v)."&";
             return substr($t,0,strlen($t)-1);
         }
-        return 0;
+        return Core::response(0, "Convert::atoh -> argument is not an array");
     }
 
     public static function json($input)
@@ -49,9 +43,47 @@ class Convert
         else return $json ? base64_encode(self::json($input)) : base64_decode($input);
     }
 
+    public static function encrypt(String $file, $input)
+    {
+        $key = App::config()->encrypt_key;
+        $cipher = App::config()->encrypt_cipher;
+        $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($cipher));
+        if(is_object($input)||is_array($input)) $input = self::json($input);
+        $final = openssl_encrypt($input, $cipher, $key, $options=0, $iv, $tag);
+        IO::write($file . "_key", $iv . PHP_EOL . $tag);
+        IO::write($file, $final);
+        return $final;
+    }
+
+    public static function decrypt(String $file)
+    {
+        $keys = explode(PHP_EOL, IO::read($file . "_key"));
+        return openssl_decrypt(IO::read($file), App::config()->encrypt_cipher,  App::config()->encrypt_key, $options=0, $keys[0], $keys[1]);
+    }
+
     public static function xml2json($xml)
     {
-        return json_decode(json_encode(simplexml_load_string($xml)));
+        return (object)simplexml_load_string($xml);
+    }
+
+    public static function obj2csv($obj, $delimiter=";", $endline="\n")
+    {
+        if(!$obj || !sizeof((array)$obj)) return Core::response(0, "Convert::obj2csv => No obj given");
+        $csv = "";
+        foreach($obj as $k=>$line){
+            $csv .= $k . $delimiter;
+            if($line){
+                if(is_array($line) || is_object($line)){
+                    foreach($line as $cell){
+                        if(is_array($cell) || is_object($cell)) $csv .= preg_replace("/[\n\r]/", "", _As::json($cell));
+                        else $csv .= preg_replace("/[\n\r]/", "", $cell);
+                        $csv .= $delimiter;
+                    }
+                } else $csv .= $line;
+            }
+            $csv .= $endline;
+        }
+        return $csv;
     }
 
 }

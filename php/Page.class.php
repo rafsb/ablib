@@ -5,15 +5,14 @@ class Page extends DefaultInitiator
 
 	protected $result_ = null;
 
-	protected $layout_ = LAYOUTS_DEFAULT; // also LAYOUTS_THIN
+	protected $layout_ = ELayouts::DEFAULT; // also LAYOUTS::THIN
 
 	protected $allow_access_ = false;
 
 	/*
 	 * @Overridable
 	 */
-	protected function before()
-	{}
+	protected function before(){}
 
 	protected function import($file = null)
 	{
@@ -51,7 +50,6 @@ class Page extends DefaultInitiator
 		if(is_file(IO::root() . "webroot" . DS . "views" . DS . "templates" . DS . "tiles" . DS . $t . ".htm" ))
 		{
 			$tmp = IO::read("/webroot" . DS . "views" . DS . "templates" . DS . "tiles" . DS . $t . ".htm");
-			// print_r($tmp);
 			if(sizeof($args))
 			{
 				foreach($args as $k => $v)
@@ -120,7 +118,7 @@ class Page extends DefaultInitiator
 	{
 		if($view!==null) $this->view_ = $view;
 		if($this->view_) $tmp = IO::root() . "webroot" . DS . "views" . DS . strtolower($this->view_=="@"?get_called_class():$this->view_) . ".php";
-		return $this->view_ ? (is_file($tmp) ? $tmp : Core::response(-1,"View file not found: $view")):false;
+		return $this->view_ ? (is_file($tmp) ? $tmp : Core::response(-1, "View file not found: $view AND $tmp")):false;
 	}
 
 	protected function layout($layout = null)

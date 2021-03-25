@@ -19,28 +19,28 @@ class Fetch extends Activity
 		curl_setopt($c, CURLOPT_FOLLOWLOCATION, true);
 		$ret = curl_exec($c);
 		curl_close ($c);
-		return Core::response($ret, "fetch call with curl pass");
+		return $ret;
 	}
 
 
-	public static function request($url,$fields=null,$fn=null,$method=GET)
+	public static function request($url,$fn=null,$method=GET,$fields=null)
 	{
 		if($url)
 		{
 			$ret = self::call($url,$fields,$method);
-			return $fn ? Core::response($fn($ret), "request with callback pass") : Core::response($ret, "request pass");
+			return $fn ? $fn($ret) : $ret;
 		}
 		return Core::response(0, "no URL given");
 	}
 
-	public static function get($url,$fields=null,$fn=null)
+	public static function get($url,$fn=null,$fields=null)
 	{
-		return self::request($url,$fields,$fn,GET);
+		return self::request($url,$fn,GET,$fields);
 	}
 
-	public static function post($url,$fields=null,$fn=null)
+	public static function post($url,$fn=null,$fields=null)
 	{
-		return self::request($url,$fields,$fn,POST);
+		return self::request($url,$fn,POST,$fields);
 	}
 
 }
