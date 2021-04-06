@@ -137,7 +137,7 @@ _Bind(HTMLInputElement.prototype, {
         xhr = new XMLHttpRequest();
 
         if(fn) xhr.upload.onload = function() {
-            console.log(xhr.responseText)
+            // console.log(xhr.responseText)
         }
         xhr.upload.onerror = _ => app.error("Ops! Não foi possível subir esta imagem... chama o berts...");
         xhr.open("POST", "image/upload");
@@ -1312,8 +1312,8 @@ class FAAU {
 
             })
         ).on("click", function(){ this.upFind("--window").raise() })
-        , wrapper = _("div", "-zero -wrapper -no-scrolls", { height:"calc(100% - 3em)" })
-        , _W = _("div", "--window -fixed --drag", _Bind({
+        , wrapper = _("div", "-zero -wrapper", { height:"calc(100% - 3em)" })
+        , _W = _("div", "--window -fixed -no-scrolls --drag", _Bind({
             height: "70vh"
             , width: "70vw"
             , top:"15vh"
@@ -1325,7 +1325,6 @@ class FAAU {
             , color: app.colors("FONT")
             , zIndex:8000
             , resize: "both"
-            , overflow: "auto"
             , padding: "0 .25em .25em 0"
         }, css)).data({ state:"default" })
         ;;
