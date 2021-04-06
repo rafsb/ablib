@@ -29,7 +29,8 @@ DEBUG               = false
 , SVG   = (t,c,a,s) => _S(t,c,a,s)
 , SPATH = (c,a,s) => _("path",c,a,s)
 , TEXT  = (t,c,s,n="p") => TAG(n,c,s,t)
-, SPAN  = (t,c,s,n="span") => TAG(n,c,s,t)   
+, SPAN  = (t,c,s,n="span") => TAG(n,c,s,t)
+, BOLD  = (t,c,s,n="b") => TAG(n,c,s,t)
 , ROW   = (e,s) => {const x=DIV("-row",s);typeof e == "string" ? x.html(e) : x.app(e); return x}
 , WSPAN = (t,c,s,n="span") => TAG(n,c,_Bind({ paddingLeft:"1em" }, s||{}),t)   
 , _Bind = function(e,o){

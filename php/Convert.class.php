@@ -2,32 +2,49 @@
 class Convert
 {
     // stdobject to array
-    public static function otoa($o)
+    public static function otoa(object $o)
     {
-        if(!is_object($o)) return Core::response(0, "Convert::otoa => argument is not an object");
         $r = (array)$o;
         foreach($r as $k => &$v){ if(is_object($v)) $v = static::otoa($v); }
         return $r;
     }
 
-    public static function atoo($a)
+    public static function atoo(array $a)
     {
-        if(!is_array($a)){ return Core::response(0, "Convert::atoo => argument is not an array"); }
         foreach($a as $k=>$v) if(is_array($v)) $a[$k] = static::atoo($v);
         return (object)$a;
     }
 
-    public static function atoh($a=null)
+    public static function atoh(array $a)
     {
-        if(!$a) return 0;
-        if(is_object($a)) $a = static::otoa($a);
-        if(is_array($a))
-        {
-            $t = "";
-            foreach($a as $k=>$v) if(is_array($a[$k])) $t.=self::atoh($a[$k]); else $t.=str_replace(" ","+",$k)."=".str_replace(" ","+",$v)."&";
-            return substr($t,0,strlen($t)-1);
+        $t = "";
+        foreach($a as $k=>$v) if(is_array($a[$k])) $t.=self::atoh($a[$k]); else $t.=str_replace(" ","+",$k)."=".str_replace(" ","+",$v)."&";
+        return substr($t,0,strlen($t)-1);
+    }
+
+    public static function xtoo($xml)
+    {
+        return (object)simplexml_load_string($xml);
+    }
+
+    public static function otoc($obj, $delimiter=";", $endline="\n")
+    {
+        if(!$obj || !sizeof((array)$obj)) return Core::response(0, "Convert::obj2csv => No obj given");
+        $csv = "";
+        foreach($obj as $k=>$line){
+            $csv .= $k . $delimiter;
+            if($line){
+                if(is_array($line) || is_object($line)){
+                    foreach($line as $cell){
+                        if(is_array($cell) || is_object($cell)) $csv .= preg_replace("/[\n\r]/", "", _As::json($cell));
+                        else $csv .= preg_replace("/[\n\r]/", "", $cell);
+                        $csv .= $delimiter;
+                    }
+                } else $csv .= $line;
+            }
+            $csv .= $endline;
         }
-        return Core::response(0, "Convert::atoh -> argument is not an array");
+        return $csv;
     }
 
     public static function json($input)
@@ -35,7 +52,6 @@ class Convert
         if(!is_string($input)) return json_encode($input);
         return json_decode($input);
     }
-
 
     public static function base($input, $json=true)
     {
@@ -59,31 +75,6 @@ class Convert
     {
         $keys = explode(PHP_EOL, IO::read($file . "_key"));
         return openssl_decrypt(IO::read($file), App::config()->encrypt_cipher,  App::config()->encrypt_key, $options=0, $keys[0], $keys[1]);
-    }
-
-    public static function xml2json($xml)
-    {
-        return (object)simplexml_load_string($xml);
-    }
-
-    public static function obj2csv($obj, $delimiter=";", $endline="\n")
-    {
-        if(!$obj || !sizeof((array)$obj)) return Core::response(0, "Convert::obj2csv => No obj given");
-        $csv = "";
-        foreach($obj as $k=>$line){
-            $csv .= $k . $delimiter;
-            if($line){
-                if(is_array($line) || is_object($line)){
-                    foreach($line as $cell){
-                        if(is_array($cell) || is_object($cell)) $csv .= preg_replace("/[\n\r]/", "", _As::json($cell));
-                        else $csv .= preg_replace("/[\n\r]/", "", $cell);
-                        $csv .= $delimiter;
-                    }
-                } else $csv .= $line;
-            }
-            $csv .= $endline;
-        }
-        return $csv;
     }
 
 }
