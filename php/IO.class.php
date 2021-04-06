@@ -90,7 +90,7 @@ abstract class IO extends Activity {
         @chmod($tmp,0777);
         
         // load content
-        $tmp = (is_file($file) && $mode == EModes::APPEND ? IO::read($file) : "") . NL . $content;
+        $tmp = (is_file($f) && $mode == EModes::APPEND ? IO::read($f) : "") . NL . $content;
 
         //saving
         file_put_contents($f,$tmp);
@@ -99,17 +99,17 @@ abstract class IO extends Activity {
         return is_file($f) ? 1 : 0;
     }
 
-    public static function log($content, String $file = "debug.log")
+    public static function log($content, String $f = "debug.log")
     {
-        $file = self::root("var/logs/$file");
+        $f = self::root("var/logs/$f");
         
         // load content
-        $tmp = Vector::clear(explode(NL, (is_file($file) ? IO::read($file) . NL : "") . $content));
+        $tmp = Vector::clear(explode(NL, (is_file($f) ? IO::read($f) . NL : "") . $content));
         $offset = sizeof($tmp)-API_MAX_LOG_LINES;
         $tmp = implode(NL, array_slice($tmp, $offset > 0 ? $offset : 0, API_MAX_LOG_LINES));
 
         //saving
-        return self::write($file, $tmp, EModes::REPLACE);
+        return self::write($f, $tmp, EModes::REPLACE);
     }
 
     /* signature: get_files('img/',"png");
