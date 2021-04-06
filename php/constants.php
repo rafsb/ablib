@@ -112,6 +112,7 @@ abstract class EPersistance
     const DATABASE = "database";
     const DEFAULT_DB = "defaultdb";
     const DEFAULT_COLLECTION = "default";
+    const API_MAX_LOG_LINES = 1024;
     
 }
 

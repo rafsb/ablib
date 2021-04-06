@@ -105,8 +105,8 @@ abstract class IO extends Activity {
         
         // load content
         $tmp = Vector::clear(explode(NL, (is_file($f) ? IO::read($f) . NL : "") . $content));
-        $offset = sizeof($tmp)-API_MAX_LOG_LINES;
-        $tmp = implode(NL, array_slice($tmp, $offset > 0 ? $offset : 0, API_MAX_LOG_LINES));
+        $offset = sizeof($tmp)-EPersistance::API_MAX_LOG_LINES;
+        $tmp = implode(NL, array_slice($tmp, $offset > 0 ? $offset : 0, EPersistance::API_MAX_LOG_LINES));
 
         //saving
         return self::write($f, $tmp, EModes::REPLACE);
