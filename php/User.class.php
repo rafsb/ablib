@@ -188,7 +188,7 @@ class User extends Activity
         $result = self::allow(EUser::LOGGED, self::get_hash($hash)) ? 1 : Core::response(0, "User::pass -> No valid hash");
         if($result){
             $user = self::info($hash);
-            IO::log("User::pass -> ". date("Y/m/d h:m:i") .", {$user->username} $device", "user/{$user->username}");
+            IO::log("User::pass -> ". date("Y/m/d h:m:i") .", {$user->username} $device", "user/{$user->user}");
             return $result;
         }
     }
