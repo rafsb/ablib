@@ -1,14 +1,18 @@
 <?php
 class Vector extends Activity {
 
-	public static function of_size(int $x){
+	public static function of_size(int $x)
+	{
 		return array_keys(array_fill(0, $x > 0 ? $x : 1, null));
 	}
 
-	public static function extract(Array $arr, Closure $fn){
+	public static function extract(Array $arr, Closure $fn)
+	{
 		$return = [];
-		if(!empty($arr)){
-			foreach($arr as $k=>&$v){
+		if(!empty($arr))
+		{
+			foreach($arr as $k=>&$v)
+			{
 				$tmp = $fn($v,$k);
 				if($tmp !== null) $return[] = $tmp;
 			}
@@ -16,18 +20,28 @@ class Vector extends Activity {
 		return $return;
 	}
 
-	public static function iterate(float $beg, float $end, Closure $fn, float $step=null){
+	public static function clear(array $arr)
+	{
+		return array_slice(array_filter($arr, function($item){ return trim($item); }), 0);
+	}
+
+	public static function iterate(float $beg, float $end, Closure $fn, float $step=null)
+	{
 		$step = $step ? $step : 1.0;
 		for(;$beg!=$end;$beg+=$step) $fn($beg);
 	}
 
-	public static function parallel(float $beg, float $end, Closure $fn, float $step=null){
+	public static function parallel(float $beg, float $end, Closure $fn, float $step=null)
+	{
 		$step = $step ? $step : 1.0;
-		for(;$beg!=$end;$beg+=$step){
-			if(function_exists("pcntl_fork")){
+		for(;$beg!=$end;$beg+=$step)
+		{
+			if(function_exists("pcntl_fork"))
+			{
 				$status = null;
 				$pid = pcntl_fork();
-				if(!$pid){ 
+				if(!$pid)
+				{ 
 					$fn($beg); 
 					die;
 				}
@@ -36,16 +50,22 @@ class Vector extends Activity {
 		}
 	}
 
-	public static function each(Array $arr, Closure $fn){
+	public static function each(Array $arr, Closure $fn)
+	{
 		if(!empty($arr)) foreach($arr as $k=>&$v) $fn($v,$k);
 	}
 
-	public static function async(Array $arr, Closure $fn){
-		if(!empty($arr)){
-			foreach($arr as $k=>&$v){				
-				if(function_exists("pcntl_fork")){
+	public static function async(Array $arr, Closure $fn)
+	{
+		if(!empty($arr))
+		{
+			foreach($arr as $k=>&$v)
+			{				
+				if(function_exists("pcntl_fork"))
+				{
 					$pid = pcntl_fork();
-					if(!$pid){ 
+					if(!$pid)
+					{ 
 						$fn($v,$k); 
 						die;
 					}
@@ -55,27 +75,32 @@ class Vector extends Activity {
 		}
 	}
 
-	public static function similarity(Array $arr1, Array $arr2){
+	public static function similarity(Array $arr1, Array $arr2)
+	{
 
 		$x = 0;
-		Vector::each($arr1, function($v, $i) use (&$x){ $x += sqrt($v*$v + $i*$i); });
+		Vector::each($arr1, function($v, $i) use (&$x)
+		{ $x += sqrt($v*$v + $i*$i); });
 		$x = pow(sizeof($arr1), 2) !== 0 ? $x / pow(sizeof($arr1), 2) : 0;
 		
 		$y = 0;
-		Vector::each($arr2, function($v, $i) use (&$y){ $y += sqrt($v*$v + $i*$i); });
+		Vector::each($arr2, function($v, $i) use (&$y)
+		{ $y += sqrt($v*$v + $i*$i); });
 		$y = $y / pow(sizeof($arr2), 2);
 
 		return abs(($x - $y) / ((sizeof($arr1) + sizeof($arr2)) / 2));
 	}
 
-	public static function fit(Array $arr, int $fit=10){
+	public static function fit(Array $arr, int $fit=10)
+	{
 
 		if(!sizeof($arr)) return [];
         $narr = [ $arr[0] ];
         $x = sizeof($arr) / ($fit - 1);
         $i = $x;
 
-        while($i<sizeof($arr)){
+        while($i<sizeof($arr))
+		{
             $narr[] = self::calc($arr, $i);
             $i+=$x;
         }
@@ -87,7 +112,8 @@ class Vector extends Activity {
 
     public static function sum(Array $mix) {
     	$x = 0;
-		self::each($mix, function($y) use (&$x){ $x+=$y; });
+		self::each($mix, function($y) use (&$x)
+		{ $x+=$y; });
 		return $x;
 	}
 
@@ -97,7 +123,8 @@ class Vector extends Activity {
 
 	public static function harmonic_average(Array $mix) {
 		$x = 0;
-		self::each($mix, function($y) use (&$x){ $x+=(1/$y); });
+		self::each($mix, function($y) use (&$x)
+		{ $x+=(1/$y); });
 		return sizeof($mix) / $x;
 	}
 
@@ -105,14 +132,16 @@ class Vector extends Activity {
         $np = sizeof($mix);
         $m = $b = $x = $y = $x2 = $xy = 0;
         if($h===null) $h = $np;
-        self::each($mix, function($n, $i) use (&$x, &$y, &$xy, &$x2){
+        self::each($mix, function($n, $i) use (&$x, &$y, &$xy, &$x2)
+		{
             $x = $x + $i;
             $y = $y + $n;
             $xy = $xy + $i * $n;
             $x2 = $x2 + $i * $i;
         });
         $z = $np * $x2 - $x * $x;
-        if($z){
+        if($z)
+		{
             $m = ($np * $xy - $x * $y) / $z;
             $b = ($y * $x2 - $x * $xy) / $z;
         }
@@ -122,9 +151,11 @@ class Vector extends Activity {
 	public static function interpolate(Array $mix, float $x=null) {
 		$result = .0;
 		// $xarr = array_keys($mix);
-		Vector::each($mix, function($yi, $xi) use ($mix, $x, &$result){
+		Vector::each($mix, function($yi, $xi) use ($mix, $x, &$result)
+		{
 			$lag = 1;
-			Vector::each($mix, function($yn, $xn) use ($x, $xi, &$lag){
+			Vector::each($mix, function($yn, $xn) use ($x, $xi, &$lag)
+			{
 				if($xn != $xi) $lag *= ( ($x - $xn) / ($xi - $xn) );
 			});
 			$result += ( $yi * $lag );
@@ -225,7 +256,8 @@ class Vector extends Activity {
 		return $serie;
 	}
 
-	public static function smooth(Array $serie, int $aggregate = 3){
+	public static function smooth(Array $serie, int $aggregate = 3)
+	{
 		$return = [];
 		Vector::each($serie, function($n, $i) use ($serie, $aggregate, &$return) {
 			if($i < $aggregate) $return[] = $n;
@@ -234,7 +266,8 @@ class Vector extends Activity {
 		return $return;
 	}
 
-	public static function blur(Array $serie, int $ngbr=5){
+	public static function blur(Array $serie, int $ngbr=5)
+	{
 		$return = [];
 		$ngbr = min($ngbr, floor(count($serie)/2));
 		$len = count($serie);
@@ -246,7 +279,8 @@ class Vector extends Activity {
 		return $return;
 	}
 
-	public function test(){
+	public function test()
+	{
 		$v = new Vector();
 		$a = [];		
 		$v->iterate(2, 58, function($x) use (&$a) {

@@ -50,8 +50,7 @@ class _User_Default_Traits
 
 class _User_Primitive_Traits
 {
-    
-    
+        
     private static function save($list)
     {
         // return Convert::encrypt(SHADOW_FILE, $list);
@@ -156,11 +155,11 @@ class User extends Activity
     private static function sign(String $username, String $device=null)
     {
         $user = _User_Primitive_Traits::find("user",$username)[0];
-        $time = date("Ymd");
+        $time = date("Y-m-d H:i:s");
         $hash = Hash::word("{$user->uuid}@$time"); 
         if(_User_Primitive_Traits::update($user->uuid, [ "hash" => $hash, "last_login" => $time, "device" => $device ]))
         {
-            IO::log("User::sign -> at $time, $username - $device", "user_sign/$username");
+            IO::log("User::sign -> $time, $username $device", "user/$username");
             return $hash;
         }
         return Core::response(0, "User::sign -> error saving new hash/time");
@@ -184,9 +183,14 @@ class User extends Activity
         else return $user[0]->access_level*1 >= $level*1 ? 1 : 0;
     }
 
-    public static function pass(String $hash=null)
+    public static function pass(String $hash=null, String $device = null)
     {
-        return self::allow(EUser::LOGGED, self::get_hash($hash)) ? 1 : Core::response(0, "User::pass -> No valid hash");
+        $result = self::allow(EUser::LOGGED, self::get_hash($hash)) ? 1 : Core::response(0, "User::pass -> No valid hash");
+        if($result){
+            $user = self::info($hash);
+            IO::log("User::pass -> ". date("Y-m-d H:i:s") .", {$user->username} $device", "user/{$user->user}");
+            return $result;
+        }
     }
     
     public static function exchange_keys(String $hash=null)
