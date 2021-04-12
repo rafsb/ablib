@@ -29,7 +29,9 @@ DEBUG               = false
 , SVG   = (t,c,a,s) => _S(t,c,a,s)
 , SPATH = (c,a,s) => _("path",c,a,s)
 , TEXT  = (t,c,s,n="p") => TAG(n,c,s,t)
-, SPAN  = (t,c,s,n="span") => TAG(n,c,s,t)   
+, SPAN  = (t,c,s,n="span") => TAG(n,c,s,t)
+, BOLD = (t,c,s) => TAG("b",c,s,t)
+, ITALIC = (t,c,s) => TAG("i",c,s,t)
 , ROW   = (e,s) => {const x=DIV("-row",s);typeof e == "string" ? x.html(e) : x.app(e); return x}
 , WSPAN = (t,c,s,n="span") => TAG(n,c,_Bind({ paddingLeft:"1em" }, s||{}),t)   
 , _Bind = function(e,o){
@@ -1279,11 +1281,11 @@ class FAAU {
             typeof title == "string" ? ("<span class='-row -no-scrolls' style='height:3em;padding:0 1em;opacity:.75'>"+title+"</span>").morph()[0] : title
         )).app(
             _("div","-right -pointer --close -tile").app(
-                 IMG("img/icons/cross.svg", null, { height:"2.75em", width:"2.75em", padding:".75em"})
+                 IMG("img/icons/cross.svg", app.color_pallete.type == "dark" ? "-inverted" : null, { height:"2.75em", width:"2.75em", padding:".75em"})
             ).on("click", function(){ this.upFind("--window").desappear(ANIMATION_LENGTH, true) })
         ).app(
             _("div","-right -pointer --minimize -tile").app(
-                 IMG("img/icons/minimize.svg", null, { height:"2.75em", width:"2.75em", padding:".75em"})
+                 IMG("img/icons/minimize.svg", app.color_pallete.type == "dark" ? "-inverted" : null, { height:"2.75em", width:"2.75em", padding:".75em"})
             ).on("click", function(){
                 const
                 win = this.upFind("--window")
@@ -1312,11 +1314,9 @@ class FAAU {
             })
         ).on("click", function(){ this.upFind("--window").raise() })
         , wrapper = _("div", "-zero -wrapper", { height:"calc(100% - 3em)" })
-        , _W = _("div", "--window -fixed -no-scrolls --drag", _Bind({
+        , _W = _("div", "--window -fixed -no-scrolls --drag -centered", _Bind({
             height: "70vh"
             , width: "70vw"
-            , top:"15vh"
-            , left: "15vw"
             , background: app.colors("BACKGROUND")
             , border: "1px solid " + app.colors("FONT") + "88"
             , borderRadius: ".25em"
