@@ -30,12 +30,8 @@ DEBUG               = false
 , SPATH = (c,a,s) => _("path",c,a,s)
 , TEXT  = (t,c,s,n="p") => TAG(n,c,s,t)
 , SPAN  = (t,c,s,n="span") => TAG(n,c,s,t)
-<<<<<<< HEAD
 , BOLD = (t,c,s) => TAG("b",c,s,t)
 , ITALIC = (t,c,s) => TAG("i",c,s,t)
-=======
-, BOLD  = (t,c,s,n="b") => TAG(n,c,s,t)
->>>>>>> 2f82aac93920e4e2fc7a57e0ebfa42987a80fa5b
 , ROW   = (e,s) => {const x=DIV("-row",s);typeof e == "string" ? x.html(e) : x.app(e); return x}
 , WSPAN = (t,c,s,n="span") => TAG(n,c,_Bind({ paddingLeft:"1em" }, s||{}),t)   
 , _Bind = function(e,o){
