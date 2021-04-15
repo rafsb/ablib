@@ -462,7 +462,7 @@ _Bind(Array.prototype, {
         this.each(function(o,i){ 
             let
             x = fn.bind(this)(this,i);
-            if(x||x===0) narr.push(x) 
+            if(x!==null||x!==undefined||x!==false) narr.push(x) 
         })
         return narr
     }
