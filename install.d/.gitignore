@@ -8,3 +8,5 @@ img/logos/client.png
 # node_modules/
 # plugins/
 # res/
+var/logs
+webroot/App.php

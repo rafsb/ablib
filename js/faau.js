@@ -8,7 +8,6 @@
 ****************************************************************************/
 const
 DEBUG               = false
-, ANIMATION_LENGTH  = 400
 , SUM               = 0
 , AVERAGE           = 1
 , HARMONIC          = 2
@@ -1029,14 +1028,18 @@ class Throttle {
 class Bootloader {   
     loadLength(){
         const
-        count=this.loaders.array();        
+        count=this.o_loaders.array();        
         return count.extract(n => n*1 || null).length/count.length;
     }
     check(scr){
-        return scr ? this.loaders[scr] : this.alreadyLoaded
+        return scr ? this.o_loaders[scr] : this.alreadyLoaded
     }
     ready(scr){
-        if(scr) this.loaders[scr] = 1;
+        const 
+        tmp = this;
+
+        this.loaders.each(x => { tmp.o_loaders[x] = tmp.o_loaders[x] || false });
+        if(scr) this.o_loaders[scr] = 1;
 
         let
         perc = this.loadLength();
@@ -1049,16 +1052,17 @@ class Bootloader {
         return this.alreadyLoaded || false;
     }
     pass(){
-        this.loaders = { pass: false };
-        return this.ready("pass")
+        this.loaders = [ "pass" ];
+        this.o_loaders = { };
+        return this.ready("pass");
     }
-    constructor(loader){
+    constructor(loaders){
         this.alreadyLoaded      = false;
         this.loadComponents     = new Pool();
         this.onReadyStateChange = new Pool();
         this.onFinishLoading    = new Pool();
-        this.loaders = loader || { pass: false }
-        if(DEBUG) this.onReadyStateChange.add(nil => console.log(bootloader.loaders))
+        this.loaders = loaders || [ "pass" ];
+        this.o_loaders = {};
     }
 };
 class CallResponse {
@@ -1412,6 +1416,10 @@ class FAAU {
         if(value===null) return window.localStorage.getItem(field);
         window.localStorage.setItem(field,value===false ? "" : value);
         return window.localStorage.getItem(field);
+    }
+
+    clear_storage() {
+        window.localStorage.each(x => window.localStorage.removeItem(x.key))
     }
 
     cook(field=null, value=null, days=356){

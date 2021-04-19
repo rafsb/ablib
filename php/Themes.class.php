@@ -11,7 +11,7 @@ class Themes extends Activity
     }
   
   	public static function ls(){
-      	return Convert::json(IO::files("src/themes"));
+      	return IO::files("src/themes");
   	}
     
 }	

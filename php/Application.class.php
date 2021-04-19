@@ -9,7 +9,7 @@
 class Application
 {
 	// @override
-	private static $config = [
+	protected static $config = [
     	"developer"                 => "DEV Team"
         , "project_name"            => "MobileApi"	
         , "driver"                  => EPersistance::DISK

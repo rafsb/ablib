@@ -67,13 +67,13 @@ header('Content-Type: text/html; charset=UTF-8',true);?>
         <!-- Scripts -->
         <!-- <script type="text/javascript" src="lib/js/faau.js"></script> -->
         <?php
-        IO::js(SCAN,APP);
-        IO::js(SCAN,CLIENT);?>
+        IO::js(EBehavior::SCAN, ETypes::APP);
+        IO::js(EBehavior::SCAN, ETypes::CLIENT);?>
         
         <!-- Stylesheets -->
         <?php
-        IO::css(SCAN,APP);
-        IO::css(SCAN,CLIENT);?>
+        IO::css(EBehavior::SCAN, ETypes::APP);
+        IO::css(EBehavior::SCAN, ETypes::CLIENT);?>
 
         <title><?=App::project_name()?></title>
     </head>
@@ -90,7 +90,7 @@ header('Content-Type: text/html; charset=UTF-8',true);?>
         <style type="text/css"></style>
         
         <!-- Begin: Scripts -->
-        <script type="text/javascript" src="webroot/config"></script>
+        <script type="text/javascript" src="config.js"></script>
         <script type="text/javascript" src="webroot/js/router.js"></script>
         <script type="text/javascript" src="webroot/js/preset.js"></script>
         <script type="text/javascript">(function(){ app.initialize() })()</script>

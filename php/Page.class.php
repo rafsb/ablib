@@ -1,5 +1,5 @@
 <?php
-class Page extends DefaultInitiator
+class Page
 {
 	protected $view_ = "@";
 

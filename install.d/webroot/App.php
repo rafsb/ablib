@@ -1,14 +1,17 @@
 <?php
+
+
+define("DEBUG", 				true);
+define("USER_ONLY_HASH_MODE",	true);
+define("API_NEEDS_DEVICE_HASH", false);
+define("SHADOW_FILE", 			"var/users/shadow");
+
+
 class App extends Application
 {
 	// @override
-	private static $config = [
-    	"developer"                 => "DEV Team"
-        , "project_name"            => "MobileApi"
-        , "driver"                  => DISK
-        , "get_config_min_level"    => MANAGER
-        , "hash_algorithm"          => SHA512
-        , "database_credentials"    => [
+	private static $datasources = [	
+		"default" => [
 			"host" 		 => "127.0.0.1"
             , "username" => "root"
         	, "passwd"   => "root"
@@ -16,8 +19,5 @@ class App extends Application
         	, "encoding" => "utf8"
 		]
 	];
-
-	// @override
-	private static $datasources = [	];
 
 }
