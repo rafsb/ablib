@@ -6,10 +6,10 @@ if(!defined("API_NEEDS_DEVICE_HASH")) define("API_NEEDS_DEVICE_HASH", false);
 
 class _User_Default_Traits
 {
-    public static function root(String $uuid)
+    public static function root()
     {
         return [
-            "uuid"           => $uuid
+            "uuid"           => "root_user"
             , "username"     => "Almighty"
             , "user"         => "root"
             , "password"     => Hash::word("108698584") // rootz
@@ -20,11 +20,11 @@ class _User_Default_Traits
         ];
     }
 
-    public static function system(String $uuid)
+    public static function system()
     {
         if(!trim(IO::read("ROOT"))) IO::write("ROOT", Hash::word(time()));
         return [
-            "uuid"           => $uuid
+            "uuid"           => "_system"
             , "username"     => "Sistema"
             , "picture"      => "img/user.svg"
             , "access_level" => EUser::SYSTEM
@@ -72,8 +72,8 @@ class _User_Primitive_Traits
         if(!is_file(IO::root(SHADOW_FILE)))
         {
             $obj = [ 
-                "root_user" => _User_Default_Traits::root("root_user")
-                , "_system" => _User_Default_Traits::system("_system") 
+                "root_user" => _User_Default_Traits::root()
+                , "_system" => _User_Default_Traits::system() 
             ];
             self::save($obj);
         }
@@ -175,7 +175,8 @@ class User extends Activity
     public static function allow(int $level, String $hash)
     {
         $uuid=null;
-        $user = _User_Primitive_Traits::find("hash",$hash);
+	$user = _User_Primitive_Traits::find("hash",$hash);
+
         if($user && sizeof($user)) $uuid = $user[0]->uuid;
         else return Core::response(0, "User::allow -> no valid hash");
 
@@ -257,10 +258,11 @@ class User extends Activity
     }
 
     public static function hashlogin(String $hash = null, String $device = null)
-    {   
+    {
+	$args = Request::in();   
         if(!self::get_hash($hash)) return Core::response(0, "User::hashlogin -> no HASH found");
 
-        $device = $device ? $device : $args["device"];
+        $device = $device ? $device : (isset($args["device"]) ? $args["device"] : "") ;
         if(API_NEEDS_DEVICE_HASH&&!$device) return Core::response(0,"User::login -> no device hash found");
 
         $user = self::info($hash);
