@@ -441,7 +441,7 @@ _Bind(Object.prototype,{
             this.each((x,i) => {
                 let
                 y = fn.bind(x)(x, i);
-                if(y!=null||y!=false) final.push(y)
+                if(y!=null&&y!=undefined&&y!=false) final.push(y)
             })
         }
         return final
@@ -461,7 +461,7 @@ _Bind(Array.prototype, {
         this.each(function(o,i){ 
             let
             x = fn.bind(this)(this,i);
-            if(x!==null||x!==undefined||x!==false) narr.push(x) 
+            if(x!=null&&x!=undefined&&x!=false) narr.push(x) 
         })
         return narr
     }
