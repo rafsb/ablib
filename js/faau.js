@@ -441,7 +441,7 @@ _Bind(Object.prototype,{
             this.each((x,i) => {
                 let
                 y = fn.bind(x)(x, i);
-                if(y!=null&&y!=undefined&&y!=false) final.push(y)
+                if(y!=null && y!=undefined && y!=false) final.push(y)
             })
         }
         return final
@@ -461,7 +461,7 @@ _Bind(Array.prototype, {
         this.each(function(o,i){ 
             let
             x = fn.bind(this)(this,i);
-            if(x!=null&&x!=undefined&&x!=false) narr.push(x) 
+            if(x!=null && x!=undefined && x!=false) narr.push(x) 
         })
         return narr
     }
@@ -1026,10 +1026,8 @@ class Throttle {
     }
 };
 class Bootloader {   
-    loadLength(){
-        const
-        count=this.o_loaders.array();        
-        return count.extract(n => n*1 || null).length/count.length;
+    loadLength(){        
+        return this.o_loaders.array().extract(n => n*1 ? true : null).length/this.loaders.length;
     }
     check(scr){
         return scr ? this.o_loaders[scr] : this.alreadyLoaded
@@ -1038,7 +1036,7 @@ class Bootloader {
         const 
         tmp = this;
 
-        this.loaders.each(x => { tmp.o_loaders[x] = tmp.o_loaders[x] || false });
+        this.loaders.each(x => { tmp.o_loaders[x] = tmp.o_loaders[x] ? 1 : 0 });
         if(scr) this.o_loaders[scr] = 1;
 
         let
@@ -1053,7 +1051,6 @@ class Bootloader {
     }
     pass(){
         this.loaders = [ "pass" ];
-        this.o_loaders = { };
         return this.ready("pass");
     }
     constructor(loaders){
