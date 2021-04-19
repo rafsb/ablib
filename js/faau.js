@@ -1027,17 +1027,17 @@ class Throttle {
 };
 class Bootloader {   
     loadLength(){        
-        return this.o_loaders.array().extract(n => n*1 ? true : null).length/this.loaders.length;
+        return this.loaders.array().extract(n => n*1 ? true : null).length/this.dependencies.length;
     }
     check(scr){
-        return scr ? this.o_loaders[scr] : this.alreadyLoaded
+        return scr ? this.loaders[scr] : this.alreadyLoaded
     }
     ready(scr){
         const 
         tmp = this;
 
-        this.loaders.each(x => { tmp.o_loaders[x] = tmp.o_loaders[x] ? 1 : 0 });
-        if(scr) this.o_loaders[scr] = 1;
+        this.dependencies.each(x => { tmp.loaders[x] = tmp.loaders[x] ? 1 : 0 });
+        if(scr) this.loaders[scr] = 1;
 
         let
         perc = this.loadLength();
@@ -1050,16 +1050,16 @@ class Bootloader {
         return this.alreadyLoaded || false;
     }
     pass(){
-        this.loaders = [ "pass" ];
+        this.dependencies = [ "pass" ];
         return this.ready("pass");
     }
-    constructor(loaders){
+    constructor(dependencies){
         this.alreadyLoaded      = false;
         this.loadComponents     = new Pool();
         this.onReadyStateChange = new Pool();
         this.onFinishLoading    = new Pool();
-        this.loaders = loaders || [ "pass" ];
-        this.o_loaders = {};
+        this.loaders = dependencies || [ "pass" ];
+        this.loaders = {};
     }
 };
 class CallResponse {
