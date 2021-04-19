@@ -1,30 +1,33 @@
-var
-__come = new Event('come')
-, __go = new Event('go')
-;;
+_Bind(app, {
+    components: {}
+    , theme_name: app.storage("theme_name", app.storage("theme_name") || APP_DEFAULT_THEME)
+    , initial_pragma: START
+    , wd: window.innerWidth
+    , ht: window.innerHeight
+    , clear_cache: NULL => {
+        const
+        clear_array = [
+        /*
+         * Clear Storage variables
+         */
+            "theme", "custom_theme", "v"
+        ];
+        clear_array.each(item => app.storage(item, ""))
+    }
+    , on_login: response => {
+        const hash = response.data.replace(/\s+/g,'').slice(0,128);
+        if(hash.length > 32 && app.storage("hash", hash)) return app.sleep(200).then(NULL => location.reload());
+        app.error("Ops! Algo deu errado, tente novamente...");
+    }
+});
 
-app.components = {};
-app.theme_name = app.storage("theme_name", app.storage("theme_name") || APP_DEFAULT_THEME);
-app.initial_pragma = START;
-
-app.clear_cache = NULL => {
-    /*
-     * Clear Storage variables
-     */
-    app.storage("theme", "")
-}
-
-app.wd = window.innerWidth;
-app.ht = window.innerHeight;
-
-bootloader.loaders = {
+bootloader.loaders = [
     /*
      * Set the components to be loaded before
      * the system boot
      */
-    splash: false
-    , theme: false
-}
+    "theme", "splash"
+];
 
 /*
  * These components are loaded at system boot time
@@ -34,24 +37,23 @@ bootloader.loaders = {
  */
 bootloader.loadComponents.add(NULL => {
 
-    app.call("https://"+API_PREFIX+API_HOST+"/themes/get/" + app.theme).then(theme => {
+    router.call("theme", { theme: app.theme_name }).then(theme => {
         
         /*
          * Load App theme and assign
          */
         if (theme.data) {
-            theme = theme.data.json()
-            let custom_theme = app.storage("custom_theme")
+            theme = theme.data.json();
+            let custom_theme = app.storage("custom_theme");
             if(custom_theme) _Bind(theme, custom_theme.json());
-            _Bind(app.color_pallete, theme)
+            _Bind(app.color_pallete, theme);
         }
         [ "background", "foreground" ].each(x => $(".--"+x).css({ background: theme[x.toUpperCase()] }));
 
         /*
          * Splash/Login boot depends on config
          */
-        if(!APP_NEEDS_LOGIN&&app.hash) app.exec("js/screens/splash.js");
-        else app.exec("js/screens/login.js")
+        router.load((!APP_NEEDS_LOGIN||app.hash) ? "splash" : "login");
         
         // assign true to loader.theme
         bootloader.ready("theme")

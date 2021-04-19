@@ -1,11 +1,9 @@
 <?php
 /***************/
-/* 
- * USERS
- */
-// define("USER",1);
-define("UUID",0);
 
+
+
+/***************/
 define("DS",DIRECTORY_SEPARATOR);
 define("NL",PHP_EOL);
 
@@ -67,7 +65,16 @@ abstract class EModes
     const NOLOG       = false;
     const PRINT       = true;
     const NOPRINT     = false;
+}
 
+abstract class EProtocol
+{
+    const GET         = "GET";
+    const POST        = "POST";
+    const PUT         = "PUT";
+    const OPTIONS     = "OPTIONS";
+    const UPDATE      = "UPDATE";
+    const DELETE      = "DELETE";
 }
 
 abstract class ETypes
@@ -113,7 +120,8 @@ abstract class EPersistance
     const DEFAULT_DB = "defaultdb";
     const DEFAULT_COLLECTION = "default";
     const API_MAX_LOG_LINES = 1024;
-    
+    const SESSION = 0;
+    const COOKIE = 1;
 }
 
 abstract class ELayouts

@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+    spumeapi:
+        container_name: 'app'
+        image: 'rafsb/nginx:latest'
+        volumes:
+            - '..:/srv/http/localhost'
+            - './nginx:/etc/nginx'
+            - './php:/etc/php'
+            - './mnt:/mnt/data'
+            - './entrypoint:/root/entrypoint'
+            - 'rafsb-curl-persistenced_home:/root'
+            - 'rafsb-curl-persistenced_lib_mysql:/var/lib/mysql'
+            - 'rafsb-curl-persistenced_etc_myslq:/etc/mysql'
+        ports:
+            - '7443:443'
+            - '7080:80'
+        command:
+            - '/root/entrypoint'
+        stdin_open: true # -i
+        tty: true        # -t
+
+volumes:
+    app-persistenced_home:
+    app-persistenced_lib_mysql:
+    app-persistenced_etc_myslq:

@@ -10,9 +10,7 @@ require "lib" . DIRECTORY_SEPARATOR . "php" . DIRECTORY_SEPARATOR . "constants.p
 require "lib" . DS . "php" . DS . "autoload.php";
 require "webroot" . DS . "App.php";
 
-if(!User::logged() && Request::cook("USER") && Request::cook("ACTIVE")) Request::sess("USER",Request::cook("USER"));
-
-$args = Request::in("_");
+$args = Request::get("_");
 if($args)
 {   
     if(substr($args, 0, 1)==DS) $args = substr($args, 1);

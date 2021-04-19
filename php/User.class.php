@@ -1,9 +1,4 @@
 <?php
-define("USER_ONLY_HASH_MODE", true);
-define("SHADOW_FILE", "var/users/shadow");
-define("TEAM_SIZE_LIMIT", 20);
-if(!defined("API_NEEDS_DEVICE_HASH")) define("API_NEEDS_DEVICE_HASH", false);
-
 class _User_Default_Traits
 {
     public static function root()
@@ -168,11 +163,8 @@ class User extends Activity
      * PROTECTED
      */
 
-    /*
-     * PUBLIC
-     */
-
-    public static function allow(int $level, String $hash)
+     
+    protected static function allow(int $level, String $hash)
     {
         $uuid=null;
 	$user = _User_Primitive_Traits::find("hash",$hash);
@@ -184,6 +176,9 @@ class User extends Activity
         else return $user[0]->access_level*1 >= $level*1 ? 1 : 0;
     }
 
+    /*
+     * PUBLIC
+     */
     public static function pass(String $hash=null, String $device = null)
     {
         $result = self::allow(EUser::LOGGED, self::get_hash($hash)) ? 1 : Core::response(0, "User::pass -> No valid hash");
@@ -323,195 +318,5 @@ class User extends Activity
             if(self::allow(self::uuid($hash, $uuid)->access_level, $hash)) return _User_Primitive_Traits::delete($uuid)&&1; 
         }
         return Core::response(0, "User::delete -> no hash or bad permissions");
-    }
-
-    public static function add(String $hash)
-    {
-        if(self::get_hash($hash)&&self::allow(EUser::MANAGER,$hash))
-        {
-            if(!self::allow(EUser::ADMIN, $hash))
-            {
-                $user = self::info($hash);
-                if(!isset($user->team_limit))
-                {
-                    $user->team_limit = TEAM_SIZE_LIMIT;
-                    self::update($user->uuid, (array)$user);
-                } 
-                if(sizeof(self::list($hash)) >= $user->team_limit) return Core::response(0, "User::add -> user team limit exedded");
-            }
-            $user = _User_Default_Traits::base();
-            if(!User::allow(EUser::ADMIN,$hash)) $user["projects"] = User::info($hash)->projects;
-            return _User_Primitive_Traits::update($user["uuid"], $user) ? 1 : 0;
-        }
-        return Core::response(0, "User::add -> no hash or bad permissions");
-    }
-
-    public static function projectadd(String $hash=null, String $uuid = null, String $puid = null)
-    {
-        if(self::get_hash($hash)&&User::allow(EUser::ADMIN,$hash))
-        {
-            $args = (object)Request::in();
-            if(!$uuid) $uuid = isset($args->uuid) ? $args->uuid : false;
-            if(!$puid) $puid = isset($args->puid) ? $args->puid : false;
-            if(!($hash&&$uuid&&$puid)) return Core::response(0, "User::projectadd -> missing parameters");
-
-            $user = self::uuid($hash,$uuid);
-            if(!$user) return Core::response(0, "User::projectadd -> no user found");
-            
-            if(!isset($user->projects)||!$user->projects) $user->projects = [];
-            if($user->access_level >= EUser::ADMIN || in_array($puid, $user->projects)) return Core::response(0, "User::projectadd -> aready there");
-
-            if(is_dir(IO::root("var/users/projects/$puid")))
-            {
-                $user->projects[] = $puid;
-                return self::update($hash, (array)$user);
-            }
-            return Core::response(0, "User::projectadd -> the project did not exist");
-        }
-        return Core::response(0, "User::projectadd -> no hash or bad permissions");
-    }
-
-    public static function projectdel(String $hash=null, String $uuid = null, String $puid = null)
-    {
-        if(self::get_hash($hash)&&User::allow(EUser::ADMIN,$hash))
-        {
-            $args = (object)Request::in();
-            if(!$uuid) $uuid = isset($args->uuid) ? $args->uuid : false;
-            if(!$puid) $puid = isset($args->puid) ? $args->puid : false;
-            if(!($hash&&$uuid&&$puid)) return Core::response(0, "User::projectdel -> missing parameters");
-
-            $user = self::uuid($hash,$uuid);
-
-            if(!$user) return Core::response(0, "User::projectdel -> no user found oor admin");
-            if($user->access_level >= EUser::ADMIN) return Core::response(0, "User::projectdel -> cannot remove project from an ADMIN+");
-
-            if(!isset($user->projects)||!is_array($user->projects))
-            {
-                $user->projects = [];
-                self::update($user->uuid, (array)$user);
-                return Core::response(1, "User::projectdel -> project array created now");
-            }
-            if(!in_array($puid, $user->projects)) return Core::response(1, "User::projectdel -> not there");
-            else
-            {
-                $tmp = [];
-                foreach($user->projects as $p) if($puid != $p) $tmp[] = $p;
-                $user->projects = $tmp;
-                return self::update($hash, (array)$user) ? 1 : 0;
-            }
-            return Core::response(0, "User::projectdel -> the project could not be removed");
-        }
-        return Core::response(0, "User::projectdel -> no hash or bad permissions");
-    }
-
-    public static function groupadd(String $hash=null, String $uuid = null, String $guid = null)
-    {
-        if(self::get_hash($hash)&&User::allow(EUser::EDITOR,$hash))
-        {
-            $args = (object)Request::in();
-            if(!$uuid) $uuid = isset($args->uuid) ? $args->uuid : false;
-            if(!$guid) $guid = isset($args->guid) ? $args->guid : false;
-            if(!($hash&&$uuid&&$guid)) return Core::response(0, "User::groupadd -> missing parameters");
-
-            $user = self::uuid($hash,$uuid);
-            if(!$user) return Core::response(0, "User::groupadd -> no user found");
-            
-            if(!isset($user->groups_blacklist)||!is_array($user->groups_blacklist)) $user->groups_blacklist = [];
-
-            $tmp = [];
-            foreach($user->groups_blacklist as $g) if($g != $guid) $tmp[] = $g;
-            $user->groups_blacklist = $tmp;
-
-            return self::update($hash, (array)$user) ? 1 : 0;
-        }
-        return Core::response(0, "User::groupadd -> no hash or bad permissions");
-    }
-
-    public static function groupdel(String $hash=null, String $uuid = null, String $guid = null)
-    {
-        if(self::get_hash($hash)&&User::allow(EUser::EDITOR,$hash))
-        {
-            $args = (object)Request::in();
-            if(!$uuid) $uuid = isset($args->uuid) ? $args->uuid : false;
-            if(!$guid) $guid = isset($args->guid) ? $args->guid : false;
-            if(!($hash&&$uuid&&$guid)) return Core::response(0, "User::groupdel -> missing parameters");
-
-            $user = self::uuid($hash,$uuid);
-
-            if(!$user) return Core::response(0, "User::groupdel -> no user found oor admin");
-            if($user->access_level >= EUser::ADMIN) return Core::response(0, "User::groupdel -> cannot remove project from an ADMIN+");
-
-            if(!isset($user->groups_blacklist)||!is_array($user->groups_blacklist))
-            {
-                $user->groups_blacklist = [ $guid ];
-                // IO::log("User::groupdel -> blacklist array created for user {$user->uuid}", strtolower(get_called_class()));
-                return self::update($user->uuid, (array)$user);
-            }
-            
-            if(in_array($guid, $user->groups_blacklist)) return Core::response(1, "User::groupdel -> already there");
-            
-            $user->groups_blacklist[] = $guid;
-
-            return self::update($hash, (array)$user) ? 1 : 0;
-        }
-        return Core::response(0, "User::groupdel -> no hash or bad permissions");
-    }
-
-    public static function chartadd(String $hash=null, String $uuid = null, String $cuid = null)
-    {
-        if(self::get_hash($hash)&&User::allow(EUser::USER,$hash))
-        {
-            $args = (object)Request::in();
-            if(!$uuid) $uuid = isset($args->uuid) ? $args->uuid : false;
-            if(!$cuid) $cuid = isset($args->cuid) ? $args->cuid : false;
-            if(!($hash&&$uuid&&$cuid)) return Core::response(0, "User::chartadd -> missing parameters");
-
-            $user = self::uuid($hash,$uuid);
-            if(!$user) return Core::response(0, "User::chartadd -> no user found");
-            
-            if(!isset($user->charts_blacklist)||!is_array($user->charts_blacklist)) 
-            {
-                $user->charts_blacklist = [];
-                // IO::log("User::chartadd -> charts_blacklist created for user {$user->uuid}", strtolower(get_called_class()));
-                return self::update($hash, (array)$user) ? 1 : 0;
-            }
-
-            $tmp = [];
-            foreach($user->charts_blacklist as $g) if($g != $cuid) $tmp[] = $g;
-            $user->charts_blacklist = $tmp;
-
-            return self::update($hash, (array)$user) ? 1 : 0;
-        }
-        return Core::response(0, "User::chartadd -> no hash or bad permissions");
-    }
-
-    public static function chartdel(String $hash=null, String $uuid = null, String $cuid = null)
-    {
-        if(self::get_hash($hash)&&User::allow(EUser::USER,$hash))
-        {
-            $args = (object)Request::in();
-            if(!$uuid) $uuid = isset($args->uuid) ? $args->uuid : false;
-            if(!$cuid) $cuid = isset($args->cuid) ? $args->cuid : false;
-            if(!($hash&&$uuid&&$cuid)) return Core::response(0, "User::chartdel -> missing parameters");
-
-            $user = self::uuid($hash,$uuid);
-
-            if(!$user) return Core::response(0, "User::chartdel -> no user found oor admin");
-            if($user->access_level >= EUser::ADMIN) return Core::response(0, "User::chartdel -> cannot remove project from an ADMIN+");
-
-            if(!isset($user->charts_blacklist)||!is_array($user->charts_blacklist))
-            {
-                $user->charts_blacklist = [ $cuid ];
-                self::update($user->uuid, (array)$user);
-                return Core::response(1, "User::chartdel -> blacklist array created now");
-            }
-            
-            if(in_array($cuid, $user->charts_blacklist)) return Core::response(1, "User::chartdel -> already there");
-            
-            $user->charts_blacklist[] = $cuid;
-
-            return self::update($hash, (array)$user) ? 1 : 0;
-        }
-        return Core::response(0, "User::chartdel -> no hash or bad permissions");
     }
 }

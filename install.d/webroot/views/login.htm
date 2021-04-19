@@ -25,9 +25,7 @@
 
 	</section>
 	<script type="text/javascript">
-		submit_login_form = form => {
-			app.post("user/login", form).then(hash => console.log(hash.data))
-		}
+		submit_login_form = form => router.call("auth", form).then(response => app.on_login(response));
 	</script>
 
 </template>

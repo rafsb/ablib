@@ -1,0 +1,2 @@
+[ -d /run/php-fpm ] || mkdir -p /run/php-fpm
+nginx && php-fpm -D -R && zsh

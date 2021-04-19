@@ -8,7 +8,6 @@
 ****************************************************************************/
 const
 DEBUG               = false
-, ANIMATION_LENGTH  = 400
 , SUM               = 0
 , AVERAGE           = 1
 , HARMONIC          = 2
@@ -442,7 +441,7 @@ _Bind(Object.prototype,{
             this.each((x,i) => {
                 let
                 y = fn.bind(x)(x, i);
-                if(y!=null||y!=false) final.push(y)
+                if(y!=null && y!=undefined && y!=false) final.push(y)
             })
         }
         return final
@@ -462,7 +461,7 @@ _Bind(Array.prototype, {
         this.each(function(o,i){ 
             let
             x = fn.bind(this)(this,i);
-            if(x||x===0) narr.push(x) 
+            if(x!=null && x!=undefined && x!=false) narr.push(x) 
         })
         return narr
     }
@@ -1027,15 +1026,17 @@ class Throttle {
     }
 };
 class Bootloader {   
-    loadLength(){
-        const
-        count=this.loaders.array();        
-        return count.extract(n => n*1 || null).length/count.length;
+    loadLength(){        
+        return this.loaders.array().extract(n => n*1 ? true : null).length/this.dependencies.length;
     }
     check(scr){
         return scr ? this.loaders[scr] : this.alreadyLoaded
     }
     ready(scr){
+        const 
+        tmp = this;
+
+        this.dependencies.each(x => { tmp.loaders[x] = tmp.loaders[x] ? 1 : 0 });
         if(scr) this.loaders[scr] = 1;
 
         let
@@ -1049,16 +1050,16 @@ class Bootloader {
         return this.alreadyLoaded || false;
     }
     pass(){
-        this.loaders = { pass: false };
-        return this.ready("pass")
+        this.dependencies = [ "pass" ];
+        return this.ready("pass");
     }
-    constructor(loader){
+    constructor(dependencies){
         this.alreadyLoaded      = false;
         this.loadComponents     = new Pool();
         this.onReadyStateChange = new Pool();
         this.onFinishLoading    = new Pool();
-        this.loaders = loader || { pass: false }
-        if(DEBUG) this.onReadyStateChange.add(nil => console.log(bootloader.loaders))
+        this.loaders = dependencies || [ "pass" ];
+        this.loaders = {};
     }
 };
 class CallResponse {
@@ -1412,6 +1413,10 @@ class FAAU {
         if(value===null) return window.localStorage.getItem(field);
         window.localStorage.setItem(field,value===false ? "" : value);
         return window.localStorage.getItem(field);
+    }
+
+    clear_storage() {
+        window.localStorage.each(x => window.localStorage.removeItem(x.key))
     }
 
     cook(field=null, value=null, days=356){
