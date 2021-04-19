@@ -48,8 +48,8 @@ class _User_Primitive_Traits
         
     private static function save($list)
     {
-        // return Convert::encrypt(SHADOW_FILE, $list);
-        return IO::jin(SHADOW_FILE, $list);
+        // return Convert::encrypt(EPersistance::SHADOW_FILE, $list);
+        return IO::jin(EPersistance::SHADOW_FILE, $list);
     }
 
     private static function load()
@@ -64,7 +64,7 @@ class _User_Primitive_Traits
             }
             return $users;
         }
-        if(!is_file(IO::root(SHADOW_FILE)))
+        if(!is_file(IO::root(EPersistance::SHADOW_FILE)))
         {
             $obj = [ 
                 "root_user" => _User_Default_Traits::root()
@@ -72,8 +72,8 @@ class _User_Primitive_Traits
             ];
             self::save($obj);
         }
-        // return _As::json(Convert::decrypt(SHADOW_FILE));
-        return IO::jout(SHADOW_FILE);
+        // return _As::json(Convert::decrypt(EPersistance::SHADOW_FILE));
+        return IO::jout(EPersistance::SHADOW_FILE);
     }
 
 
@@ -164,10 +164,10 @@ class User extends Activity
      */
 
      
-    protected static function allow(int $level, String $hash)
+    public static function allow(int $level, String $hash)
     {
         $uuid=null;
-	$user = _User_Primitive_Traits::find("hash",$hash);
+	    $user = _User_Primitive_Traits::find("hash",$hash);
 
         if($user && sizeof($user)) $uuid = $user[0]->uuid;
         else return Core::response(0, "User::allow -> no valid hash");

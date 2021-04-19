@@ -122,6 +122,7 @@ abstract class EPersistance
     const API_MAX_LOG_LINES = 1024;
     const SESSION = 0;
     const COOKIE = 1;
+    const SHADOW_FILE = "var/users/shadow";
 }
 
 abstract class ELayouts
