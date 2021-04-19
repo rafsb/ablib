@@ -19,10 +19,10 @@ class _Router_Traits {
      *
      *
      */
-    async load(name, args=null, container=null){
+    async load(name, args=null, container=null, replacement=null){
         if(this._Routes_[name]) name = this._Routes_[name];
         if(!container) container = $("#app").at();
-        return app.load(name, args, container)
+        return app.load(name, args, container, replacement)
     }
 
     async call(name, args=null){

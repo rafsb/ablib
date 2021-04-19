@@ -1,7 +1,7 @@
 _Bind(app, {
     components: {}
     , theme_name: app.storage("theme_name", app.storage("theme_name") || APP_DEFAULT_THEME)
-    , initial_pragma: START
+    , initial_pragma: EPragmas.START
     , wd: window.innerWidth
     , ht: window.innerHeight
     , clear_cache: NULL => {

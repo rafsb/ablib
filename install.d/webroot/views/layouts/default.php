@@ -1,13 +1,12 @@
 <?php
 if($this->allow_access()) header('Access-Control-Allow-Origin: ' . $this->allow_access()); // OLY FOR PUBLIC API USE
-header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept');
-header('Content-Type: text/html; charset=UTF-8',true);?>
+// header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept');
+// header('Content-Type: text/html; charset=UTF-8',true);?>
 <!DOCTYPE html>
 <html lang='pt-BR'>
     <head>
-        <!-- Begin: Basic Meta Tags -->
-        <meta name="referrer" content="origin">
         <meta charset="UTF-8" />
+        <meta name="referrer" content="origin">
         <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
         <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-eval' data: blob: filesystem: ws: gap: cdvfile: https://ssl.gstatic.com *; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'; img-src * data: 'unsafe-inline'; connect-src * 'unsafe-inline'; child-src *; media-src *;"/>
         <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, minimal-ui, viewport-fit=cover" />
@@ -67,17 +66,17 @@ header('Content-Type: text/html; charset=UTF-8',true);?>
         <!-- Scripts -->
         <!-- <script type="text/javascript" src="lib/js/faau.js"></script> -->
         <?php
-        IO::js(EBehavior::SCAN, ETypes::APP);
-        IO::js(EBehavior::SCAN, ETypes::CLIENT);?>
+        IO::js(EBehavior::SCAN,ETypes::APP);
+        IO::js(EBehavior::SCAN,ETypes::CLIENT);?>
         
         <!-- Stylesheets -->
         <?php
-        IO::css(EBehavior::SCAN, ETypes::APP);
-        IO::css(EBehavior::SCAN, ETypes::CLIENT);?>
+        IO::css(EBehavior::SCAN,ETypes::APP);
+        IO::css(EBehavior::SCAN,ETypes::CLIENT);?>
 
         <title><?=App::project_name()?></title>
     </head>
-    <body id="app" class="-view -zero -content-center -scrolls -roboto-light">
+    <body id="app" class="-view -zero -content-center -roboto-light --foreground">
 
         <?php
         $load = $this->view() ? $this->view() : IO::root() . "/webroot/views/" . strtolower(get_called_class()) . ".php";
@@ -90,7 +89,7 @@ header('Content-Type: text/html; charset=UTF-8',true);?>
         <style type="text/css"></style>
         
         <!-- Begin: Scripts -->
-        <script type="text/javascript" src="config.js"></script>
+        <script type="text/javascript" src="webroot/config.js"></script>
         <script type="text/javascript" src="webroot/js/router.js"></script>
         <script type="text/javascript" src="webroot/js/preset.js"></script>
         <script type="text/javascript">(function(){ app.initialize() })()</script>
