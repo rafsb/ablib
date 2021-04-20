@@ -1058,7 +1058,7 @@ class Bootloader {
         this.loadComponents     = new Pool();
         this.onReadyStateChange = new Pool();
         this.onFinishLoading    = new Pool();
-        this.loaders = dependencies || [ "pass" ];
+        this.dependencies = dependencies || [ "pass" ];
         this.loaders = {};
     }
 };
