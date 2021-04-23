@@ -1,2 +1,0 @@
-docker-compose up --detach --force-recreate --build
-docker exec -it rafsb-curl zsh
