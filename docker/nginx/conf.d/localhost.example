@@ -1,0 +1,21 @@
+server {
+        listen 80;
+        listen [::]:80;
+	listen 443 ssl http2;
+
+	ssl_certificate ssl/server.crt;
+        ssl_certificate_key ssl/server.key;
+
+        server_name localhost;
+        root /srv/http/localhost;
+	access_log /srv/http/localhost/var/logs/access.log;
+        error_log /srv/http/localhost/var/logs/error.log;
+        
+        location / {
+		index index.php index.html;
+		error_page  405 =200 $uri;	
+                try_files $uri $uri/ /index.php?_=$uri&args=$args /index.html?_=$uri&args=$args;
+
+        }
+	include php.conf;
+}

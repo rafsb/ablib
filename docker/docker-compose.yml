@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+    nginx:
+        container_name: 'nginx-server'
+        image: 'rafsb/nginx:latest'
+        volumes:
+            - '../../:/srv/http/localhost'
+            - './nginx:/etc/nginx'
+            - './php:/etc/php'
+            - './mnt:/mnt/data'
+            - 'persistenced_home:/root'
+        ports:
+            - '10443:443'
+            - '10080:80'
+        # links:
+        #     - 'mariadb:datasource'
+        command:
+            - '/root/entrypoint'
+        stdin_open: true # -i
+        tty: true        # -t
+    # mariadb:
+    #     image: 'rafsb/mariadb:latest'
+    #     volumes:
+    #         - 'persistenced_lib_mysql:/var/lib/mysql'
+    #         - 'persistenced_etc_myslq:/etc/mysql'
+    #         - './persistenced/sql:/tmp/sql'
+    #     command: 
+    #         - 'mysqld'
+    #     restart: always
+    #     environment:
+    #         TZ: 'America/Sao_Paulo'
+    #         MYSQL_ROOT_PASSWORD: 'root'
+    #         MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    #     ports:
+    #         - '3306:3306'
+         
+volumes:
+    persistenced_home:
+    # persistenced_lib_mysql:
+    # persistenced_etc_myslq:
