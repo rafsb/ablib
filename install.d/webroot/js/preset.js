@@ -19,9 +19,9 @@ _Bind(app, {
         if(hash.length > 32 && app.storage("hash", hash)) return app.sleep(200).then(NULL => location.reload());
         app.error("Ops! Algo deu errado, tente novamente...");
     }
-});
+});;
 
-bootloader.loaders = [
+bootloader.dependencies = [
     /*
      * Set the components to be loaded before
      * the system boot
@@ -30,10 +30,10 @@ bootloader.loaders = [
 ];
 
 /*
- * These components are loaded at system boot time
+ * These components are loaded at system boot times
  * the splash screen will let the system procede
  * after this execution queue and all bootloader`s
- * loaders are all done
+ * loaders are all done 
  */
 bootloader.loadComponents.add(NULL => {
 

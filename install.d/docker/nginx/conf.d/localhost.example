@@ -12,7 +12,7 @@ server {
         error_log /srv/http/localhost/var/logs/error.log;
         
         location / {
-		index index.php;
+		index index.html index.php;
 		error_page  405 =200 $uri;	
                 try_files $uri $uri/ /index.php?_=$uri&args=$args;
 

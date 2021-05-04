@@ -8,6 +8,6 @@
             $(".--splash .--progress")[0].anime({ width:"100%"});
             app.sleep(AL).then($(".--splash").desappear(AL*3, true))
         });
-        bootloader.ready("splash")
+        app.sleep(AL).then(NULL => bootloader.ready("splash"))
     </script>
 </template>

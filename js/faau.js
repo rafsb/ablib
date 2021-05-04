@@ -1336,7 +1336,7 @@ class FAAU {
         this.tileClickEffectSelector(".-tile");
 
         wrapper.evalute();
-        app.sleep(400).then(NULL => _W.raise());
+        app.sleep(ANIMATION_LENGTH).then(NULL => _W.raise());
 
         app.enableDragging();
 
@@ -1377,7 +1377,7 @@ class FAAU {
         this.tileClickEffectSelector(".-tile");
 
         wrapper.evalute();
-        app.sleep(400).then(NULL => _D.raise());
+        app.sleep(ANIMATION_LENGTH).then(NULL => _D.raise());
 
         app.enableDragging();
 

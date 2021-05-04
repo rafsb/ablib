@@ -42,6 +42,9 @@ START 				= 0
 	, SYSTEM: 		8
 	, ROOT: 		9
 }
+, EPragmas = {
+	START: 			0
+}
 	/*
  *
  * CLIENT PREDEFINED CONSTANTS
