@@ -15,7 +15,7 @@ START 				= 0
 , API_SUFIX 		= ":6443/"
 
 , APP_DEFAULT_THEME = "light"
-, APP_NEEDS_LOGIN = false
+, APP_NEEDS_LOGIN 	= false
 
 , __Swipe__ 		= new Swipe()
 , __come__ 			= new Event('come')

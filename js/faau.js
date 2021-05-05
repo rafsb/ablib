@@ -231,8 +231,8 @@ _Bind(Element.prototype,{
         this.get("script").each(x=>{ eval(x.textContent)&&x.remove() })
         return this
     }
-    , on: function(action,fn,passive=true) {
-        this.addEventListener(action,fn, {passive:passive})
+    , on: function(action,fn,passive={ passive: true }) {
+        this.addEventListener(action,fn, passive);
         return this
     }
     , parent: function(pace=1) {
@@ -1246,8 +1246,8 @@ class FAAU {
         if(delall) $(".--hintifyied"+(evenSpecial?", .--hintifyied-sp":"")).each(x=>x.desappear(ANIMATION_LENGTH, true));
 
         o = _Bind({
-            top: maxis.y+"px"
-            , left: Math.min(app.wd*.8,maxis.x)+"px"
+            top: Math.min(window.innerHeight*.95, maxis.y)+"px"
+            , left: Math.min(window.innerWidth*.8,maxis.x)+"px"
             , padding: ".5em"
             , borderRadius: ".25em"
             , boxShadow: "0 0 .5em "+app.colors("DARK4")

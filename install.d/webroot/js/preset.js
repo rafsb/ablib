@@ -2,17 +2,14 @@ _Bind(app, {
     components: {}
     , theme_name: app.storage("theme_name", app.storage("theme_name") || APP_DEFAULT_THEME)
     , initial_pragma: EPragmas.START
-    , wd: window.innerWidth
-    , ht: window.innerHeight
     , clear_cache: NULL => {
-        const
-        clear_array = [
-        /*
-         * Clear Storage variables
-         */
-            "theme", "custom_theme", "v"
-        ];
-        clear_array.each(item => app.storage(item, ""))
+        [
+            /*
+            * Clear Storage variables
+            */
+            "hash", "theme_name", "custom_theme", "v"
+
+        ].each(item => app.storage(item, ""))
     }
     , on_login: response => {
         const hash = response.data.replace(/\s+/g,'').slice(0,128);
@@ -26,7 +23,7 @@ bootloader.dependencies = [
      * Set the components to be loaded before
      * the system boot
      */
-    "theme", "splash"
+    "theme", "splash", "home"
 ];
 
 /*
@@ -53,7 +50,12 @@ bootloader.loadComponents.add(NULL => {
         /*
          * Splash/Login boot depends on config
          */
-        router.load((!APP_NEEDS_LOGIN||app.hash) ? "splash" : "login");
+        if(!APP_NEEDS_LOGIN||app.hash) router.load("splash").then(NULL => {
+
+            router.load("home");
+
+        });
+        else router.load("login");
         
         // assign true to loader.theme
         bootloader.ready("theme")
@@ -67,6 +69,7 @@ bootloader.onFinishLoading.add(function() {
     /*
      * commonly used helpers, uncommnt to fire
      */
+
     // tileClickEffectSelector(".--tile");
     // tooltips();
     
