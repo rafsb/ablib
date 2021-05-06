@@ -91,7 +91,7 @@ define("COOKIE",2);
 /*
  * USER LEVELS
  */
-abstract class EUser
+abstract class EUsers
 {
     const LOGGED    =  0;
     const USER      =  1;

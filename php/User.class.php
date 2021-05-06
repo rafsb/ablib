@@ -9,7 +9,7 @@ class _User_Default_Traits
             , "user"         => "root"
             , "password"     => Hash::word("108698584") // rootz
             , "picture"      => "img/user.svg"
-            , "access_level" => EUser::ROOT
+            , "access_level" => EUsers::ROOT
             , "hash"         => Hash::word("root")
             , "last_login"   => time()
         ];
@@ -22,7 +22,7 @@ class _User_Default_Traits
             "uuid"           => "_system"
             , "username"     => "Sistema"
             , "picture"      => "img/user.svg"
-            , "access_level" => EUser::SYSTEM
+            , "access_level" => EUsers::SYSTEM
             , "hash"         => trim(IO::read("ROOT"))
         ];
     }
@@ -35,7 +35,7 @@ class _User_Default_Traits
             , "user"         => ""
             , "password"     => ""
             , "picture"      => "img/user.svg"
-            , "access_level" => EUser::LOGGED
+            , "access_level" => EUsers::LOGGED
             , "hash"         => Hash::word(time())
             , "last_login"   => ""
             , "projects"     => []
@@ -181,7 +181,7 @@ class User extends Activity
      */
     public static function pass(String $hash=null, String $device = null)
     {
-        $result = self::allow(EUser::LOGGED, self::get_hash($hash)) ? 1 : Core::response(0, "User::pass -> No valid hash");
+        $result = self::allow(EUsers::LOGGED, self::get_hash($hash)) ? 1 : Core::response(0, "User::pass -> No valid hash");
         if($result){
             $user = self::info($hash);
             IO::log("User::pass -> ". date("Y-m-d H:i:s") .", {$user->username} $device", "user/{$user->user}");
@@ -204,7 +204,7 @@ class User extends Activity
         $user_list = _User_Primitive_Traits::list();
         $tmp_list = $user_list;
 
-        if(!User::allow(EUser::ADMIN, $hash))
+        if(!User::allow(EUsers::ADMIN, $hash))
         {
             $projects_list = [];
             foreach(Projects::list($hash) as $tmp_project) $projects_list[] = $tmp_project->puid;
@@ -222,13 +222,13 @@ class User extends Activity
             }
         }
         $tmp = [];
-        foreach($user_list as $u) if($user->uuid == $u->uuid || $user->access_level == EUser::ROOT || $u->access_level < $user->access_level) $tmp[] = $u;
+        foreach($user_list as $u) if($user->uuid == $u->uuid || $user->access_level == EUsers::ROOT || $u->access_level < $user->access_level) $tmp[] = $u;
         return $tmp;
     }
 
     public static function info(String $hash=null)
     {
-        if(!self::allow(EUser::LOGGED, self::get_hash($hash))) return Core::response(0, "User::bio -> no user logged");
+        if(!self::allow(EUsers::LOGGED, self::get_hash($hash))) return Core::response(0, "User::bio -> no user logged");
         $user = _User_Primitive_Traits::hashseek($hash);
         if($user) unset($user->password);
         return $user ? $user : Core::response(0, "User::info -> not found");
@@ -288,9 +288,9 @@ class User extends Activity
         
         $user = self::info($hash);
         $new_user = $new_user ? $new_user : Request::in();
-        if($user->access_level >= EUser::MANAGER && $new_user)
+        if($user->access_level >= EUsers::MANAGER && $new_user)
         {
-            $admin = $user->access_level < EUser::ADMIN ? false : true;
+            $admin = $user->access_level < EUsers::ADMIN ? false : true;
             if(!$new_user["uuid"]) $new_user["uuid"] = time();
             if($new_user["access_level"]==null) $new_user["access_level"] = $user->access_level - 1;
             else if($user->access_level < $new_user["access_level"]) return Core::response(0, "User::update -> permission`s issues");

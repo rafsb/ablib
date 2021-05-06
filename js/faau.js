@@ -21,7 +21,7 @@ DEBUG               = false
 , NUMBER            = 0
 , STRING            = 1
 , ID    = query => { const el = $("#"+query); return el.length ? el[0] : [] }
-, TAG   = (n="div",c,s,t) => _(n,c,s).html(t||"")
+, TAG   = (n="div",c,s,t) => _(n,c,s)[typeof t == "object" ? "app" : "html"](t||"")
 , DIV   = (c,s) => _("div",c,s)
 , WRAP  = (c,s) => DIV((c||"")+" -wrapper",s)
 , IMG   = (p,c,s) => _I(p,c,s)

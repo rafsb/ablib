@@ -13,7 +13,7 @@ class Application
     	"developer"                 => "DEV Team"
         , "project_name"            => "MobileApi"	
         , "driver"                  => EPersistance::DISK
-        , "get_config_min_level"    => EUser::MANAGER
+        , "get_config_min_level"    => EUsers::MANAGER
         , "hash_algorithm"          => EHash::SHA512
         , "database_credentials"    => [
 			"host" 		 => "127.0.0.1"
