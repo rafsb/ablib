@@ -23,7 +23,7 @@ DEBUG               = false
 , ID    = query => { const el = $("#"+query); return el.length ? el[0] : [] }
 , TAG   = (n="div",c,s,t) => _(n,c,s)[typeof t == "object" ? "app" : "html"](t||"")
 , DIV   = (c,s) => _("div",c,s)
-, WRAP  = (c,s) => DIV((c||"")+" -wrapper",s)
+, WRAP  = (h,c,s) => DIV((c||"")+" -wrapper",s).html(h||"")
 , IMG   = (p,c,s) => _I(p,c,s)
 , SVG   = (t,c,a,s) => _S(t,c,a,s)
 , SPATH = (c,a,s) => _("path",c,a,s)
@@ -231,8 +231,8 @@ _Bind(Element.prototype,{
         this.get("script").each(x=>{ eval(x.textContent)&&x.remove() })
         return this
     }
-    , on: function(action,fn,passive=true) {
-        this.addEventListener(action,fn, {passive:passive})
+    , on: function(action,fn,passive={ passive: true }) {
+        this.addEventListener(action,fn, passive);
         return this
     }
     , parent: function(pace=1) {
@@ -1157,27 +1157,18 @@ class FAAU {
      */
     loading(show = true, target =null) {
         let
-        loads = $(".--default-loading");
-        if (!show) {
-            loads.each(x => { 
-                clearInterval(x.dataset.offloading); 
-                x.desappear(ANIMATION_LENGTH, true) 
+        loading_list = $(".--loading")
+        , load = loading_list.length ? loading_list.at() : WRAP(SPAN("Loading...", "-absolute -zero-bottom-right", { fontSize:"4em", padding:".75em 1em", color:"#0004" }, "i"), "-fixed -zero --loading", { backgroundImage: "linear-gradient(to top left, #fffa, transparent, #fff4)" })
+        ;;
+
+        load.dataset.offloading&&clearInterval(load.dataset.offloading); 
+
+        if (!show) load.desappear(AL, true) 
+        else {
+            load.data({
+                offloading: setTimeout(nil => app.loading(false), AL*16)
             });
-        }else{
-            if(loads.length){
-                clearInterval(loads[0].dataset.offloading);
-                loads[0].data({ animation: setTimeout(nil => app.loading(false), ANIMATION_LENGTH*8) })
-            } else {
-                let
-                load = _("section", "-fixed -view --default-loading", { 
-                    background: "linear-gradient(135deg, "+app.color_pallete.FONT+"22, transparent, "+app.color_pallete.FOREGROUND+"88)"
-                    , zIndex:100 
-                }).data({
-                    offloading: setTimeout(nil => app.loading(false), ANIMATION_LENGTH*8)
-                });
-                app.load("img/loading.svg", null, load);
-                (target || ID("app")).app(load);
-            }
+            (target || ID("app")).app(load);
         }
     }
 
@@ -1246,13 +1237,13 @@ class FAAU {
         if(delall) $(".--hintifyied"+(evenSpecial?", .--hintifyied-sp":"")).each(x=>x.desappear(ANIMATION_LENGTH, true));
 
         o = _Bind({
-            top: maxis.y+"px"
-            , left: Math.min(app.wd*.8,maxis.x)+"px"
+            top: Math.min(window.innerHeight*.95, maxis.y)+"px"
+            , left: Math.min(window.innerWidth*.8,maxis.x)+"px"
             , padding: ".5em"
             , borderRadius: ".25em"
             , boxShadow: "0 0 .5em "+app.colors("DARK4")
             , background: app.colors("BACKGROUND")
-            , color: app.colors("FONT")
+            , color: app.colors("FONT") 
             , fontSize: "1em"
             , zIndex:9000
         }, o);
@@ -1260,7 +1251,7 @@ class FAAU {
         if(typeof n == "string") n = ("<f>"+n+"</f>").morph()
 
         let
-        toast = _("toast","-block -fixed --hintifyied"+(special?"-sp":""),o).css({opacity:0}).app(n||"<b>路路路!!!</b>".morph());
+        toast = _("toast","-block -fixed --hintifyied"+(special?"-sp":""),o).css({opacity:0}).app(n||"<b>Toastie!!!</b>".morph());
         if(toast.get(".--close").length) toast.get(".--close").on("click",function(){ this.upFind("toast").desappear(ANIMATION_LENGTH, true) })
         else toast.on("click",function(){ this.desappear(ANIMATION_LENGTH, true) });
         
@@ -1296,7 +1287,7 @@ class FAAU {
                     pos = win.dataset.position.json()
                     this.anime({ transform:"rotate(0deg)" });
                     win.get(".-wrapper")[0].style.display = "block";
-                    win.anime({ height:pos.h+"px", width:pos.w+"px", top:pos.y+"px", left:pos.x+"px" });
+                    win.anime({ height:pos.h+"px", width:pos.w+"px", top:pos.y+"px", left:pos.x+"px", transform:"translate(-50%, -50%)" });
                     win.remClass("--minimized");
                 }else{
                     win.dataset.position = ({
@@ -1336,7 +1327,7 @@ class FAAU {
         this.tileClickEffectSelector(".-tile");
 
         wrapper.evalute();
-        app.sleep(400).then(NULL => _W.raise());
+        app.sleep(ANIMATION_LENGTH).then(NULL => _W.raise());
 
         app.enableDragging();
 
@@ -1377,7 +1368,7 @@ class FAAU {
         this.tileClickEffectSelector(".-tile");
 
         wrapper.evalute();
-        app.sleep(400).then(NULL => _D.raise());
+        app.sleep(ANIMATION_LENGTH).then(NULL => _D.raise());
 
         app.enableDragging();
 

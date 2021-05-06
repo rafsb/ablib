@@ -1,9 +1,9 @@
 <template>
 	
-	<section class="-fixed -zero -wrapper" style="background:@BACKGROUND">
+	<section class="-fixed -zero -wrapper" style="background:@BACKGROUND;color:@FONT">
 		
 		<form class="-absolute -centered -col-3" style="background:@FOREGROUND;border-radius:.25em;border:@FONT22;box-shadow: 0 0 1em @DARK3" action="javascript:void(0)" onsubmit="submit_login_form(this.json())">
-			<header class="-row -content-center"><img src="img/logos/logo.png" style="height:6em;padding:2em"></header>
+			<header class="-row -content-center"><img src="img/logos/logo.png" style="height:6em;padding:2em;filter:contrast(0)"></header>
 			<div class="-row -flex">
 				<div class="-left -col-2"></div>
 				<div class="-left -col-8" style="border-top:.5px solid @FONT22;border-bottom:.5px solid @FONT22">
@@ -19,13 +19,13 @@
 				<div class="-left -col-2"></div>
 			</div>
 			<footer class="-row -content-center" style="padding:2em 0 3em 0">
-				<input type="submit" class="-pointer" style="background: @SPAN;padding:1em 2em;border-radius:.25em;border:@FOREGROUND22;color:@FOREGROUND" value="ENTRAR"/>
+				<input type="submit" class="-pointer" style="background: @SPAN;padding:1em 2em;border-radius:.25em;border:@FOREGROUND22;color:@FONT" value="ENTRAR"/>
 			</footer>
 		</form>
 
 	</section>
 	<script type="text/javascript">
-		submit_login_form = form => router.call("auth", form).then(response => app.on_login(response));
+		submit_login_form = form => router.call("auth", _Bind({ device: window.navigator.appVersion }, form)).then(response => app.on_login(response));
 	</script>
 
 </template>

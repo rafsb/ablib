@@ -10,3 +10,5 @@ img/logos/client.png
 # res/
 var/logs
 webroot/App.php
+var/logs
+webroot/App.php

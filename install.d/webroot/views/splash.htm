@@ -1,13 +1,15 @@
 <template>
-    <div class="-centered -col-4 --splash">
-        <div class="-left --progress" style="padding:.125em;background:@SPAN"></div>
+    <div id="splash" class="-fixed -zero -wrapper" style="background:@BACKGROUND;z-index:100000">
+        <div class="-centered -col-4">
+            <div class="-left --progress" style="padding:.125em 0;background:@SPAN"></div>
+        </div>
     </div>
     <script>
-        bootloader.onReadyStateChange.add(perc => $(".--splash .--progress")[0].anime({ width:perc+"%"}));
+        bootloader.onReadyStateChange.add(perc => $("#splash .--progress")[0].anime({ width:perc+"%"}));
         bootloader.onFinishLoading.add(NULL => {
-            $(".--splash .--progress")[0].anime({ width:"100%"});
-            app.sleep(AL).then($(".--splash").desappear(AL*3, true))
+            $("#splash .--progress")[0].anime({ width:"100%"});
+            app.sleep(AL).then($("#splash").desappear(AL*3, true))
         });
-        bootloader.ready("splash")
+        app.sleep(AL).then(NULL => bootloader.ready("splash"))
     </script>
 </template>

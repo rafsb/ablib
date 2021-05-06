@@ -92,7 +92,7 @@ if($this->allow_access()) header('Access-Control-Allow-Origin: ' . $this->allow_
         <script type="text/javascript" src="webroot/config.js"></script>
         <script type="text/javascript" src="webroot/js/router.js"></script>
         <script type="text/javascript" src="webroot/js/preset.js"></script>
-        <script type="text/javascript">(function(){ app.initialize() })()</script>
+        <script type="text/javascript">(function(){ app.file_source_extention = "php"; app.initialize() })()</script>
 
     </body>
 </html>

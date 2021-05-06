@@ -93,8 +93,9 @@ class _User_Primitive_Traits
 
         $users = [];
 
-        if(strtoupper($field) == "UUID"){ if(isset($list->{$value})){ $list->{$value}->uuid = $value; $users[] = $list->{$value}; }}
-        else foreach($list as $uuid=>$us) if($us->{$field} == $value){ $users[] = $us; };
+        // if(strtoupper($field) == "UUID"){ if(isset($list->{$value})){ $list->{$value}->uuid = $value; $users[] = $list->{$value}; }}
+        // else 
+        foreach($list as $uuid=>$us) if(isset($us->{$field})&&$us->{$field} == $value){ $users[] = $us; };
 
         return $users;
     }
