@@ -48,13 +48,13 @@ class _User_Primitive_Traits
         
     private static function save($list)
     {
-        // return Convert::encrypt(EPersistance::SHADOW_FILE, $list);
-        return IO::jin(EPersistance::SHADOW_FILE, $list);
+        // return Convert::encrypt(EPersistances::SHADOW_FILE, $list);
+        return IO::jin(EPersistances::SHADOW_FILE, $list);
     }
 
     private static function load()
     {
-        if(App::driver()==EPersistance::DATABASE)
+        if(App::driver()==EPersistances::DATABASE)
         {
             $users = Mysql::select()->from("Users")->query(__ARRAY__);
             if(!sizeof($users))
@@ -64,7 +64,7 @@ class _User_Primitive_Traits
             }
             return $users;
         }
-        if(!is_file(IO::root(EPersistance::SHADOW_FILE)))
+        if(!is_file(IO::root(EPersistances::SHADOW_FILE)))
         {
             $obj = [ 
                 "root_user" => _User_Default_Traits::root()
@@ -72,8 +72,8 @@ class _User_Primitive_Traits
             ];
             self::save($obj);
         }
-        // return _As::json(Convert::decrypt(EPersistance::SHADOW_FILE));
-        return IO::jout(EPersistance::SHADOW_FILE);
+        // return _As::json(Convert::decrypt(EPersistances::SHADOW_FILE));
+        return IO::jout(EPersistances::SHADOW_FILE);
     }
 
 
@@ -173,7 +173,7 @@ class User extends Activity
         if($user && sizeof($user)) $uuid = $user[0]->uuid;
         else return Core::response(0, "User::allow -> no valid hash");
 
-        if(App::driver()==EPersistance::DATABASE) return (int)Mysql::cell("Users","access_level","uuid='$uuid'")*1>=$level*1 ? 1 : 0;
+        if(App::driver()==EPersistances::DATABASE) return (int)Mysql::cell("Users","access_level","uuid='$uuid'")*1>=$level*1 ? 1 : 0;
         else return $user[0]->access_level*1 >= $level*1 ? 1 : 0;
     }
 

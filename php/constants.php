@@ -67,7 +67,7 @@ abstract class EModes
     const NOPRINT     = false;
 }
 
-abstract class EProtocol
+abstract class EProtocols
 {
     const GET         = "GET";
     const POST        = "POST";
@@ -105,7 +105,7 @@ abstract class EUsers
     const ROOT      =  9;
 
 }
-abstract class EHash
+abstract class EHashes
 {
     const SHA1   = "sha1";
     const SHA256 = "sha256";
@@ -113,7 +113,7 @@ abstract class EHash
     const MD5    = "md5";
 }
 
-abstract class EPersistance
+abstract class EPersistances
 {
     const DISK = "disk";
     const DATABASE = "database";
@@ -132,7 +132,7 @@ abstract class ELayouts
 }
 
 
-abstract class ERequest
+abstract class ERequests
 {
     const POST   = "POST";
     const GET    = "GET";
@@ -140,7 +140,7 @@ abstract class ERequest
     const PUT    = "PUT";
 }
 
-abstract class ECalculate
+abstract class ECalculations
 {
     const SUM        = 0;
     const TREND      = 1;

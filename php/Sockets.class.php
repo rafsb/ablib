@@ -51,6 +51,15 @@ class Sockets extends Activity
         $sock->close();
     }
 
+    public static function test()
+    {
+        self::handler(function($one,$two){ 
+            echo "<pre>";
+            print_r($one);
+            print_r($two);
+         })
+    }
+
     public function __construct(String $host=null, int $port=null)
     {
         if($host&&$port) $this->connect($host, $port)

@@ -12,9 +12,9 @@ class Application
 	protected static $config = [
     	"developer"                 => "DEV Team"
         , "project_name"            => "MobileApi"	
-        , "driver"                  => EPersistance::DISK
+        , "driver"                  => EPersistances::DISK
         , "get_config_min_level"    => EUsers::MANAGER
-        , "hash_algorithm"          => EHash::SHA512
+        , "hash_algorithm"          => EHashes::SHA512
         , "database_credentials"    => [
 			"host" 		 => "127.0.0.1"
             , "user"     => "root"
