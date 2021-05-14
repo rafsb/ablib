@@ -24,3 +24,4 @@ if(sizeof($_SERVER['argv']))
 }else App::init();
 
 echo "================================================" . PHP_EOL . PHP_EOL;
+
