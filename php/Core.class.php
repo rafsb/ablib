@@ -3,7 +3,11 @@ class Core {
 
 	public static function response($status,$data=null)
 	{
-		if(DEBUG) IO::log($status . " => " . $data);
+		if(DEBUG) IO::log(
+			(is_object($status)||is_array($status) ? Convert::json($status) : $status) 
+			. " => " . 
+			(is_object($date)||is_array($data) ? Convert::json($data) : $data)
+		);
 		return $status;// . (DEBUG ? " | " . $data : "");
 	}
 	
