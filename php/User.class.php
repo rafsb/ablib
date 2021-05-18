@@ -72,7 +72,6 @@ class _User_Primitive_Traits
             ];
             self::save($obj);
         }
-        // return _As::json(Convert::decrypt(EPersistances::SHADOW_FILE));
         return IO::jout(EPersistances::SHADOW_FILE);
     }
 
