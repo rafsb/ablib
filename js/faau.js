@@ -23,17 +23,17 @@ DEBUG               = false
 , ID    = query => { const el = $("#"+query); return el.length ? el[0] : [] }
 , TAG   = (n="div",c,s,t) => _(n,c,s)[typeof t == "object" ? "app" : "html"](t||"")
 , DIV   = (c,s) => _("div",c,s)
-, WRAP  = (h,c,s) => DIV((c||"")+" -wrapper",s).html(h||"")
+, WRAP  = (h,c,s) => DIV((c||"")+" -wrapper",s)[h instanceof Object || h instanceof Array ? 'app' : 'html'](h||"")
 , IMG   = (p,c,s) => _I(p,c,s)
 , SVG   = (t,c,a,s) => _S(t,c,a,s)
-, SPATH = (c,a,s) => _("path",c,a,s)
+, SPATH = (d,c,s,a) => SVG("path",c,binds({d:d},a||{}),s)
 , TEXT  = (t,c,s,n="p") => TAG(n,c,s,t)
 , SPAN  = (t,c,s,n="span") => TAG(n,c,s,t)
 , BOLD = (t,c,s) => TAG("b",c,s,t)
 , ITALIC = (t,c,s) => TAG("i",c,s,t)
 , ROW   = (e,s) => {const x=DIV("-row",s);typeof e == "string" ? x.html(e) : x.app(e); return x}
-, WSPAN = (t,c,s,n="span") => TAG(n,c,_Bind({ paddingLeft:"1em" }, s||{}),t)   
-, _Bind = function(e,o){
+, WSPAN = (t,c,s,n="span") => TAG(n,c,binds({ paddingLeft:"1em" }, s||{}),t)   
+, binds = function(e,o){
     let
     a = Object.keys(o);
     for(let i=a.length;i--;) e[a[a.length-i-1]]=o[a[a.length-i-1]];
@@ -41,7 +41,7 @@ DEBUG               = false
 }
 ;;
 
-_Bind(Number.prototype, {
+binds(Number.prototype, {
     fill: function(c,l,d){ return (this+"").fill(c,l,d) }
     , nerdify: function(){ 
         let n = this*1;
@@ -53,8 +53,9 @@ _Bind(Number.prototype, {
             )
         )
     }
-})
-_Bind(Date.prototype, {
+});
+
+binds(Date.prototype, {
     plus: function(n) {
         let
         date = new Date(this.valueOf());
@@ -85,17 +86,19 @@ _Bind(Date.prototype, {
     }
 });
 
-_Bind(NodeList.prototype, {
+binds(NodeList.prototype, {
     array: function() {
         return [].slice.call(this);
     }
 });
-_Bind(HTMLCollection.prototype, {
+
+binds(HTMLCollection.prototype, {
     array: function() {
         return [].slice.call(this);
     }
 })
-_Bind(HTMLFormElement.prototype,{
+
+binds(HTMLFormElement.prototype,{
     json: function(){
         let
         tmp = {};
@@ -116,7 +119,8 @@ _Bind(HTMLFormElement.prototype,{
         return JSON.stringify(this.json())
     }
 });
-_Bind(HTMLInputElement.prototype, {
+
+binds(HTMLInputElement.prototype, {
     val: function(v=null) {
         if(v!==null) this.value = v;
         return this
@@ -144,7 +148,8 @@ _Bind(HTMLInputElement.prototype, {
         xhr.send(form);
     }
 });
-_Bind(Element.prototype,{
+
+binds(Element.prototype,{
     at: function(){ return this }
     , anime: function(obj,len=ANIMATION_LENGTH,delay=0,trans=null) {
         let
@@ -191,7 +196,7 @@ _Bind(Element.prototype,{
     }
     , data: function(o=null, fn=null) {
         if (o===null) return this.dataset;
-       _Bind(this.dataset, o);
+       binds(this.dataset, o);
         if(fn!==null&&typeof fn=="function") fn.bind(this)(this);
         return this;
     }
@@ -332,7 +337,8 @@ _Bind(Element.prototype,{
     }
     , remove: function() { if(this&&this.parent()) this.parent().removeChild(this) }
 });
-_Bind(String.prototype,{
+
+binds(String.prototype,{
     hash: function() {
         let
         h = 0, c = "", i = 0, j = this.length;
@@ -418,7 +424,8 @@ _Bind(String.prototype,{
         return false
     }
 });
-_Bind(Object.prototype,{
+
+binds(Object.prototype,{
     json:function(){ return JSON.stringify(this) }
     , each: function(fn=null){
         let
@@ -450,7 +457,8 @@ _Bind(Object.prototype,{
         return Object.keys(this);
     }
 });
-_Bind(Array.prototype, {
+
+binds(Array.prototype, {
     json: function(){ return JSON.stringify(this); }
     , clone: function() { return this.slice(0) }
     , each: function(fn) { if(fn) { for(let i=0;i++<this.length;) fn.bind(this[i-1])(this[i-1], i-1); } return this }
@@ -608,6 +616,9 @@ _Bind(Array.prototype, {
         if(n>=0) return this.length>=n ? this[n] : null;
         return this.length > n*-1 ? this[this.length+n] : null
     }
+    , rand: function(){
+        return this[Math.floor(Math.random()*this.length)]
+    }
     , not: function(el) { 
         let
         arr = this;
@@ -691,21 +702,25 @@ _Bind(Array.prototype, {
         if(v) this.each(x=>{ if(x.tagName.toLowerCase()=="input") x.value = v })
         return this
     }
+    , app: function(el=null){
+        if(el){
+            this.each(x => x.app(el.mimic()))
+        }   
+        return this
+    }
 });
 
 Object.defineProperty(Object.prototype, "spy", {
     value: function (p,fn) {
         let
         o = this[p]
-        , n = o
-        , get = function() { return n }
-        , set = function(v) { o = n; return n = fn.bind(this)(v,p) };
+        , set = function(v) { return fn(v, p, this) };
         if(delete this[p]) { // can't watch constants
-            Object.defineProperty(this,p,{ get: get, set: set })
+            Object.defineProperty(this, p, { set: set })
         }
     }
 });
-// object.unwatch
+
 Object.defineProperty(Object.prototype, "unspy", {
     value: function (prop) {
         let
@@ -877,7 +892,7 @@ class __BaseElement__ {
         this.emptyElement();
         if(obj) this.custom(obj)
     }
-}
+};
 
 class Tile extends __BaseElement__ {
     emptyElement() {
@@ -970,6 +985,7 @@ class Swipe {
 
     fire() { this.e&&this.e.on('touchmove', function(v) { this.move(v) }.bind(this)) }
 };
+
 /*
  * @class
  *
@@ -1025,6 +1041,7 @@ class Throttle {
         }
     }
 };
+
 class Bootloader {   
     loadLength(){        
         return this.loaders.array().extract(n => n*1 ? true : null).length/this.dependencies.length;
@@ -1062,6 +1079,7 @@ class Bootloader {
         this.loaders = {};
     }
 };
+
 class CallResponse {
     constructor(url=location.href, args={}, method="POST", header={}, data=null){
         this.url = url;
@@ -1071,7 +1089,8 @@ class CallResponse {
         this.data=data;
         this.status = this.data ? true : false;
     }
-}
+};
+
 class FAAU {
     get(e,w){ return faau.get(e,w||document).nodearray; }
     declare(obj){ Object.keys(obj).each(x=>window[x]=obj[x]) }
@@ -1114,7 +1133,7 @@ class FAAU {
             // xhr.setRequestHeader("Content-Type", method=="POST" ? "application/json;charset=UTF-8": "text/plain");
             // xhr.setRequestHeader("FA-Custom", "@rafsb");
             // if(app.hash) xhr.setRequestHeader("hash", app.hash);
-            // if(method == "POST") head = _Bind({ "Content-Type": "application/json"}, head||{});
+            // if(method == "POST") head = binds({ "Content-Type": "application/json"}, head||{});
             // if(head) Object.keys(head).each(h=>xhr.setRequestHeader(h,head[h]));
             xhr.send(args ? args.json() : null);
 
@@ -1129,7 +1148,7 @@ class FAAU {
     async load(url, args=null, target=null, bind=null) {
         return this.post(url, args).then( r => {
             if(!r.status) return app.error("error loading "+url);
-            r = r.data.prepare(_Bind(bind || {}, app.colors())).morph();
+            r = r.data.prepare(binds(bind || {}, app.colors())).morph();
             if(!target) target = $('#app')[0];
             target.app(r);
             return r.evalute();
@@ -1236,7 +1255,7 @@ class FAAU {
 
         if(delall) $(".--hintifyied"+(evenSpecial?", .--hintifyied-sp":"")).each(x=>x.desappear(ANIMATION_LENGTH, true));
 
-        o = _Bind({
+        o = binds({
             top: Math.min(window.innerHeight*.95, maxis.y)+"px"
             , left: Math.min(window.innerWidth*.8,maxis.x)+"px"
             , padding: ".5em"
@@ -1269,13 +1288,17 @@ class FAAU {
     
     window(html=null, title=null , css={}){
         const
-        head = _("header","-relative -row -zero -no-scrolls").app(DIV("-left -content-left -ellipsis", { minHeight:"3em", lineHeight:3, width:"calc(100% - 6em)" }).app(
-            typeof title == "string" ? ("<span class='-row -no-scrolls' style='height:3em;padding:0 1em;opacity:.75'>"+title+"</span>").morph()[0] : title
-        )).app(
+        head = _("header","-relative -row -zero -no-scrolls").app(
+            DIV("-left -content-left -ellipsis --drag-trigger", { cursor:'all-scroll', minHeight:"3em", lineHeight:3, width:"calc(100% - 9em)" }).app(
+                typeof title == "string" ? ("<span class='-row -no-scrolls' style='height:3em;padding:0 1em;opacity:.75'>"+title+"</span>").morph()[0] : title
+            )
+        ).app(
+            // CLOSE
             _("div","-right -pointer --close -tile").app(
                  IMG("img/icons/cross.svg", app.color_pallete.type == "dark" ? "-inverted" : null, { height:"2.75em", width:"2.75em", padding:".75em"})
             ).on("click", function(){ this.upFind("--window").desappear(ANIMATION_LENGTH, true) })
         ).app(
+            // MINIMIZE
             _("div","-right -pointer --minimize -tile").app(
                  IMG("img/icons/minimize.svg", app.color_pallete.type == "dark" ? "-inverted" : null, { height:"2.75em", width:"2.75em", padding:".75em"})
             ).on("click", function(){
@@ -1304,9 +1327,14 @@ class FAAU {
                 $(".--minimized").each((el,i) => { el.anime({ transform:"translateX("+(app.wd*.2*i)+"px)" }) })
 
             })
-        ).on("click", function(){ this.upFind("--window").raise() })
+        )
+        // .app(
+        //     // DRAG
+        //     _("div","-right -pointer --drag-trigger -tile").app(IMG("img/icons/drag.svg", app.color_pallete.type == "dark" ? "-inverted" : null, { height:"2.75em", width:"2.75em", padding:".75em"}))
+        // )
+        .on("click", function(){ this.upFind("--window").raise() })
         , wrapper = _("div", "-zero -wrapper", { height:"calc(100% - 3em)" })
-        , _W = _("div", "--window -fixed -no-scrolls --drag -centered", _Bind({
+        , _W = _("div", "--window -fixed -no-scrolls --drag-target -centered", binds({
             height: "70vh"
             , width: "70vw"
             , background: app.colors("BACKGROUND")
@@ -1345,7 +1373,7 @@ class FAAU {
             ).on("click", function(){ this.upFind("--dialog").desappear(ANIMATION_LENGTH, true) })
         ).on("click", function(){ this.upFind("--dialog").raise() })
         , wrapper = _("div", "-absolute -zero -wrapper -no-scrolls", { top:"3em", height:"calc(100% - 3em)" })
-        , _D = _("div", "--dialog -fixed", _Bind({
+        , _D = _("div", "--dialog -fixed", binds({
             minHeight: "15vh"
             , width: "25vw"
             , top:"40vh"
@@ -1465,6 +1493,27 @@ class FAAU {
 
     makeServerHashToken(o){ return this.hashit(o).hash; }
 
+    makeBase64ImgFromUrl(url, fn){
+        const 
+        img = new Image()
+        ;
+        img.onload = function(){
+            let 
+            canvas = document.createElement('canvas')
+            , ctx = canvas.getContext('2d')
+            , data
+            ;;
+            canvas.height = img.height;
+            canvas.width = img.width;
+            ctx.drawImage(img, 0, 0);
+            data = canvas.toDataURL();
+            canvas = null;
+            fn(data)
+        };
+        img.crossOrigin = 'Anonymous';
+        img.src = url;
+    }
+
     rgb2hex(color) {
         let
         hex = "#";
@@ -1481,6 +1530,11 @@ class FAAU {
         let
         rgb = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})|([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
         return  rgb ? [ parseInt(rgb[1] || 255, 16), parseInt(rgb[2] || 255, 16), parseInt(rgb[3] || 255, 16), parseInt(rgb[3] || 255, 16) ] : null;
+    }
+
+    em2px()
+    {
+        return parseFloat(getComputedStyle(document.body).fontSize);
     }
 
     download(data, filename, filetype="text"){
@@ -1509,6 +1563,7 @@ class FAAU {
     }
 
     enableDragging(){
+
         $(".--draggable, .--drag").each(x => {
             
             if(x.has(".--drag-enabled")) return;
@@ -1521,33 +1576,56 @@ class FAAU {
                 e.dataTransfer.setDragImage(new Image(), 0, 0);
                 this.dataset.before = { x: e.clientX, y: e.clientY, t: this.offsetTop, l: this.offsetLeft }.json()
             }).on("drag", function(e){
-                const bef = this.dataset.before.json();
-                this.css({ top: (bef.t + e.clientY - (bef.y*.75)) + "px", left: (bef.l + e.clientX -( bef.x*.75))+"px" });
+                dragon.fire(this, this, e)
+                // const bef = this.dataset.before.json();
+                // this.css({ top: (bef.t + e.clientY - (bef.y*.75)) + "px", left: (bef.l + e.clientX -( bef.x*.75))+"px" });
             }).on("dragend", function(e){
                 const bef = this.dataset.before.json();
-                this.css({ top: (bef.t + e.clientY - (bef.y*.75)) + "px", left: (bef.l + e.clientX -( bef.x*.75))+"px" });
+                this.css({ top: (bef.t + e.clientY - (bef.y*.75)) + "px", left: (bef.l + e.clientX - ( bef.x*.75))+"px" });
             })
 
             x.addClass("--drag-enabled");
         })
-        $(".--drag-trigger").each(x => {
+
+        $(".--drag-trigger, .--drag").each(x => {
             
             if(x.has(".--drag-enabled")) return;
-            if(x.upFind("--drag-target")==$('#app')[0]) return;
 
-            x.attr({ 
-                draggable: "true"
-            }).on("dragstart", function(e){
-                const tgt = this.upFind("--drag-target");
-                this.dataset.before = { x: e.clientX, y: e.clientY, t: tgt.offsetTop, l: tgt.offsetLeft }.json()
-            }).on("drag", function(e){
-                const bef = this.dataset.before.json();
-                this.upFind("--drag-target").anime({ top: (bef.t + e.clientY - bef.y) + "px", left:(bef.l + e.clientX - bef.x) + "px" })
-            }).on("dragend", function(e){
-                const bef = this.dataset.before.json();
-                this.upFind("--drag-target").anime({ top: (bef.t + e.clientY - bef.y) + "px", left:(bef.l + e.clientX - bef.x) + "px" })
-            })
+            var ax = 0, ay = 0, bx = 0, by = 0;
+            const
+            tgt = x.has("--drag") ? x : x.upFind("--drag-target")
+            , dragselect = e => {
+                e.preventDefault();
+                bx = e.clientX;
+                by = e.clientY;
+                document.onmouseup = dragend;
+                document.onmousemove = dragstart;
+            } 
+            , dragstart = e => {
+                e.preventDefault();
+                ax = bx - e.clientX;
+                ay = by - e.clientY;
+                bx = e.clientX;
+                by = e.clientY;
+                tgt.style.top = (tgt.offsetTop - ay) + "px";
+                tgt.style.left = (tgt.offsetLeft - ax) + "px";
+            }
+            , dragend = e => {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+            ;;
 
+            if(tgt==$('#app')[0]) return;
+
+            x.attr({ draggable: "true" }).onmousedown = dragselect;
+            // .on("dragstart", function(e){
+            //     this.dataset.before = { x: e.clientX, y: e.clientY, t: tgt.offsetTop, l: tgt.offsetLeft }.json()
+            // }).on("drag", e => {
+            //     dragon.fire({ trig: x, targ: tgt, ev: e })
+            // }).on("dragend", function(e){
+            //     dragon.fire({ trig: x, targ: tgt, ev: e })
+            // })
             x.addClass("--drag-enabled");
         })
     }
@@ -1603,18 +1681,17 @@ class FAAU {
     }
 
     constructor() {
+        this.body = document.body
         this.initial_pragma = 0
         this.current        = 0
         this.last           = 0
         this.initPool       = new Pool()
         this.onPragmaChange = new Pool()
         this.mousePool      = new Pool()
-        this.mouseFire      = new Throttle(maxis => this.mousePool.fire(maxis), 200)   
-        this.data = {}
-        this.tips = {}
+        this.mouseFire      = new Throttle(maxis => this.mousePool.fire(maxis), 200)        
+        this.tips       = {}
         this.components = {}
-        this.nodearray = []
-        this.prism = {
+        this.prism      = {
             ALIZARIN:"#E84C3D"
             , PETER_RIVER:"#2C97DD"
             , ICE_PINK: "#CA179E"
@@ -1661,10 +1738,11 @@ class FAAU {
             , WHITE: "#FFFFFF"
             , BLACK: "#000000"
         }
-        _Bind(this.color_pallete, this.prism);
+        binds(this.color_pallete, this.prism);
     }
 };
-_Bind(window, {
+
+binds(window, {
     maxis: { x: 0, y: 0 }
     , $: function(wrapper=null, context=document){ return [].slice.call(context.querySelectorAll(wrapper)) }
     , _:function(node='div', cls, style, fn){ return app.new(node,cls,style,fn) }
@@ -1673,15 +1751,20 @@ _Bind(window, {
     , bootloader: new Bootloader()
     , app: new FAAU()
 });
-app.spy("pragma",function(x){
-    app.last = app.current;
-    app.current = x;
-    this.onPragmaChange.fire(x);
 
+app.spy("pragma", function(value, name, caller){
+    app.last = app.current;
+    app.current = value;
+    app.onPragmaChange.fire([value, name, caller]);
 });
+
 window.onmousemove = e =>{
     window.maxis = { x: e.clientX, y: e.clientY };
     app.mouseFire && app.mouseFire.fire(window.maxis)
-}
+};
+
 document.addEventListener("touchstart", function() {}, true);
+
 console.log('  __\n\ / _| __ _  __ _ _   _\n\| |_ / _` |/ _` | | | |\n\|  _| (_| | (_| | |_| |\n\|_|  \\__,_|\\__,_|\\__,_|');
+
+// console.log(document.currentScript.getAttribute('args'))
