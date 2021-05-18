@@ -36,7 +36,7 @@ class Convert
             if($line){
                 if(is_array($line) || is_object($line)){
                     foreach($line as $cell){
-                        if(is_array($cell) || is_object($cell)) $csv .= preg_replace("/[\n\r]/", "", _As::json($cell));
+                        if(is_array($cell) || is_object($cell)) $csv .= preg_replace("/[\n\r]/", "", Convert::json($cell));
                         else $csv .= preg_replace("/[\n\r]/", "", $cell);
                         $csv .= $delimiter;
                     }
@@ -45,6 +45,12 @@ class Convert
             $csv .= $endline;
         }
         return $csv;
+    }
+
+    public static function ctoo(String $csv, $delimiter=";", $endline="\n")
+    {
+        if(!$csv) return Core::response(0, "Convert::ctoo => No csv given");
+        return (object)Vector::extract(explode($endline, $csv), function($line) use ($delimiter){ return explode($delimiter, $line); });
     }
 
     public static function json($input)

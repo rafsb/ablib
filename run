@@ -16,7 +16,7 @@ if(sizeof($_SERVER['argv']))
     try{
         $class_instance = new $class_name();
         $tmp = $class_instance->$method_name( ... array_slice($args,3));
-        if(is_array($tmp)||is_object($tmp)) echo _As::json($tmp);
+        if(is_array($tmp)||is_object($tmp)) echo Convert::json($tmp);
         else echo $tmp;
         if(DEBUG) Debug::show();
     }catch (Exception $e){ IO::debug($e); }
