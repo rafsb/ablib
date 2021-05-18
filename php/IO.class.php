@@ -52,7 +52,7 @@ abstract class IO extends Activity {
     {
         if($path===null) return Core::response(-1, "IO::csvin -> No path given");
         if($obj===null) return Core::response(-2, "IO::csvin -> No object given");
-        echo self::write($path, _As::obj2csv($obj, $delimiter, $endline));
+        echo self::write($path, Convert::obj2csv($obj, $delimiter, $endline));
     }
 
     public static function csvout($path=null, $delimiter = ";", $endline ="\n")
