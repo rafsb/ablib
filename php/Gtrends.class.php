@@ -18,29 +18,6 @@ class Gtrends extends Activity
         return (object)[ implode("+", Vector::extract($in, function($v, $name){ return $name; })) => $final ];
     }
 
-    private static function execute_request(String $q, String $date, $date_length = 10)
-    {
-        $all = Vector::extract(core::bin("gtrends/fetch.sh", [ 
-            "--items=" . self::parse_query_string($q)
-            , "--date={$date}"
-        ]), function($line) { return preg_split("/[,]/", $line); });
-        $head = $all[0];
-        $all = array_slice($all, 1);
-        $final = [];
-        Vector::each($all, function($line) use (&$final, $head, $date_length){
-            if(empty($line)) return;
-            $date = substr($line[0], 0, $date_length);
-            Vector::each(array_slice($line, 1, sizeof($line)-2), function($value, $i) use (&$final, $head, $date){
-                $player = $head[$i+1];
-                if(!isset($final[$player])) $final[$player] = [];
-                if(!isset($final[$player][$date])) $final[$player][$date] = 0.0001;
-                $final[$player][$date] += (int)$value;
-            });
-        });
-
-        return $final;
-    }
-
     protected static function parse_rules($q, $results)
     {
         $final = [];
@@ -58,32 +35,51 @@ class Gtrends extends Activity
         return $final;
     }
 
-    protected static function batch_request(String $q)
+    private static function execute_request(String $q, String $date, $date_length = 10)
     {
-        return [
-            "7d"   => self::parse_rules($q, self::execute_request($q, "now_7-d"))
-            , "1m" => self::parse_rules($q, self::execute_request($q, "today 1-m"))
-            , "1y" => self::parse_rules($q, self::execute_request($q, "today 12-m"))
-        ];
-    }
-    
-    public function render()
-    {        
-        if(!self::get_hash($hash)) return core::Response(0, "GTrends::render -> no valid hash given");        
-        $q = request::in("q");
-        if(!$q) return core::response(0, "gtrends::render -> no valid query given");
-        return self::batch_request($q);
+        $all = Vector::extract(core::bin("gtrends/fetch.sh", [ 
+            "--items=" . self::parse_query_string($q)
+            , "--date={$date}"
+        ]), function($line) { return preg_split("/[,]/", $line); });
+        $head = $all[0];
+        $all = array_slice($all, 1);
+        $final = [];
+        Vector::each($all, function($line) use (&$final, $head, $date_length){
+            if(empty($line)) return;
+            $date = substr($line[0], 0, $date_length);
+            Vector::each(array_slice($line, 1, sizeof($line)-2), function($value, $i) use (&$final, $head, $date){
+                $player = $head[$i+1];
+                if(!isset($final[$player])) $final[$player] = [];
+                if(!isset($final[$player][$date])) $final[$player][$date] = 0;
+                $final[$player][$date] += (int)$value;
+            });
+        });
+        return $final;
     }
 
-    public function fetch(String $hash=null, $q=null, $date=null)
+    protected static function request(String $q, String $date, int $date_offset)
+    {
+        return self::parse_rules($q, self::execute_request($q, $date));
+    } 
+
+    public function fetch(String $q=null, String $date=null, String $hash=null)
     {
         if(!self::get_hash($hash)) return core::Response(0, "GTrends::fetch -> no valid hash given");        
         $args = (object)Request::in();
-        // print_r($args);die;
         $q = $q ? $q : (isset($args->q) ? $args->q : false);
         if(!$q) return core::response(0, "gtrends::fetch -> no valid query given");
         $date = $date ? $date : (isset($args->date) ? $args->date : "now_7-d");
         return self::parse_rules($q, self::execute_request($q, $date, $date == "today_5-y" || $date == "today_12-m" ? 7 : 10));
+    }
+
+    public function render()
+    {
+        if(!self::get_hash($hash)) return core::Response(0, "GTrends::render -> no valid hash given");        
+        $args = (object)Request::in();
+        $q = isset($args->q) ? $args->q : false;
+        if(!$q) return core::response(0, "gtrends::render -> no valid query given");
+        $date = isset($args->date) ? $args->date : "now_7-d";
+        return self::request($q, $date, $date == "today_5-y" || $date == "today_12-m" ? 7 : 10);
     }
     
 }
