@@ -53,7 +53,7 @@ bootloader.loadComponents.add(NULL => {
         else router.load("login");
         
         // assign true to loader.theme
-        bootloader.ready("theme")
+        setTimeout(NULL => bootloader.ready("theme"), AL*2)
     })
 })
 

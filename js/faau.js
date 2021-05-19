@@ -1061,8 +1061,8 @@ class Bootloader {
 
         if(!this.alreadyLoaded&&perc>=1){
             this.alreadyLoaded=true; 
-            setTimeout(boot => boot.onFinishLoading.fire(_ => app.pragma = app.initial_pragma || true), ANIMATION_LENGTH, this);
-        } else if(!this.alreadyLoaded) setTimeout((x,perc) => x.onReadyStateChange.fire(perc), ANIMATION_LENGTH/4, this, perc);
+            setTimeout(boot => boot.onFinishLoading.fire(_ => app.pragma = app.initial_pragma || true), AL, this);
+        } else if(!this.alreadyLoaded) setTimeout((x,perc) => x.onReadyStateChange.fire(perc), AL/4, this, perc);
 
         return this.alreadyLoaded || false;
     }
