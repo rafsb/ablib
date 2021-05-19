@@ -113,7 +113,7 @@ class FGraph {
             entities.each((name, idx) => {
 
                 const
-                serie   = series[idx]
+                serie   = series[idx].reverse()
                 , color = colors[idx] ? colors[idx] : PRISM.array().rand()
                 , h = rects.height - fsize * 4
                 , d = [ "M" ]
