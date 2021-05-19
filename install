@@ -1,4 +1,6 @@
 #!/bin/bash
 DIR=$(dirname $0)
 rsync -av "$DIR/install.d/" "$DIR/../"
-echo $DIR | md5sum | sed 's/\ -//g' | tee "$DIR/../ROOT" 
+echo $DIR | md5sum | sed 's/\ -//g' | tee "$DIR/../ROOT"
+echo "config.php" >> "$DIR/../.gitignore"
+echo "config.js" >> "$DIR/../.gitignore"

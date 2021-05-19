@@ -1,5 +1,5 @@
 <?php
-class Debug extends Activity 
+class Debug
 {
 	public static function show(String $hash=null)
 	{

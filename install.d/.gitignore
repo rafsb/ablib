@@ -9,5 +9,3 @@ img/logos/client.png
 # plugins/
 # res/
 var/logs/
-config.php
-config.js

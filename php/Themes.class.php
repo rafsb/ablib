@@ -5,13 +5,13 @@ class Themes extends Activity
 	{
         $theme = $theme ? $theme : Request::in("theme");
         $theme = $theme ? $theme : "light";
-        $path = IO::root("src/themes/$theme.theme");
+        $path = IO::root("assets/themes/$theme.theme");
         if(is_file($path)) return IO::read($path);
-        else return "[]";
+        else return [];
     }
   
   	public static function ls(){
-      	return IO::files("src/themes");
+      	return IO::files("assets/themes");
   	}
     
 }	

@@ -1,8 +1,7 @@
 html { scroll-behavior: smooth }
-body { position: relative; text-align: inherit; animation-fill-mode: both; display:inline-block; zoom:1;}
+body { position: relative; text-align: inherit; animation-fill-mode: both; display:inline-block; zoom:1;font-size:1em;}
 body *:not(script):not(style) { 
 	font-family: inherit;
-	font-size:1em;
 	position: relative;
 	display:inline-block;
 	transition: ease all .2s;
