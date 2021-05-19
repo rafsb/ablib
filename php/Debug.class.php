@@ -1,8 +1,9 @@
 <?php
-class Debug {
-	public static function show()
+class Debug extends Activity 
+{
+	public static function show(String $hash=null)
 	{
-		if(!DEBUG) return;
+		if(!self::get_hash($hash)) return Core::response(0, "Debug::show -> no hash given");
 		echo PHP_EOL;
 		echo PHP_EOL;
 		echo "================================================" . PHP_EOL;
