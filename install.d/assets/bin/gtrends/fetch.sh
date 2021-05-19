@@ -1,0 +1,1 @@
+python assets/bin/gtrends/fetch.py $1 $2 $3 $4
