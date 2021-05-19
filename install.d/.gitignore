@@ -8,7 +8,6 @@ img/logos/client.png
 # node_modules/
 # plugins/
 # res/
-var/logs
-webroot/App.php
-var/logs
-webroot/App.php
+var/logs/
+config.php
+config.js

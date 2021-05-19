@@ -7,11 +7,11 @@ require_once "Debug.class.php";
 // WEBROOT/CLASSES 
 spl_autoload_register(function($class)
 {
-    // fetch plugins first, at /modules/NAMESPACE/src/CLASSNAME
+    // fetch plugins first, at /webroot/controller/NAMESPACE/CLASSNAME
     $cls = preg_replace("/\\\\/",'/',$class);
     $cls = explode("/",$cls);
     // seek on user's classes folder
-    $path  = dirname(__DIR__, 2) . DS . "webroot" . DS . "classes" . DS . ucfirst($cls[0]) . ".class.php";
+    $path  = dirname(__DIR__, 2) . DS . "webroot" . DS . "controller" . DS . ucfirst($cls[0]) . ".class.php";
     if(is_file($path)) include_once $path;    
 });
 
@@ -32,7 +32,7 @@ spl_autoload_register(function($class)
 // LIB/PHP
 spl_autoload_register(function($class)
 {
-    // fetch plugins first, at /modules/NAMESPACE/src/CLASSNAME
+    // fetch plugins first, at /lib/php/NAMESPACE/CLASSNAME
     $cls = preg_replace("/\\\\/",'/',$class);
     $cls = explode("/",$cls);
     // an then use the lib's classes

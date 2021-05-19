@@ -4,11 +4,9 @@ header("Access-Control-Allow-Origin: *");
 // header('Content-type: application/json; charset=utf-8');
 // header('Content-type: text/plain; charset=utf-8');
 
-@session_start();
-
 require "lib" . DIRECTORY_SEPARATOR . "php" . DIRECTORY_SEPARATOR . "constants.php";
 require "lib" . DS . "php" . DS . "autoload.php";
-require "webroot" . DS . "App.php";
+require "config.php";
 
 $args = Request::get("_");
 if($args)
@@ -31,4 +29,3 @@ if($args)
 }else App::init();
 
 flush();
-

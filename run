@@ -1,9 +1,7 @@
 <?php
-//@session_start();
-
 require "php" . DIRECTORY_SEPARATOR . "constants.php";
 require "php" . DS . "autoload.php";
-require dirname(__DIR__) . DS . "webroot" . DS . "App.php";
+require dirname(__DIR__) . DS . "config.php";
 
 echo "FAAU CLI (BETA)" . PHP_EOL . "================================================" . PHP_EOL . PHP_EOL;
 
@@ -18,10 +16,10 @@ if(sizeof($_SERVER['argv']))
         $tmp = $class_instance->$method_name( ... array_slice($args,3));
         if(is_array($tmp)||is_object($tmp)) echo Convert::json($tmp);
         else echo $tmp;
-        if(DEBUG) Debug::show();
     }catch (Exception $e){ IO::debug($e); }
 
 }else App::init();
 
 echo "================================================" . PHP_EOL . PHP_EOL;
 
+flush();

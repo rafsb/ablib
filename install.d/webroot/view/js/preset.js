@@ -1,4 +1,4 @@
-_Bind(app, {
+binds(app, {
     components: {}
     , theme_name: app.storage("theme_name", app.storage("theme_name") || APP_DEFAULT_THEME)
     , initial_pragma: EPragmas.START
@@ -42,8 +42,8 @@ bootloader.loadComponents.add(NULL => {
         if (theme.data) {
             theme = theme.data.json();
             let custom_theme = app.storage("custom_theme");
-            if(custom_theme) _Bind(theme, custom_theme.json());
-            _Bind(app.color_pallete, theme);
+            if(custom_theme) binds(theme, custom_theme.json());
+            binds(app.color_pallete, theme);
         }
         [ "background", "foreground" ].each(x => $(".--"+x).css({ background: theme[x.toUpperCase()] }));
 
