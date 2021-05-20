@@ -1,6 +1,7 @@
 <?php
 class Gtrends extends Activity
 {
+
     private static function parse_query_string(String $q)
     {
         return preg_replace("/\s/", "_", implode(",", preg_split("/[|&+,]/", $q, -1, PREG_SPLIT_NO_EMPTY)));
@@ -20,6 +21,7 @@ class Gtrends extends Activity
 
     protected static function parse_rules($q, $results)
     {
+        if(empty($results)) return [];
         $final = [];
         $search_terms = [];
         Vector::each(preg_split("/[|,]/", $q, -1, PREG_SPLIT_NO_EMPTY), function($item) use (&$search_terms){ $search_terms[] = preg_split("/[&+]/", $item); });
@@ -40,7 +42,8 @@ class Gtrends extends Activity
         $all = Vector::extract(core::bin("gtrends/fetch.sh", [ 
             "--items=" . self::parse_query_string($q)
             , "--date={$date}"
-        ]), function($line) { return preg_split("/[,]/", $line); });
+        ]), function($line){ return preg_split("/[,]/", $line); });
+        if(empty($all)) return [];
         $head = $all[0];
         $all = array_slice($all, 1);
         $final = [];
@@ -59,7 +62,7 @@ class Gtrends extends Activity
 
     protected static function request(String $q, String $date, int $date_offset)
     {
-        return self::parse_rules($q, self::execute_request($q, $date));
+        return self::parse_rules($q, self::execute_request($q, $date, $date_offset));
     } 
 
     public function fetch(String $q=null, String $date=null, String $hash=null)
@@ -69,7 +72,7 @@ class Gtrends extends Activity
         $q = $q ? $q : (isset($args->q) ? $args->q : false);
         if(!$q) return core::response(0, "gtrends::fetch -> no valid query given");
         $date = $date ? $date : (isset($args->date) ? $args->date : "now_7-d");
-        return self::parse_rules($q, self::execute_request($q, $date, $date == "today_5-y" || $date == "today_12-m" ? 7 : 10));
+        return self::request($q, $date, $date == "today_5-y" || $date == "today_12-m" ? 7 : 10);
     }
 
     public function render()

@@ -20,7 +20,7 @@ DEBUG               = false
 , PASSWD_AUTO_HASH  = 0
 , NUMBER            = 0
 , STRING            = 1
-, ID    = query => { const el = $("#"+query); return el.length ? el[0] : [] }
+, ID    = query => { return document.getElementById(query) }
 , TAG   = (n="div",c,s,t) => _(n,c,s)[typeof t == "object" ? "app" : "html"](t||"")
 , DIV   = (c,s) => _("div",c,s)
 , WRAP  = (h,c,s) => DIV((c||"")+" -wrapper",s)[h instanceof Object || h instanceof Array ? 'app' : 'html'](h||"")
@@ -498,6 +498,20 @@ binds(Array.prototype, {
         narr.push(this.last())
         return narr
     }
+    , tiny: function(n=10){
+        if(this.length <= n) return this;
+        let
+        narr=[ this.first() ]
+        , x = Math.floor(this.length / (n-1))
+        , i = x
+        ;
+        while(i<this.length-1){
+            narr.push(this[i]||null);
+            i+=x;
+        }
+        narr.push(this.last())
+        return narr.clear()
+    }
     , calc: function(type=SUM, helper=null){
         let
         res = 0;
@@ -897,20 +911,21 @@ class __BaseElement__ {
 class Tile extends __BaseElement__ {
     emptyElement() {
         this.node = _("div", "-row -tile -no-scrolls", {
-            borderRadius: ".5em"
+            borderRadius: ".25em"
             , boxShadow: "none"//"0 0 .5em rgba(0,0,0,.64)"
             , background: app.colors("FOREGROUND")
-            , marginBottom: ".5em"
+            , margin: ".25em"
+            , padding: '0 .125em .125em .125em'
         }).app(
             _("header", "-row -keep", { padding: ".5em" }).app(
-                _("img", "-left -keep --close --icon", { width: "2em", height: "2em", opacity: .8, transform:"scale(.8)" })
+                _("img", "-left -keep --close --icon", { width: "2em", height: "2em", opacity: .8, transform:"scale(.75)" }).attr({ src: 'assets/img/icons/cross.svg' })
             ).app(
                 _("b", "-left -content-left -ellipsis --title", { width: "calc(100% - 3em)", padding: ".5em .25em", opacity: .8 })
             )
         ).app(
-            _("section", "--content -keep -row -content-left", { padding: "0 .5em" })
+            _("section", "--content -keep -row -content-left", { padding: ".25em" })
         ).app(
-            _("footer", "-row -keep --tags", { padding:".5em" })
+            _("footer", "-row -keep --tags")
         )
         return this.node
     }
@@ -1564,28 +1579,28 @@ class FAAU {
 
     enableDragging(){
 
-        $(".--draggable, .--drag").each(x => {
+        // $(".--draggable, .--drag").each(x => {
             
-            if(x.has(".--drag-enabled")) return;
+        //     if(x.has(".--drag-enabled")) return;
             
-            x.css({
-                position:"absolute"
-            }).attr({ 
-                draggable: "true" 
-            }).on("dragstart", function(e){
-                e.dataTransfer.setDragImage(new Image(), 0, 0);
-                this.dataset.before = { x: e.clientX, y: e.clientY, t: this.offsetTop, l: this.offsetLeft }.json()
-            }).on("drag", function(e){
-                dragon.fire(this, this, e)
-                // const bef = this.dataset.before.json();
-                // this.css({ top: (bef.t + e.clientY - (bef.y*.75)) + "px", left: (bef.l + e.clientX -( bef.x*.75))+"px" });
-            }).on("dragend", function(e){
-                const bef = this.dataset.before.json();
-                this.css({ top: (bef.t + e.clientY - (bef.y*.75)) + "px", left: (bef.l + e.clientX - ( bef.x*.75))+"px" });
-            })
+        //     x.css({
+        //         position:"absolute"
+        //     }).attr({ 
+        //         draggable: "true" 
+        //     }).on("dragstart", function(e){
+        //         e.dataTransfer.setDragImage(new Image(), 0, 0);
+        //         this.dataset.before = { x: e.clientX, y: e.clientY, t: this.offsetTop, l: this.offsetLeft }.json()
+        //     }).on("drag", function(e){
+        //         dragon.fire(this, this, e)
+        //         // const bef = this.dataset.before.json();
+        //         // this.css({ top: (bef.t + e.clientY - (bef.y*.75)) + "px", left: (bef.l + e.clientX -( bef.x*.75))+"px" });
+        //     }).on("dragend", function(e){
+        //         const bef = this.dataset.before.json();
+        //         this.css({ top: (bef.t + e.clientY - (bef.y*.75)) + "px", left: (bef.l + e.clientX - ( bef.x*.75))+"px" });
+        //     })
 
-            x.addClass("--drag-enabled");
-        })
+        //     x.addClass("--drag-enabled");
+        // })
 
         $(".--drag-trigger, .--drag").each(x => {
             
@@ -1658,25 +1673,34 @@ class FAAU {
     }
     
     tooltips(){
-        if(!$("tooltip").length){
+        var ttip = ID('tooltip');
+        if(!ttip){
             ID("app").app(
-                _("tooltip#tooltip", "-fixed --tooltip-element", { 
+                TAG("tooltip#tooltip", "-fixed --tooltip-element", { 
                     padding:".5em"
                     , borderRadius:".25em"
-                    , border: "1px solid rgba(255,255,255,.25)"
-                    , boxShadow: "0 0 1em rgba(0,0,0,.5)"
+                    , border: "1px solid " + app.colors('FONT') + '44'
                     , background: app.colors("BACKGROUND")
-                    , color: app.colors("SILVER")
+                    , color: app.colors("FONT")
                     , display: "none" 
-                    , zIndex:10000
-                }))
-            app.mousePool.add(pos => document.getElementById("tooltip").css({ transform:"translate(calc(1em + "+pos.x+"px),calc(1em + "+pos.y+"px))" }))
+                    , zIndex:9999
+                })
+            ).on(EEvents.MOUSEMOVE, function(e){
+                e.preventDefault();
+                const tgt = ID("tooltip");;
+                tgt.style.top = (24 + e.clientY) + "px";
+                tgt.style.left = (24 + e.clientX) + "px";
+            }, false)
         }
-        $(".--tooltip").each(ttip => {
-            ttip.raise().on("mouseenter", function () { 
-                $("tooltip.--tooltip-element")[0].stop().html(this.dataset.tip || "hooray").raise().css({ display:"block", background:this.dataset.tipbg || "#000A", color:this.dataset.tipft || "#FFF" })
-            });
-            ttip.on("mouseleave", function () { $("tooltip.--tooltip-element")[0].css({ display:"none" }) });
+        $(".--tooltip").each(tip => {
+            tip.on("mouseenter", function(){ 
+                ID("tooltip").css({ display:'none' }).html(this.dataset.tip || "hooray").css({ 
+                    display:"block"
+                    , background:this.dataset.tipbg || "#000A"
+                    , color:this.dataset.tipft || "#FFF" 
+                })
+            })
+            tip.on("mouseleave", function () { ID("tooltip").css({ display:"none" }) });
         }).remClass("--tooltip")
     }
 
@@ -1761,6 +1785,7 @@ app.spy("pragma", function(value, name, caller){
 window.onmousemove = e =>{
     window.maxis = { x: e.clientX, y: e.clientY };
     app.mouseFire && app.mouseFire.fire(window.maxis)
+    e.preventDefault();
 };
 
 document.addEventListener("touchstart", function() {}, true);

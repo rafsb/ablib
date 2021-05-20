@@ -93,7 +93,7 @@ script,style{ display: none !important; }
 
 .-relative      { position: relative }
 .-block         { display: block; }
-.-flex          { display: flex !important; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; align-items: stretch; align-content: stretch; text-align: center; }
+.-flex          { display: flex !important; flex-direction: row; flex-wrap: nowrap; justify-content: space-around; align-items: stretch; align-content: stretch; text-align: center; }
 /* .-flex > * 		{ align-self:flex-start;  } */
 .-inline        { display: inline-block; }
 .-hide          { display: none; opacity: 0; }
