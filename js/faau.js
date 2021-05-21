@@ -151,16 +151,14 @@ binds(HTMLInputElement.prototype, {
 
 binds(Element.prototype,{
     at: function(){ return this }
-    , anime: function(obj,len=ANIMATION_LENGTH,delay=0,trans=null) {
+    , anime: function(obj,len=AL,delay=0,trans=null) {
         let
         el = this
         return new Promise(function(ok, err){
-            len/=1000;
-            trans = trans ? trans : "ease";
-            el.style.transition = "all " + len.toFixed(2) + "s "+trans;
-            el.style.transitionDelay = (delay?delay/1000:0).toFixed(2)+"s";
-            for(let i in obj) el.style[i] = obj[i];
-            setTimeout(function(el){ return ok(el) },len*1000+delay+1, el)
+            el.style.transition = "all " + (len / 1000) + "s " + (trans || "ease");
+            if(delay) el.style.transitionDelay = (delay / 1000) + "s";
+            obj.keys().each(i => el.style[i] = obj[i]);
+            setTimeout(function(el){ return ok(el) }, len + delay, el)
         })
     }
     , mimic: function(){
@@ -459,7 +457,21 @@ binds(Object.prototype,{
 });
 
 binds(Array.prototype, {
-    json: function(){ return JSON.stringify(this); }
+    tiny: function(n=10){
+        if(this.length <= n) return this;
+        let
+        narr=[ this.first() ]
+        , x = Math.floor(this.length / (n-1))
+        , i = x
+        ;
+        while(i<this.length-1){
+            narr.push(this[i]||null);
+            i+=x;
+        }
+        narr.push(this.last())
+        return narr.clear()
+    }
+    , json: function(){ return JSON.stringify(this); }
     , clone: function() { return this.slice(0) }
     , each: function(fn) { if(fn) { for(let i=0;i++<this.length;) fn.bind(this[i-1])(this[i-1], i-1); } return this }
     , extract: function(fn=null){
@@ -529,40 +541,21 @@ binds(Array.prototype, {
                 if(helper==null||helper==undefined) return app.error("Ops! a 'x' value is needed for array basic interpolation...")
                 let
                 x = helper
-                , yi = this.extract(_y => Array.isArray(_y) ? _y[1] : y*1)
+                , yi = this.extract(_y => Array.isArray(_y) ? _y[1] : _y*1)
                 , xi = yi.extract((_x, i) => Array.isArray(_x) ? _x[0] : i*1)
                 , N  = xi.length
                 , sum = 0
                 ;;
 
-                //for (k=0; k<N; k++) {
-                xi.each(k => {
-                //     if(k==x) break;
+                xi.each((k, ki) => {
                      let
                      product = 1;
-                //     for (i=0; i<N; i++){
                     xi.each(j => {
-                         if(k!=j) product = product * (x-j) / (k-j);   
-                //         console.log(xi[k], xi[i]    )
+                         if(k!=j) product = product * (x-j) / (k-j);
                     })
-                //     }
-                     sum += yi[k] * product;
+                     sum += yi[ki] * product;
                 })
-                // }
 
-                // let
-                // x = helper
-                // , yi = this
-                // , xi = yi.extract((_,i) => i)
-                // , N  = xi.length
-                // , sum = 0
-                // ;;
-                // for (k=0; k<N; k++) {
-                //     let
-                //     product = 1;
-                //     for (i=0; i<N; i++) if (i!=k) product = product*(x - xi[i]) / (xi[k] - xi[i]);
-                //     sum += yi[k] * product;
-                // }
                 res = sum;
             } break;
 
@@ -626,8 +619,10 @@ binds(Array.prototype, {
         return arr;
     }
     , anime: function(obj,len=ANIMATION_LENGTH,delay=0,trans=null) {
-        this.each(x=>x.anime(obj,len,delay,trans));
-        return this
+        const el = this.each(x=>x.anime(obj,len,delay,trans));
+        return new Promise(function(ok, no){
+            return ok(el)
+        })
     }
     , stop: function(){
         this.each(x => x.stop())
@@ -1298,6 +1293,24 @@ class FAAU {
                  IMG("img/icons/cross.svg", app.color_pallete.type == "dark" ? "-inverted" : null, { height:"2.75em", width:"2.75em", padding:".75em"})
             ).on("click", function(){ this.upFind("--window").desappear(ANIMATION_LENGTH, true) })
         ).app(
+            // MAXIMIZE
+            _("div","-right -pointer --maximize -tile").app(
+                 IMG("img/icons/maximize.svg", app.color_pallete.type == "dark" ? "-inverted" : null, { height:"2.75em", width:"2.75em", padding:".75em"})
+            ).on("click", function(){
+                const
+                win = this.upFind("--window")
+                ;;
+                if(win.has("--maximized")){
+                    win.stop().anime({ height:"70vh", width:"70vw", top:"50vh", left:"50vw", transform:"translate(-50%, -50%)" }, AL*2);
+                    win.remClass("--minimized").remClass("--maximized");
+                }else{
+                    win.stop().anime({ height:"100vh", width:"100vw", top:"50vh", left:"50vw", transform:"translate(-50%, -50%)" }, AL*2);
+                    win.addClass("--maximized").remClass("--minimized")
+                }
+                win.get(".--minimize")[0].anime({ transform:"rotate(0deg)" });
+                win.get(".-wrapper")[0].style.display = "block";
+            })
+        ).app(
             // MINIMIZE
             _("div","-right -pointer --minimize -tile").app(
                  IMG("img/icons/minimize.svg", app.color_pallete.type == "dark" ? "-inverted" : null, { height:"2.75em", width:"2.75em", padding:".75em"})
@@ -1306,33 +1319,20 @@ class FAAU {
                 win = this.upFind("--window")
                 ;;
                 if(win.has("--minimized")){
-                    const
-                    pos = win.dataset.position.json()
                     this.anime({ transform:"rotate(0deg)" });
                     win.get(".-wrapper")[0].style.display = "block";
-                    win.anime({ height:pos.h+"px", width:pos.w+"px", top:pos.y+"px", left:pos.x+"px", transform:"translate(-50%, -50%)" });
-                    win.remClass("--minimized");
+                    win.anime({ height:"70vh", width:"70vw", top:"50%", left:"50%", transform:"translate(-50%, -50%)" });
+                    win.remClass("--minimized").remClass("--maximized");
                 }else{
-                    win.dataset.position = ({
-                        w: win.offsetWidth
-                        , h: win.offsetHeight
-                        , x: win.offsetLeft
-                        , y: win.offsetTop
-                    }).json();
                     this.anime({ transform:"rotate(180deg)" });
                     win.get(".-wrapper")[0].style.display = "none";
-                    win.anime({ height:"3.5em", width:"20vw", top:"calc(100vh - 3em)", left:"0px" });
-                    win.addClass("--minimized");
+                    win.anime({ height:"3.5em", width:"20vw", top:"calc(100vh - 3em)", left:0 });
+                    win.remClass("--maximized").addClass("--minimized")
                 }
                 $(".--minimized").each((el,i) => { el.anime({ transform:"translateX("+(app.wd*.2*i)+"px)" }) })
 
             })
-        )
-        // .app(
-        //     // DRAG
-        //     _("div","-right -pointer --drag-trigger -tile").app(IMG("img/icons/drag.svg", app.color_pallete.type == "dark" ? "-inverted" : null, { height:"2.75em", width:"2.75em", padding:".75em"}))
-        // )
-        .on("click", function(){ this.upFind("--window").raise() })
+        ).on("click", function(){ this.upFind("--window").raise() })
         , wrapper = _("div", "-zero -wrapper", { height:"calc(100% - 3em)" })
         , _W = _("div", "--window -fixed -no-scrolls --drag-target -centered", binds({
             height: "70vh"
@@ -1363,44 +1363,14 @@ class FAAU {
 
     }
 
-    dialog(html=null, title=null , css={}){
-        const
-        head = _("header","-relative -row -zero -no-scrolls").app(DIV("-left -content-left -ellipsis", { minHeight:"3em", lineHeight:3, width:"calc(100% - 6em)" }).app(
-            typeof title == "string" ? ("<span class='-row -no-scrolls' style='height:3em;padding:0 1em;opacity:.75'>"+title+"</span>").morph()[0] : title
-        )).app(
-            _("div","-right -pointer --close -tile").app(
-                 IMG("img/icons/cross.svg", null, { height:"2.75em", width:"2.75em", padding:".75em"})
-            ).on("click", function(){ this.upFind("--dialog").desappear(ANIMATION_LENGTH, true) })
-        ).on("click", function(){ this.upFind("--dialog").raise() })
-        , wrapper = _("div", "-absolute -zero -wrapper -no-scrolls", { top:"3em", height:"calc(100% - 3em)" })
-        , _D = _("div", "--dialog -fixed", binds({
-            minHeight: "15vh"
-            , width: "25vw"
-            , top:"40vh"
-            , left: "37.5vw"
-            , background: app.colors("BACKGROUND")
-            , border: "1px solid " + app.colors("FONT") + "88"
-            , borderRadius: ".25em"
-            , boxShadow: "0 0 2em "+app.colors("DARK4")
-            , color: app.colors("FONT")
-            , zIndex:8000
-            , overflow: "auto"
-            , padding: "0 .25em .25em 0"
-        }, css))
-        ;;
-
-        if(html) wrapper.app(typeof html == "string" ? html.prepare(this.color_pallete).morph()[0] : html);
-
-        ID("app").app(_D.app(head).app(wrapper));
-
-        this.tileClickEffectSelector(".-tile");
-
-        wrapper.evalute();
-        app.sleep(ANIMATION_LENGTH).then(NULL => _D.raise());
-
-        app.enableDragging();
-
-        return _D;
+    dialog(html=null, title=null , css=null){
+        const W = app.window(html, title, binds({
+            height: "20vh"
+            , width: "40vw"
+        }, css||{}));
+        W.get(".--minimize, .--maximize").remove()
+        W.get(".--drag-trigger").css({ width:"calc(100% - 3em)" })
+        return W
     }
 
     apply(fn,obj=null) { return (fn ? fn(obj) : null) }
@@ -1564,30 +1534,7 @@ class FAAU {
 
     enableDragging(){
 
-        $(".--draggable, .--drag").each(x => {
-            
-            if(x.has(".--drag-enabled")) return;
-            
-            x.css({
-                position:"absolute"
-            }).attr({ 
-                draggable: "true" 
-            }).on("dragstart", function(e){
-                e.dataTransfer.setDragImage(new Image(), 0, 0);
-                this.dataset.before = { x: e.clientX, y: e.clientY, t: this.offsetTop, l: this.offsetLeft }.json()
-            }).on("drag", function(e){
-                dragon.fire(this, this, e)
-                // const bef = this.dataset.before.json();
-                // this.css({ top: (bef.t + e.clientY - (bef.y*.75)) + "px", left: (bef.l + e.clientX -( bef.x*.75))+"px" });
-            }).on("dragend", function(e){
-                const bef = this.dataset.before.json();
-                this.css({ top: (bef.t + e.clientY - (bef.y*.75)) + "px", left: (bef.l + e.clientX - ( bef.x*.75))+"px" });
-            })
-
-            x.addClass("--drag-enabled");
-        })
-
-        $(".--drag-trigger, .--drag").each(x => {
+        $(".--drag-trigger, .--drag, .--draggable").each(x => {
             
             if(x.has(".--drag-enabled")) return;
 
@@ -1600,6 +1547,7 @@ class FAAU {
                 by = e.clientY;
                 document.onmouseup = dragend;
                 document.onmousemove = dragstart;
+                tgt.style.transition = "none";
             } 
             , dragstart = e => {
                 e.preventDefault();
