@@ -174,7 +174,13 @@ class FGraph {
                 });
 
                 if(type == "S" && serie.length % 2 == 0) d.push([ rects.width, (h * serie.last() / ymax) ]);
-                if(type != "bars") node.app(SPATH(d.join(" "), "--line -avoid-pointer", { fill:"none", stroke: color, "stroke-width": 3 }))
+                if(type != "bars"){
+                    const spath = SPATH(d.join(" "), "--line -avoid-pointer --parent-"+idx, { fill:"none", stroke: color, "stroke-width": 3 });
+                    node.app(spath)
+                    let len = spath.getTotalLength();
+                    spath.css({ "stroke-dasharray": len +" "+len, "stroke-dashoffset": len})
+                    setTimeout(x => x.anime({ "stroke-dashoffset": 0 }), 10+idx*AL, spath)
+                }
             });
             
             target.app(entitybar).app(labelbar);

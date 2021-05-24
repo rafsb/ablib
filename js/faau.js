@@ -1170,20 +1170,23 @@ class FAAU {
      * @Override
      */
     loading(show = true, target =null) {
-        let
-        loading_list = $(".--loading")
-        , load = loading_list.length ? loading_list.at() : WRAP(SPAN("Loading...", "-absolute -zero-bottom-right", { fontSize:"4em", padding:".75em 1em", color:"#0004" }, "i"), "-fixed -zero --loading", { backgroundImage: "linear-gradient(to top left, #fffa, transparent, #fff4)" })
+
+        console.log(target)
+
+        if (!show) return $(".--loading", target || ID("app")).desappear(AL, true);
+
+        const
+        load = app.components.loading ? app.components.loading.morph()[0] : WRAP(
+            IMG("img/icons/loading.gif", "-spin -absolute -zero-bottom-right", { fontSize:"4em", height:"1em", width:"1em", margin:".75em 1em" })
+            , "-fixed -zero --loading"
+            , { backgroundImage: "linear-gradient(to top left, "+app.color_pallete.BACKGROUND+", transparent, "+app.color_pallete.BACKGROUND+")" }
+        )
         ;;
 
-        load.dataset.offloading&&clearInterval(load.dataset.offloading); 
-
-        if (!show) load.desappear(AL, true) 
-        else {
-            load.data({
-                offloading: setTimeout(nil => app.loading(false), AL*16)
-            });
-            (target || ID("app")).app(load);
-        }
+        load.dataset.offloading&&clearInterval(load.dataset.offloading);
+ 
+        load.data({ offloading: setTimeout(NULL => app.loading(false), AL*16) });
+        (target || ID("app")).app(load);
     }
 
     notify(n, c=null) {
@@ -1294,22 +1297,22 @@ class FAAU {
             ).on("click", function(){ this.upFind("--window").desappear(ANIMATION_LENGTH, true) })
         ).app(
             // MAXIMIZE
-            _("div","-right -pointer --maximize -tile").app(
-                 IMG("img/icons/maximize.svg", app.color_pallete.type == "dark" ? "-inverted" : null, { height:"2.75em", width:"2.75em", padding:".75em"})
-            ).on("click", function(){
-                const
-                win = this.upFind("--window")
-                ;;
-                if(win.has("--maximized")){
-                    win.stop().anime({ height:"70vh", width:"70vw", top:"50vh", left:"50vw", transform:"translate(-50%, -50%)" }, AL*2);
-                    win.remClass("--minimized").remClass("--maximized");
-                }else{
-                    win.stop().anime({ height:"100vh", width:"100vw", top:"50vh", left:"50vw", transform:"translate(-50%, -50%)" }, AL*2);
-                    win.addClass("--maximized").remClass("--minimized")
-                }
-                win.get(".--minimize")[0].anime({ transform:"rotate(0deg)" });
-                win.get(".-wrapper")[0].style.display = "block";
-            })
+            // _("div","-right -pointer --maximize -tile").app(
+            //      IMG("img/icons/maximize.svg", app.color_pallete.type == "dark" ? "-inverted" : null, { height:"2.75em", width:"2.75em", padding:".75em"})
+            // ).on("click", function(){
+            //     const
+            //     win = this.upFind("--window")
+            //     ;;
+            //     if(win.has("--maximized")){
+            //         win.stop().anime({ height:"70vh", width:"70vw", top:"50vh", left:"50vw", transform:"translate(-50%, -50%)" }, AL*2);
+            //         win.remClass("--minimized").remClass("--maximized");
+            //     }else{
+            //         win.stop().anime({ height:"100vh", width:"100vw", top:"50vh", left:"50vw", transform:"translate(-50%, -50%)" }, AL*2);
+            //         win.addClass("--maximized").remClass("--minimized")
+            //     }
+            //     win.get(".--minimize")[0].anime({ transform:"rotate(0deg)" });
+            //     win.get(".-wrapper")[0].style.display = "block";
+            // })
         ).app(
             // MINIMIZE
             _("div","-right -pointer --minimize -tile").app(
