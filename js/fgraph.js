@@ -159,10 +159,10 @@ class FGraph {
                         }, { 
                             fill: type == "bars" ? color : app.colors("FONT")+44
                             , opacity:type == "bars" ? 1 : 0 
-                        }).on("mouseenter", function(){ 
+                        }).on(EEvents.MOUSEENTER, function(){ 
                             $("#"+node.uid()+" .-hint-plate").not(this).stop().anime({ opacity: type == "bars" ? .32 : 0 });
-                            this.css({ opacity: type == "bars" ? 1 : .16 })
-                        }).on("mouseleave", function(){ 
+                            this.css({ opacity: type == "bars" ? 1 : .32 })
+                        }).on(EEvents.MOUSELEAVE, function(){ 
                             $("#"+node.uid()+" .-hint-plate").stop().anime({ opacity: type == "bars" ? .64 : 0 }) 
                         }).data({ tip: "<b>" + labels[i] + "</b><br/>" + name + ": " + (n*1.0).nerdify() + "<br/>" })
                     ); else plate.dataset.tip = plate.dataset.tip + name +": " + (n*1.0).nerdify() + "<br/>";
@@ -179,7 +179,7 @@ class FGraph {
                     node.app(spath)
                     let len = spath.getTotalLength();
                     spath.css({ "stroke-dasharray": len +" "+len, "stroke-dashoffset": len})
-                    setTimeout(x => x.anime({ "stroke-dashoffset": 0 }), 10+idx*AL, spath)
+                    setTimeout(x => x.anime({ "stroke-dashoffset": 0 }, AL*2), idx*AL/2, spath)
                 }
             });
             

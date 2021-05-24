@@ -1171,21 +1171,20 @@ class FAAU {
      */
     loading(show = true, target =null) {
 
-        console.log(target)
-
         if (!show) return $(".--loading", target || ID("app")).desappear(AL, true);
 
         const
-        load = app.components.loading ? app.components.loading.morph()[0] : WRAP(
-            IMG("img/icons/loading.gif", "-spin -absolute -zero-bottom-right", { fontSize:"4em", height:"1em", width:"1em", margin:".75em 1em" })
-            , "-fixed -zero --loading"
+        load = app.components.loading ? app.components.loading.morph()[0] : DIV(
+            "-absolute -zero -wrapper --loading"
             , { backgroundImage: "linear-gradient(to top left, "+app.color_pallete.BACKGROUND+", transparent, "+app.color_pallete.BACKGROUND+")" }
+        ).app(
+            IMG("img/icons/loading.gif", "-spin -absolute -zero-bottom-right", { fontSize:"2em", height:"1em", width:"1em", margin:"1em 2em" })
         )
         ;;
 
         load.dataset.offloading&&clearInterval(load.dataset.offloading);
- 
         load.data({ offloading: setTimeout(NULL => app.loading(false), AL*16) });
+
         (target || ID("app")).app(load);
     }
 
