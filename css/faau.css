@@ -74,6 +74,10 @@ script,style{ display: none !important; }
 	body { font-size: 16px;  }
 }
 
+@media only screen and (max-width: 1920px) {
+	body { font-size: 14px;  }
+}
+
 @media only screen and (max-width: 1366px) {
 	.-wd-2third    , .-wd-3quart    , .-wd-half:not(.-keep) 	{ width: 	  100%; }
 	.-wd-2third-min, .-wd-3quart-min, .-wd-half-min { min-width:  100%; }
@@ -89,7 +93,7 @@ script,style{ display: none !important; }
 	.-ht-third-min,  .-ht-quart-min,
 	.-ht-third-max,  .-ht-quart-max { height: auto; }
 	.-mob-hide { display: none; }
-	body { font-size: .75em  }
+	body { font-size: 12px  }
 } 
 
 .-relative      { position: relative }
