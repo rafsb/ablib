@@ -108,7 +108,7 @@ binds(HTMLFormElement.prototype,{
                 name = o.name
                 , value = o.value || o.textContent
                 ;;
-                if(o.has("-list")) value = value.list().clear();
+                if(o.has("-list")) value = value.list();
                 if(o.has("-hash")) value = Array.isArray(value) ? value.extract(x => { return x.hash() }) : value.hash();
                 tmp[name] = value;
             }
@@ -445,7 +445,7 @@ binds(Object.prototype,{
         if(fn){
             this.each((x,i) => {
                 let
-                y = fn.bind(x)(x, i);
+                y = fn(x, i);
                 if(y!=null && y!=undefined && y!=false) final.push(y)
             })
         }
