@@ -1169,7 +1169,7 @@ class FAAU {
     /* 
      * @Override
      */
-    loading(show = true, target =null) {
+    loading(show = true, target =null, timelapse = AL*16) {
 
         if (!show) return $(".--loading", target || ID("app")).desappear(AL, true);
 
@@ -1183,7 +1183,7 @@ class FAAU {
         ;;
 
         load.dataset.offloading&&clearInterval(load.dataset.offloading);
-        load.data({ offloading: setTimeout(NULL => app.loading(false), AL*16) });
+        load.data({ offloading: setTimeout(NULL => app.loading(false, target), timelapse) });
 
         (target || ID("app")).app(load);
     }
