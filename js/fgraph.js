@@ -164,8 +164,8 @@ class FGraph {
                             this.css({ opacity: type == "bars" ? 1 : .32 })
                         }).on(EEvents.MOUSELEAVE, function(){ 
                             $("#"+node.uid()+" .-hint-plate").stop().anime({ opacity: type == "bars" ? .64 : 0 }) 
-                        }).data({ tip: "<b>" + labels[i] + "</b><br/>" + name + ": " + (n*1.0).nerdify() + "<br/>" })
-                    ); else plate.dataset.tip = plate.dataset.tip + name +": " + (n*1.0).nerdify() + "<br/>";
+                        }).data({ tip: "<b>" + labels[i] + "</b><br/>" + name + ": " + (n/(o.relativize ? ymax : 1)*(o.relativize ? 100 : 1)).nerdify() + "<br/>" })
+                    ); else plate.dataset.tip = plate.dataset.tip + name +": " + (n/(o.relativize ? ymax : 1)*(o.relativize ? 100 : 1)).nerdify() + "<br/>";
 
                     if(type=="C") d.push([ parseInt(x - xpace / 2), y ]);
                     d.push([ x, y ]);
