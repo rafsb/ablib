@@ -1178,7 +1178,7 @@ class FAAU {
             "-absolute -zero -wrapper --loading"
             , { backgroundImage: "linear-gradient(to top left, "+app.color_pallete.BACKGROUND+", transparent, "+app.color_pallete.BACKGROUND+")" }
         ).app(
-            IMG("img/icons/loading.gif", "-spin -absolute -zero-bottom-right", { fontSize:"2em", height:"1em", width:"1em", margin:"1em 2em" })
+            ROW(IMG("img/icons/loading.gif", "-spin -centered", { height:"4em", width:"4em" }), { height: "calc(100% - 4em)" })
         )
         ;;
 
